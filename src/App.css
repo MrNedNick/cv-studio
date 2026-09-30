@@ -182,3 +182,9 @@
     border-right-color: var(--border);
   }
 }
+main { min-height: 100vh; max-width: 72rem; margin: auto; padding: 1.5rem; }
+header { display: flex; justify-content: space-between; align-items: center; }
+nav { display: flex; gap: 1rem; }
+main section { max-width: 42rem; padding: 7rem 0; }
+.eyebrow { color: #7c3aed; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+main h1 { font-size: clamp(2.5rem, 8vw, 5.5rem); line-height: 1; margin: .5rem 0; }
