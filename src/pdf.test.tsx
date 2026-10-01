@@ -88,3 +88,44 @@ it('exports the selected English version', async () => {
   expect(text).not.toContain('Александра')
   await task.destroy()
 }, 30000)
+it('keeps both alphabets readable in serif and mixed typography', async () => {
+  for (const typography of ['serif', 'mixed'] as const) {
+    for (const language of ['ru', 'en'] as const) {
+      const doc = createDocument(true)
+      doc.typography = typography
+      doc.language = language
+      const blob = await exportPdf(doc)
+      const bytes = new Uint8Array(await blob.arrayBuffer())
+      const structure = await PDFDocument.load(bytes)
+      expect(
+        structure.context
+          .enumerateIndirectObjects()
+          .some(([, object]) => object.toString().includes('NotoSerif')),
+      ).toBe(true)
+      const task = getDocument({ data: bytes }),
+        pdf = await task.promise
+      let text = ''
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const content = await (await pdf.getPage(i)).getTextContent()
+        text += content.items
+          .map((item) => ('str' in item ? item.str : ''))
+          .join(' ')
+      }
+      expect(text).toContain(
+        language === 'ru' ? 'Александра Морозова' : 'Alex Morgan',
+      )
+      expect(text).toContain('24%')
+      expect(text).toContain(language === 'ru' ? 'Английский' : 'English')
+      const files = (await pdf.getAttachments()) as Record<
+        string,
+        { content: Uint8Array }
+      >
+      expect(
+        parseDocument(
+          JSON.parse(new TextDecoder().decode(files['cv-studio.json'].content)),
+        ).typography,
+      ).toBe(typography)
+      await task.destroy()
+    }
+  }
+}, 30000)

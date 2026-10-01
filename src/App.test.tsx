@@ -85,3 +85,22 @@ it('adds, edits, deletes, and restores an experience entry', async () => {
   expect(screen.getByLabelText('Start date')).toHaveValue('2024-01')
   expect(screen.getByLabelText('Present')).toBeChecked()
 })
+it('announces selected design controls and restores typography with undo', async () => {
+  render(
+    <MemoryRouter initialEntries={['/edit']}>
+      <App />
+    </MemoryRouter>,
+  )
+  fireEvent.click(await screen.findByRole('button', { name: /Новое резюме/ }))
+  fireEvent.click(screen.getByRole('button', { name: 'Дизайн' }))
+  expect(screen.getByRole('button', { name: 'Дизайн' })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  )
+  fireEvent.change(screen.getByLabelText('Шрифт резюме'), {
+    target: { value: 'serif' },
+  })
+  expect(screen.getByLabelText('Шрифт резюме')).toHaveValue('serif')
+  fireEvent.click(screen.getByRole('button', { name: 'Отменить' }))
+  expect(screen.getByLabelText('Шрифт резюме')).toHaveValue('sans')
+})

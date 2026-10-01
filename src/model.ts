@@ -40,6 +40,7 @@ export interface StudioDocument {
   language: Locale
   template: Template
   accent: string
+  typography: 'sans' | 'serif' | 'mixed'
   density: 'comfortable' | 'compact'
   versions: Record<Locale, Resume>
 }
@@ -196,6 +197,7 @@ export function createDocument(sample = false): StudioDocument {
     language: 'ru',
     template: 'modern',
     accent: accents[0],
+    typography: 'sans',
     density: 'comfortable',
     versions: { ru, en },
   }
@@ -261,6 +263,10 @@ export function parseDocument(input: unknown): StudioDocument {
     result.accent = accents.includes(str(source.accent))
       ? str(source.accent)
       : accents[0]
+    result.typography =
+      source.typography === 'serif' || source.typography === 'mixed'
+        ? source.typography
+        : 'sans'
     result.density = source.density === 'compact' ? 'compact' : 'comfortable'
     return result
   }

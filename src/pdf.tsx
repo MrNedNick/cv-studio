@@ -31,6 +31,13 @@ function registerFonts() {
       { src: `${fontBase}fonts/NotoSans-Bold.ttf`, fontWeight: 700 },
     ],
   })
+  Font.register({
+    family: 'NotoSerif',
+    fonts: [
+      { src: `${fontBase}fonts/NotoSerif-Regular.ttf` },
+      { src: `${fontBase}fonts/NotoSerif-Bold.ttf`, fontWeight: 700 },
+    ],
+  })
   Font.registerHyphenationCallback((word) => [word])
 }
 export function ResumePDF({ doc }: { doc: StudioDocument }) {
@@ -39,8 +46,11 @@ export function ResumePDF({ doc }: { doc: StudioDocument }) {
     compact = doc.template === 'compact' || doc.density === 'compact',
     sidebar = doc.template === 'sidebar',
     classic = doc.template === 'classic',
-    accent = classic ? '#252b2a' : doc.accent
+    accent = classic ? '#252b2a' : doc.accent,
+    bodyFont = doc.typography === 'serif' ? 'NotoSerif' : 'Noto',
+    headingFont = doc.typography === 'sans' ? 'Noto' : 'NotoSerif'
   const heading = {
+    fontFamily: headingFont,
     color: accent,
     fontSize: 10,
     fontWeight: 700,
@@ -139,7 +149,7 @@ export function ResumePDF({ doc }: { doc: StudioDocument }) {
       <Page
         size="A4"
         style={{
-          fontFamily: 'Noto',
+          fontFamily: bodyFont,
           color: '#25332e',
           fontSize: compact ? 9 : 10,
           lineHeight: 1.5,
@@ -157,6 +167,7 @@ export function ResumePDF({ doc }: { doc: StudioDocument }) {
         >
           <Text
             style={{
+              fontFamily: headingFont,
               fontSize: compact ? 25 : 29,
               fontWeight: 700,
               color: accent,

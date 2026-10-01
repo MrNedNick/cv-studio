@@ -99,7 +99,10 @@ export default function Editor({
           ? resume.basics.summary.trim()
           : s === 'skills'
             ? resume.skills.trim()
-            : resume[s].length > 0,
+            : resume[s].some(
+                (e) =>
+                  e.title.trim() || e.subtitle.trim() || e.description.trim(),
+              ),
     ).length
   function basic(key: keyof Resume['basics'], value: string) {
     const versions = {
@@ -312,6 +315,7 @@ export default function Editor({
       )}
       <div className="mobile-view-switch">
         <button
+          aria-pressed={!mobilePreview}
           className={!mobilePreview ? 'active' : ''}
           onClick={() => setMobilePreview(false)}
         >
@@ -319,6 +323,7 @@ export default function Editor({
           {t('Редактор', 'Editor')}
         </button>
         <button
+          aria-pressed={mobilePreview}
           className={mobilePreview ? 'active' : ''}
           onClick={() => setMobilePreview(true)}
         >
@@ -331,6 +336,7 @@ export default function Editor({
           <div className="sidebar-title">{t('ВАШЕ РЕЗЮМЕ', 'YOUR RESUME')}</div>
           <div className="editor-mode">
             <button
+              aria-pressed={tab === 'content'}
               className={tab === 'content' ? 'active' : ''}
               onClick={() => setTab('content')}
             >
@@ -338,6 +344,7 @@ export default function Editor({
               {t('Текст', 'Content')}
             </button>
             <button
+              aria-pressed={tab === 'design'}
               className={tab === 'design' ? 'active' : ''}
               onClick={() => setTab('design')}
             >
@@ -351,6 +358,7 @@ export default function Editor({
               return (
                 <button
                   key={s}
+                  aria-pressed={section === s && tab === 'content'}
                   className={section === s && tab === 'content' ? 'active' : ''}
                   onClick={() => {
                     setSection(s)
@@ -399,6 +407,7 @@ export default function Editor({
                 {templates.map((template) => (
                   <button
                     key={template.id}
+                    aria-pressed={doc.template === template.id}
                     className={doc.template === template.id ? 'selected' : ''}
                     onClick={() => update({ ...doc, template: template.id })}
                   >
@@ -448,6 +457,35 @@ export default function Editor({
                   )}
                 </p>
               )}
+              <Field
+                className="field"
+                label={t('Шрифт резюме', 'Resume typography')}
+                hint={t(
+                  'Все варианты поддерживают русский и английский текст.',
+                  'Every option supports Russian and English text.',
+                )}
+              >
+                <select
+                  value={doc.typography}
+                  onChange={(event) =>
+                    update({
+                      ...doc,
+                      typography: event.target
+                        .value as StudioDocument['typography'],
+                    })
+                  }
+                >
+                  <option value="sans">
+                    {t('Современный — Noto Sans', 'Modern — Noto Sans')}
+                  </option>
+                  <option value="serif">
+                    {t('Классический — Noto Serif', 'Classic — Noto Serif')}
+                  </option>
+                  <option value="mixed">
+                    {t('Сочетание — Serif + Sans', 'Mixed — Serif + Sans')}
+                  </option>
+                </select>
+              </Field>
               <Field
                 className="field"
                 label={t('Плотность текста', 'Text density')}

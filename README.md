@@ -11,9 +11,10 @@ A free resume editor with thoughtful templates, a live PDF preview, and no accou
 - Start with a blank resume or a fictional example.
 - Edit contact details, profile, experience, education, skills, projects, and languages.
 - Add, remove, and reorder entries, with undo and redo.
-- Choose Modern, Classic, Compact, or Editorial, plus accent colors and text density.
+- Choose Modern, Classic, Compact, or Editorial, plus accent colors, text density, and Sans, Serif, or mixed typography.
 - Keep Russian and English versions together. Translations are entered manually; contact details, dates, and links are shared.
-- Preview the actual paginated A4 document and download a PDF with selectable text, embedded Cyrillic/Latin fonts, and clickable links.
+- Preview the actual paginated A4 document at 75–200% zoom, or switch to an accessible text view for reading and copying. Retry a failed preview without reloading.
+- Download a PDF with selectable text, embedded Cyrillic/Latin fonts, and clickable links.
 - Reopen a PDF made here and continue editing. Each PDF includes a `cv-studio.json` attachment containing both language versions and the design settings.
 - Import and export JSON Resume. The `cvStudio` extension preserves both language versions and presentation settings.
 
@@ -37,7 +38,7 @@ npm run lint
 npm run build
 ```
 
-The development URL is `http://localhost:5173/cv-studio/`. Tests cover model validation, IndexedDB persistence, JSON round trips, shared contacts, undo/redo, and PDF text, links, attachments, templates, and long-document pagination. GitHub Actions runs lint, tests, and a production build before publishing `main` to Pages.
+The development URL is `http://localhost:5173/cv-studio/`. Tests cover model validation, IndexedDB persistence, JSON round trips, shared contacts, undo/redo, and PDF text, links, attachments, templates, long-document pagination, typography compatibility, preview recovery, and text-view access. GitHub Actions runs lint, tests, and a production build before publishing `main` to Pages.
 
 ## Boundaries
 

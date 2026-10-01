@@ -2473,3 +2473,152 @@ dialog p {
     font-size: 12px;
   }
 }
+.preview-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 15px;
+  flex-wrap: wrap;
+}
+.preview-modes {
+  display: flex;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--bg);
+}
+.preview-modes button {
+  font-size: 11px;
+  padding: 8px 13px;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--muted);
+}
+.preview-modes button[aria-pressed='true'] {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.zoom-controls .icon-button {
+  width: 32px;
+  height: 32px;
+}
+.zoom-reset {
+  font-size: 11px;
+  background: transparent;
+  min-width: 45px;
+  min-height: 32px;
+  border-radius: 5px;
+}
+.zoom-reset:hover {
+  background: var(--soft);
+}
+.preview-scroll {
+  max-width: 680px;
+  width: 100%;
+  margin: auto;
+  overflow: auto;
+  overscroll-behavior-x: contain;
+  padding: 3px 3px 15px;
+}
+.preview-scroll .pdf-pages {
+  max-width: none;
+  min-height: 0;
+}
+.preview-scroll .pdf-pages:empty {
+  min-height: 380px;
+}
+.preview-retry {
+  display: flex;
+  margin: 15px auto 25px;
+}
+.text-preview-note {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.8;
+  margin: 0 0 16px;
+}
+.resume-text {
+  padding: 28px;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  font-size: 13px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+.resume-text h2 {
+  font-size: 25px;
+  line-height: 1.3;
+  margin-bottom: 9px;
+  letter-spacing: -0.5px;
+}
+.resume-text-role {
+  font-size: 15px;
+}
+.resume-text-contacts {
+  margin: 14px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.resume-text a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.resume-text h3 {
+  font-size: 13px;
+  color: var(--accent);
+  margin: 25px 0 12px;
+  padding-top: 15px;
+  border-top: 1px solid var(--line);
+}
+.resume-text h4 {
+  font-size: 13px;
+  margin-bottom: 3px;
+}
+.resume-text-entry {
+  margin-bottom: 20px;
+}
+.resume-text ul {
+  padding-left: 19px;
+  margin: 10px 0;
+}
+.resume-text li + li {
+  margin-top: 6px;
+}
+.preserve-lines {
+  white-space: pre-wrap;
+}
+@media (max-width: 600px) {
+  .resume-text {
+    padding: 20px;
+    font-size: 14px;
+  }
+  .resume-text h2 {
+    font-size: 23px;
+  }
+  .preview-controls {
+    gap: 8px;
+  }
+  .preview-modes button {
+    min-height: 36px;
+  }
+  .zoom-controls .icon-button {
+    height: 36px;
+    width: 36px;
+  }
+  .preview-scroll {
+    max-height: 75vh;
+  }
+  .text-preview-note {
+    font-size: 10px;
+  }
+}

@@ -88,3 +88,14 @@ it('keeps imported project descriptions and shared fields for translation', () =
   expect(doc.versions.ru.projects[0].startDate).toBe('2024-01')
   expect(doc.versions.ru.basics.email).toBe('jane@example.com')
 })
+it('loads older backups with the original font and preserves new typography', () => {
+  const old = createDocument(true) as Partial<ReturnType<typeof createDocument>>
+  delete old.typography
+  expect(parseDocument(old).typography).toBe('sans')
+  const doc = createDocument(true)
+  doc.typography = 'mixed'
+  expect(parseDocument(toJsonResume(doc)).typography).toBe('mixed')
+  expect(parseDocument({ ...doc, typography: 'unknown' }).typography).toBe(
+    'sans',
+  )
+})
