@@ -1,13 +1,826 @@
-import { Link, Navigate, Route, Routes } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { Link, Navigate, Route, Routes, useNavigate } from 'react-router-dom'
+import {
+  ArrowRight,
+  Check,
+  CheckCheck,
+  FileText,
+  Globe2,
+  LockKeyhole,
+  Moon,
+  Plus,
+  Sparkles,
+  Sun,
+  Upload,
+  X,
+  LoaderCircle,
+  Lightbulb,
+} from 'lucide-react'
+import {
+  createDocument,
+  parseDocument,
+  toJsonResume,
+  type Locale,
+  type StudioDocument,
+} from './model'
+import { loadDocument, saveDocument } from './storage'
+import { MiniResume, TemplateCards } from './components'
+import Editor from './Editor'
 import './App.css'
-
-function Screen({ title }: { title: string }) {
-  const [theme, setTheme] = useState<'light' | 'dark'>(() => localStorage.getItem('theme') === 'dark' ? 'dark' : 'light')
-  useEffect(() => { document.documentElement.dataset.theme = theme; localStorage.setItem('theme', theme) }, [theme])
-  return <main><header><Link to="/">CV Studio</Link><nav><Link to="/edit">Edit</Link><Link to="/templates">Templates</Link><button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>{theme === 'light' ? 'Dark' : 'Light'}</button></nav></header><section><p className="eyebrow">Free, local-first resume builder</p><h1>{title}</h1><p>Your data stays in this browser. No account and no paywall on PDF export.</p></section></main>
+function download(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob),
+    a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  a.click()
+  setTimeout(() => URL.revokeObjectURL(url), 30000)
 }
-
+function Dialog({
+  title,
+  children,
+  close,
+}: {
+  title: string
+  children: ReactNode
+  close: () => void
+}) {
+  const ref = useRef<HTMLDialogElement>(null)
+  useEffect(() => {
+    const dialog = ref.current!
+    dialog.showModal()
+    return () => dialog.close()
+  }, [])
+  return (
+    <dialog
+      ref={ref}
+      onCancel={close}
+      onClick={(e) => {
+        if (e.target === ref.current) close()
+      }}
+      aria-labelledby="dialog-title"
+    >
+      <div className="dialog-head">
+        <h2 id="dialog-title">{title}</h2>
+        <button className="icon-button" onClick={close} aria-label="Close">
+          <X size={20} />
+        </button>
+      </div>
+      {children}
+    </dialog>
+  )
+}
 export default function App() {
-  return <Routes><Route path="/" element={<Screen title="Build a resume you can reopen and edit." />} /><Route path="/edit" element={<Screen title="Resume editor" />} /><Route path="/templates" element={<Screen title="Templates" />} /><Route path="*" element={<Navigate to="/" replace />} /></Routes>
+  const navigate = useNavigate(),
+    [doc, setDoc] = useState<StudioDocument | null>(null),
+    [ready, setReady] = useState(false),
+    [locale, setLocale] = useState<Locale>('ru'),
+    [theme, setTheme] = useState(() => {
+      try {
+        return localStorage.getItem('cv-theme') || 'light'
+      } catch {
+        return 'light'
+      }
+    }),
+    [saveState, setSaveState] = useState<'saved' | 'saving' | 'error'>('saved'),
+    [notice, setNotice] = useState(''),
+    [pendingStart, setPendingStart] = useState<boolean | null>(null),
+    [help, setHelp] = useState(false),
+    [exporting, setExporting] = useState(false),
+    [importing, setImporting] = useState(false),
+    [history, setHistory] = useState<StudioDocument[]>([]),
+    [future, setFuture] = useState<StudioDocument[]>([])
+  const input = useRef<HTMLInputElement>(null),
+    lastHistory = useRef(0),
+    ru = locale === 'ru',
+    t = (a: string, b: string) => (ru ? a : b)
+  useEffect(() => {
+    let active = true
+    loadDocument()
+      .then((value) => {
+        if (active) {
+          setDoc(value)
+          if (value) setLocale(value.language)
+        }
+      })
+      .catch(() => {
+        if (active) setSaveState('error')
+      })
+      .finally(() => {
+        if (active) setReady(true)
+      })
+    return () => {
+      active = false
+    }
+  }, [])
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme
+    try {
+      localStorage.setItem('cv-theme', theme)
+    } catch {
+      /* Theme remains available for this visit. */
+    }
+  }, [theme])
+  useEffect(() => {
+    document.documentElement.lang = locale
+  }, [locale])
+  useEffect(() => {
+    if (!ready || !doc) return
+    let active = true
+    setSaveState('saving')
+    const timer = setTimeout(() => {
+      saveDocument(doc)
+        .then(() => {
+          if (active) setSaveState('saved')
+        })
+        .catch(() => {
+          if (active) setSaveState('error')
+        })
+    }, 250)
+    return () => {
+      active = false
+      clearTimeout(timer)
+    }
+  }, [doc, ready])
+  useEffect(() => {
+    if (!notice) return
+    const timer = setTimeout(() => setNotice(''), 7000)
+    return () => clearTimeout(timer)
+  }, [notice])
+  useEffect(() => {
+    const beforeUnload = (event: BeforeUnloadEvent) => {
+      if (doc && saveState !== 'saved') event.preventDefault()
+    }
+    window.addEventListener('beforeunload', beforeUnload)
+    return () => window.removeEventListener('beforeunload', beforeUnload)
+  }, [doc, saveState])
+  function update(next: StudioDocument, group = false) {
+    if (doc && (!group || Date.now() - lastHistory.current > 700))
+      setHistory((h) => [...h.slice(-49), doc])
+    lastHistory.current = group ? Date.now() : 0
+    setFuture([])
+    setDoc(next)
+  }
+  function start(sample: boolean, force = false) {
+    if (doc && !force) {
+      setPendingStart(sample)
+      return
+    }
+    const next = createDocument(sample)
+    next.language = locale
+    update(next)
+    setPendingStart(null)
+    navigate('/edit')
+  }
+  async function importFile(file?: File) {
+    if (!file) return
+    setImporting(true)
+    try {
+      if (file.size > 10_000_000) throw new Error('File too large')
+      const next = file.name.toLowerCase().endsWith('.pdf')
+        ? await (
+            await import('./pdf-reader')
+          ).importPdf(await file.arrayBuffer())
+        : parseDocument(JSON.parse(await file.text()))
+      update(next)
+      setLocale(next.language)
+      navigate('/edit')
+      setNotice(
+        t(
+          'Резюме открыто. Предыдущие данные можно вернуть кнопкой отмены.',
+          'Resume opened. Undo restores the previous document.',
+        ),
+      )
+    } catch {
+      setNotice(
+        t(
+          'Не удалось открыть файл. Выберите JSON Resume или PDF, скачанный из CV Studio (до 10 МБ). Обычный PDF пока не поддерживается.',
+          'Could not open this file. Choose JSON Resume or a PDF exported from CV Studio (up to 10 MB). Other PDFs are not supported.',
+        ),
+      )
+    } finally {
+      setImporting(false)
+      if (input.current) input.current.value = ''
+    }
+  }
+  async function exportFile() {
+    if (!doc) return
+    setExporting(true)
+    try {
+      const { exportPdf } = await import('./pdf')
+      const blob = await exportPdf(doc)
+      download(
+        blob,
+        `${
+          doc.versions[doc.language].basics.name
+            .trim()
+            .replace(/[^\p{L}\p{N} -]/gu, '')
+            .replace(/\s+/g, '-') || 'Resume'
+        }-CV.pdf`,
+      )
+      setNotice(
+        t(
+          'PDF скачан. Откройте его здесь в любое время, чтобы продолжить редактирование.',
+          'PDF downloaded. Open it here any time to keep editing.',
+        ),
+      )
+    } catch (error) {
+      console.error(error)
+      setNotice(
+        t(
+          'Не удалось создать PDF. Попробуйте снова или сохраните JSON-копию.',
+          'Could not create the PDF. Try again or save a JSON backup.',
+        ),
+      )
+    } finally {
+      setExporting(false)
+    }
+  }
+  function changeLocale(next: Locale) {
+    setLocale(next)
+    if (doc) update({ ...doc, language: next })
+  }
+  function undo() {
+    if (!doc || !history.length) return
+    const previous = history[history.length - 1]
+    setFuture((f) => [doc, ...f])
+    setHistory((h) => h.slice(0, -1))
+    setDoc(previous)
+    setLocale(previous.language)
+    lastHistory.current = 0
+  }
+  function redo() {
+    if (!doc || !future.length) return
+    const next = future[0]
+    setHistory((h) => [...h, doc])
+    setFuture((f) => f.slice(1))
+    setDoc(next)
+    setLocale(next.language)
+    lastHistory.current = 0
+  }
+  const openFile = () => input.current?.click()
+  const landing = (
+    <>
+      <section className="hero">
+        <div className="hero-copy">
+          <div className="eyebrow">
+            <span />
+            {t('ВАША СЛЕДУЮЩАЯ ГЛАВА', 'YOUR NEXT CHAPTER')}
+          </div>
+          <h1>
+            {t('Ваш опыт.', 'Your experience.')}
+            <br />
+            {t('В лучшем', 'At its')}
+            <br />
+            <em>{t('виде.', 'best.')}</em>
+            <span className="heading-spark">✳</span>
+          </h1>
+          <p className="hero-description">
+            {t(
+              'Красивое резюме без лишних усилий. Заполните самое важное, выберите стиль и скачайте PDF. Всё бесплатно.',
+              'A beautiful resume, without the busywork. Add your experience, choose a style, and download your PDF. All for free.',
+            )}
+          </p>
+          <div className="hero-actions">
+            <button
+              className="button primary"
+              disabled={!ready}
+              onClick={() => (doc ? navigate('/edit') : start(false))}
+            >
+              {doc
+                ? t('Продолжить резюме', 'Continue your resume')
+                : t('Создать резюме', 'Create your resume')}
+              <ArrowUpRight />
+            </button>
+            <button
+              className="text-button"
+              onClick={() => start(true)}
+              disabled={!ready}
+            >
+              {t('Попробовать на примере', 'Try an example')}
+              <ArrowRight size={17} />
+            </button>
+          </div>
+          <div className="hero-trust">
+            <span>
+              <Check size={15} />
+              {t('Без регистрации', 'No sign-up')}
+            </span>
+            <span>
+              <Check size={15} />
+              {t('PDF без оплаты', 'Free PDF download')}
+            </span>
+            <span>
+              <Check size={15} />
+              {t('Без водяных знаков', 'No watermarks')}
+            </span>
+          </div>
+        </div>
+        <div className="hero-art">
+          <div className="art-grid" />
+          <div className="art-label">
+            {t('МЕНЬШЕ ОФОРМЛЕНИЯ. БОЛЬШЕ ВАС.', 'LESS FORMATTING. MORE YOU.')}
+          </div>
+          <div className="hero-paper">
+            <MiniResume locale={locale} large />
+          </div>
+          <div className="floating-note">
+            <span>
+              <CheckCheck size={19} />
+            </span>
+            <div>
+              <strong>
+                {t('Готово к новому шагу', 'Ready for what’s next')}
+              </strong>
+              <small>
+                {t('Ваш опыт говорит за себя', 'Let your experience speak')}
+              </small>
+            </div>
+          </div>
+          <div className="art-caption">
+            <span className="small-dot" />
+            {t('Шаблон Modern', 'Modern template')}
+            <span>01 / 04</span>
+          </div>
+        </div>
+      </section>
+      <section className="promise-strip">
+        <div>
+          <LockKeyhole size={22} />
+          <span>
+            <strong>
+              {t('Личное остаётся личным', 'Your story stays yours')}
+            </strong>
+            <small>
+              {t(
+                'Данные хранятся в вашем браузере',
+                'Your data stays in your browser',
+              )}
+            </small>
+          </span>
+        </div>
+        <div>
+          <FileText size={22} />
+          <span>
+            <strong>
+              {t(
+                'Скачали — и всё ещё можете править',
+                'Download it. Keep it editable.',
+              )}
+            </strong>
+            <small>
+              {t(
+                'Откройте свой PDF здесь снова',
+                'Reopen your PDF here to make changes',
+              )}
+            </small>
+          </span>
+        </div>
+        <div>
+          <Sparkles size={22} />
+          <span>
+            <strong>
+              {t('Хороший дизайн для каждого', 'Good design, for everyone')}
+            </strong>
+            <small>
+              {t(
+                'Все шаблоны и функции бесплатны',
+                'Every template and feature is free',
+              )}
+            </small>
+          </span>
+        </div>
+      </section>
+      <section className="templates-section">
+        <div className="section-top">
+          <div>
+            <div className="eyebrow">
+              {t('ФОРМА ПОД ВАШ ОПЫТ', 'A FORMAT FOR YOUR STORY')}
+            </div>
+            <h2>{t('Один опыт. Ваш стиль.', 'Your story. Your style.')}</h2>
+          </div>
+          <Link className="text-button" to="/templates">
+            {t('Все шаблоны', 'Explore templates')}
+            <ArrowRight size={18} />
+          </Link>
+        </div>
+        <TemplateCards
+          disabled={!ready}
+          locale={locale}
+          onPick={(template) => {
+            if (doc) update({ ...doc, template })
+            else {
+              const next = createDocument()
+              next.language = locale
+              next.template = template
+              update(next)
+            }
+            navigate('/edit')
+          }}
+        />
+      </section>
+      <section className="steps-section">
+        <div>
+          <div className="eyebrow">
+            {t('ПРОЩЕ, ЧЕМ КАЖЕТСЯ', 'SIMPLER THAN YOU THINK')}
+          </div>
+          <h2>
+            {t('От чистого листа', 'From a blank page')}
+            <br />
+            {t('до нового начала.', 'to a fresh start.')}
+          </h2>
+        </div>
+        {[
+          {
+            n: '01',
+            title: t('Расскажите о себе', 'Tell your story'),
+            text: t(
+              'Заполните разделы в своём темпе. Изменения сохраняются автоматически.',
+              'Fill in the sections at your own pace. Your changes save automatically.',
+            ),
+          },
+          {
+            n: '02',
+            title: t('Найдите свой стиль', 'Make it yours'),
+            text: t(
+              'Выберите шаблон и цвет. Результат сразу виден рядом.',
+              'Choose your template and color. See every change in the live preview.',
+            ),
+          },
+          {
+            n: '03',
+            title: t('Сделайте следующий шаг', 'Take the next step'),
+            text: t(
+              'Скачайте PDF с выделяемым текстом. Возвращайтесь и правьте, когда нужно.',
+              'Download a PDF with selectable text. Come back and edit whenever you need.',
+            ),
+          },
+        ].map((step) => (
+          <div className="step" key={step.n}>
+            <span>{step.n}</span>
+            <h3>{step.title}</h3>
+            <p>{step.text}</p>
+          </div>
+        ))}
+      </section>
+    </>
+  )
+  return (
+    <>
+      <a
+        className="skip-link"
+        href="#main"
+        onClick={(event) => {
+          event.preventDefault()
+          document.getElementById('main')?.focus()
+        }}
+      >
+        {t('К содержимому', 'Skip to content')}
+      </a>
+      <header className="site-header">
+        <Link className="brand" to="/" aria-label="CV Studio — home">
+          <span className="brand-symbol">
+            <FileText size={20} />
+          </span>
+          cv<span className="brand-light">studio</span>
+          <span className="free-badge">FREE</span>
+        </Link>
+        <nav aria-label={t('Главное меню', 'Main navigation')}>
+          <Link to="/edit">{t('Редактор', 'Editor')}</Link>
+          <Link to="/templates">{t('Шаблоны', 'Templates')}</Link>
+          <button className="nav-help" onClick={() => setHelp(true)}>
+            {t('Как это работает', 'How it works')}
+          </button>
+        </nav>
+        <div className="header-tools">
+          <button
+            className="language-button"
+            onClick={() => changeLocale(ru ? 'en' : 'ru')}
+            aria-label={t(
+              'Switch to English version',
+              'Переключиться на русскую версию',
+            )}
+          >
+            <Globe2 size={15} />
+            {locale.toUpperCase()}
+          </button>
+          <button
+            className="icon-button"
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            aria-label={t('Переключить тему', 'Toggle color theme')}
+          >
+            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+        </div>
+      </header>
+      <input
+        className="visually-hidden"
+        type="file"
+        ref={input}
+        accept=".json,.pdf,application/json,application/pdf"
+        onChange={(e) => void importFile(e.target.files?.[0])}
+        tabIndex={-1}
+        aria-label={t('Открыть файл резюме', 'Open resume file')}
+      />
+      <main id="main" tabIndex={-1}>
+        <Routes>
+          <Route path="/" element={landing} />
+          <Route
+            path="/templates"
+            element={
+              <div className="gallery-page">
+                <div className="eyebrow">
+                  {t('ВСЕ ШАБЛОНЫ БЕСПЛАТНЫ', 'EVERY TEMPLATE IS FREE')}
+                </div>
+                <h1>
+                  {t('Хороший опыт заслуживает', 'Great experience deserves')}
+                  <br />
+                  <em>{t('хорошего оформления.', 'great presentation.')}</em>
+                </h1>
+                <p>
+                  {t(
+                    'Выбирайте по вкусу. Шаблон можно поменять в любой момент — текст останется на месте.',
+                    'Choose what feels like you. Switch templates any time without losing a word.',
+                  )}
+                </p>
+                <TemplateCards
+                  disabled={!ready}
+                  locale={locale}
+                  onPick={(template) => {
+                    if (doc) update({ ...doc, template })
+                    else {
+                      const next = createDocument()
+                      next.language = locale
+                      next.template = template
+                      update(next)
+                    }
+                    navigate('/edit')
+                  }}
+                />
+                <p className="gallery-note">
+                  <Lightbulb size={18} />
+                  {t(
+                    'Для автоматического отбора резюме рекомендуем одноколоночные Modern, Classic и Compact.',
+                    'For automated resume screening, choose a single-column template: Modern, Classic, or Compact.',
+                  )}
+                </p>
+              </div>
+            }
+          />
+          <Route
+            path="/edit"
+            element={
+              !ready ? (
+                <div className="loading">
+                  <LoaderCircle className="spin" />
+                  {t('Открываем редактор…', 'Opening the editor…')}
+                </div>
+              ) : !doc ? (
+                <div className="start-page">
+                  <span className="start-icon">
+                    <FileText size={36} />
+                  </span>
+                  <div className="eyebrow">
+                    {t('НАЧНЁМ С ВАШЕЙ ИСТОРИИ', 'LET’S START WITH YOUR STORY')}
+                  </div>
+                  <h1>
+                    {t('Первый шаг — простой.', 'The first step is simple.')}
+                  </h1>
+                  <p>
+                    {t(
+                      'Начните с чистого листа или изучите редактор на готовом примере.',
+                      'Start with a blank page or explore the editor with a filled-in example.',
+                    )}
+                  </p>
+                  <div className="start-choices">
+                    <button onClick={() => start(false)}>
+                      <Plus />
+                      <strong>{t('Новое резюме', 'A blank resume')}</strong>
+                      <span>
+                        {t(
+                          'Только ваш опыт. В вашем темпе.',
+                          'Your experience. At your pace.',
+                        )}
+                      </span>
+                      <ArrowRight />
+                    </button>
+                    <button onClick={() => start(true)}>
+                      <Sparkles />
+                      <strong>
+                        {t('Начать с примера', 'Start with an example')}
+                      </strong>
+                      <span>
+                        {t(
+                          'Посмотрите, как всё устроено.',
+                          'Get a feel for how it works.',
+                        )}
+                      </span>
+                      <ArrowRight />
+                    </button>
+                  </div>
+                  <button className="text-button" onClick={openFile}>
+                    <Upload size={17} />
+                    {t(
+                      'Открыть резюме из PDF или JSON',
+                      'Open a resume from PDF or JSON',
+                    )}
+                  </button>
+                  <p className="privacy-caption">
+                    <LockKeyhole size={14} />
+                    {t(
+                      'Без регистрации. Ваши данные не отправляются на сервер.',
+                      'No sign-up. Your resume is never sent to a server.',
+                    )}
+                  </p>
+                </div>
+              ) : (
+                <Editor
+                  doc={doc}
+                  locale={locale}
+                  update={update}
+                  undo={undo}
+                  redo={redo}
+                  canUndo={!!history.length}
+                  canRedo={!!future.length}
+                  saveState={saveState}
+                  exporting={exporting}
+                  exportFile={exportFile}
+                  openFile={openFile}
+                  start={() => start(false)}
+                  backup={() =>
+                    download(
+                      new Blob([JSON.stringify(toJsonResume(doc), null, 2)], {
+                        type: 'application/json',
+                      }),
+                      'resume.json',
+                    )
+                  }
+                />
+              )
+            }
+          />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </main>
+      <footer className="site-footer">
+        <Link className="brand" to="/">
+          cv<span className="brand-light">studio</span>
+          <span className="footer-dot">✳</span>
+        </Link>
+        <span>
+          {t(
+            'Ваш опыт. Ваши данные. Ваши возможности.',
+            'Your story. Your data. Your next chapter.',
+          )}
+        </span>
+        <button className="text-button" onClick={() => setHelp(true)}>
+          {t('Бесплатно. И это всё.', 'Free. That’s the whole story.')}
+          <ArrowUpRight />
+        </button>
+      </footer>
+      {notice && (
+        <div className="toast" role="status">
+          <span>{notice}</span>
+          <button
+            className="icon-button"
+            aria-label={t('Закрыть уведомление', 'Dismiss notification')}
+            onClick={() => setNotice('')}
+          >
+            <X size={18} />
+          </button>
+        </div>
+      )}
+      {importing && (
+        <div className="toast" role="status">
+          <LoaderCircle className="spin" size={18} />
+          {t('Открываем файл…', 'Opening file…')}
+        </div>
+      )}
+      {saveState === 'error' && (
+        <div className="storage-warning" role="alert">
+          {t(
+            'Браузер не разрешает сохранить данные. Скачайте JSON-копию, прежде чем закрыть страницу.',
+            'This browser could not save your data. Download a JSON backup before leaving.',
+          )}
+          {doc && (
+            <button
+              onClick={() =>
+                download(
+                  new Blob([JSON.stringify(toJsonResume(doc))], {
+                    type: 'application/json',
+                  }),
+                  'resume.json',
+                )
+              }
+            >
+              JSON ↓
+            </button>
+          )}
+        </div>
+      )}
+      {pendingStart !== null && (
+        <Dialog
+          title={t('Начать новое резюме?', 'Start a new resume?')}
+          close={() => setPendingStart(null)}
+        >
+          <p>
+            {t(
+              'Текущее резюме будет заменено. Сначала сохраните копию, если хотите вернуться к нему позже.',
+              'This will replace your current resume. Save a backup first if you want to return to it later.',
+            )}
+          </p>
+          <div className="dialog-actions">
+            {doc && (
+              <button
+                className="button secondary"
+                onClick={() =>
+                  download(
+                    new Blob([JSON.stringify(toJsonResume(doc))], {
+                      type: 'application/json',
+                    }),
+                    'resume.json',
+                  )
+                }
+              >
+                {t('Сохранить копию', 'Save backup')}
+              </button>
+            )}
+            <button
+              className="button primary"
+              onClick={() => start(pendingStart, true)}
+            >
+              {t('Начать новое', 'Start new')}
+            </button>
+          </div>
+        </Dialog>
+      )}
+      {help && (
+        <Dialog
+          title={t(
+            'Ваше резюме, без условий.',
+            'Your resume, no strings attached.',
+          )}
+          close={() => setHelp(false)}
+        >
+          <div className="help-content">
+            <p>
+              <strong>
+                {t(
+                  'Бесплатно от первого слова до PDF.',
+                  'Free from the first word to the final PDF.',
+                )}
+              </strong>{' '}
+              {t(
+                'Все четыре шаблона, скачивание и редактирование доступны без регистрации, подписок и водяных знаков.',
+                'All four templates, downloads, and editing are available without sign-up, subscriptions, or watermarks.',
+              )}
+            </p>
+            <p>
+              <strong>
+                {t('Данные остаются у вас.', 'Your data stays with you.')}
+              </strong>{' '}
+              {t(
+                'Резюме сохраняется только в этом браузере. Очистка данных браузера удалит локальную копию — сохраняйте PDF или JSON.',
+                'Your resume is stored only in this browser. Clearing browser data removes the local copy, so keep a PDF or JSON backup.',
+              )}
+            </p>
+            <p>
+              <strong>
+                {t('PDF можно открыть снова.', 'Your PDF can be reopened.')}
+              </strong>{' '}
+              {t(
+                'В PDF встроена копия данных, включая обе языковые версии. Через «Открыть файл» можно восстановить резюме. Обычные сторонние PDF не импортируются.',
+                'The PDF includes editable source data, including both language versions. Use “Open file” to restore it. PDFs from other tools cannot be imported.',
+              )}
+            </p>
+            <p>
+              <strong>RU / EN.</strong>{' '}
+              {t(
+                'Переключайте язык вверху, чтобы заполнить две версии. Перевод текста — вручную; контакты, даты и ссылки общие. В PDF видна выбранная версия.',
+                'Use the language switch above to fill in two versions. Translate text yourself; contacts, dates, and links are shared. The PDF displays the selected version.',
+              )}
+            </p>
+          </div>
+          <button className="button primary" onClick={() => setHelp(false)}>
+            {t('Всё понятно', 'Got it')}
+            <Check size={17} />
+          </button>
+        </Dialog>
+      )}
+    </>
+  )
+}
+function ArrowUpRight() {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      aria-hidden="true"
+    >
+      <path d="M6 18 18 6M6 6h12v12" />
+    </svg>
+  )
 }
