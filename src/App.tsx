@@ -29,6 +29,9 @@ import {
   toJsonResume,
   sections,
   type Locale,
+  isLocale,
+  locales,
+  localeNames,
   type StudioDocument,
   type Template,
 } from './model'
@@ -36,6 +39,7 @@ import { loadDocument, saveDocument } from './storage'
 import { MiniResume, TemplateCards, templates } from './components'
 import Editor from './Editor'
 import { Disclosure, useLingering } from './motion'
+import { translator } from './i18n'
 import './App.css'
 function download(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob),
@@ -109,7 +113,8 @@ export default function App() {
     [documentRevision, setDocumentRevision] = useState(0),
     [locale, setLocale] = useState<Locale>(() => {
       try {
-        return localStorage.getItem('cv-locale') === 'ru' ? 'ru' : 'en'
+        const stored = localStorage.getItem('cv-locale')
+        return isLocale(stored) ? stored : 'en'
       } catch {
         return 'en'
       }
@@ -150,8 +155,7 @@ export default function App() {
     helpView = useLingering(help, help)
   const input = useRef<HTMLInputElement>(null),
     lastHistory = useRef({ time: 0, key: '' }),
-    ru = locale === 'ru',
-    t = (a: string, b: string) => (ru ? a : b)
+    t = translator(locale)
   useEffect(() => {
     let active = true
     loadDocument()
@@ -160,7 +164,6 @@ export default function App() {
           setLoadError(false)
           setSaveState('saved')
           setDoc(value)
-          if (value) setLocale(value.language)
         }
       })
       .catch(() => {
@@ -241,9 +244,7 @@ export default function App() {
       setPendingStart(sample)
       return
     }
-    const next = createDocument(sample)
-    next.language = locale
-    update(next)
+    update(createDocument(sample, locale))
     setPendingStart(null)
     setDocumentRevision((value) => value + 1)
     navigate('/edit')
@@ -253,8 +254,8 @@ export default function App() {
       navigate('/edit')
       return
     }
-    const next = doc || createDocument()
-    update({ ...next, template, language: locale })
+    const next = doc || createDocument(false, locale)
+    update({ ...next, template })
     navigate('/edit')
   }
   async function importFile(file?: File) {
@@ -292,7 +293,6 @@ export default function App() {
     if (!pendingImport) return
     setLoadError(false)
     update(pendingImport.doc)
-    setLocale(pendingImport.doc.language)
     setPendingImport(null)
     setDocumentRevision((value) => value + 1)
     navigate('/edit')
@@ -331,14 +331,15 @@ export default function App() {
         }-${snapshot.language.toUpperCase()}${editable ? '-editable' : ''}-CV.pdf`,
       )
       setNotice(
-        t(
-          editable
-            ? 'Редактируемая копия скачана. Откройте её здесь, чтобы восстановить обе версии и оформление.'
-            : 'PDF для отправки скачан. В нём только выбранная языковая версия. Ваше резюме остаётся в редакторе.',
-          editable
-            ? 'Editable copy downloaded. Open it here to restore both versions and design settings.'
-            : 'PDF downloaded for sharing. It contains only the selected language. Your resume remains in the editor.',
-        ),
+        editable
+          ? t(
+              'Редактируемая копия скачана. Откройте её здесь, чтобы восстановить все языковые версии и оформление.',
+              'Editable copy downloaded. Open it here to restore every language version and the design settings.',
+            )
+          : t(
+              'PDF для отправки скачан. В нём только выбранная языковая версия. Ваше резюме остаётся в редакторе.',
+              'PDF downloaded for sharing. It contains only the selected language. Your resume remains in the editor.',
+            ),
       )
       setExportDocument(null)
     } catch (error) {
@@ -364,7 +365,6 @@ export default function App() {
       /* The language still changes for this visit. */
     }
     setLocale(next)
-    if (doc) update({ ...doc, language: next })
   }
   function undo() {
     if (!doc || !history.length) return
@@ -372,7 +372,6 @@ export default function App() {
     setFuture((f) => [doc, ...f])
     setHistory((h) => h.slice(0, -1))
     setDoc(previous)
-    setLocale(previous.language)
     lastHistory.current = { time: 0, key: '' }
   }
   function redo() {
@@ -381,7 +380,6 @@ export default function App() {
     setHistory((h) => [...h, doc])
     setFuture((f) => f.slice(1))
     setDoc(next)
-    setLocale(next.language)
     lastHistory.current = { time: 0, key: '' }
   }
   const openFile = () => input.current?.click()
@@ -612,17 +610,21 @@ export default function App() {
           </button>
         </nav>
         <div className="header-tools">
-          <button
-            className="language-button"
-            onClick={() => changeLocale(ru ? 'en' : 'ru')}
-            aria-label={t(
-              'Switch to English version',
-              'Переключиться на русскую версию',
-            )}
-          >
-            <Globe2 size={15} />
-            {locale.toUpperCase()}
-          </button>
+          <label className="language-button">
+            <Globe2 size={15} aria-hidden="true" />
+            <span aria-hidden="true">{locale.toUpperCase()}</span>
+            <select
+              value={locale}
+              onChange={(e) => changeLocale(e.target.value as Locale)}
+              aria-label={t('Язык интерфейса', 'Interface language')}
+            >
+              {locales.map((l) => (
+                <option key={l} value={l} lang={l}>
+                  {localeNames[l]}
+                </option>
+              ))}
+            </select>
+          </label>
           <button
             className="icon-button"
             onClick={toggleTheme}
@@ -875,10 +877,7 @@ export default function App() {
                 {exportShown.versions[exportShown.language].basics.name ||
                   t('Моё резюме', 'My resume')}
               </strong>
-              <span>
-                {exportShown.language === 'ru' ? 'Русский' : 'English'} · PDF ·
-                A4
-              </span>
+              <span>{localeNames[exportShown.language]} · PDF · A4</span>
             </div>
           </div>
           <Disclosure
@@ -938,8 +937,8 @@ export default function App() {
                 <strong>{t('Редактируемая копия', 'Editable copy')}</strong>
                 <small>
                   {t(
-                    'Внутри — обе языковые версии и оформление. Сохраните для себя и откройте здесь, чтобы продолжить правки.',
-                    'Includes both language versions and design settings. Keep it for yourself and reopen it here to continue editing.',
+                    'Внутри — все языковые версии и оформление. Сохраните для себя и откройте здесь, чтобы продолжить правки.',
+                    'Includes every language version and the design settings. Keep it for yourself and reopen it here to continue editing.',
                   )}
                 </small>
               </span>
@@ -1123,15 +1122,15 @@ export default function App() {
                 )}
               </strong>{' '}
               {t(
-                'При скачивании выберите «Редактируемая копия», чтобы сохранить обе языковые версии и оформление внутри PDF. Такая копия восстанавливается через «Открыть файл». Вариант «Для отправки» содержит только выбранный язык и не открывается для редактирования.',
-                'Choose “Editable copy” when downloading to include both language versions and design settings. Use “Open file” to restore that copy. “For sharing” contains only the selected language and cannot be reopened for editing.',
+                'При скачивании выберите «Редактируемая копия», чтобы сохранить все языковые версии и оформление внутри PDF. Такая копия восстанавливается через «Открыть файл». Вариант «Для отправки» содержит только выбранный язык и не открывается для редактирования.',
+                'Choose “Editable copy” when downloading to include every language version and the design settings. Use “Open file” to restore that copy. “For sharing” contains only the selected language and cannot be reopened for editing.',
               )}
             </p>
             <p>
-              <strong>RU / EN.</strong>{' '}
+              <strong>EN · RU · DE · ES · BG · UK.</strong>{' '}
               {t(
-                'Переключайте язык вверху, чтобы заполнить две версии. Перевод текста — вручную; контакты, даты и ссылки общие. В PDF видна выбранная версия.',
-                'Use the language switch above to fill in two versions. Translate text yourself; contacts, dates, and links are shared. The PDF displays the selected version.',
+                'Язык интерфейса меняется вверху страницы, язык резюме — вверху формы. У резюме может быть до шести языковых версий: текст переводите вы, контакты, даты и ссылки общие. В PDF попадает выбранная версия.',
+                'Change the interface language at the top of the page and the resume language at the top of the form. A resume can have up to six language versions: you translate the text; contacts, dates, and links are shared. The PDF shows the selected version.',
               )}
             </p>
           </div>

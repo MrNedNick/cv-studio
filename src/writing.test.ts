@@ -1,6 +1,6 @@
 import { expect, it } from 'vitest'
 import { matchJob, reviewResume } from './writing'
-import { createDocument, emptyEntry } from './model'
+import { createDocument, emptyEntry, locales } from './model'
 
 it('passes a strong example and flags weak writing with reasons', () => {
   const doc = createDocument(true, 'en'),
@@ -80,11 +80,35 @@ it('treats synonyms and plurals as the same skill', () => {
 })
 
 it('keeps both built-in examples free of content warnings', () => {
-  for (const locale of ['en', 'ru'] as const) {
+  for (const locale of locales) {
     const failing = reviewResume(
       createDocument(true, locale).versions[locale],
       locale,
     ).filter((c) => !c.ok)
     expect(failing.map((c) => c.id)).toEqual([])
+  }
+})
+
+it('applies weak-phrase, cliché, and pronoun rules of the resume language', () => {
+  const cases = [
+    [
+      'de',
+      'Verantwortlich für die Website',
+      'Ich bin teamfähig und belastbar.',
+    ],
+    ['es', 'Responsable de la web', 'Yo soy proactivo y dinámico.'],
+    ['bg', 'Отговарях за сайта', 'Аз съм комуникативен и стресоустойчив.'],
+    ['uk', 'Відповідав за сайт', 'Я комунікабельний і стресостійкий.'],
+  ] as const
+  for (const [lang, point, summary] of cases) {
+    const resume = createDocument(true, lang).versions[lang]
+    resume.work[0].description = point
+    resume.basics.summary = summary
+    const failed = reviewResume(resume, 'en', lang)
+      .filter((c) => !c.ok)
+      .map((c) => c.id)
+    expect(failed).toEqual(
+      expect.arrayContaining(['verbs', 'cliches', 'pronouns']),
+    )
   }
 })

@@ -43,6 +43,7 @@ import {
   Columns2,
   ChevronsLeft,
   ChevronsRight,
+  Languages,
 } from 'lucide-react'
 import { Field } from './ui/components/field/field'
 import {
@@ -52,6 +53,11 @@ import {
   sectionLabels,
   sections,
   plainText,
+  locales,
+  localeNames,
+  isEmptyVersion,
+  sharedBasics,
+  sharedEntryFields,
   templateOrder,
   type EntrySection,
   type Locale,
@@ -59,8 +65,9 @@ import {
   type Section,
   type StudioDocument,
 } from './model'
-import { MiniResume, FormField, templates } from './components'
+import { ContentLang, MiniResume, FormField, templates } from './components'
 import EntryCard from './EntryCard'
+import { translator } from './i18n'
 import { preparePhoto } from './photo'
 import { canAnimate, Disclosure, useLingering, useMediaQuery } from './motion'
 import { ReviewStep, WritingGuide } from './Coach'
@@ -77,6 +84,18 @@ const icons = {
 type Step = Section | 'review'
 const steps: Step[] = [...sections, 'review']
 const NARROW_FORM = 360
+const colorNames = [
+  { ru: 'Лесной', en: 'Forest' },
+  { ru: 'Синий', en: 'Blue' },
+  { ru: 'Бордовый', en: 'Burgundy' },
+  { ru: 'Фиолетовый', en: 'Purple' },
+  { ru: 'Графит', en: 'Graphite' },
+  { ru: 'Бирюзовый', en: 'Teal' },
+  { ru: 'Терракота', en: 'Terracotta' },
+  { ru: 'Тёмно-синий', en: 'Navy' },
+  { ru: 'Оливковый', en: 'Olive' },
+  { ru: 'Сливовый', en: 'Plum' },
+]
 const readSetting = (key: string) => {
   try {
     return localStorage.getItem(key)
@@ -139,23 +158,25 @@ export default function Editor({
     [menu, setMenu] = useState(false),
     [hiddenTips, setHiddenTips] = useState<string[]>([]),
     [entryAnnouncement, setEntryAnnouncement] = useState(''),
+    [languageNotice, setLanguageNotice] = useState(''),
+    [preferredSource, setCopySource] = useState<Locale>('en'),
     [collapsed, setCollapsed] = useState<Set<string>>(
       () =>
         new Set(
           (['work', 'education', 'projects', 'languages'] as const).flatMap(
             (section) =>
-              doc.versions[locale][section]
+              doc.versions[doc.language][section]
                 .slice(1)
                 .map((entry) => `${section}:${entry.id}`),
           ),
         ),
     )
-  const ru = locale === 'ru',
-    t = (a: string, b: string) => (ru ? a : b),
-    resume = doc.versions[locale],
-    other = locale === 'ru' ? 'en' : 'ru',
+  const t = translator(locale),
+    // The interface language (locale) and the resume version (lang) are independent.
+    lang = doc.language,
+    resume = doc.versions[lang],
     labels = sectionLabels[locale],
-    tips = getTips(resume, locale).filter(
+    tips = getTips(resume, locale, lang).filter(
       (tip) => !hiddenTips.includes(tip.id),
     ),
     completedSections = sections.filter((s) =>
@@ -248,17 +269,25 @@ export default function Editor({
       window.removeEventListener('keydown', escape)
     }
   }, [menu])
+  function mapVersions(change: (version: Resume) => Resume) {
+    return Object.fromEntries(
+      locales.map((l) => [l, change(doc.versions[l])]),
+    ) as StudioDocument['versions']
+  }
   function basic(key: keyof Resume['basics'], value: string) {
-    const versions = {
-      ...doc.versions,
-      [locale]: { ...resume, basics: { ...resume.basics, [key]: value } },
-    }
-    if (['email', 'phone', 'url', 'linkedin', 'github'].includes(key))
-      versions[other] = {
-        ...versions[other],
-        basics: { ...versions[other].basics, [key]: value },
-      }
-    update({ ...doc, versions }, `${locale}:basics:${key}`)
+    const shared = (sharedBasics as readonly string[]).includes(key),
+      versions = Object.fromEntries(
+        locales.map((l) => {
+          const version = doc.versions[l]
+          return [
+            l,
+            l === lang || shared
+              ? { ...version, basics: { ...version.basics, [key]: value } }
+              : version,
+          ]
+        }),
+      ) as StudioDocument['versions']
+    update({ ...doc, versions }, `${lang}:basics:${key}`)
   }
   function entry(
     section: EntrySection,
@@ -266,23 +295,24 @@ export default function Editor({
     key: string,
     value: string | boolean,
   ) {
-    const versions = {
-      ...doc.versions,
-      [locale]: {
-        ...resume,
-        [section]: resume[section].map((e) =>
-          e.id === id ? { ...e, [key]: value } : e,
-        ),
-      },
-    }
-    if (['startDate', 'endDate', 'current', 'url'].includes(key))
-      versions[other] = {
-        ...versions[other],
-        [section]: versions[other][section].map((e) =>
-          e.id === id ? { ...e, [key]: value } : e,
-        ),
-      }
-    update({ ...doc, versions }, `${locale}:${section}:${id}:${key}`)
+    const shared = (sharedEntryFields as readonly string[]).includes(key),
+      versions = Object.fromEntries(
+        locales.map((l) => {
+          const version = doc.versions[l]
+          return [
+            l,
+            l === lang || shared
+              ? {
+                  ...version,
+                  [section]: version[section].map((e) =>
+                    e.id === id ? { ...e, [key]: value } : e,
+                  ),
+                }
+              : version,
+          ]
+        }),
+      ) as StudioDocument['versions']
+    update({ ...doc, versions }, `${lang}:${section}:${id}:${key}`)
   }
   useEffect(() => {
     if (!pendingEntry.current) return
@@ -312,14 +342,10 @@ export default function Editor({
     pendingEntry.current = { id: e.id, field: true }
     update({
       ...doc,
-      versions: {
-        ...doc.versions,
-        [locale]: { ...resume, [section]: [...resume[section], e] },
-        [other]: {
-          ...doc.versions[other],
-          [section]: [...doc.versions[other][section], { ...e }],
-        },
-      },
+      versions: mapVersions((version) => ({
+        ...version,
+        [section]: [...version[section], { ...e }],
+      })),
     })
   }
   function remove(section: EntrySection, id: string) {
@@ -328,23 +354,20 @@ export default function Editor({
     pendingEntry.current = { id: next?.id || '', field: false }
     update({
       ...doc,
-      versions: {
-        ...doc.versions,
-        [locale]: {
-          ...resume,
-          [section]: resume[section].filter((e) => e.id !== id),
-        },
-        [other]: {
-          ...doc.versions[other],
-          [section]: doc.versions[other][section].filter((e) => e.id !== id),
-        },
-      },
+      versions: mapVersions((version) => ({
+        ...version,
+        [section]: version[section].filter((e) => e.id !== id),
+      })),
     })
   }
   function move(section: EntrySection, index: number, direction: number) {
     pendingEntry.current = { id: resume[section][index].id, field: false }
     setEntryAnnouncement(
-      `${resume[section][index].title || labels[section]}: ${index + direction + 1} ${t('из', 'of')} ${resume[section].length}`,
+      t('{title}: {position} из {total}', '{title}: {position} of {total}', {
+        title: resume[section][index].title || labels[section],
+        position: index + direction + 1,
+        total: resume[section].length,
+      }),
     )
     const entries = [...resume[section]]
     ;[entries[index], entries[index + direction]] = [
@@ -388,7 +411,7 @@ export default function Editor({
     )
     const link = document.createElement('a')
     link.href = url
-    link.download = `${(resume.basics.name || 'resume').trim().replace(/\s+/g, '-')}-${locale.toUpperCase()}-CV.txt`
+    link.download = `${(resume.basics.name || 'resume').trim().replace(/\s+/g, '-')}-${lang.toUpperCase()}-CV.txt`
     link.click()
     setTimeout(() => URL.revokeObjectURL(url), 1000)
   }
@@ -413,13 +436,13 @@ export default function Editor({
         ...doc,
         versions: {
           ...doc.versions,
-          [locale]: {
+          [lang]: {
             ...resume,
             skills: current ? `${current}, ${term}` : term,
           },
         },
       },
-      `${locale}:skills`,
+      `${lang}:skills`,
     )
   }
   const caretEntry = useRef<string | null>(null)
@@ -560,6 +583,13 @@ export default function Editor({
     event.preventDefault()
     changeFormWidth(Math.min(max, Math.max(min, next)), false)
   }
+  const emptyVersion = isEmptyVersion(resume),
+    sources = locales.filter(
+      (l) => l !== lang && !isEmptyVersion(doc.versions[l]),
+    ),
+    copySource = sources.includes(preferredSource)
+      ? preferredSource
+      : sources[0]
   const narrow = formWidth === NARROW_FORM
   const formTools = (
     <div className="form-step-tools">
@@ -587,7 +617,34 @@ export default function Editor({
       >
         <ChevronsLeft size={17} />
       </button>
-      <span className="locale-badge">{locale.toUpperCase()}</span>
+      <label className="resume-language">
+        <span className="visually-hidden">
+          {t('Язык резюме', 'Resume language')}
+        </span>
+        <Languages size={15} aria-hidden="true" />
+        <select
+          value={lang}
+          title={t('Язык резюме', 'Resume language')}
+          onChange={(event) => {
+            const next = event.target.value as Locale
+            update({ ...doc, language: next })
+            setLanguageNotice(
+              t(
+                'Редактируется версия: {language}',
+                'Now editing the {language} version',
+                { language: localeNames[next] },
+              ),
+            )
+          }}
+        >
+          {locales.map((l) => (
+            <option key={l} value={l}>
+              {l.toUpperCase()} · {localeNames[l]}
+              {isEmptyVersion(doc.versions[l]) ? '' : ' ✓'}
+            </option>
+          ))}
+        </select>
+      </label>
     </div>
   )
   const subtitles: Record<Section, string> = {
@@ -624,6 +681,9 @@ export default function Editor({
     <div className="editor">
       <p className="visually-hidden" role="status">
         {entryAnnouncement}
+      </p>
+      <p className="visually-hidden" role="status">
+        {languageNotice}
       </p>
       {copyView.shown && (
         <p
@@ -910,755 +970,804 @@ export default function Editor({
           inert={formHidden && desktop}
           aria-hidden={(formHidden && desktop) || undefined}
         >
-          <div key={`${tab}:${section}`} className="step-enter">
-            {tab === 'design' ? (
-              <>
-                <div className="form-step">
-                  <div className="eyebrow">
-                    {t('ВАШ СТИЛЬ', 'MAKE IT YOURS')}
+          <ContentLang.Provider value={lang}>
+            <div key={`${tab}:${section}`} className="step-enter">
+              {tab === 'design' ? (
+                <>
+                  <div className="form-step">
+                    <div className="eyebrow">
+                      {t('ВАШ СТИЛЬ', 'MAKE IT YOURS')}
+                    </div>
+                    {formTools}
                   </div>
-                  {formTools}
-                </div>
-                <h1 tabIndex={-1}>{t('Оформление', 'Design')}</h1>
-                <p className="form-description">
-                  {t(
-                    'Попробуйте разные варианты. Текст останется на месте.',
-                    'Try different looks. Your content stays the same.',
-                  )}
-                </p>
-                <div className="design-options">
-                  {templates.map((template) => (
-                    <button
-                      key={template.id}
-                      aria-pressed={doc.template === template.id}
-                      className={doc.template === template.id ? 'selected' : ''}
-                      onClick={() => update({ ...doc, template: template.id })}
-                    >
-                      <MiniResume template={template.id} locale={locale} />
-                      <div>
-                        <strong>{template.name}</strong>
-                        {doc.template === template.id && <Check size={16} />}
-                      </div>
-                      <span>{template[locale]}</span>
-                    </button>
-                  ))}
-                </div>
-                {doc.template === 'sidebar' && (
-                  <p className="inline-tip">
+                  <h1 tabIndex={-1}>{t('Оформление', 'Design')}</h1>
+                  <p className="form-description">
                     {t(
-                      'Для автоматического отбора лучше выбрать одноколоночный шаблон.',
-                      'A single-column template is a safer choice for automated screening.',
+                      'Попробуйте разные варианты. Текст останется на месте.',
+                      'Try different looks. Your content stays the same.',
                     )}
                   </p>
-                )}
-                <h2 className="control-heading">
-                  {t('Порядок разделов', 'Section order')}
-                </h2>
-                <p className="field-hint">
-                  {t(
-                    'Переставьте разделы или скройте лишние. Данные скрытых разделов сохраняются.',
-                    'Reorder sections or hide the ones you don’t need. Hidden content is kept.',
-                  )}
-                </p>
-                <ol className="section-order">
-                  {order.map((s, i) => {
-                    const hidden = doc.hiddenSections.includes(s)
-                    return (
-                      <li key={s} className={hidden ? 'is-hidden' : ''}>
-                        <span>{labels[s]}</span>
-                        {doc.template === 'sidebar' && (
-                          <small>
-                            {['summary', 'work', 'projects'].includes(s)
-                              ? t('основная колонка', 'main column')
-                              : t('боковая колонка', 'side column')}
-                          </small>
-                        )}
-                        <button
-                          className="icon-button"
-                          disabled={i === 0}
-                          onClick={() => moveSection(i, -1)}
-                          aria-label={`${labels[s]}: ${t('выше', 'move up')}`}
-                        >
-                          <ArrowUp size={15} />
-                        </button>
-                        <button
-                          className="icon-button"
-                          disabled={i === order.length - 1}
-                          onClick={() => moveSection(i, 1)}
-                          aria-label={`${labels[s]}: ${t('ниже', 'move down')}`}
-                        >
-                          <ArrowDown size={15} />
-                        </button>
-                        <button
-                          className="icon-button"
-                          aria-pressed={!hidden}
-                          onClick={() =>
-                            update({
-                              ...doc,
-                              hiddenSections: hidden
-                                ? doc.hiddenSections.filter((h) => h !== s)
-                                : [...doc.hiddenSections, s],
-                            })
-                          }
-                          aria-label={`${labels[s]}: ${t('показывать в PDF', 'show in PDF')}`}
-                        >
-                          {hidden ? <EyeOff size={15} /> : <Eye size={15} />}
-                        </button>
-                      </li>
-                    )
-                  })}
-                </ol>
-                {(doc.sectionOrder.length > 0 ||
-                  doc.hiddenSections.length > 0) && (
-                  <button
-                    className="text-button"
-                    onClick={() =>
-                      update({ ...doc, sectionOrder: [], hiddenSections: [] })
-                    }
-                  >
-                    {t(
-                      'Вернуть порядок шаблона',
-                      'Reset to the template’s order',
-                    )}
-                  </button>
-                )}
-                <h2 className="control-heading">
-                  {t('Цвет акцента', 'Accent color')}
-                </h2>
-                <div className="color-options">
-                  {accents.map((color, i) => (
-                    <button
-                      key={color}
-                      aria-label={t(
-                        [
-                          'Лесной',
-                          'Синий',
-                          'Бордовый',
-                          'Фиолетовый',
-                          'Графит',
-                          'Бирюзовый',
-                          'Терракота',
-                          'Тёмно-синий',
-                          'Оливковый',
-                          'Сливовый',
-                        ][i],
-                        [
-                          'Forest',
-                          'Blue',
-                          'Burgundy',
-                          'Purple',
-                          'Graphite',
-                          'Teal',
-                          'Terracotta',
-                          'Navy',
-                          'Olive',
-                          'Plum',
-                        ][i],
-                      )}
-                      aria-pressed={doc.accent === color}
-                      style={{ background: color }}
-                      onClick={() => update({ ...doc, accent: color })}
-                    >
-                      {doc.accent === color && <Check size={18} />}
-                    </button>
-                  ))}
-                </div>
-                {doc.template === 'classic' && (
-                  <p className="field-hint">
-                    {t(
-                      'Classic использует строгую монохромную палитру.',
-                      'Classic uses a timeless monochrome palette.',
-                    )}
-                  </p>
-                )}
-                <Field
-                  className="field"
-                  label={t('Шрифт резюме', 'Resume typography')}
-                  hint={t(
-                    'Все варианты поддерживают русский и английский текст.',
-                    'Every option supports Russian and English text.',
-                  )}
-                >
-                  <select
-                    value={doc.typography}
-                    onChange={(event) =>
-                      update({
-                        ...doc,
-                        typography: event.target
-                          .value as StudioDocument['typography'],
-                      })
-                    }
-                  >
-                    <option value="sans">
-                      {t('Современный — Noto Sans', 'Modern — Noto Sans')}
-                    </option>
-                    <option value="serif">
-                      {t('Классический — Noto Serif', 'Classic — Noto Serif')}
-                    </option>
-                    <option value="mixed">
-                      {t('Сочетание — Serif + Sans', 'Mixed — Serif + Sans')}
-                    </option>
-                  </select>
-                </Field>
-                <Field
-                  className="field"
-                  label={t('Плотность текста', 'Text density')}
-                >
-                  <select
-                    value={doc.density}
-                    onChange={(e) =>
-                      update({
-                        ...doc,
-                        density: e.target.value as StudioDocument['density'],
-                      })
-                    }
-                  >
-                    <option value="comfortable">
-                      {t('Свободнее', 'Comfortable')}
-                    </option>
-                    <option value="compact">
-                      {t('Компактнее', 'Compact')}
-                    </option>
-                  </select>
-                </Field>
-              </>
-            ) : (
-              <>
-                <div className="form-step">
-                  <div className="eyebrow">
-                    {t('ШАГ', 'STEP')} 0{steps.indexOf(section) + 1} / 0
-                    {steps.length}
+                  <div className="design-options">
+                    {templates.map((template) => (
+                      <button
+                        key={template.id}
+                        aria-pressed={doc.template === template.id}
+                        className={
+                          doc.template === template.id ? 'selected' : ''
+                        }
+                        onClick={() =>
+                          update({ ...doc, template: template.id })
+                        }
+                      >
+                        <MiniResume template={template.id} locale={locale} />
+                        <div>
+                          <strong>{template.name}</strong>
+                          {doc.template === template.id && <Check size={16} />}
+                        </div>
+                        <span>{t(template.ru, template.en)}</span>
+                      </button>
+                    ))}
                   </div>
-                  {formTools}
-                </div>
-                {section === 'review' ? (
-                  <>
-                    <h1 tabIndex={-1}>
-                      {t('Проверка и отправка', 'Review & finish')}
-                    </h1>
-                    <p className="form-description">
+                  {doc.template === 'sidebar' && (
+                    <p className="inline-tip">
                       {t(
-                        'Последний шаг: проверьте содержание, сверьтесь с вакансией и скачайте PDF.',
-                        'Last step: check the content, compare with a vacancy, and download your PDF.',
+                        'Для автоматического отбора лучше выбрать одноколоночный шаблон.',
+                        'A single-column template is a safer choice for automated screening.',
                       )}
                     </p>
-                    <ReviewStep
-                      resume={resume}
-                      locale={locale}
-                      goSection={(next) => goSection(next, true)}
-                      addSkill={addSkill}
-                      exportFile={exportFile}
-                      exporting={exporting}
-                    />
-                  </>
-                ) : (
-                  <>
-                    <h1 tabIndex={-1}>{labels[section]}</h1>
-                    <p className="form-description">{subtitles[section]}</p>
-                    <WritingGuide
-                      section={section}
-                      locale={locale}
-                      onPattern={
-                        section === 'summary' && !resume.basics.summary.trim()
-                          ? (pattern) => basic('summary', pattern)
-                          : undefined
+                  )}
+                  <h2 className="control-heading">
+                    {t('Порядок разделов', 'Section order')}
+                  </h2>
+                  <p className="field-hint">
+                    {t(
+                      'Переставьте разделы или скройте лишние. Данные скрытых разделов сохраняются.',
+                      'Reorder sections or hide the ones you don’t need. Hidden content is kept.',
+                    )}
+                  </p>
+                  <ol className="section-order">
+                    {order.map((s, i) => {
+                      const hidden = doc.hiddenSections.includes(s)
+                      return (
+                        <li key={s} className={hidden ? 'is-hidden' : ''}>
+                          <span>{labels[s]}</span>
+                          {doc.template === 'sidebar' && (
+                            <small>
+                              {['summary', 'work', 'projects'].includes(s)
+                                ? t('основная колонка', 'main column')
+                                : t('боковая колонка', 'side column')}
+                            </small>
+                          )}
+                          <button
+                            className="icon-button"
+                            disabled={i === 0}
+                            onClick={() => moveSection(i, -1)}
+                            aria-label={`${labels[s]}: ${t('выше', 'move up')}`}
+                          >
+                            <ArrowUp size={15} />
+                          </button>
+                          <button
+                            className="icon-button"
+                            disabled={i === order.length - 1}
+                            onClick={() => moveSection(i, 1)}
+                            aria-label={`${labels[s]}: ${t('ниже', 'move down')}`}
+                          >
+                            <ArrowDown size={15} />
+                          </button>
+                          <button
+                            className="icon-button"
+                            aria-pressed={!hidden}
+                            onClick={() =>
+                              update({
+                                ...doc,
+                                hiddenSections: hidden
+                                  ? doc.hiddenSections.filter((h) => h !== s)
+                                  : [...doc.hiddenSections, s],
+                              })
+                            }
+                            aria-label={`${labels[s]}: ${t('показывать в PDF', 'show in PDF')}`}
+                          >
+                            {hidden ? <EyeOff size={15} /> : <Eye size={15} />}
+                          </button>
+                        </li>
+                      )
+                    })}
+                  </ol>
+                  {(doc.sectionOrder.length > 0 ||
+                    doc.hiddenSections.length > 0) && (
+                    <button
+                      className="text-button"
+                      onClick={() =>
+                        update({ ...doc, sectionOrder: [], hiddenSections: [] })
                       }
-                      onVerb={
-                        section === 'work' || section === 'projects'
-                          ? (verb) => insertVerb(section, verb)
-                          : undefined
+                    >
+                      {t(
+                        'Вернуть порядок шаблона',
+                        'Reset to the template’s order',
+                      )}
+                    </button>
+                  )}
+                  <h2 className="control-heading">
+                    {t('Цвет акцента', 'Accent color')}
+                  </h2>
+                  <div className="color-options">
+                    {accents.map((color, i) => (
+                      <button
+                        key={color}
+                        aria-label={t(colorNames[i].ru, colorNames[i].en)}
+                        aria-pressed={doc.accent === color}
+                        style={{ background: color }}
+                        onClick={() => update({ ...doc, accent: color })}
+                      >
+                        {doc.accent === color && <Check size={18} />}
+                      </button>
+                    ))}
+                  </div>
+                  {doc.template === 'classic' && (
+                    <p className="field-hint">
+                      {t(
+                        'Classic использует строгую монохромную палитру.',
+                        'Classic uses a timeless monochrome palette.',
+                      )}
+                    </p>
+                  )}
+                  <Field
+                    className="field"
+                    label={t('Шрифт резюме', 'Resume typography')}
+                    hint={t(
+                      'Все варианты поддерживают латиницу и кириллицу.',
+                      'Every option supports Latin and Cyrillic text.',
+                    )}
+                  >
+                    <select
+                      value={doc.typography}
+                      onChange={(event) =>
+                        update({
+                          ...doc,
+                          typography: event.target
+                            .value as StudioDocument['typography'],
+                        })
                       }
-                      verbTarget={
-                        section === 'work' || section === 'projects'
-                          ? (() => {
-                              const target = verbTarget(section)
-                              return target
-                                ? target.title ||
-                                    `${labels[section]} ${resume[section].indexOf(target) + 1}`
-                                : undefined
-                            })()
-                          : undefined
+                    >
+                      <option value="sans">
+                        {t('Современный — Noto Sans', 'Modern — Noto Sans')}
+                      </option>
+                      <option value="serif">
+                        {t('Классический — Noto Serif', 'Classic — Noto Serif')}
+                      </option>
+                      <option value="mixed">
+                        {t('Сочетание — Serif + Sans', 'Mixed — Serif + Sans')}
+                      </option>
+                    </select>
+                  </Field>
+                  <Field
+                    className="field"
+                    label={t('Плотность текста', 'Text density')}
+                  >
+                    <select
+                      value={doc.density}
+                      onChange={(e) =>
+                        update({
+                          ...doc,
+                          density: e.target.value as StudioDocument['density'],
+                        })
                       }
-                    />
-                    {section === 'basics' ? (
-                      <>
-                        <div className="photo-field">
-                          <div className="photo-preview" aria-hidden="true">
-                            {doc.photo ? (
-                              <img src={doc.photo} alt="" />
-                            ) : (
-                              <UserRound size={26} />
-                            )}
-                          </div>
+                    >
+                      <option value="comfortable">
+                        {t('Свободнее', 'Comfortable')}
+                      </option>
+                      <option value="compact">
+                        {t('Компактнее', 'Compact')}
+                      </option>
+                    </select>
+                  </Field>
+                </>
+              ) : (
+                <>
+                  <div className="form-step">
+                    <div className="eyebrow">
+                      {t('ШАГ', 'STEP')} 0{steps.indexOf(section) + 1} / 0
+                      {steps.length}
+                    </div>
+                    {formTools}
+                  </div>
+                  {section === 'review' ? (
+                    <>
+                      <h1 tabIndex={-1}>
+                        {t('Проверка и отправка', 'Review & finish')}
+                      </h1>
+                      <p className="form-description">
+                        {t(
+                          'Последний шаг: проверьте содержание, сверьтесь с вакансией и скачайте PDF.',
+                          'Last step: check the content, compare with a vacancy, and download your PDF.',
+                        )}
+                      </p>
+                      <ReviewStep
+                        resume={resume}
+                        locale={locale}
+                        lang={lang}
+                        goSection={(next) => goSection(next, true)}
+                        addSkill={addSkill}
+                        exportFile={exportFile}
+                        exporting={exporting}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <h1 tabIndex={-1}>{labels[section]}</h1>
+                      <p className="form-description">{subtitles[section]}</p>
+                      {emptyVersion && sources.length > 0 && (
+                        <div className="version-start" role="note">
+                          <Languages size={18} aria-hidden="true" />
                           <div>
                             <strong>
-                              {t('Фото (необязательно)', 'Photo (optional)')}
+                              {t(
+                                'Версия «{language}» пока пустая',
+                                'The {language} version is empty',
+                                { language: localeNames[lang] },
+                              )}
                             </strong>
                             <p>
                               {t(
-                                'Принято в Германии, Австрии и Швейцарии. В США, Великобритании и Канаде фото обычно не добавляют.',
-                                'Common in Germany, Austria and Switzerland. Usually left out in the US, UK and Canada.',
+                                'Скопируйте текст из другой версии и переведите его — или заполните с нуля. Контакты и даты уже общие.',
+                                'Copy the text from another version and translate it, or start from scratch. Contacts and dates are already shared.',
                               )}
                             </p>
-                            <div className="photo-actions">
-                              <label className="button secondary">
-                                <Upload size={15} />
-                                {doc.photo
-                                  ? t('Заменить', 'Replace')
-                                  : t('Добавить фото', 'Add photo')}
-                                <input
-                                  className="visually-hidden"
-                                  type="file"
-                                  accept="image/jpeg,image/png,image/webp"
-                                  onChange={(event) => {
-                                    const file = event.target.files?.[0]
-                                    event.target.value = ''
-                                    if (file) void choosePhoto(file)
-                                  }}
-                                />
-                              </label>
-                              {doc.photo && (
-                                <button
-                                  className="text-button"
-                                  onClick={() => update({ ...doc, photo: '' })}
-                                >
-                                  {t('Убрать фото', 'Remove photo')}
-                                </button>
+                            <div className="version-start-actions">
+                              <select
+                                aria-label={t('Скопировать из', 'Copy from')}
+                                value={copySource}
+                                onChange={(e) =>
+                                  setCopySource(e.target.value as Locale)
+                                }
+                              >
+                                {sources.map((l) => (
+                                  <option key={l} value={l}>
+                                    {localeNames[l]}
+                                  </option>
+                                ))}
+                              </select>
+                              <button
+                                className="button secondary"
+                                onClick={() =>
+                                  update({
+                                    ...doc,
+                                    versions: {
+                                      ...doc.versions,
+                                      [lang]: JSON.parse(
+                                        JSON.stringify(
+                                          doc.versions[copySource],
+                                        ),
+                                      ),
+                                    },
+                                  })
+                                }
+                              >
+                                <Copy size={15} />
+                                {t('Скопировать текст', 'Copy text')}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      <WritingGuide
+                        section={section}
+                        locale={locale}
+                        lang={lang}
+                        onPattern={
+                          section === 'summary' && !resume.basics.summary.trim()
+                            ? (pattern) => basic('summary', pattern)
+                            : undefined
+                        }
+                        onVerb={
+                          section === 'work' || section === 'projects'
+                            ? (verb) => insertVerb(section, verb)
+                            : undefined
+                        }
+                        verbTarget={
+                          section === 'work' || section === 'projects'
+                            ? (() => {
+                                const target = verbTarget(section)
+                                return target
+                                  ? target.title ||
+                                      `${labels[section]} ${resume[section].indexOf(target) + 1}`
+                                  : undefined
+                              })()
+                            : undefined
+                        }
+                      />
+                      {section === 'basics' ? (
+                        <>
+                          <div className="photo-field">
+                            <div className="photo-preview" aria-hidden="true">
+                              {doc.photo ? (
+                                <img src={doc.photo} alt="" />
+                              ) : (
+                                <UserRound size={26} />
                               )}
                             </div>
-                            {photoError && (
-                              <p className="field-error" role="alert">
-                                {photoError}
+                            <div>
+                              <strong>
+                                {t('Фото (необязательно)', 'Photo (optional)')}
+                              </strong>
+                              <p>
+                                {t(
+                                  'Принято в Германии, Австрии и Швейцарии. В США, Великобритании и Канаде фото обычно не добавляют.',
+                                  'Common in Germany, Austria and Switzerland. Usually left out in the US, UK and Canada.',
+                                )}
                               </p>
-                            )}
-                          </div>
-                        </div>
-                        <FormField
-                          label={t('Имя и фамилия', 'Full name')}
-                          value={resume.basics.name}
-                          onChange={(v) => basic('name', v)}
-                          placeholder={t(
-                            'Как к вам обращаться?',
-                            'Your full name',
-                          )}
-                        />
-                        <FormField
-                          label={t(
-                            'Должность или специализация',
-                            'Job title or speciality',
-                          )}
-                          value={resume.basics.label}
-                          onChange={(v) => basic('label', v)}
-                          placeholder={t(
-                            'Например, продуктовый дизайнер',
-                            'e.g. Product designer',
-                          )}
-                        />
-                        <div className="form-divider">
-                          {t('КОНТАКТЫ', 'CONTACT DETAILS')}
-                        </div>
-                        <div className="field-row">
-                          <FormField
-                            label={t('Электронная почта', 'Email')}
-                            value={resume.basics.email}
-                            onChange={(v) => basic('email', v)}
-                            type="email"
-                            placeholder="you@example.com"
-                          />
-                          <FormField
-                            label={t('Телефон', 'Phone')}
-                            value={resume.basics.phone}
-                            onChange={(v) => basic('phone', v)}
-                            type="tel"
-                            placeholder="+420 …"
-                          />
-                        </div>
-                        <FormField
-                          label={t('Город и страна', 'City and country')}
-                          value={resume.basics.location}
-                          onChange={(v) => basic('location', v)}
-                          placeholder={t(
-                            'Например, Прага, Чехия',
-                            'e.g. Prague, Czechia',
-                          )}
-                        />
-                        <FormField
-                          label={t(
-                            'Сайт или портфолио',
-                            'Website or portfolio',
-                          )}
-                          value={resume.basics.url}
-                          onChange={(v) => basic('url', v)}
-                          placeholder="https://…"
-                          hint={t(
-                            'Необязательные поля можно оставить пустыми — они не попадут в PDF.',
-                            'Leave optional fields blank — they won’t appear in your PDF.',
-                          )}
-                        />
-                        <FormField
-                          label="LinkedIn"
-                          value={resume.basics.linkedin}
-                          onChange={(v) => basic('linkedin', v)}
-                          placeholder="linkedin.com/in/your-name"
-                        />
-                        <FormField
-                          label="GitHub"
-                          value={resume.basics.github}
-                          onChange={(v) => basic('github', v)}
-                          placeholder="github.com/your-name"
-                        />
-                      </>
-                    ) : section === 'summary' ? (
-                      <FormField
-                        label={t('Коротко о вас', 'Your professional profile')}
-                        value={resume.basics.summary}
-                        onChange={(v) => basic('summary', v)}
-                        multiline
-                        placeholder={t(
-                          'Что вы умеете, какой у вас опыт и какую пользу приносите?',
-                          'What do you do well, and what value do you bring?',
-                        )}
-                        hint={t(
-                          '2–4 предложения. Пишите конкретно, без общих фраз.',
-                          'Aim for 2–4 specific sentences. Skip generic buzzwords.',
-                        )}
-                      />
-                    ) : section === 'skills' ? (
-                      <>
-                        <FormField
-                          label={t('Ваши навыки', 'Your skills')}
-                          value={resume.skills}
-                          onChange={(v) =>
-                            update(
-                              {
-                                ...doc,
-                                versions: {
-                                  ...doc.versions,
-                                  [locale]: { ...resume, skills: v },
-                                },
-                              },
-                              `${locale}:skills`,
-                            )
-                          }
-                          multiline
-                          placeholder="Figma, HTML, CSS, …"
-                          hint={t(
-                            'Разделяйте запятыми. Используйте названия из вакансии, только если владеете навыком. Подтвердите ключевые навыки примерами в опыте.',
-                            'Separate with commas. Use the job posting’s terms for skills you actually have, and show your key skills in your experience.',
-                          )}
-                        />
-                        <div className="skill-chips">
-                          {resume.skills
-                            .split(',')
-                            .filter((s) => s.trim())
-                            .map((s, i) => (
-                              <span key={i}>{s.trim()}</span>
-                            ))}
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        {resume[section].length > 1 && (
-                          <div className="entries-toolbar">
-                            <span>
-                              {t('Записей', 'Entries')}:{' '}
-                              {resume[section].length}
-                            </span>
-                            <button
-                              className="text-button"
-                              onClick={() => {
-                                const allCollapsed = resume[section].every(
-                                  (e) => collapsed.has(`${section}:${e.id}`),
-                                )
-                                setCollapsed((current) => {
-                                  const next = new Set(current)
-                                  resume[section].forEach((e) => {
-                                    if (allCollapsed)
-                                      next.delete(`${section}:${e.id}`)
-                                    else next.add(`${section}:${e.id}`)
-                                  })
-                                  return next
-                                })
-                              }}
-                            >
-                              {resume[section].every((e) =>
-                                collapsed.has(`${section}:${e.id}`),
-                              )
-                                ? t('Развернуть все', 'Expand all')
-                                : t('Свернуть все', 'Collapse all')}
-                            </button>
-                          </div>
-                        )}
-                        {resume[section].map((e, i) => (
-                          <EntryCard
-                            key={e.id}
-                            entry={e}
-                            title={e.title || `${labels[section]} ${i + 1}`}
-                            locale={locale}
-                            expanded={!collapsed.has(`${section}:${e.id}`)}
-                            toggle={() => toggleEntry(e.id)}
-                            moveUp={
-                              i > 0 ? () => move(section, i, -1) : undefined
-                            }
-                            moveDown={
-                              i < resume[section].length - 1
-                                ? () => move(section, i, 1)
-                                : undefined
-                            }
-                            remove={() => remove(section, e.id)}
-                          >
-                            <FormField
-                              label={
-                                section === 'work'
-                                  ? t('Должность', 'Job title')
-                                  : section === 'education'
-                                    ? t(
-                                        'Специальность / степень',
-                                        'Degree / field of study',
-                                      )
-                                    : section === 'languages'
-                                      ? t('Язык', 'Language')
-                                      : t('Название проекта', 'Project name')
-                              }
-                              value={e.title}
-                              onChange={(v) => entry(section, e.id, 'title', v)}
-                            />
-                            <FormField
-                              label={
-                                section === 'work'
-                                  ? t('Компания', 'Company')
-                                  : section === 'education'
-                                    ? t('Учебное заведение', 'Institution')
-                                    : section === 'languages'
-                                      ? t('Уровень владения', 'Proficiency')
-                                      : t(
-                                          'Роль / организация',
-                                          'Role / organization',
-                                        )
-                              }
-                              value={e.subtitle}
-                              onChange={(v) =>
-                                entry(section, e.id, 'subtitle', v)
-                              }
-                            />
-                            {section !== 'languages' && (
-                              <>
-                                <div className="field-row">
-                                  <FormField
-                                    label={t('Начало', 'Start date')}
-                                    type="month"
-                                    value={e.startDate}
-                                    onChange={(v) =>
-                                      entry(section, e.id, 'startDate', v)
-                                    }
+                              <div className="photo-actions">
+                                <label className="button secondary">
+                                  <Upload size={15} />
+                                  {doc.photo
+                                    ? t('Заменить', 'Replace')
+                                    : t('Добавить фото', 'Add photo')}
+                                  <input
+                                    className="visually-hidden"
+                                    type="file"
+                                    accept="image/jpeg,image/png,image/webp"
+                                    onChange={(event) => {
+                                      const file = event.target.files?.[0]
+                                      event.target.value = ''
+                                      if (file) void choosePhoto(file)
+                                    }}
                                   />
-                                  {!e.current && (
+                                </label>
+                                {doc.photo && (
+                                  <button
+                                    className="text-button"
+                                    onClick={() =>
+                                      update({ ...doc, photo: '' })
+                                    }
+                                  >
+                                    {t('Убрать фото', 'Remove photo')}
+                                  </button>
+                                )}
+                              </div>
+                              {photoError && (
+                                <p className="field-error" role="alert">
+                                  {photoError}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                          <FormField
+                            label={t('Имя и фамилия', 'Full name')}
+                            value={resume.basics.name}
+                            onChange={(v) => basic('name', v)}
+                            placeholder={t(
+                              'Как к вам обращаться?',
+                              'Your full name',
+                            )}
+                          />
+                          <FormField
+                            label={t(
+                              'Должность или специализация',
+                              'Job title or speciality',
+                            )}
+                            value={resume.basics.label}
+                            onChange={(v) => basic('label', v)}
+                            placeholder={t(
+                              'Например, продуктовый дизайнер',
+                              'e.g. Product designer',
+                            )}
+                          />
+                          <div className="form-divider">
+                            {t('КОНТАКТЫ', 'CONTACT DETAILS')}
+                          </div>
+                          <div className="field-row">
+                            <FormField
+                              label={t('Электронная почта', 'Email')}
+                              value={resume.basics.email}
+                              onChange={(v) => basic('email', v)}
+                              type="email"
+                              placeholder="you@example.com"
+                            />
+                            <FormField
+                              label={t('Телефон', 'Phone')}
+                              value={resume.basics.phone}
+                              onChange={(v) => basic('phone', v)}
+                              type="tel"
+                              placeholder="+420 …"
+                            />
+                          </div>
+                          <FormField
+                            label={t('Город и страна', 'City and country')}
+                            value={resume.basics.location}
+                            onChange={(v) => basic('location', v)}
+                            placeholder={t(
+                              'Например, Прага, Чехия',
+                              'e.g. Prague, Czechia',
+                            )}
+                          />
+                          <FormField
+                            label={t(
+                              'Сайт или портфолио',
+                              'Website or portfolio',
+                            )}
+                            value={resume.basics.url}
+                            onChange={(v) => basic('url', v)}
+                            placeholder="https://…"
+                            hint={t(
+                              'Необязательные поля можно оставить пустыми — они не попадут в PDF.',
+                              'Leave optional fields blank — they won’t appear in your PDF.',
+                            )}
+                          />
+                          <FormField
+                            label="LinkedIn"
+                            value={resume.basics.linkedin}
+                            onChange={(v) => basic('linkedin', v)}
+                            placeholder="linkedin.com/in/your-name"
+                          />
+                          <FormField
+                            label="GitHub"
+                            value={resume.basics.github}
+                            onChange={(v) => basic('github', v)}
+                            placeholder="github.com/your-name"
+                          />
+                        </>
+                      ) : section === 'summary' ? (
+                        <FormField
+                          label={t(
+                            'Коротко о вас',
+                            'Your professional profile',
+                          )}
+                          value={resume.basics.summary}
+                          onChange={(v) => basic('summary', v)}
+                          multiline
+                          placeholder={t(
+                            'Что вы умеете, какой у вас опыт и какую пользу приносите?',
+                            'What do you do well, and what value do you bring?',
+                          )}
+                          hint={t(
+                            '2–4 предложения. Пишите конкретно, без общих фраз.',
+                            'Aim for 2–4 specific sentences. Skip generic buzzwords.',
+                          )}
+                        />
+                      ) : section === 'skills' ? (
+                        <>
+                          <FormField
+                            label={t('Ваши навыки', 'Your skills')}
+                            value={resume.skills}
+                            onChange={(v) =>
+                              update(
+                                {
+                                  ...doc,
+                                  versions: {
+                                    ...doc.versions,
+                                    [lang]: { ...resume, skills: v },
+                                  },
+                                },
+                                `${lang}:skills`,
+                              )
+                            }
+                            multiline
+                            placeholder="Figma, HTML, CSS, …"
+                            hint={t(
+                              'Разделяйте запятыми. Используйте названия из вакансии, только если владеете навыком. Подтвердите ключевые навыки примерами в опыте.',
+                              'Separate with commas. Use the job posting’s terms for skills you actually have, and show your key skills in your experience.',
+                            )}
+                          />
+                          <div className="skill-chips">
+                            {resume.skills
+                              .split(',')
+                              .filter((s) => s.trim())
+                              .map((s, i) => (
+                                <span key={i}>{s.trim()}</span>
+                              ))}
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          {resume[section].length > 1 && (
+                            <div className="entries-toolbar">
+                              <span>
+                                {t('Записей', 'Entries')}:{' '}
+                                {resume[section].length}
+                              </span>
+                              <button
+                                className="text-button"
+                                onClick={() => {
+                                  const allCollapsed = resume[section].every(
+                                    (e) => collapsed.has(`${section}:${e.id}`),
+                                  )
+                                  setCollapsed((current) => {
+                                    const next = new Set(current)
+                                    resume[section].forEach((e) => {
+                                      if (allCollapsed)
+                                        next.delete(`${section}:${e.id}`)
+                                      else next.add(`${section}:${e.id}`)
+                                    })
+                                    return next
+                                  })
+                                }}
+                              >
+                                {resume[section].every((e) =>
+                                  collapsed.has(`${section}:${e.id}`),
+                                )
+                                  ? t('Развернуть все', 'Expand all')
+                                  : t('Свернуть все', 'Collapse all')}
+                              </button>
+                            </div>
+                          )}
+                          {resume[section].map((e, i) => (
+                            <EntryCard
+                              key={e.id}
+                              entry={e}
+                              title={e.title || `${labels[section]} ${i + 1}`}
+                              locale={locale}
+                              expanded={!collapsed.has(`${section}:${e.id}`)}
+                              toggle={() => toggleEntry(e.id)}
+                              moveUp={
+                                i > 0 ? () => move(section, i, -1) : undefined
+                              }
+                              moveDown={
+                                i < resume[section].length - 1
+                                  ? () => move(section, i, 1)
+                                  : undefined
+                              }
+                              remove={() => remove(section, e.id)}
+                            >
+                              <FormField
+                                label={
+                                  section === 'work'
+                                    ? t('Должность', 'Job title')
+                                    : section === 'education'
+                                      ? t(
+                                          'Специальность / степень',
+                                          'Degree / field of study',
+                                        )
+                                      : section === 'languages'
+                                        ? t('Язык', 'Language')
+                                        : t('Название проекта', 'Project name')
+                                }
+                                value={e.title}
+                                onChange={(v) =>
+                                  entry(section, e.id, 'title', v)
+                                }
+                              />
+                              <FormField
+                                label={
+                                  section === 'work'
+                                    ? t('Компания', 'Company')
+                                    : section === 'education'
+                                      ? t('Учебное заведение', 'Institution')
+                                      : section === 'languages'
+                                        ? t('Уровень владения', 'Proficiency')
+                                        : t(
+                                            'Роль / организация',
+                                            'Role / organization',
+                                          )
+                                }
+                                value={e.subtitle}
+                                onChange={(v) =>
+                                  entry(section, e.id, 'subtitle', v)
+                                }
+                              />
+                              {section !== 'languages' && (
+                                <>
+                                  <div className="field-row">
                                     <FormField
-                                      label={t('Окончание', 'End date')}
+                                      label={t('Начало', 'Start date')}
                                       type="month"
-                                      value={e.endDate}
+                                      value={e.startDate}
                                       onChange={(v) =>
-                                        entry(section, e.id, 'endDate', v)
+                                        entry(section, e.id, 'startDate', v)
                                       }
                                     />
-                                  )}
-                                </div>
-                                <label className="checkbox">
-                                  <input
-                                    type="checkbox"
-                                    checked={e.current}
-                                    onChange={(event) =>
-                                      entry(
-                                        section,
-                                        e.id,
-                                        'current',
-                                        event.target.checked,
-                                      )
-                                    }
-                                  />
-                                  {t('По настоящее время', 'Present')}
-                                </label>
-                                <FormField
-                                  label={
-                                    section === 'work'
-                                      ? t(
-                                          'Результаты и достижения',
-                                          'Achievements and impact',
-                                        )
-                                      : t('Описание', 'Description')
-                                  }
-                                  multiline
-                                  value={e.description}
-                                  onChange={(v) =>
-                                    entry(section, e.id, 'description', v)
-                                  }
-                                  onFocus={() => setActiveEntry(e.id)}
-                                  hint={
-                                    section === 'work'
-                                      ? t(
-                                          'Каждая новая строка — отдельный пункт. Добавьте результаты в цифрах.',
-                                          'One achievement per line. Include measurable results.',
-                                        )
-                                      : undefined
-                                  }
-                                />
-                                {section === 'projects' && (
-                                  <FormField
-                                    label={t(
-                                      'Ссылка на проект',
-                                      'Project link',
+                                    {!e.current && (
+                                      <FormField
+                                        label={t('Окончание', 'End date')}
+                                        type="month"
+                                        value={e.endDate}
+                                        onChange={(v) =>
+                                          entry(section, e.id, 'endDate', v)
+                                        }
+                                      />
                                     )}
-                                    value={e.url}
-                                    onChange={(v) =>
-                                      entry(section, e.id, 'url', v)
+                                  </div>
+                                  <label className="checkbox">
+                                    <input
+                                      type="checkbox"
+                                      checked={e.current}
+                                      onChange={(event) =>
+                                        entry(
+                                          section,
+                                          e.id,
+                                          'current',
+                                          event.target.checked,
+                                        )
+                                      }
+                                    />
+                                    {t('По настоящее время', 'Present')}
+                                  </label>
+                                  <FormField
+                                    label={
+                                      section === 'work'
+                                        ? t(
+                                            'Результаты и достижения',
+                                            'Achievements and impact',
+                                          )
+                                        : t('Описание', 'Description')
                                     }
-                                    placeholder="https://…"
+                                    multiline
+                                    value={e.description}
+                                    onChange={(v) =>
+                                      entry(section, e.id, 'description', v)
+                                    }
+                                    onFocus={() => setActiveEntry(e.id)}
+                                    hint={
+                                      section === 'work'
+                                        ? t(
+                                            'Каждая новая строка — отдельный пункт. Добавьте результаты в цифрах.',
+                                            'One achievement per line. Include measurable results.',
+                                          )
+                                        : undefined
+                                    }
                                   />
-                                )}
-                              </>
-                            )}
-                          </EntryCard>
-                        ))}
-                        {resume[section].length === 0 && (
-                          <div className="empty-section">
-                            <Plus size={24} />
-                            <p>{t('Здесь пока пусто', 'Nothing here yet')}</p>
-                            <span>
-                              {t(
-                                'Добавьте запись или пропустите раздел.',
-                                'Add an entry, or skip this section.',
+                                  {section === 'projects' && (
+                                    <FormField
+                                      label={t(
+                                        'Ссылка на проект',
+                                        'Project link',
+                                      )}
+                                      value={e.url}
+                                      onChange={(v) =>
+                                        entry(section, e.id, 'url', v)
+                                      }
+                                      placeholder="https://…"
+                                    />
+                                  )}
+                                </>
                               )}
-                            </span>
-                          </div>
-                        )}
-                        <button
-                          className="button add-entry"
-                          disabled={resume[section].length >= 100}
-                          onClick={() => add(section)}
-                        >
-                          <Plus size={17} />
-                          {t('Добавить запись', 'Add entry')}
-                        </button>
-                        <p className="field-hint">
-                          {t(
-                            resume[section].length >= 100
-                              ? 'В разделе уже 100 записей. Отредактируйте или удалите одну, чтобы добавить новую.'
-                              : 'Удаление и изменения можно отменить стрелкой вверху.',
-                            resume[section].length >= 100
-                              ? 'This section has 100 entries. Edit or remove an entry before adding another.'
-                              : 'Use Undo above to restore removed entries or changes.',
+                            </EntryCard>
+                          ))}
+                          {resume[section].length === 0 && (
+                            <div className="empty-section">
+                              <Plus size={24} />
+                              <p>{t('Здесь пока пусто', 'Nothing here yet')}</p>
+                              <span>
+                                {t(
+                                  'Добавьте запись или пропустите раздел.',
+                                  'Add an entry, or skip this section.',
+                                )}
+                              </span>
+                            </div>
                           )}
-                        </p>
-                      </>
-                    )}
-                    <Disclosure
-                      className="screening-guide"
-                      summary={
-                        <>
-                          {t(
-                            'Резюме для людей и систем отбора',
-                            'Make it easy to read & parse',
-                          )}
-                        </>
-                      }
-                    >
-                      <p>
-                        {t(
-                          'Выбирайте одну колонку для систем отбора. Добавляйте реальные навыки из вакансии в видимый текст и показывайте, как применяли их в работе. Скрытые ключевые слова не заменяют опыт.',
-                          'Choose a single column for application systems. Include relevant skills from the job posting in visible text, backed by examples of your work. Hidden keywords do not replace experience.',
-                        )}
-                      </p>
-                      <p>
-                        {t(
-                          'Проверьте текст PDF после скачивания: имя, контакты, даты, порядок разделов. Если работодатель просит другой формат, следуйте его инструкции. Универсального балла ATS нет.',
-                          'After downloading, check the PDF text: your name, contacts, dates, and section order. Follow the employer’s requested file format. There is no universal ATS score.',
-                        )}
-                      </p>
-                      <a
-                        href="https://support.greenhouse.io/hc/en-us/articles/200989175-Unsuccessful-resume-parse"
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        Greenhouse: resume parsing ↗
-                      </a>
-                      <a
-                        href="https://cloudfront.careeronestop.org/JobSearch/Resumes/ResumeGuide/formatting.aspx"
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        CareerOneStop: formatting ↗
-                      </a>
-                    </Disclosure>
-                    {tips.length > 0 && (
-                      <div className="tips">
-                        <div>
-                          <Lightbulb size={17} />
-                          <strong>
-                            {t('Небольшая подсказка', 'A little guidance')}
-                          </strong>
-                        </div>
-                        {tips.map((tip) => (
-                          <p key={tip.id}>
-                            <button
-                              className="tip-link"
-                              onClick={() => goSection(tip.section, true)}
-                            >
-                              {tip.message}
-                              <ChevronRight size={14} />
-                            </button>
-                            <button
-                              aria-label={`${t('Скрыть подсказку', 'Dismiss tip')}: ${tip.message}`}
-                              onClick={() =>
-                                setHiddenTips([...hiddenTips, tip.id])
-                              }
-                            >
-                              <X size={14} />
-                            </button>
+                          <button
+                            className="button add-entry"
+                            disabled={resume[section].length >= 100}
+                            onClick={() => add(section)}
+                          >
+                            <Plus size={17} />
+                            {t('Добавить запись', 'Add entry')}
+                          </button>
+                          <p className="field-hint">
+                            {resume[section].length >= 100
+                              ? t(
+                                  'В разделе уже 100 записей. Отредактируйте или удалите одну, чтобы добавить новую.',
+                                  'This section has 100 entries. Edit or remove an entry before adding another.',
+                                )
+                              : t(
+                                  'Удаление и изменения можно отменить стрелкой вверху.',
+                                  'Use Undo above to restore removed entries or changes.',
+                                )}
                           </p>
-                        ))}
-                      </div>
-                    )}
-                    {hiddenTips.length > 0 && (
-                      <button
-                        className="text-button restore-tips"
-                        onClick={() => setHiddenTips([])}
-                      >
-                        {t('Показать скрытые подсказки', 'Show dismissed tips')}
-                      </button>
-                    )}
-                    <div className="form-bottom">
-                      <span>
-                        {t(
-                          'Пустые разделы не попадут в PDF',
-                          'Empty sections stay out of your PDF',
-                        )}
-                      </span>
-                      <button
-                        className="button secondary"
-                        onClick={() =>
-                          steps.indexOf(section) < steps.length - 1
-                            ? goSection(steps[steps.indexOf(section) + 1])
-                            : ((focusSection.current = true), setTab('design'))
+                        </>
+                      )}
+                      <Disclosure
+                        className="screening-guide"
+                        summary={
+                          <>
+                            {t(
+                              'Резюме для людей и систем отбора',
+                              'Make it easy to read & parse',
+                            )}
+                          </>
                         }
                       >
-                        {steps.indexOf(section) < steps.length - 1
-                          ? t('Далее', 'Next')
-                          : t('К оформлению', 'Choose a design')}
-                        <ChevronRight size={16} />
-                      </button>
-                    </div>
-                    <p className="translation-note">
-                      <Globe2 size={14} />
-                      {t(
-                        'RU / EN вверху переключает версии. Перевод заполняется вручную.',
-                        'RU / EN above switches versions. Translations are entered manually.',
+                        <p>
+                          {t(
+                            'Выбирайте одну колонку для систем отбора. Добавляйте реальные навыки из вакансии в видимый текст и показывайте, как применяли их в работе. Скрытые ключевые слова не заменяют опыт.',
+                            'Choose a single column for application systems. Include relevant skills from the job posting in visible text, backed by examples of your work. Hidden keywords do not replace experience.',
+                          )}
+                        </p>
+                        <p>
+                          {t(
+                            'Проверьте текст PDF после скачивания: имя, контакты, даты, порядок разделов. Если работодатель просит другой формат, следуйте его инструкции. Универсального балла ATS нет.',
+                            'After downloading, check the PDF text: your name, contacts, dates, and section order. Follow the employer’s requested file format. There is no universal ATS score.',
+                          )}
+                        </p>
+                        <a
+                          href="https://support.greenhouse.io/hc/en-us/articles/200989175-Unsuccessful-resume-parse"
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Greenhouse: resume parsing ↗
+                        </a>
+                        <a
+                          href="https://cloudfront.careeronestop.org/JobSearch/Resumes/ResumeGuide/formatting.aspx"
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          CareerOneStop: formatting ↗
+                        </a>
+                      </Disclosure>
+                      {tips.length > 0 && (
+                        <div className="tips">
+                          <div>
+                            <Lightbulb size={17} />
+                            <strong>
+                              {t('Небольшая подсказка', 'A little guidance')}
+                            </strong>
+                          </div>
+                          {tips.map((tip) => (
+                            <p key={tip.id}>
+                              <button
+                                className="tip-link"
+                                onClick={() => goSection(tip.section, true)}
+                              >
+                                {tip.message}
+                                <ChevronRight size={14} />
+                              </button>
+                              <button
+                                aria-label={`${t('Скрыть подсказку', 'Dismiss tip')}: ${tip.message}`}
+                                onClick={() =>
+                                  setHiddenTips([...hiddenTips, tip.id])
+                                }
+                              >
+                                <X size={14} />
+                              </button>
+                            </p>
+                          ))}
+                        </div>
                       )}
-                    </p>
-                  </>
-                )}
-              </>
-            )}
-          </div>
+                      {hiddenTips.length > 0 && (
+                        <button
+                          className="text-button restore-tips"
+                          onClick={() => setHiddenTips([])}
+                        >
+                          {t(
+                            'Показать скрытые подсказки',
+                            'Show dismissed tips',
+                          )}
+                        </button>
+                      )}
+                      <div className="form-bottom">
+                        <span>
+                          {t(
+                            'Пустые разделы не попадут в PDF',
+                            'Empty sections stay out of your PDF',
+                          )}
+                        </span>
+                        <button
+                          className="button secondary"
+                          onClick={() =>
+                            steps.indexOf(section) < steps.length - 1
+                              ? goSection(steps[steps.indexOf(section) + 1])
+                              : ((focusSection.current = true),
+                                setTab('design'))
+                          }
+                        >
+                          {steps.indexOf(section) < steps.length - 1
+                            ? t('Далее', 'Next')
+                            : t('К оформлению', 'Choose a design')}
+                          <ChevronRight size={16} />
+                        </button>
+                      </div>
+                      <p className="translation-note">
+                        <Globe2 size={14} />
+                        {t(
+                          'Язык резюме выбирается вверху формы. Контакты, даты и ссылки общие, текст переводится вручную.',
+                          'Choose the resume language at the top of the form. Contacts, dates, and links are shared; you translate the text.',
+                        )}
+                      </p>
+                    </>
+                  )}
+                </>
+              )}
+            </div>
+          </ContentLang.Provider>
         </section>
         <section
           className="preview-panel"
@@ -1712,7 +1821,7 @@ export default function Editor({
               </div>
             }
           >
-            <Preview doc={doc} />
+            <Preview doc={doc} locale={locale} />
           </Suspense>
           <div className="preview-footnote">
             <LockKeyhole size={13} />

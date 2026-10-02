@@ -5,13 +5,22 @@ import {
   sectionLabels,
   visibleSections,
   type EntrySection,
+  type Locale,
   type StudioDocument,
 } from './model'
+import { translator } from './i18n'
 
-export default function ResumeText({ doc }: { doc: StudioDocument }) {
+export default function ResumeText({
+  doc,
+  locale = doc.language,
+}: {
+  doc: StudioDocument
+  locale?: Locale
+}) {
+  const t = translator(locale),
+    tc = translator(doc.language)
   const resume = doc.versions[doc.language],
-    labels = sectionLabels[doc.language],
-    ru = doc.language === 'ru'
+    labels = sectionLabels[doc.language]
   function entries(section: EntrySection) {
     const visible = resume[section].filter(
       (entry) =>
@@ -67,10 +76,10 @@ export default function ResumeText({ doc }: { doc: StudioDocument }) {
   return (
     <article
       className="resume-text"
-      aria-label={ru ? 'Текст резюме' : 'Resume text'}
+      aria-label={t('Текст резюме', 'Resume text')}
       lang={doc.language}
     >
-      <h2>{resume.basics.name || (ru ? 'Ваше имя' : 'Your name')}</h2>
+      <h2>{resume.basics.name || tc('Ваше имя', 'Your name')}</h2>
       {resume.basics.label && (
         <p className="resume-text-role">{resume.basics.label}</p>
       )}

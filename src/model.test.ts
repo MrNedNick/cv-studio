@@ -243,3 +243,21 @@ it('accepts only small JPEG or PNG data URLs as a photo', () => {
   ])
     expect(parseDocument({ ...doc, photo }).photo).toBe('')
 })
+
+it('opens an older two-language file and pairs the new versions by entry', () => {
+  const old = createDocument(true, 'ru') as unknown as Record<string, unknown>
+  const versions = old.versions as Record<string, unknown>
+  old.versions = { ru: versions.ru, en: versions.en }
+  const doc = parseDocument(JSON.parse(JSON.stringify(old)))
+  expect(doc.versions.ru.basics.name).toBe('Александра Морозова')
+  expect(doc.versions.en.basics.name).toBe('Alex Morgan')
+  for (const locale of ['de', 'es', 'bg', 'uk'] as const) {
+    expect(doc.versions[locale].basics.name).toBe('')
+    expect(doc.versions[locale].basics.email).toBe('alex@example.com')
+    expect(doc.versions[locale].work.map((e) => e.id)).toEqual(
+      doc.versions.ru.work.map((e) => e.id),
+    )
+    expect(doc.versions[locale].work[0].startDate).toBe('2022-03')
+  }
+  expect(parseDocument({ ...old, language: 'xx' }).language).toBe('en')
+})

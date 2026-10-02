@@ -1,4 +1,32 @@
-export type Locale = 'ru' | 'en'
+import { samples } from './samples'
+import { translate, type Vars } from './i18n'
+export const locales = ['en', 'ru', 'de', 'es', 'bg', 'uk'] as const
+export type Locale = (typeof locales)[number]
+export const localeNames: Record<Locale, string> = {
+  en: 'English',
+  ru: 'Русский',
+  de: 'Deutsch',
+  es: 'Español',
+  bg: 'Български',
+  uk: 'Українська',
+}
+export const isLocale = (value: unknown): value is Locale =>
+  locales.includes(value as Locale)
+/** Contact details shared by every language version. */
+export const sharedBasics = [
+  'email',
+  'phone',
+  'url',
+  'linkedin',
+  'github',
+] as const
+/** Entry fields shared by every language version. */
+export const sharedEntryFields = [
+  'startDate',
+  'endDate',
+  'current',
+  'url',
+] as const
 export const templateIds = [
   'modern',
   'classic',
@@ -122,6 +150,50 @@ export const sectionLabels: Record<Locale, Record<Section, string>> = {
     projects: 'Projects',
     languages: 'Languages',
   },
+  de: {
+    basics: 'Persönliche Daten',
+    summary: 'Profil',
+    work: 'Berufserfahrung',
+    education: 'Ausbildung',
+    skills: 'Kenntnisse',
+    projects: 'Projekte',
+    languages: 'Sprachen',
+  },
+  es: {
+    basics: 'Datos personales',
+    summary: 'Perfil',
+    work: 'Experiencia',
+    education: 'Formación',
+    skills: 'Habilidades',
+    projects: 'Proyectos',
+    languages: 'Idiomas',
+  },
+  bg: {
+    basics: 'Лични данни',
+    summary: 'Профил',
+    work: 'Професионален опит',
+    education: 'Образование',
+    skills: 'Умения',
+    projects: 'Проекти',
+    languages: 'Езици',
+  },
+  uk: {
+    basics: 'Особисті дані',
+    summary: 'Про себе',
+    work: 'Досвід роботи',
+    education: 'Освіта',
+    skills: 'Навички',
+    projects: 'Проєкти',
+    languages: 'Мови',
+  },
+}
+const present: Record<Locale, string> = {
+  en: 'Present',
+  ru: 'настоящее время',
+  de: 'heute',
+  es: 'actualidad',
+  bg: 'момента',
+  uk: 'теперішній час',
 }
 export function emptyEntry(id: string = crypto.randomUUID()): Entry {
   return {
@@ -159,96 +231,12 @@ export function createDocument(
   sample = false,
   language: Locale = 'en',
 ): StudioDocument {
-  const ru = emptyResume(),
-    en = emptyResume()
-  if (sample) {
-    ru.basics = {
-      name: 'Александра Морозова',
-      label: 'Продуктовый дизайнер',
-      email: 'alex@example.com',
-      phone: '',
-      location: 'Прага, Чехия',
-      url: 'https://example.com',
-      linkedin: '',
-      github: '',
-      summary:
-        'Создаю понятные цифровые продукты — от первого исследования до запуска. Соединяю потребности людей и задачи бизнеса в простых, продуманных решениях.',
-    }
-    en.basics = {
-      ...ru.basics,
-      name: 'Alex Morgan',
-      label: 'Product designer',
-      location: 'Prague, Czechia',
-      summary:
-        'Product designer with 6 years of turning complex problems into clear digital experiences. Raised checkout conversion by 24% with research-led redesigns. Looking for a product team where user needs and business goals meet.',
-    }
-    ru.work = [
-      {
-        ...emptyEntry('work-1'),
-        title: 'Продуктовый дизайнер',
-        subtitle: 'Forma Studio',
-        startDate: '2022-03',
-        current: true,
-        description:
-          'Переработала оформление заказа и повысила конверсию на 24%.\nСоздала дизайн-систему из 60 компонентов для трёх продуктов.\nПровела 30 интервью и проверила гипотезы с командой разработки.',
-      },
-      {
-        ...emptyEntry('work-2'),
-        title: 'UX/UI-дизайнер',
-        subtitle: 'North Digital',
-        startDate: '2020-06',
-        endDate: '2022-02',
-        description:
-          'Спроектировала личный кабинет для 12 000 пользователей.\nСократила время выполнения основного сценария на 35%.',
-      },
-    ]
-    en.work = [
-      {
-        ...ru.work[0],
-        title: 'Product designer',
-        description:
-          'Redesigned checkout, increasing conversion by 24%.\nBuilt a 60-component design system across three products.\nLed 30 user interviews and tested ideas with engineering.',
-      },
-      {
-        ...ru.work[1],
-        title: 'UX/UI designer',
-        description:
-          'Designed a dashboard for 12,000 customers.\nReduced time to complete key tasks by 35%.',
-      },
-    ]
-    ru.education = [
-      {
-        ...emptyEntry('education-1'),
-        title: 'Дизайн и визуальные коммуникации',
-        subtitle: 'Университет прикладных искусств',
-        startDate: '2016-09',
-        endDate: '2020-06',
-      },
-    ]
-    en.education = [
-      {
-        ...ru.education[0],
-        title: 'BA, Visual communication',
-        subtitle: 'University of Applied Arts',
-      },
-    ]
-    ru.skills =
-      'Figma, UX-исследования, Прототипирование, Дизайн-системы, Юзабилити-тестирование, Доступность, HTML / CSS'
-    en.skills =
-      'Figma, User research, Prototyping, Design systems, Usability testing, Accessibility, HTML / CSS'
-    ru.languages = [
-      { ...emptyEntry('language-1'), title: 'Русский', subtitle: 'Родной' },
-      {
-        ...emptyEntry('language-2'),
-        title: 'Английский',
-        subtitle: 'C1 — продвинутый',
-      },
-    ]
-    en.languages = [
-      { ...ru.languages[0], title: 'Russian', subtitle: 'Native' },
-      { ...ru.languages[1], title: 'English', subtitle: 'C1 — advanced' },
-    ]
-  }
+  const versions = Object.fromEntries(
+    locales.map((locale) => [
+      locale,
+      sample ? sampleResume(locale) : emptyResume(),
+    ]),
+  ) as Record<Locale, Resume>
   return {
     schemaVersion: 1,
     language,
@@ -259,8 +247,84 @@ export function createDocument(
     sectionOrder: [],
     hiddenSections: [],
     photo: '',
-    versions: { ru, en },
+    versions,
   }
+}
+function sampleResume(locale: Locale): Resume {
+  const text = samples[locale],
+    resume = emptyResume()
+  resume.basics = {
+    ...resume.basics,
+    name: text.name,
+    label: text.label,
+    email: 'alex@example.com',
+    location: text.location,
+    url: 'https://example.com',
+    summary: text.summary,
+  }
+  resume.work = [
+    {
+      ...emptyEntry('work-1'),
+      title: text.work[0][0],
+      subtitle: 'Forma Studio',
+      startDate: '2022-03',
+      current: true,
+      description: text.work[0][1],
+    },
+    {
+      ...emptyEntry('work-2'),
+      title: text.work[1][0],
+      subtitle: 'North Digital',
+      startDate: '2020-06',
+      endDate: '2022-02',
+      description: text.work[1][1],
+    },
+  ]
+  resume.education = [
+    {
+      ...emptyEntry('education-1'),
+      title: text.education[0],
+      subtitle: text.education[1],
+      startDate: '2016-09',
+      endDate: '2020-06',
+    },
+  ]
+  resume.skills = text.skills
+  resume.languages = text.languages.map(([title, subtitle], i) => ({
+    ...emptyEntry(`language-${i + 1}`),
+    title,
+    subtitle,
+  }))
+  return resume
+}
+/**
+ * A version with the shared details of `base` (contacts, dates, links) and
+ * empty translatable text, so entries stay paired across languages.
+ */
+export function skeletonOf(base: Resume): Resume {
+  const resume = emptyResume()
+  for (const key of sharedBasics) resume.basics[key] = base.basics[key]
+  for (const section of ['work', 'education', 'projects', 'languages'] as const)
+    resume[section] = base[section].map((e) => ({
+      ...emptyEntry(e.id),
+      startDate: e.startDate,
+      endDate: e.endDate,
+      current: e.current,
+      url: e.url,
+    }))
+  return resume
+}
+/** True when a version has no text of its own yet. */
+export function isEmptyVersion(resume: Resume) {
+  return (
+    !resume.basics.name.trim() &&
+    !resume.basics.label.trim() &&
+    !resume.basics.summary.trim() &&
+    !resume.skills.trim() &&
+    (['work', 'education', 'projects', 'languages'] as const).every((s) =>
+      resume[s].every((e) => !e.title.trim() && !e.description.trim()),
+    )
+  )
 }
 const str = (value: unknown) =>
   typeof value === 'string' ? value.slice(0, 30000) : ''
@@ -323,17 +387,23 @@ export function parseDocument(input: unknown): StudioDocument {
   const wrapper = obj(input)
   const source = wrapper.cvStudio ? obj(wrapper.cvStudio) : wrapper
   if (source.cvStudio) throw new Error('Nested resume source')
-  if (
-    source.schemaVersion === 1 &&
-    obj(source.versions).ru &&
-    obj(source.versions).en
-  ) {
+  const sourceVersions = obj(source.versions),
+    stored = locales.filter((l) => sourceVersions[l])
+  if (source.schemaVersion === 1 && stored.length) {
     const result = createDocument()
-    result.versions = {
-      ru: cleanResume(obj(source.versions).ru, obj(source.versions).en),
-      en: cleanResume(obj(source.versions).en, obj(source.versions).ru),
-    }
-    result.language = source.language === 'en' ? 'en' : 'ru'
+    // Pair entry IDs against the first stored version; older files have only ru/en.
+    const base = cleanResume(
+      sourceVersions[stored[0]],
+      sourceVersions[stored[1] ?? stored[0]],
+    )
+    for (const locale of locales)
+      result.versions[locale] = sourceVersions[locale]
+        ? cleanResume(
+            sourceVersions[locale],
+            sourceVersions[stored.find((l) => l !== locale) ?? locale],
+          )
+        : skeletonOf(base)
+    result.language = isLocale(source.language) ? source.language : stored[0]
     result.template = (templateIds as readonly string[]).includes(
       str(source.template),
     )
@@ -430,23 +500,8 @@ export function parseDocument(input: unknown): StudioDocument {
     .join(', ')
   const result = createDocument()
   result.language = 'en'
-  result.versions.en = resume
-  for (const key of ['email', 'phone', 'url', 'linkedin', 'github'] as const)
-    result.versions.ru.basics[key] = resume.basics[key]
-  for (const section of [
-    'work',
-    'education',
-    'projects',
-    'languages',
-  ] as const) {
-    result.versions.ru[section] = resume[section].map((e) => ({
-      ...emptyEntry(e.id),
-      startDate: e.startDate,
-      endDate: e.endDate,
-      current: e.current,
-      url: e.url,
-    }))
-  }
+  for (const locale of locales)
+    result.versions[locale] = locale === 'en' ? resume : skeletonOf(resume)
   return result
 }
 export function toJsonResume(doc: StudioDocument) {
@@ -536,11 +591,7 @@ export function dateRange(entry: Entry, locale: Locale) {
   }
   return [
     format(entry.startDate),
-    entry.current
-      ? locale === 'ru'
-        ? 'настоящее время'
-        : 'Present'
-      : format(entry.endDate),
+    entry.current ? present[locale] : format(entry.endDate),
   ]
     .filter(Boolean)
     .join(' — ')
@@ -550,11 +601,28 @@ export interface ResumeTip {
   section: Section
   message: string
 }
-export function getTips(resume: Resume, locale: Locale): ResumeTip[] {
-  const tips: ResumeTip[] = [],
-    ru = locale === 'ru'
-  const add = (id: string, section: Section, a: string, b: string) =>
-    tips.push({ id, section, message: ru ? a : b })
+/** Openers that describe duties instead of results, per resume language. */
+export const weakStart: Record<Locale, RegExp> = {
+  en: /^(responsible for|helped|assisted|worked on|participated in|involved in|duties included|tasked with)\b/i,
+  ru: /^(отвечал[аи]? за|помогал[аи]?|занимал(?:ся|ась|ись)|участвовал[аи]?|работал[аи]? над|обязанности|в мои обязанности)(?=\s|:|$)/iu,
+  de: /^(verantwortlich für|zuständig für|half|unterstützte|mitarbeit an|beteiligt an|aufgaben)(?=\s|:|$)/iu,
+  es: /^(responsable de|encargad[oa] de|ayudé|ayudaba|colaboré en|participé en|tareas|funciones)(?=\s|:|$)/iu,
+  bg: /^(отговарях за|отговорен за|отговорна за|помагах|участвах|занимавах се|задължения)(?=\s|:|$)/iu,
+  uk: /^(відповідав|відповідала|допомагав|допомагала|займав(?:ся|ась)|займалася|брав участь|брала участь|обов[’']язки)(?=\s|:|$)/iu,
+}
+export function getTips(
+  resume: Resume,
+  locale: Locale,
+  lang: Locale = locale,
+): ResumeTip[] {
+  const tips: ResumeTip[] = []
+  const add = (
+    id: string,
+    section: Section,
+    a: string,
+    b: string,
+    vars?: Vars,
+  ) => tips.push({ id, section, message: translate(locale, a, b, vars) })
   if (!resume.basics.name.trim())
     add(
       'name',
@@ -609,8 +677,9 @@ export function getTips(resume: Resume, locale: Locale): ResumeTip[] {
       add(
         `${section}-empty`,
         section,
-        `«${label}»: заполните пустую запись или удалите её.`,
-        `${label}: fill in the empty entry or remove it.`,
+        '«{label}»: заполните пустую запись или удалите её.',
+        '{label}: fill in the empty entry or remove it.',
+        { label },
       )
     if (
       resume[section].some(
@@ -621,8 +690,9 @@ export function getTips(resume: Resume, locale: Locale): ResumeTip[] {
       add(
         `${section}-dates`,
         section,
-        `«${label}»: окончание раньше начала. Проверьте даты.`,
-        `${label}: an end date is before its start date. Check the dates.`,
+        '«{label}»: окончание раньше начала. Проверьте даты.',
+        '{label}: an end date is before its start date. Check the dates.',
+        { label },
       )
     if (
       resume[section].some((e) =>
@@ -632,8 +702,9 @@ export function getTips(resume: Resume, locale: Locale): ResumeTip[] {
       add(
         `${section}-length`,
         section,
-        `«${label}»: разбейте длинный абзац на короткие пункты.`,
-        `${label}: split long paragraphs into shorter points.`,
+        '«{label}»: разбейте длинный абзац на короткие пункты.',
+        '{label}: split long paragraphs into shorter points.',
+        { label },
       )
   }
   if (
@@ -645,9 +716,7 @@ export function getTips(resume: Resume, locale: Locale): ResumeTip[] {
       'Добавьте в опыт конкретный результат: цифру, срок или масштаб работы.',
       'Add measurable outcomes to your experience: numbers, time saved, or scale.',
     )
-  const passive = ru
-    ? /^(обязанности|отвечал[аи]? за|участвовал[аи]? в|работал[аи]? над)\s/i
-    : /^(responsible for|worked on|participated in|duties)\b/i
+  const passive = weakStart[lang]
   if (
     resume.work.some((e) =>
       e.description

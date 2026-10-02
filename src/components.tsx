@@ -1,6 +1,18 @@
 import { ArrowRight } from 'lucide-react'
 import { Field } from './ui/components/field/field'
-import { createDocument, type Locale, type Template } from './model'
+import { createContext, useContext } from 'react'
+import {
+  createDocument,
+  dateRange,
+  sectionLabels,
+  type Locale,
+  type Section,
+  type Template,
+} from './model'
+import { translate } from './i18n'
+
+/** Language of the resume version being edited; inputs use it for spelling. */
+export const ContentLang = createContext<Locale | undefined>(undefined)
 export const templates: {
   id: Template
   name: string
@@ -90,7 +102,8 @@ export function MiniResume({
   large?: boolean
 }) {
   const r = createDocument(true).versions[locale],
-    ru = locale === 'ru'
+    heading = (section: Section) =>
+      sectionLabels[locale][section].toLocaleUpperCase(locale)
   return (
     <div
       className={`mini-resume mini-${template} ${large ? 'large' : ''}`}
@@ -108,20 +121,20 @@ export function MiniResume({
       <div className="mini-rule" />
       <div className="mini-body">
         <div>
-          <h4>{ru ? 'ПРОФИЛЬ' : 'PROFILE'}</h4>
+          <h4>{heading('summary')}</h4>
           <p>{r.basics.summary}</p>
           {template === 'technical' && (
             <>
-              <h4>{ru ? 'НАВЫКИ' : 'SKILLS'}</h4>
+              <h4>{heading('skills')}</h4>
               <p>{r.skills}</p>
             </>
           )}
-          <h4>{ru ? 'ОПЫТ РАБОТЫ' : 'EXPERIENCE'}</h4>
+          <h4>{heading('work')}</h4>
           {r.work.map((e, i) => (
             <div className="mini-job" key={e.id}>
               <span className="mini-date">
                 {i === 0
-                  ? '2022 — ' + (ru ? 'сейчас' : 'present')
+                  ? dateRange(r.work[0], locale).replace(/^[^—]+/, '2022 ')
                   : '2020 — 2022'}
               </span>
               <strong>{e.title}</strong>
@@ -136,12 +149,12 @@ export function MiniResume({
           ))}
         </div>
         <div className="mini-secondary">
-          <h4>{ru ? 'ОБРАЗОВАНИЕ' : 'EDUCATION'}</h4>
+          <h4>{heading('education')}</h4>
           <strong>{r.education[0].title}</strong>
           <p>{r.education[0].subtitle} · 2020</p>
           {template !== 'technical' && (
             <>
-              <h4>{ru ? 'НАВЫКИ' : 'SKILLS'}</h4>
+              <h4>{heading('skills')}</h4>
               <p>{r.skills}</p>
             </>
           )}
@@ -169,6 +182,7 @@ export function FormField({
   type?: string
   placeholder?: string
 }) {
+  const lang = useContext(ContentLang)
   return (
     <Field label={label} hint={hint} className="field">
       {multiline ? (
@@ -179,6 +193,7 @@ export function FormField({
           onFocus={onFocus}
           placeholder={placeholder}
           maxLength={30000}
+          lang={lang}
         />
       ) : (
         <input
@@ -187,6 +202,7 @@ export function FormField({
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           maxLength={1000}
+          lang={lang}
         />
       )}
     </Field>
@@ -214,14 +230,14 @@ export function TemplateCards({
             <span className="template-number">0{index + 1}</span>
             <MiniResume template={template.id} locale={locale} />
             <span className="template-use">
-              {locale === 'ru' ? 'Выбрать шаблон' : 'Use template'}
+              {translate(locale, 'Выбрать шаблон', 'Use template')}
               <ArrowRight size={16} />
             </span>
           </div>
           <div className="template-caption">
             <div>
               <h3>{template.name}</h3>
-              <p>{template[locale]}</p>
+              <p>{translate(locale, template.ru, template.en)}</p>
             </div>
             <span>↗</span>
           </div>

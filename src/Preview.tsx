@@ -9,8 +9,18 @@ import {
   ChevronRight,
 } from 'lucide-react'
 import ResumeText from './ResumeText'
-import type { StudioDocument } from './model'
-export default function Preview({ doc }: { doc: StudioDocument }) {
+import type { Locale, StudioDocument } from './model'
+import { translator } from './i18n'
+export default function Preview({
+  doc,
+  locale = doc.language,
+}: {
+  doc: StudioDocument
+  locale?: Locale
+}) {
+  const t = translator(locale),
+    pageLabel = useRef(t)
+  pageLabel.current = t
   const host = useRef<HTMLDivElement>(null),
     generation = useRef(0),
     [busy, setBusy] = useState(true),
@@ -49,9 +59,13 @@ export default function Preview({ doc }: { doc: StudioDocument }) {
             canvas.setAttribute('role', 'img')
             canvas.setAttribute(
               'aria-label',
-              doc.language === 'ru'
-                ? `Резюме, страница ${i}`
-                : `Resume, page ${i}`,
+              pageLabel.current(
+                'Резюме, страница {page}',
+                'Resume, page {page}',
+                {
+                  page: i,
+                },
+              ),
             )
             await page.render({ canvas, viewport }).promise
             fragment.appendChild(canvas)
@@ -83,14 +97,13 @@ export default function Preview({ doc }: { doc: StudioDocument }) {
       canvas.hidden = fit && i + 1 !== page
     })
   }, [page, fit, pages, busy])
-  const ru = doc.language === 'ru'
   return (
     <>
       <div className="preview-controls">
         <div
           className="preview-modes"
           role="group"
-          aria-label={ru ? 'Вид просмотра' : 'Preview mode'}
+          aria-label={t('Вид просмотра', 'Preview mode')}
         >
           <button aria-pressed={mode === 'pdf'} onClick={() => setMode('pdf')}>
             PDF
@@ -99,28 +112,28 @@ export default function Preview({ doc }: { doc: StudioDocument }) {
             aria-pressed={mode === 'text'}
             onClick={() => setMode('text')}
           >
-            {ru ? 'Текст' : 'Text'}
+            {t('Текст', 'Text')}
           </button>
         </div>
         {mode === 'pdf' && (
           <div
             className="zoom-controls"
             role="group"
-            aria-label={ru ? 'Масштаб просмотра' : 'Preview zoom'}
+            aria-label={t('Масштаб просмотра', 'Preview zoom')}
           >
             <button
               className="fit-page-button"
               aria-pressed={fit}
               onClick={() => setFit(true)}
-              title={ru ? 'Вся страница' : 'Fit page'}
+              title={t('Вся страница', 'Fit page')}
             >
               <Scan size={15} />
-              {ru ? 'Вся страница' : 'Fit page'}
+              {t('Вся страница', 'Fit page')}
             </button>
             <button
               className="icon-button"
               disabled={zoom <= 75}
-              aria-label={ru ? 'Уменьшить' : 'Zoom out'}
+              aria-label={t('Уменьшить', 'Zoom out')}
               onClick={() => {
                 setFit(false)
                 setZoom((value) => value - 25)
@@ -134,15 +147,15 @@ export default function Preview({ doc }: { doc: StudioDocument }) {
                 setFit(false)
                 setZoom(100)
               }}
-              aria-label={ru ? 'По ширине страницы' : 'Fit to width'}
-              title={ru ? 'По ширине страницы' : 'Fit to width'}
+              aria-label={t('По ширине страницы', 'Fit to width')}
+              title={t('По ширине страницы', 'Fit to width')}
             >
               {zoom}%
             </button>
             <button
               className="icon-button"
               disabled={zoom >= 200}
-              aria-label={ru ? 'Увеличить' : 'Zoom in'}
+              aria-label={t('Увеличить', 'Zoom in')}
               onClick={() => {
                 setFit(false)
                 setZoom((value) => value + 25)
@@ -156,11 +169,12 @@ export default function Preview({ doc }: { doc: StudioDocument }) {
       {mode === 'text' && (
         <>
           <p className="text-preview-note">
-            {ru
-              ? 'Для чтения и копирования. Оформление документа — во вкладке PDF.'
-              : 'For reading and copying. See the PDF tab for the document layout.'}
+            {t(
+              'Для чтения и копирования. Оформление документа — во вкладке PDF.',
+              'For reading and copying. See the PDF tab for the document layout.',
+            )}
           </p>
-          <ResumeText doc={doc} />
+          <ResumeText doc={doc} locale={locale} />
         </>
       )}
       <div className="pdf-preview-content" hidden={mode !== 'pdf'}>
@@ -168,16 +182,19 @@ export default function Preview({ doc }: { doc: StudioDocument }) {
           {busy ? (
             <>
               <LoaderCircle className="spin" size={13} />
-              {ru ? 'Обновляем просмотр…' : 'Updating preview…'}
+              {t('Обновляем просмотр…', 'Updating preview…')}
             </>
           ) : error ? (
-            ru ? (
-              'Не удалось загрузить PDF. Можно повторить попытку или открыть текст.'
-            ) : (
-              'PDF preview could not load. Retry or switch to text.'
+            t(
+              'Не удалось загрузить PDF. Можно повторить попытку или открыть текст.',
+              'PDF preview could not load. Retry or switch to text.',
             )
           ) : (
-            `${ru ? 'Страниц' : 'Pages'}: ${pages} · A4 · ${ru ? 'Так будет выглядеть ваш PDF' : 'Exactly as in your PDF'}`
+            t(
+              'Страниц: {pages} · A4 · Так будет выглядеть ваш PDF',
+              'Pages: {pages} · A4 · Exactly as in your PDF',
+              { pages },
+            )
           )}
         </div>
         {error && (
@@ -186,7 +203,7 @@ export default function Preview({ doc }: { doc: StudioDocument }) {
             onClick={() => setRetry((value) => value + 1)}
           >
             <RotateCcw size={15} />
-            {ru ? 'Повторить загрузку' : 'Retry preview'}
+            {t('Повторить загрузку', 'Retry preview')}
           </button>
         )}
         <div
@@ -195,12 +212,11 @@ export default function Preview({ doc }: { doc: StudioDocument }) {
           role="region"
           aria-label={
             fit
-              ? ru
-                ? 'Страница PDF целиком'
-                : 'Full PDF page'
-              : ru
-                ? 'Страницы PDF — прокрутите для просмотра'
-                : 'PDF pages — scroll to explore'
+              ? t('Страница PDF целиком', 'Full PDF page')
+              : t(
+                  'Страницы PDF — прокрутите для просмотра',
+                  'PDF pages — scroll to explore',
+                )
           }
           aria-busy={busy}
           hidden={error}
@@ -215,24 +231,24 @@ export default function Preview({ doc }: { doc: StudioDocument }) {
           <div
             className="page-navigation"
             role="group"
-            aria-label={ru ? 'Страницы PDF' : 'PDF pages'}
+            aria-label={t('Страницы PDF', 'PDF pages')}
           >
             <button
               className="icon-button"
               disabled={page === 1}
               onClick={() => setPage((value) => value - 1)}
-              aria-label={ru ? 'Предыдущая страница' : 'Previous page'}
+              aria-label={t('Предыдущая страница', 'Previous page')}
             >
               <ChevronLeft size={17} />
             </button>
             <span aria-live="polite">
-              {ru ? 'Страница' : 'Page'} {page} / {pages}
+              {t('Страница', 'Page')} {page} / {pages}
             </span>
             <button
               className="icon-button"
               disabled={page === pages}
               onClick={() => setPage((value) => value + 1)}
-              aria-label={ru ? 'Следующая страница' : 'Next page'}
+              aria-label={t('Следующая страница', 'Next page')}
             >
               <ChevronRight size={17} />
             </button>
@@ -240,9 +256,10 @@ export default function Preview({ doc }: { doc: StudioDocument }) {
         )}
         {pages > 2 && (
           <p className="page-tip">
-            {ru
-              ? 'Получилось больше двух страниц. Попробуйте компактный шаблон или сократите описание опыта.'
-              : 'More than two pages. Try the compact template or shorten older experience.'}
+            {t(
+              'Получилось больше двух страниц. Попробуйте компактный шаблон или сократите описание опыта.',
+              'More than two pages. Try the compact template or shorten older experience.',
+            )}
           </p>
         )}
       </div>

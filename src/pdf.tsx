@@ -10,6 +10,7 @@ import {
 } from '@react-pdf/renderer'
 import type { ReactNode } from 'react'
 import { PDFDocument } from 'pdf-lib'
+import { translate } from './i18n'
 import {
   dateRange,
   safeUrl,
@@ -380,7 +381,7 @@ export function ResumePDF({ doc }: { doc: StudioDocument }) {
               }}
             >
               {r.basics.name ||
-                (doc.language === 'ru' ? 'Ваше имя' : 'Your name')}
+                translate(doc.language, 'Ваше имя', 'Your name')}
             </Text>
             {r.basics.label && (
               <Text

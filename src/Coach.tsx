@@ -10,6 +10,7 @@ import {
 } from 'lucide-react'
 import {
   actionVerbs,
+  verbGroups,
   guides,
   matchJob,
   reviewResume,
@@ -17,23 +18,28 @@ import {
 } from './writing'
 import { Disclosure } from './motion'
 import { sectionLabels, type Locale, type Resume, type Section } from './model'
+import { translate, translator } from './i18n'
 
 export function WritingGuide({
   section,
   locale,
+  lang = locale,
   onPattern,
   onVerb,
   verbTarget,
 }: {
   section: Section
   locale: Locale
+  /** Language of the resume version: verbs and inserted structures use it. */
+  lang?: Locale
   onPattern?: (pattern: string) => void
   onVerb?: (verb: string) => void
   verbTarget?: string
 }) {
   const guide = guides[section],
-    ru = locale === 'ru',
-    t = (a: string, b: string) => (ru ? a : b),
+    t = translator(locale),
+    pattern =
+      guide?.pattern && translate(lang, guide.pattern.ru, guide.pattern.en),
     [verbGroup, setVerbGroup] = useState(0),
     [open, setOpen] = useState(() => {
       try {
@@ -59,29 +65,26 @@ export function WritingGuide({
     >
       <ul>
         {guide.rules.map((rule) => (
-          <li key={rule.en}>{rule[locale]}</li>
+          <li key={rule.en}>{t(rule.ru, rule.en)}</li>
         ))}
       </ul>
       {guide.before && guide.after && (
         <div className="guide-example">
           <p>
             <span className="guide-weak">{t('Было', 'Before')}</span>
-            {guide.before[locale]}
+            {t(guide.before.ru, guide.before.en)}
           </p>
           <p>
             <span className="guide-strong">{t('Стало', 'After')}</span>
-            {guide.after[locale]}
+            {t(guide.after.ru, guide.after.en)}
           </p>
         </div>
       )}
-      {guide.pattern && (
+      {pattern && (
         <div className="guide-pattern">
-          <code>{guide.pattern[locale]}</code>
+          <code lang={lang}>{pattern}</code>
           {onPattern && (
-            <button
-              className="text-button"
-              onClick={() => onPattern(guide.pattern![locale])}
-            >
+            <button className="text-button" onClick={() => onPattern(pattern)}>
               <Plus size={14} />
               {t('Вставить структуру', 'Insert this structure')}
             </button>
@@ -93,8 +96,9 @@ export function WritingGuide({
           <p>
             {verbTarget
               ? t(
-                  `Начните новый пункт в «${verbTarget}»:`,
-                  `Start a new point in “${verbTarget}”:`,
+                  'Начните новый пункт в «{entry}»:',
+                  'Start a new point in “{entry}”:',
+                  { entry: verbTarget },
                 )
               : t(
                   'Добавьте запись, чтобы вставлять глаголы:',
@@ -106,18 +110,18 @@ export function WritingGuide({
             role="group"
             aria-label={t('Группы глаголов', 'Verb groups')}
           >
-            {actionVerbs[locale].map((group, i) => (
+            {verbGroups.map((group, i) => (
               <button
-                key={group.group}
+                key={group.en}
                 aria-pressed={verbGroup === i}
                 onClick={() => setVerbGroup(i)}
               >
-                {group.group}
+                {t(group.ru, group.en)}
               </button>
             ))}
           </div>
-          <div className="verb-group">
-            {actionVerbs[locale][verbGroup].verbs.map((verb) => (
+          <div className="verb-group" lang={lang}>
+            {actionVerbs[lang][verbGroup].map((verb) => (
               <button
                 key={verb}
                 disabled={!verbTarget}
@@ -137,6 +141,7 @@ export function WritingGuide({
 export function ReviewStep({
   resume,
   locale,
+  lang = locale,
   goSection,
   addSkill,
   exportFile,
@@ -144,14 +149,14 @@ export function ReviewStep({
 }: {
   resume: Resume
   locale: Locale
+  lang?: Locale
   goSection: (section: Section) => void
   addSkill: (skill: string) => void
   exportFile: () => void
   exporting: boolean
 }) {
-  const ru = locale === 'ru',
-    t = (a: string, b: string) => (ru ? a : b),
-    checks = reviewResume(resume, locale),
+  const t = translator(locale),
+    checks = reviewResume(resume, locale, lang),
     passed = checks.filter((c) => c.ok).length,
     score = Math.round((passed / checks.length) * 100),
     [posting, setPosting] = useState(() => {
@@ -197,8 +202,9 @@ export function ReviewStep({
           </h2>
           <p>
             {t(
-              `Пройдено ${passed} из ${checks.length} проверок содержания. Это подсказки для читателя-человека и системы отбора, а не универсальный балл ATS.`,
-              `${passed} of ${checks.length} content checks passed. These help human readers and screening systems; they are not a universal ATS score.`,
+              'Пройдено {passed} из {total} проверок содержания. Это подсказки для читателя-человека и системы отбора, а не универсальный балл ATS.',
+              '{passed} of {total} content checks passed. These help human readers and screening systems; they are not a universal ATS score.',
+              { passed, total: checks.length },
             )}
           </p>
         </div>

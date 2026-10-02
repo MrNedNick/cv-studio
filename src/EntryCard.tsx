@@ -2,6 +2,7 @@ import { useId, type ReactNode } from 'react'
 import { ArrowDown, ArrowUp, ChevronDown, Trash2 } from 'lucide-react'
 import { dateRange, type Entry, type Locale } from './model'
 import { Collapse } from './motion'
+import { translator } from './i18n'
 
 export default function EntryCard({
   entry,
@@ -25,7 +26,7 @@ export default function EntryCard({
   children: ReactNode
 }) {
   const id = useId(),
-    ru = locale === 'ru'
+    t = translator(locale)
   const dates = dateRange(entry, locale)
   return (
     <div
@@ -55,8 +56,8 @@ export default function EntryCard({
           <button
             className="icon-button"
             disabled={!moveUp}
-            aria-label={ru ? 'Поднять' : 'Move up'}
-            title={ru ? 'Поднять запись' : 'Move entry up'}
+            aria-label={t('Поднять', 'Move up')}
+            title={t('Поднять запись', 'Move entry up')}
             aria-describedby={`${id}-title`}
             onClick={moveUp}
           >
@@ -65,8 +66,8 @@ export default function EntryCard({
           <button
             className="icon-button"
             disabled={!moveDown}
-            aria-label={ru ? 'Опустить' : 'Move down'}
-            title={ru ? 'Опустить запись' : 'Move entry down'}
+            aria-label={t('Опустить', 'Move down')}
+            title={t('Опустить запись', 'Move entry down')}
             aria-describedby={`${id}-title`}
             onClick={moveDown}
           >
@@ -74,8 +75,8 @@ export default function EntryCard({
           </button>
           <button
             className="icon-button delete"
-            aria-label={ru ? 'Удалить запись' : 'Remove entry'}
-            title={ru ? 'Удалить запись' : 'Remove entry'}
+            aria-label={t('Удалить запись', 'Remove entry')}
+            title={t('Удалить запись', 'Remove entry')}
             aria-describedby={`${id}-title`}
             onClick={remove}
           >

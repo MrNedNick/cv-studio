@@ -321,3 +321,33 @@ it('wraps a long skills line without stray hyphens or glued words', async () => 
   for (const line of skills) expect(line).not.toMatch(/·-|·\S|\S·\S/)
   await task.destroy()
 })
+
+it.each([
+  ['de', 'BERUFSERFAHRUNG', 'Überarbeitete', 'heute'],
+  ['es', 'EXPERIENCIA', 'Diseñadora de producto', 'actualidad'],
+  ['bg', 'ПРОФЕСИОНАЛЕН ОПИТ', 'Преработих процеса', 'момента'],
+  ['uk', 'ДОСВІД РОБОТИ', 'інтерв’ю', 'теперішній час'],
+] as const)(
+  'renders the %s version with localized headings, dates, and letters',
+  async (lang, heading, phrase, present) => {
+    const doc = createDocument(true, lang)
+    doc.versions[lang].work[0].description +=
+      '\nÜberarbeitete Ñandú Їжак Єва Ґанок'
+    const bytes = new Uint8Array(
+      await (await exportPdf(doc, { editable: false })).arrayBuffer(),
+    )
+    const task = getDocument({ data: bytes })
+    const text = (
+      await (await (await task.promise).getPage(1)).getTextContent()
+    ).items
+      .map((item) => ('str' in item ? item.str : ''))
+      .join(' ')
+    expect(text).toContain(heading)
+    expect(text).toContain(phrase)
+    expect(text).toContain(present)
+    for (const word of ['Überarbeitete', 'Ñandú', 'Їжак', 'Єва', 'Ґанок'])
+      expect(text).toContain(word)
+    await task.destroy()
+  },
+  30000,
+)

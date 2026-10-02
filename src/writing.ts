@@ -1,6 +1,14 @@
-import { sectionLabels, type Locale, type Resume, type Section } from './model'
+import {
+  sectionLabels,
+  weakStart,
+  type Locale,
+  type Resume,
+  type Section,
+} from './model'
+import { translator } from './i18n'
 
-type Text = Record<Locale, string>
+/** Guidance text: Russian and English here, other languages via dictionaries. */
+type Text = { ru: string; en: string }
 
 export interface Guide {
   rules: Text[]
@@ -138,91 +146,73 @@ export const guides: Partial<Record<Section, Guide>> = {
   },
 }
 
-export const actionVerbs: Record<Locale, { group: string; verbs: string[] }[]> =
-  {
-    en: [
-      {
-        group: 'Lead',
-        verbs: ['Led', 'Directed', 'Mentored', 'Coordinated', 'Owned'],
-      },
-      {
-        group: 'Build',
-        verbs: ['Built', 'Designed', 'Developed', 'Launched', 'Implemented'],
-      },
-      {
-        group: 'Improve',
-        verbs: [
-          'Improved',
-          'Optimized',
-          'Automated',
-          'Streamlined',
-          'Redesigned',
-        ],
-      },
-      {
-        group: 'Grow',
-        verbs: ['Increased', 'Grew', 'Expanded', 'Accelerated', 'Won'],
-      },
-      {
-        group: 'Save',
-        verbs: ['Reduced', 'Cut', 'Saved', 'Eliminated', 'Consolidated'],
-      },
-      {
-        group: 'Research',
-        verbs: ['Analyzed', 'Researched', 'Tested', 'Measured', 'Validated'],
-      },
+/** Verb groups are interface labels; the verbs follow the resume language. */
+export const verbGroups: Text[] = [
+  { ru: 'Руководство', en: 'Lead' },
+  { ru: 'Создание', en: 'Build' },
+  { ru: 'Улучшение', en: 'Improve' },
+  { ru: 'Рост', en: 'Grow' },
+  { ru: 'Экономия', en: 'Save' },
+  { ru: 'Анализ', en: 'Research' },
+]
+export const actionVerbs: Record<Locale, string[][]> = {
+  en: [
+    ['Led', 'Directed', 'Mentored', 'Coordinated', 'Owned'],
+    ['Built', 'Designed', 'Developed', 'Launched', 'Implemented'],
+    ['Improved', 'Optimized', 'Automated', 'Streamlined', 'Redesigned'],
+    ['Increased', 'Grew', 'Expanded', 'Accelerated', 'Won'],
+    ['Reduced', 'Cut', 'Saved', 'Eliminated', 'Consolidated'],
+    ['Analyzed', 'Researched', 'Tested', 'Measured', 'Validated'],
+  ],
+  ru: [
+    ['Руководил', 'Возглавил', 'Наставлял', 'Координировал', 'Организовал'],
+    ['Разработал', 'Создал', 'Спроектировал', 'Запустил', 'Внедрил'],
+    ['Улучшил', 'Оптимизировал', 'Автоматизировал', 'Упростил', 'Переработал'],
+    ['Увеличил', 'Вырастил', 'Расширил', 'Ускорил', 'Привлёк'],
+    ['Сократил', 'Снизил', 'Сэкономил', 'Устранил', 'Объединил'],
+    ['Проанализировал', 'Исследовал', 'Протестировал', 'Измерил', 'Проверил'],
+  ],
+  de: [
+    ['Leitete', 'Führte', 'Betreute', 'Koordinierte', 'Steuerte'],
+    ['Entwickelte', 'Gestaltete', 'Konzipierte', 'Startete', 'Implementierte'],
+    [
+      'Verbesserte',
+      'Optimierte',
+      'Automatisierte',
+      'Vereinfachte',
+      'Überarbeitete',
     ],
-    ru: [
-      {
-        group: 'Руководство',
-        verbs: [
-          'Руководил',
-          'Возглавил',
-          'Наставлял',
-          'Координировал',
-          'Организовал',
-        ],
-      },
-      {
-        group: 'Создание',
-        verbs: ['Разработал', 'Создал', 'Спроектировал', 'Запустил', 'Внедрил'],
-      },
-      {
-        group: 'Улучшение',
-        verbs: [
-          'Улучшил',
-          'Оптимизировал',
-          'Автоматизировал',
-          'Упростил',
-          'Переработал',
-        ],
-      },
-      {
-        group: 'Рост',
-        verbs: ['Увеличил', 'Вырастил', 'Расширил', 'Ускорил', 'Привлёк'],
-      },
-      {
-        group: 'Экономия',
-        verbs: ['Сократил', 'Снизил', 'Сэкономил', 'Устранил', 'Объединил'],
-      },
-      {
-        group: 'Анализ',
-        verbs: [
-          'Проанализировал',
-          'Исследовал',
-          'Протестировал',
-          'Измерил',
-          'Проверил',
-        ],
-      },
-    ],
-  }
-
-const weakStart = {
-  en: /^(responsible for|helped|assisted|worked on|participated in|involved in|duties included|tasked with)\b/i,
-  ru: /^(отвечал[аи]? за|помогал[аи]?|занимал(?:ся|ась|ись)|участвовал[аи]?|работал[аи]? над|обязанности|в мои обязанности)(?=\s|$)/i,
+    ['Steigerte', 'Erhöhte', 'Erweiterte', 'Beschleunigte', 'Gewann'],
+    ['Senkte', 'Reduzierte', 'Sparte', 'Beseitigte', 'Bündelte'],
+    ['Analysierte', 'Untersuchte', 'Testete', 'Maß', 'Validierte'],
+  ],
+  es: [
+    ['Lideré', 'Dirigí', 'Coordiné', 'Gestioné', 'Supervisé'],
+    ['Desarrollé', 'Diseñé', 'Creé', 'Lancé', 'Implementé'],
+    ['Mejoré', 'Optimicé', 'Automaticé', 'Simplifiqué', 'Rediseñé'],
+    ['Aumenté', 'Incrementé', 'Amplié', 'Aceleré', 'Conseguí'],
+    ['Reduje', 'Recorté', 'Ahorré', 'Eliminé', 'Unifiqué'],
+    ['Analicé', 'Investigué', 'Probé', 'Medí', 'Validé'],
+  ],
+  bg: [
+    ['Ръководих', 'Оглавих', 'Наставлявах', 'Координирах', 'Организирах'],
+    ['Разработих', 'Създадох', 'Проектирах', 'Стартирах', 'Внедрих'],
+    ['Подобрих', 'Оптимизирах', 'Автоматизирах', 'Опростих', 'Преработих'],
+    ['Увеличих', 'Разширих', 'Ускорих', 'Привлякох', 'Постигнах'],
+    ['Намалих', 'Съкратих', 'Спестих', 'Премахнах', 'Обединих'],
+    ['Анализирах', 'Проучих', 'Тествах', 'Измерих', 'Проверих'],
+  ],
+  uk: [
+    ['Керував', 'Очолив', 'Наставляв', 'Координував', 'Організував'],
+    ['Розробив', 'Створив', 'Спроєктував', 'Запустив', 'Впровадив'],
+    ['Покращив', 'Оптимізував', 'Автоматизував', 'Спростив', 'Переробив'],
+    ['Збільшив', 'Виростив', 'Розширив', 'Пришвидшив', 'Залучив'],
+    ['Скоротив', 'Знизив', 'Заощадив', 'Усунув', 'Об’єднав'],
+    ['Проаналізував', 'Дослідив', 'Протестував', 'Виміряв', 'Перевірив'],
+  ],
 }
-const cliches = {
+
+const cliches: Record<Locale, string[]> = {
   en: [
     'team player',
     'hard-working',
@@ -245,10 +235,49 @@ const cliches = {
     'ответственный подход',
     'нацелен на результат',
   ],
+  de: [
+    'teamfähig',
+    'teamplayer',
+    'belastbar',
+    'zielstrebig',
+    'kommunikationsstark',
+    'hochmotiviert',
+    'flexibel und',
+  ],
+  es: [
+    'trabajo en equipo',
+    'jugador de equipo',
+    'proactiv',
+    'dinámic',
+    'orientado a resultados',
+    'orientada a resultados',
+    'gran capacidad',
+  ],
+  bg: [
+    'комуникативен',
+    'комуникативна',
+    'стресоустойчив',
+    'екипен играч',
+    'целеустремен',
+    'целеустремена',
+    'отговорен и',
+  ],
+  uk: [
+    'комунікабельн',
+    'стресостійк',
+    'командний гравець',
+    'цілеспрямован',
+    'відповідальн',
+    'навчаєм',
+  ],
 }
-const pronoun = {
+const pronoun: Record<Locale, RegExp> = {
   en: /(^|[^\p{L}])(I|me|my|myself)(?=[^\p{L}]|$)/u,
   ru: /(^|[^\p{L}])(я|мне|мой|моя|мои|меня)(?=[^\p{L}]|$)/iu,
+  de: /(^|[^\p{L}])(ich|mein|meine|meinen|meinem|meiner|mir|mich)(?=[^\p{L}]|$)/iu,
+  es: /(^|[^\p{L}])(yo|mi|mis|me|conmigo)(?=[^\p{L}]|$)/iu,
+  bg: /(^|[^\p{L}])(аз|мен|мой|моя|мое|мои)(?=[^\p{L}]|$)/iu,
+  uk: /(^|[^\p{L}])(я|мені|мій|моя|моє|мої|мене)(?=[^\p{L}]|$)/iu,
 }
 const bullet = (line: string) => line.trim().replace(/^[•*–—-]\s*/, '')
 const lines = (text: string) => text.split('\n').map(bullet).filter(Boolean)
@@ -262,9 +291,12 @@ export interface Check {
   detail: string
 }
 
-export function reviewResume(resume: Resume, locale: Locale): Check[] {
-  const ru = locale === 'ru',
-    t = (a: string, b: string) => (ru ? a : b),
+export function reviewResume(
+  resume: Resume,
+  locale: Locale,
+  lang: Locale = locale,
+): Check[] {
+  const t = translator(locale),
     checks: Check[] = [],
     add = (
       id: string,
@@ -350,12 +382,13 @@ export function reviewResume(resume: Resume, locale: Locale): Check[] {
     t('Результаты в цифрах', 'Measurable results'),
     points.length
       ? t(
-          `Цифры есть в ${measured} из ${points.length} пунктов. Цель — хотя бы половина.`,
-          `${measured} of ${points.length} points include a number. Aim for at least half.`,
+          'Цифры есть в {measured} из {total} пунктов. Цель — хотя бы половина.',
+          '{measured} of {total} points include a number. Aim for at least half.',
+          { measured, total: points.length },
         )
       : t('Добавьте пункты с цифрами.', 'Add points that include numbers.'),
   )
-  const weak = points.filter((p) => weakStart[locale].test(p))
+  const weak = points.filter((p) => weakStart[lang].test(p))
   add(
     'verbs',
     'work',
@@ -363,8 +396,9 @@ export function reviewResume(resume: Resume, locale: Locale): Check[] {
     t('Сильные глаголы', 'Strong action verbs'),
     weak.length
       ? t(
-          `Перепишите: «${weak[0].slice(0, 60)}» — начните с действия.`,
-          `Rewrite “${weak[0].slice(0, 60)}” to start with an action.`,
+          'Перепишите: «{text}» — начните с действия.',
+          'Rewrite “{text}” to start with an action.',
+          { text: weak[0].slice(0, 60) },
         )
       : t(
           'Пункты начинаются с действия, а не с обязанностей.',
@@ -382,7 +416,7 @@ export function reviewResume(resume: Resume, locale: Locale): Check[] {
       'One point, one or two lines — under about 35 words.',
     ),
   )
-  const found = cliches[locale].find((c) => prose.toLowerCase().includes(c))
+  const found = cliches[lang].find((c) => prose.toLowerCase().includes(c))
   add(
     'cliches',
     'summary',
@@ -390,15 +424,16 @@ export function reviewResume(resume: Resume, locale: Locale): Check[] {
     t('Без штампов', 'No clichés'),
     found
       ? t(
-          `«${found}…» ничего не доказывает — замените фактом.`,
-          `“${found}” proves nothing — show it with a fact instead.`,
+          '«{text}…» ничего не доказывает — замените фактом.',
+          '“{text}” proves nothing — show it with a fact instead.',
+          { text: found },
         )
       : t('Качества показаны через факты.', 'Qualities are shown with facts.'),
   )
   add(
     'pronouns',
     'summary',
-    !lines(prose).some((l) => pronoun[locale].test(l)),
+    !lines(prose).some((l) => pronoun[lang].test(l)),
     t('Без «я» и «мой»', 'No “I” or “my”'),
     t(
       'Резюме пишут без местоимений: «Запустил…», а не «Я запустил…».',
@@ -411,8 +446,9 @@ export function reviewResume(resume: Resume, locale: Locale): Check[] {
     skills.length >= 6 && skills.length <= 30,
     t('6–30 навыков', '6–30 skills'),
     t(
-      `Сейчас: ${skills.length}. Конкретные инструменты и методы, без общих слов.`,
-      `Now: ${skills.length}. Concrete tools and methods, no generic traits.`,
+      'Сейчас: {count}. Конкретные инструменты и методы, без общих слов.',
+      'Now: {count}. Concrete tools and methods, no generic traits.',
+      { count: skills.length },
     ),
   )
   const undated = (['work', 'education'] as const).find((s) =>
@@ -455,8 +491,9 @@ export function reviewResume(resume: Resume, locale: Locale): Check[] {
     words(allText) <= 900,
     t('1–2 страницы', '1–2 pages'),
     t(
-      `Сейчас около ${words(allText)} слов. Оставьте то, что важно для этой роли.`,
-      `About ${words(allText)} words now. Keep what matters for this role.`,
+      'Сейчас около {count} слов. Оставьте то, что важно для этой роли.',
+      'About {count} words now. Keep what matters for this role.',
+      { count: words(allText) },
     ),
   )
   return checks
@@ -684,7 +721,11 @@ const stop = new Set(
   (
     'about above after again also and any are because been before being both but can could did does doing down during each few for from further had has have having here how into its itself just more most must nor not now off once only other our out over own same should some such than that the their them then there these they this those through too under until very was were what when where which while who whom why will with would you your able work working team teams role join help using use including experience years strong good great new our we us job company position candidate candidates skills requirements responsibilities knowledge plus nice well within across ability looking offer benefits ' +
     'und der die das mit für von bei wir sie ihr ihre eine einen einem einer oder auch sind ist werden wird haben hast hat über nach sowie unsere unser deine deinen gute sehr kenntnisse erfahrung aufgaben profil bieten ' +
-    'и в во на с со по для от до из к ко у о об а но или что как это мы вы вас нас наш наша наши ваш ваша ваши будет быть есть так же уже при над под без опыт опыта работы работа работе знание знания навыки требования обязанности условия компания команда команде команды года лет хорошее хорошие умение'
+    'и в во на с со по для от до из к ко у о об а но или что как это мы вы вас нас наш наша наши ваш ваша ваши будет быть есть так же уже при над под без опыт опыта работы работа работе знание знания навыки требования обязанности условия компания команда команде команды года лет хорошее хорошие умение' +
+    ' ' +
+    'el la los las un una unos unas de del al y o en con por para que como es son ser será este esta estos estas nuestro nuestra nuestros tu tus su sus experiencia años empresa equipo puesto requisitos funciones ofrecemos conocimientos buscamos valorable trabajo ' +
+    'и в във на с със за от до по при към че как това ние вие ви нас нашия нашата нашите вашия ще е са бъде опит години работа екип компания позиция изисквания задължения предлагаме познания търсим ' +
+    'і й та в у на з із зі до від по для при що як це ми ви вас нас наш наша наші ваш ваша буде бути є досвід років роботи робота команда компанія посада вимоги обов’язки пропонуємо знання шукаємо'
   ).split(' '),
 )
 const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')

@@ -4055,3 +4055,89 @@ dialog.is-closing::backdrop {
 .collapse:not([hidden]) {
   display: flow-root;
 }
+
+/* Language pickers */
+.language-button {
+  position: relative;
+  cursor: pointer;
+}
+.language-button select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  opacity: 0;
+  cursor: pointer;
+  font-size: 16px;
+}
+.language-button:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+.resume-language {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 4px 0 9px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  color: var(--muted);
+  background: var(--surface);
+}
+.resume-language select {
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 2px;
+  max-width: 150px;
+  cursor: pointer;
+}
+.resume-language:focus-within {
+  border-color: var(--accent);
+}
+.version-start {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: var(--soft);
+  margin-bottom: 22px;
+  animation: fade-in 0.22s ease-out;
+}
+.version-start > svg {
+  flex: none;
+  color: var(--accent);
+  margin-top: 2px;
+}
+.version-start strong {
+  font-size: 14px;
+}
+.version-start p {
+  margin: 4px 0 10px;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+.version-start-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.version-start-actions select {
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 7px 8px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 13px;
+}
+.version-start-actions .button {
+  gap: 6px;
+  min-height: 0;
+  padding: 8px 12px;
+  font-size: 13px;
+}
