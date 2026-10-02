@@ -77,7 +77,14 @@ export function ResumePDF({ doc }: { doc: StudioDocument }) {
                     gap: sidebar && key === 'education' ? 2 : 12,
                   }}
                 >
-                  <Text style={{ fontWeight: 700, flex: 1 }}>{e.title}</Text>
+                  <Text
+                    style={{
+                      fontWeight: 700,
+                      flex: sidebar && key === 'education' ? undefined : 1,
+                    }}
+                  >
+                    {e.title}
+                  </Text>
                   {key !== 'languages' && (
                     <Text
                       style={{ color: '#59635f', fontSize: 8, maxWidth: 165 }}

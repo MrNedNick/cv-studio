@@ -134,3 +134,24 @@ it('keeps both alphabets readable in serif and mixed typography', async () => {
     }
   }
 }, 30000)
+
+it('keeps education dates below the title in the Editorial sidebar', async () => {
+  const doc = createDocument(true)
+  doc.language = 'en'
+  doc.template = 'sidebar'
+  doc.versions.en.education[0].title = 'Design degree'
+  const blob = await exportPdf(doc)
+  const task = getDocument({ data: new Uint8Array(await blob.arrayBuffer()) })
+  try {
+    const pdf = await task.promise
+    const content = await (await pdf.getPage(1)).getTextContent()
+    const text = content.items.filter((item) => 'str' in item)
+    const title = text.find((item) => item.str === 'Design degree')!
+    const dates = text.find((item) => item.str.includes('2016'))!
+    expect(title).toBeDefined()
+    expect(dates).toBeDefined()
+    expect(title.transform[5] - dates.transform[5]).toBeGreaterThan(8)
+  } finally {
+    await task.destroy()
+  }
+})
