@@ -20,8 +20,10 @@ import {
   createDocument,
   parseDocument,
   toJsonResume,
+  sections,
   type Locale,
   type StudioDocument,
+  type Template,
 } from './model'
 import { loadDocument, saveDocument } from './storage'
 import { MiniResume, TemplateCards } from './components'
@@ -39,10 +41,12 @@ function Dialog({
   title,
   children,
   close,
+  closeLabel,
 }: {
   title: string
   children: ReactNode
   close: () => void
+  closeLabel: string
 }) {
   const ref = useRef<HTMLDialogElement>(null)
   useEffect(() => {
@@ -61,7 +65,7 @@ function Dialog({
     >
       <div className="dialog-head">
         <h2 id="dialog-title">{title}</h2>
-        <button className="icon-button" onClick={close} aria-label="Close">
+        <button className="icon-button" onClick={close} aria-label={closeLabel}>
           <X size={20} />
         </button>
       </div>
@@ -73,6 +77,10 @@ export default function App() {
   const navigate = useNavigate(),
     [doc, setDoc] = useState<StudioDocument | null>(null),
     [ready, setReady] = useState(false),
+    [loadError, setLoadError] = useState(false),
+    [loadAttempt, setLoadAttempt] = useState(0),
+    [saveAttempt, setSaveAttempt] = useState(0),
+    [documentRevision, setDocumentRevision] = useState(0),
     [locale, setLocale] = useState<Locale>('ru'),
     [theme, setTheme] = useState(() => {
       try {
@@ -83,6 +91,10 @@ export default function App() {
     }),
     [saveState, setSaveState] = useState<'saved' | 'saving' | 'error'>('saved'),
     [notice, setNotice] = useState(''),
+    [pendingImport, setPendingImport] = useState<{
+      doc: StudioDocument
+      filename: string
+    } | null>(null),
     [pendingStart, setPendingStart] = useState<boolean | null>(null),
     [help, setHelp] = useState(false),
     [exporting, setExporting] = useState(false),
@@ -90,7 +102,7 @@ export default function App() {
     [history, setHistory] = useState<StudioDocument[]>([]),
     [future, setFuture] = useState<StudioDocument[]>([])
   const input = useRef<HTMLInputElement>(null),
-    lastHistory = useRef(0),
+    lastHistory = useRef({ time: 0, key: '' }),
     ru = locale === 'ru',
     t = (a: string, b: string) => (ru ? a : b)
   useEffect(() => {
@@ -98,12 +110,14 @@ export default function App() {
     loadDocument()
       .then((value) => {
         if (active) {
+          setLoadError(false)
+          setSaveState('saved')
           setDoc(value)
           if (value) setLocale(value.language)
         }
       })
       .catch(() => {
-        if (active) setSaveState('error')
+        if (active) setLoadError(true)
       })
       .finally(() => {
         if (active) setReady(true)
@@ -111,7 +125,7 @@ export default function App() {
     return () => {
       active = false
     }
-  }, [])
+  }, [loadAttempt])
   useEffect(() => {
     document.documentElement.dataset.theme = theme
     try {
@@ -140,7 +154,7 @@ export default function App() {
       active = false
       clearTimeout(timer)
     }
-  }, [doc, ready])
+  }, [doc, ready, saveAttempt])
   useEffect(() => {
     if (!notice) return
     const timer = setTimeout(() => setNotice(''), 7000)
@@ -153,14 +167,24 @@ export default function App() {
     window.addEventListener('beforeunload', beforeUnload)
     return () => window.removeEventListener('beforeunload', beforeUnload)
   }, [doc, saveState])
-  function update(next: StudioDocument, group = false) {
-    if (doc && (!group || Date.now() - lastHistory.current > 700))
+  function update(next: StudioDocument, group = '') {
+    if (
+      doc &&
+      (!group ||
+        group !== lastHistory.current.key ||
+        Date.now() - lastHistory.current.time > 700)
+    )
       setHistory((h) => [...h.slice(-49), doc])
-    lastHistory.current = group ? Date.now() : 0
+    lastHistory.current = { time: group ? Date.now() : 0, key: group }
     setFuture([])
     setDoc(next)
   }
   function start(sample: boolean, force = false) {
+    if (loadError) {
+      navigate('/edit')
+      return
+    }
+
     if (doc && !force) {
       setPendingStart(sample)
       return
@@ -169,27 +193,37 @@ export default function App() {
     next.language = locale
     update(next)
     setPendingStart(null)
+    setDocumentRevision((value) => value + 1)
+    navigate('/edit')
+  }
+  function pickTemplate(template: Template) {
+    if (loadError) {
+      navigate('/edit')
+      return
+    }
+    const next = doc || createDocument()
+    update({ ...next, template, language: locale })
     navigate('/edit')
   }
   async function importFile(file?: File) {
     if (!file) return
     setImporting(true)
     try {
-      if (file.size > 10_000_000) throw new Error('File too large')
+      if (file.size > 10_000_000) {
+        setNotice(
+          t(
+            'Файл больше 10 МБ. Выберите PDF или JSON меньшего размера.',
+            'This file exceeds 10 MB. Choose a smaller PDF or JSON file.',
+          ),
+        )
+        return
+      }
       const next = file.name.toLowerCase().endsWith('.pdf')
         ? await (
             await import('./pdf-reader')
           ).importPdf(await file.arrayBuffer())
         : parseDocument(JSON.parse(await file.text()))
-      update(next)
-      setLocale(next.language)
-      navigate('/edit')
-      setNotice(
-        t(
-          'Резюме открыто. Предыдущие данные можно вернуть кнопкой отмены.',
-          'Resume opened. Undo restores the previous document.',
-        ),
-      )
+      setPendingImport({ doc: next, filename: file.name })
     } catch {
       setNotice(
         t(
@@ -201,6 +235,30 @@ export default function App() {
       setImporting(false)
       if (input.current) input.current.value = ''
     }
+  }
+  function confirmImport() {
+    if (!pendingImport) return
+    setLoadError(false)
+    update(pendingImport.doc)
+    setLocale(pendingImport.doc.language)
+    setPendingImport(null)
+    setDocumentRevision((value) => value + 1)
+    navigate('/edit')
+    setNotice(
+      t(
+        'Резюме открыто. Предыдущие данные можно вернуть кнопкой отмены.',
+        'Resume opened. Undo restores the previous document.',
+      ),
+    )
+  }
+  function backup() {
+    if (!doc) return
+    download(
+      new Blob([JSON.stringify(toJsonResume(doc), null, 2)], {
+        type: 'application/json',
+      }),
+      'resume.json',
+    )
   }
   async function exportFile() {
     if (!doc) return
@@ -246,7 +304,7 @@ export default function App() {
     setHistory((h) => h.slice(0, -1))
     setDoc(previous)
     setLocale(previous.language)
-    lastHistory.current = 0
+    lastHistory.current = { time: 0, key: '' }
   }
   function redo() {
     if (!doc || !future.length) return
@@ -255,7 +313,7 @@ export default function App() {
     setFuture((f) => f.slice(1))
     setDoc(next)
     setLocale(next.language)
-    lastHistory.current = 0
+    lastHistory.current = { time: 0, key: '' }
   }
   const openFile = () => input.current?.click()
   const landing = (
@@ -406,16 +464,7 @@ export default function App() {
         <TemplateCards
           disabled={!ready}
           locale={locale}
-          onPick={(template) => {
-            if (doc) update({ ...doc, template })
-            else {
-              const next = createDocument()
-              next.language = locale
-              next.template = template
-              update(next)
-            }
-            navigate('/edit')
-          }}
+          onPick={pickTemplate}
         />
       </section>
       <section className="steps-section">
@@ -545,16 +594,7 @@ export default function App() {
                 <TemplateCards
                   disabled={!ready}
                   locale={locale}
-                  onPick={(template) => {
-                    if (doc) update({ ...doc, template })
-                    else {
-                      const next = createDocument()
-                      next.language = locale
-                      next.template = template
-                      update(next)
-                    }
-                    navigate('/edit')
-                  }}
+                  onPick={pickTemplate}
                 />
                 <p className="gallery-note">
                   <Lightbulb size={18} />
@@ -573,6 +613,38 @@ export default function App() {
                 <div className="loading">
                   <LoaderCircle className="spin" />
                   {t('Открываем редактор…', 'Opening the editor…')}
+                </div>
+              ) : loadError ? (
+                <div className="start-page" role="alert">
+                  <span className="start-icon">
+                    <FileText size={36} />
+                  </span>
+                  <h1>
+                    {t(
+                      'Не удалось открыть сохранённое резюме',
+                      'Could not open your saved resume',
+                    )}
+                  </h1>
+                  <p>
+                    {t(
+                      'Локальные данные не изменены. Попробуйте загрузить их ещё раз или откройте свою PDF / JSON-копию.',
+                      'Your local data has not been changed. Try loading it again or open your PDF / JSON backup.',
+                    )}
+                  </p>
+                  <div className="dialog-actions">
+                    <button className="button secondary" onClick={openFile}>
+                      {t('Открыть копию', 'Open backup')}
+                    </button>
+                    <button
+                      className="button primary"
+                      onClick={() => {
+                        setReady(false)
+                        setLoadAttempt((value) => value + 1)
+                      }}
+                    >
+                      {t('Повторить загрузку', 'Retry loading')}
+                    </button>
+                  </div>
                 </div>
               ) : !doc ? (
                 <div className="start-page">
@@ -634,6 +706,7 @@ export default function App() {
                 </div>
               ) : (
                 <Editor
+                  key={documentRevision}
                   doc={doc}
                   locale={locale}
                   update={update}
@@ -646,14 +719,7 @@ export default function App() {
                   exportFile={exportFile}
                   openFile={openFile}
                   start={() => start(false)}
-                  backup={() =>
-                    download(
-                      new Blob([JSON.stringify(toJsonResume(doc), null, 2)], {
-                        type: 'application/json',
-                      }),
-                      'resume.json',
-                    )
-                  }
+                  backup={backup}
                 />
               )
             }
@@ -695,12 +761,15 @@ export default function App() {
           {t('Открываем файл…', 'Opening file…')}
         </div>
       )}
-      {saveState === 'error' && (
+      {saveState === 'error' && !loadError && (
         <div className="storage-warning" role="alert">
           {t(
             'Браузер не разрешает сохранить данные. Скачайте JSON-копию, прежде чем закрыть страницу.',
             'This browser could not save your data. Download a JSON backup before leaving.',
           )}
+          <button onClick={() => setSaveAttempt((value) => value + 1)}>
+            {t('Повторить сохранение', 'Retry saving')}
+          </button>
           {doc && (
             <button
               onClick={() =>
@@ -717,8 +786,77 @@ export default function App() {
           )}
         </div>
       )}
+      {pendingImport && (
+        <Dialog
+          title={t('Открыть это резюме?', 'Open this resume?')}
+          close={() => setPendingImport(null)}
+          closeLabel={t('Закрыть', 'Close')}
+        >
+          <div className="import-summary">
+            <FileText size={26} />
+            <div>
+              <strong>
+                {pendingImport.doc.versions[pendingImport.doc.language].basics
+                  .name || t('Резюме без имени', 'Untitled resume')}
+              </strong>
+              <span>{pendingImport.filename}</span>
+              <small>
+                {pendingImport.doc.language.toUpperCase()} ·{' '}
+                {
+                  sections.filter((section) => {
+                    const resume =
+                      pendingImport.doc.versions[pendingImport.doc.language]
+                    return section === 'basics'
+                      ? Object.values(resume.basics).some(Boolean)
+                      : section === 'summary'
+                        ? resume.basics.summary.trim()
+                        : section === 'skills'
+                          ? resume.skills.trim()
+                          : resume[section].some(
+                              (e) =>
+                                e.title.trim() ||
+                                e.subtitle.trim() ||
+                                e.description.trim(),
+                            )
+                  }).length
+                }{' '}
+                / 7 {t('разделов заполнено', 'sections filled')}
+              </small>
+            </div>
+          </div>
+          <p>
+            {doc
+              ? t(
+                  'Открытие заменит текущее резюме. Сохраните копию, чтобы вернуться к нему позже. Сразу после открытия также доступна отмена.',
+                  'Opening replaces your current resume. Save a backup to return to it later. You can also undo right after opening.',
+                )
+              : t(
+                  'Проверьте имя и файл, затем продолжите редактирование.',
+                  'Check the name and file, then continue editing.',
+                )}
+          </p>
+          <div className="dialog-actions import-actions">
+            <button
+              className="button secondary"
+              onClick={() => setPendingImport(null)}
+            >
+              {t('Отмена', 'Cancel')}
+            </button>
+            {doc && (
+              <button className="button secondary" onClick={backup}>
+                {t('Сохранить копию', 'Save backup')}
+              </button>
+            )}
+            <button className="button primary" onClick={confirmImport}>
+              {t('Открыть резюме', 'Open resume')}
+              <ArrowRight size={16} />
+            </button>
+          </div>
+        </Dialog>
+      )}
       {pendingStart !== null && (
         <Dialog
+          closeLabel={t('Закрыть', 'Close')}
           title={t('Начать новое резюме?', 'Start a new resume?')}
           close={() => setPendingStart(null)}
         >
@@ -730,17 +868,7 @@ export default function App() {
           </p>
           <div className="dialog-actions">
             {doc && (
-              <button
-                className="button secondary"
-                onClick={() =>
-                  download(
-                    new Blob([JSON.stringify(toJsonResume(doc))], {
-                      type: 'application/json',
-                    }),
-                    'resume.json',
-                  )
-                }
-              >
+              <button className="button secondary" onClick={backup}>
                 {t('Сохранить копию', 'Save backup')}
               </button>
             )}
@@ -755,6 +883,7 @@ export default function App() {
       )}
       {help && (
         <Dialog
+          closeLabel={t('Закрыть', 'Close')}
           title={t(
             'Ваше резюме, без условий.',
             'Your resume, no strings attached.',
@@ -762,6 +891,13 @@ export default function App() {
           close={() => setHelp(false)}
         >
           <div className="help-content">
+            <p>
+              <strong>{t('Быстрые действия.', 'Keyboard shortcuts.')}</strong>{' '}
+              {t(
+                'Ctrl / ⌘ Z — отменить; Ctrl / ⌘ Shift Z — повторить; Ctrl / ⌘ S — сохранить JSON-копию. Подсказки под формой ведут к разделу, который стоит проверить.',
+                'Ctrl / ⌘ Z to undo; Ctrl / ⌘ Shift Z to redo; Ctrl / ⌘ S to save a JSON backup. Guidance below the form takes you to the section to review.',
+              )}
+            </p>
             <p>
               <strong>
                 {t(

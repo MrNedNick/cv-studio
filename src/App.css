@@ -2622,3 +2622,60 @@ dialog p {
     font-size: 10px;
   }
 }
+
+.import-summary {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background: var(--soft);
+  padding: 18px;
+  margin: 20px 0;
+  border-radius: 10px;
+}
+.import-summary > div {
+  min-width: 0;
+}
+.import-summary strong,
+.import-summary span,
+.import-summary small {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.import-summary strong {
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+.import-summary span,
+.import-summary small {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.8;
+}
+.import-actions {
+  flex-wrap: wrap;
+}
+.tips p > .tip-link {
+  color: var(--text);
+  margin: 0;
+  padding: 4px 0;
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  text-align: left;
+  line-height: inherit;
+}
+.tips .tip-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.tips p > button:not(.tip-link) {
+  min-width: 28px;
+  min-height: 28px;
+}
+.restore-tips {
+  margin-bottom: 16px;
+  font-size: 12px;
+}
+.editor-form h1:focus {
+  outline: none;
+}

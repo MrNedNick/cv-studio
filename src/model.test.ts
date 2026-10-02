@@ -68,7 +68,10 @@ describe('resume data', () => {
     const example = createDocument(true).versions.ru
     expect(getTips(example, 'ru')).toHaveLength(0)
     example.work[0].description = 'Работала над продуктом'
-    expect(getTips(example, 'ru')).toHaveLength(1)
+    expect(getTips(example, 'ru').map((tip) => tip.id)).toEqual([
+      'work-results',
+      'work-verbs',
+    ])
   })
 })
 it('keeps imported project descriptions and shared fields for translation', () => {
@@ -97,5 +100,39 @@ it('loads older backups with the original font and preserves new typography', ()
   expect(parseDocument(toJsonResume(doc)).typography).toBe('mixed')
   expect(parseDocument({ ...doc, typography: 'unknown' }).typography).toBe(
     'sans',
+  )
+})
+
+it('rejects disguised non-web schemes, credentials and recursive document wrappers', () => {
+  for (const url of [
+    'mailto:person@example.com',
+    'javascript:alert(1)',
+    'https://user:password@example.com',
+    'data:text/html,hello',
+    '',
+  ])
+    expect(safeUrl(url)).toBeUndefined()
+  expect(safeUrl('  example.com/work  ')).toBe('https://example.com/work')
+  const wrapper: Record<string, unknown> = {}
+  wrapper.cvStudio = wrapper
+  expect(() => parseDocument(wrapper)).toThrow('Nested resume source')
+})
+it('targets guidance to incomplete entries, invalid dates and long descriptions', () => {
+  const resume = createDocument(true).versions.en
+  resume.basics.email = 'broken@'
+  resume.education[0].startDate = '2025-01'
+  resume.education[0].endDate = '2020-01'
+  resume.education[0].description = 'A'.repeat(301)
+  resume.work[0].description = 'Responsible for growing a team of 12'
+  expect(getTips(resume, 'en')).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({ id: 'email', section: 'basics' }),
+      expect.objectContaining({ id: 'education-dates', section: 'education' }),
+      expect.objectContaining({ id: 'education-length', section: 'education' }),
+      expect.objectContaining({ id: 'work-verbs', section: 'work' }),
+    ]),
+  )
+  expect(getTips(resume, 'en').some((tip) => tip.id === 'work-results')).toBe(
+    false,
   )
 })

@@ -242,8 +242,9 @@ function cleanResume(value: unknown): Resume {
   return result
 }
 export function parseDocument(input: unknown): StudioDocument {
-  const source = obj(input)
-  if (source.cvStudio) return parseDocument(source.cvStudio)
+  const wrapper = obj(input)
+  const source = wrapper.cvStudio ? obj(wrapper.cvStudio) : wrapper
+  if (source.cvStudio) throw new Error('Nested resume source')
   if (
     source.schemaVersion === 1 &&
     obj(source.versions).ru &&
@@ -397,8 +398,16 @@ export function toJsonResume(doc: StudioDocument) {
 }
 export function safeUrl(url: string): string | undefined {
   try {
-    const parsed = new URL(url.includes('://') ? url : `https://${url}`)
-    return ['https:', 'http:'].includes(parsed.protocol)
+    const value = url.trim()
+    if (
+      !value ||
+      (/^[a-z][a-z\d+.-]*:/i.test(value) && !/^https?:\/\//i.test(value))
+    )
+      return undefined
+    const parsed = new URL(value.includes('://') ? value : `https://${value}`)
+    return ['https:', 'http:'].includes(parsed.protocol) &&
+      !parsed.username &&
+      !parsed.password
       ? parsed.href
       : undefined
   } catch {
@@ -424,44 +433,120 @@ export function dateRange(entry: Entry, locale: Locale) {
     .filter(Boolean)
     .join(' — ')
 }
-export function getTips(resume: Resume, locale: Locale): string[] {
-  const tips: string[] = [],
+export interface ResumeTip {
+  id: string
+  section: Section
+  message: string
+}
+export function getTips(resume: Resume, locale: Locale): ResumeTip[] {
+  const tips: ResumeTip[] = [],
     ru = locale === 'ru'
+  const add = (id: string, section: Section, a: string, b: string) =>
+    tips.push({ id, section, message: ru ? a : b })
   if (!resume.basics.name.trim())
-    tips.push(
-      ru
-        ? 'Добавьте имя, чтобы резюме было легко найти.'
-        : 'Add your name so your resume is easy to identify.',
+    add(
+      'name',
+      'basics',
+      'Добавьте имя, чтобы резюме было легко найти.',
+      'Add your name so your resume is easy to identify.',
     )
   if (!resume.basics.email.trim() && !resume.basics.phone.trim())
-    tips.push(
-      ru
-        ? 'Добавьте почту или телефон для связи.'
-        : 'Add an email or phone number so people can contact you.',
+    add(
+      'contact',
+      'basics',
+      'Добавьте почту или телефон для связи.',
+      'Add an email or phone number so people can contact you.',
+    )
+  if (
+    resume.basics.email.trim() &&
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(resume.basics.email.trim())
+  )
+    add(
+      'email',
+      'basics',
+      'Проверьте почту: адрес должен содержать @ и домен.',
+      'Check your email: include @ and a domain.',
+    )
+  if (resume.basics.url.trim() && !safeUrl(resume.basics.url))
+    add(
+      'url',
+      'basics',
+      'Проверьте ссылку на сайт. Используйте адрес http или https.',
+      'Check your website link. Use an http or https address.',
     )
   if (resume.basics.summary.length > 600)
-    tips.push(
-      ru
-        ? 'Сократите раздел «О себе» до 2–4 предложений.'
-        : 'Keep your profile to 2–4 focused sentences.',
+    add(
+      'summary-length',
+      'summary',
+      'Сократите раздел «О себе» до 2–4 предложений.',
+      'Keep your profile to 2–4 focused sentences.',
     )
+  for (const section of [
+    'work',
+    'education',
+    'projects',
+    'languages',
+  ] as const) {
+    const label = sectionLabels[locale][section]
+    if (
+      resume[section].some(
+        (e) => !e.title.trim() && !e.subtitle.trim() && !e.description.trim(),
+      )
+    )
+      add(
+        `${section}-empty`,
+        section,
+        `«${label}»: заполните пустую запись или удалите её.`,
+        `${label}: fill in the empty entry or remove it.`,
+      )
+    if (
+      resume[section].some(
+        (e) =>
+          e.startDate && e.endDate && !e.current && e.startDate > e.endDate,
+      )
+    )
+      add(
+        `${section}-dates`,
+        section,
+        `«${label}»: окончание раньше начала. Проверьте даты.`,
+        `${label}: an end date is before its start date. Check the dates.`,
+      )
+    if (
+      resume[section].some((e) =>
+        e.description.split('\n').some((line) => line.length > 300),
+      )
+    )
+      add(
+        `${section}-length`,
+        section,
+        `«${label}»: разбейте длинный абзац на короткие пункты.`,
+        `${label}: split long paragraphs into shorter points.`,
+      )
+  }
   if (
     resume.work.some((e) => e.description.trim() && !/\d/.test(e.description))
   )
-    tips.push(
-      ru
-        ? 'Добавьте в опыт конкретный результат: цифру, срок или масштаб работы.'
-        : 'Add measurable outcomes to your experience: numbers, time saved, or scale.',
+    add(
+      'work-results',
+      'work',
+      'Добавьте в опыт конкретный результат: цифру, срок или масштаб работы.',
+      'Add measurable outcomes to your experience: numbers, time saved, or scale.',
     )
+  const passive = ru
+    ? /^(обязанности|отвечал[аи]? за|участвовал[аи]? в|работал[аи]? над)\s/i
+    : /^(responsible for|worked on|participated in|duties)\b/i
   if (
-    resume.work.some(
-      (e) => e.startDate && e.endDate && !e.current && e.startDate > e.endDate,
+    resume.work.some((e) =>
+      e.description
+        .split('\n')
+        .some((line) => passive.test(line.trim().replace(/^[•*–—-]\s*/, ''))),
     )
   )
-    tips.push(
-      ru
-        ? 'Проверьте даты: окончание работы раньше начала.'
-        : 'Check your dates: an end date is before its start date.',
+    add(
+      'work-verbs',
+      'work',
+      'Начните пункт с действия: «Запустила», «Улучшил», «Разработала» — и добавьте результат.',
+      'Start with an action: “Launched”, “Improved”, “Built” — then add the outcome.',
     )
   return tips
 }

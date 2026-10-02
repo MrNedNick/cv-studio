@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import {
   ArrowDown,
   ArrowUp,
@@ -54,7 +54,7 @@ const icons = {
 interface EditorProps {
   doc: StudioDocument
   locale: Locale
-  update: (doc: StudioDocument, group?: boolean) => void
+  update: (doc: StudioDocument, group?: string) => void
   undo: () => void
   redo: () => void
   canUndo: boolean
@@ -91,7 +91,9 @@ export default function Editor({
     resume = doc.versions[locale],
     other = locale === 'ru' ? 'en' : 'ru',
     labels = sectionLabels[locale],
-    tips = getTips(resume, locale).filter((tip) => !hiddenTips.includes(tip)),
+    tips = getTips(resume, locale).filter(
+      (tip) => !hiddenTips.includes(tip.id),
+    ),
     completed = sections.filter((s) =>
       s === 'basics'
         ? resume.basics.name.trim()
@@ -104,6 +106,68 @@ export default function Editor({
                   e.title.trim() || e.subtitle.trim() || e.description.trim(),
               ),
     ).length
+  const form = useRef<HTMLElement>(null),
+    menuButton = useRef<HTMLButtonElement>(null),
+    menuPanel = useRef<HTMLDivElement>(null),
+    focusSection = useRef(false)
+  function goSection(next: Section) {
+    focusSection.current = true
+    setSection(next)
+    setTab('content')
+    if (section === next && tab === 'content') focusForm()
+  }
+  function focusForm() {
+    const heading = form.current?.querySelector('h1')
+    heading?.focus({ preventScroll: true })
+    heading?.scrollIntoView?.({ block: 'nearest' })
+    focusSection.current = false
+  }
+  useEffect(() => {
+    if (focusSection.current) focusForm()
+  }, [section, tab])
+  useEffect(() => {
+    function keydown(event: KeyboardEvent) {
+      if (event.isComposing || document.querySelector('dialog[open]')) return
+      if (!(event.metaKey || event.ctrlKey) || event.altKey) return
+      const key = event.key.toLowerCase()
+      if (key === 'z') {
+        event.preventDefault()
+        if (event.shiftKey) redo()
+        else undo()
+      } else if (key === 'y' && !event.shiftKey) {
+        event.preventDefault()
+        redo()
+      } else if (key === 's') {
+        event.preventDefault()
+        backup()
+      }
+    }
+    window.addEventListener('keydown', keydown)
+    return () => window.removeEventListener('keydown', keydown)
+  }, [undo, redo, backup])
+  useEffect(() => {
+    if (!menu) return
+    menuPanel.current?.querySelector('button')?.focus()
+    function dismiss(event: PointerEvent) {
+      if (
+        !menuPanel.current?.contains(event.target as Node) &&
+        !menuButton.current?.contains(event.target as Node)
+      )
+        setMenu(false)
+    }
+    function escape(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setMenu(false)
+        menuButton.current?.focus()
+      }
+    }
+    window.addEventListener('pointerdown', dismiss)
+    window.addEventListener('keydown', escape)
+    return () => {
+      window.removeEventListener('pointerdown', dismiss)
+      window.removeEventListener('keydown', escape)
+    }
+  }, [menu])
   function basic(key: keyof Resume['basics'], value: string) {
     const versions = {
       ...doc.versions,
@@ -114,7 +178,7 @@ export default function Editor({
         ...versions[other],
         basics: { ...versions[other].basics, [key]: value },
       }
-    update({ ...doc, versions }, true)
+    update({ ...doc, versions }, `${locale}:basics:${key}`)
   }
   function entry(
     section: EntrySection,
@@ -138,7 +202,7 @@ export default function Editor({
           e.id === id ? { ...e, [key]: value } : e,
         ),
       }
-    update({ ...doc, versions }, true)
+    update({ ...doc, versions }, `${locale}:${section}:${id}:${key}`)
   }
   function add(section: EntrySection) {
     const e = emptyEntry()
@@ -240,7 +304,8 @@ export default function Editor({
               onClick={undo}
               disabled={!canUndo}
               aria-label={t('Отменить', 'Undo')}
-              title={t('Отменить', 'Undo')}
+              title={t('Отменить · Ctrl/⌘ Z', 'Undo · Ctrl/⌘ Z')}
+              aria-keyshortcuts="Control+Z Meta+Z"
             >
               <Undo2 size={18} />
             </button>
@@ -249,7 +314,8 @@ export default function Editor({
               onClick={redo}
               disabled={!canRedo}
               aria-label={t('Повторить', 'Redo')}
-              title={t('Повторить', 'Redo')}
+              title={t('Повторить · Ctrl/⌘ Shift Z', 'Redo · Ctrl/⌘ Shift Z')}
+              aria-keyshortcuts="Control+Shift+Z Meta+Shift+Z Control+Y"
             >
               <Redo2 size={18} />
             </button>
@@ -275,6 +341,8 @@ export default function Editor({
           <button
             className="icon-button"
             aria-label={t('Действия с резюме', 'Resume actions')}
+            ref={menuButton}
+            aria-controls="document-menu"
             aria-expanded={menu}
             onClick={() => setMenu(!menu)}
           >
@@ -283,7 +351,7 @@ export default function Editor({
         </div>
       </div>
       {menu && (
-        <div className="document-menu">
+        <div id="document-menu" className="document-menu" ref={menuPanel}>
           <button
             onClick={() => {
               backup()
@@ -346,7 +414,10 @@ export default function Editor({
             <button
               aria-pressed={tab === 'design'}
               className={tab === 'design' ? 'active' : ''}
-              onClick={() => setTab('design')}
+              onClick={() => {
+                focusSection.current = true
+                setTab('design')
+              }}
             >
               <LayoutTemplate size={15} />
               {t('Дизайн', 'Design')}
@@ -361,8 +432,7 @@ export default function Editor({
                   aria-pressed={section === s && tab === 'content'}
                   className={section === s && tab === 'content' ? 'active' : ''}
                   onClick={() => {
-                    setSection(s)
-                    setTab('content')
+                    goSection(s)
                   }}
                 >
                   <Icon size={17} />
@@ -392,11 +462,11 @@ export default function Editor({
             </div>
           </div>
         </aside>
-        <section className="editor-form">
+        <section className="editor-form" ref={form}>
           {tab === 'design' ? (
             <>
               <div className="eyebrow">{t('ВАШ СТИЛЬ', 'MAKE IT YOURS')}</div>
-              <h1>{t('Оформление', 'Design')}</h1>
+              <h1 tabIndex={-1}>{t('Оформление', 'Design')}</h1>
               <p className="form-description">
                 {t(
                   'Попробуйте разные варианты. Текст останется на месте.',
@@ -514,7 +584,7 @@ export default function Editor({
                 </div>
                 <span className="locale-badge">{locale.toUpperCase()}</span>
               </div>
-              <h1>{labels[section]}</h1>
+              <h1 tabIndex={-1}>{labels[section]}</h1>
               <p className="form-description">{subtitles[section]}</p>
               {section === 'basics' ? (
                 <>
@@ -607,7 +677,7 @@ export default function Editor({
                             [locale]: { ...resume, skills: v },
                           },
                         },
-                        true,
+                        `${locale}:skills`,
                       )
                     }
                     multiline
@@ -797,17 +867,31 @@ export default function Editor({
                     </strong>
                   </div>
                   {tips.map((tip) => (
-                    <p key={tip}>
-                      {tip}
+                    <p key={tip.id}>
                       <button
-                        aria-label={t('Скрыть подсказку', 'Dismiss tip')}
-                        onClick={() => setHiddenTips([...hiddenTips, tip])}
+                        className="tip-link"
+                        onClick={() => goSection(tip.section)}
+                      >
+                        {tip.message}
+                        <ChevronRight size={14} />
+                      </button>
+                      <button
+                        aria-label={`${t('Скрыть подсказку', 'Dismiss tip')}: ${tip.message}`}
+                        onClick={() => setHiddenTips([...hiddenTips, tip.id])}
                       >
                         <X size={14} />
                       </button>
                     </p>
                   ))}
                 </div>
+              )}
+              {hiddenTips.length > 0 && (
+                <button
+                  className="text-button restore-tips"
+                  onClick={() => setHiddenTips([])}
+                >
+                  {t('Показать скрытые подсказки', 'Show dismissed tips')}
+                </button>
               )}
               <div className="form-bottom">
                 <span>
@@ -820,8 +904,8 @@ export default function Editor({
                   className="button secondary"
                   onClick={() =>
                     sections.indexOf(section) < 6
-                      ? setSection(sections[sections.indexOf(section) + 1])
-                      : setTab('design')
+                      ? goSection(sections[sections.indexOf(section) + 1])
+                      : ((focusSection.current = true), setTab('design'))
                   }
                 >
                   {sections.indexOf(section) < 6
