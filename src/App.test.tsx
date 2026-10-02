@@ -6,12 +6,13 @@ import {
   render,
   screen,
   waitFor,
+  within,
 } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeAll, beforeEach, expect, it, vi } from 'vitest'
 import App from './App'
 import { loadDocument, saveDocument } from './storage'
-import { createDocument } from './model'
+import { createDocument, emptyEntry } from './model'
 vi.mock('./Preview', () => ({ default: () => <div>PDF preview</div> }))
 vi.mock('./storage', () => ({
   loadDocument: vi.fn(async () => null),
@@ -301,4 +302,72 @@ it('retries a failed save without losing form content', async () => {
   expect(
     vi.mocked(saveDocument).mock.lastCall?.[0].versions.ru.basics.name,
   ).toBe('Unsaved name')
+})
+
+it('collapses entries without losing edits and keeps their state while reordering', async () => {
+  render(
+    <MemoryRouter initialEntries={['/edit']}>
+      <App />
+    </MemoryRouter>,
+  )
+  fireEvent.click(
+    await screen.findByRole('button', { name: /Начать с примера/ }),
+  )
+  fireEvent.click(screen.getByRole('button', { name: /Опыт работы/ }))
+  fireEvent.change(screen.getAllByLabelText('Должность')[0], {
+    target: { value: 'Senior designer' },
+  })
+  fireEvent.click(screen.getByRole('button', { name: 'Свернуть все' }))
+  expect(screen.queryAllByRole('textbox', { name: 'Должность' })).toHaveLength(
+    0,
+  )
+  const heading = screen.getByRole('heading', { name: /Senior designer/ })
+  expect(within(heading).getByRole('button')).toHaveAttribute(
+    'aria-expanded',
+    'false',
+  )
+  fireEvent.click(screen.getAllByRole('button', { name: 'Опустить' })[0])
+  fireEvent.click(
+    within(screen.getByRole('heading', { name: /Senior designer/ })).getByRole(
+      'button',
+    ),
+  )
+  expect(screen.getByRole('textbox', { name: 'Должность' })).toHaveValue(
+    'Senior designer',
+  )
+  fireEvent.click(screen.getByRole('button', { name: 'Отменить' }))
+  expect(screen.getByRole('textbox', { name: 'Должность' })).toHaveValue(
+    'Senior designer',
+  )
+  expect(screen.getAllByRole('button', { name: 'Поднять' })[0]).toBeDisabled()
+})
+it('focuses a new entry and keeps keyboard focus after deleting it', async () => {
+  render(
+    <MemoryRouter initialEntries={['/edit']}>
+      <App />
+    </MemoryRouter>,
+  )
+  fireEvent.click(await screen.findByRole('button', { name: /Новое резюме/ }))
+  fireEvent.click(screen.getByRole('button', { name: /Опыт работы/ }))
+  fireEvent.click(screen.getByRole('button', { name: 'Добавить запись' }))
+  expect(screen.getByLabelText('Должность')).toHaveFocus()
+  fireEvent.click(screen.getByRole('button', { name: 'Удалить запись' }))
+  expect(screen.getByRole('button', { name: 'Добавить запись' })).toHaveFocus()
+})
+
+it('prevents adding entries beyond the supported persistence limit', async () => {
+  const doc = createDocument()
+  doc.versions.ru.work = Array.from({ length: 100 }, (_, i) => ({
+    ...emptyEntry(),
+    title: `Role ${i + 1}`,
+  }))
+  vi.mocked(loadDocument).mockResolvedValueOnce(doc)
+  render(
+    <MemoryRouter initialEntries={['/edit']}>
+      <App />
+    </MemoryRouter>,
+  )
+  fireEvent.click(await screen.findByRole('button', { name: /Опыт работы/ }))
+  expect(screen.getByRole('button', { name: 'Добавить запись' })).toBeDisabled()
+  expect(screen.getByText(/В разделе уже 100 записей/)).toBeInTheDocument()
 })

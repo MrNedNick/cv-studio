@@ -1,7 +1,5 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import {
-  ArrowDown,
-  ArrowUp,
   Check,
   ChevronRight,
   Download,
@@ -17,7 +15,6 @@ import {
   Plus,
   Redo2,
   ShieldCheck,
-  Trash2,
   Undo2,
   Upload,
   UserRound,
@@ -41,6 +38,7 @@ import {
   type StudioDocument,
 } from './model'
 import { MiniResume, FormField, templates } from './components'
+import EntryCard from './EntryCard'
 const Preview = lazy(() => import('./Preview'))
 const icons = {
   basics: UserRound,
@@ -85,7 +83,19 @@ export default function Editor({
     [tab, setTab] = useState<'content' | 'design'>('content'),
     [mobilePreview, setMobilePreview] = useState(false),
     [menu, setMenu] = useState(false),
-    [hiddenTips, setHiddenTips] = useState<string[]>([])
+    [hiddenTips, setHiddenTips] = useState<string[]>([]),
+    [entryAnnouncement, setEntryAnnouncement] = useState(''),
+    [collapsed, setCollapsed] = useState<Set<string>>(
+      () =>
+        new Set(
+          (['work', 'education', 'projects', 'languages'] as const).flatMap(
+            (section) =>
+              doc.versions[locale][section]
+                .slice(1)
+                .map((entry) => `${section}:${entry.id}`),
+          ),
+        ),
+    )
   const ru = locale === 'ru',
     t = (a: string, b: string) => (ru ? a : b),
     resume = doc.versions[locale],
@@ -109,8 +119,21 @@ export default function Editor({
   const form = useRef<HTMLElement>(null),
     menuButton = useRef<HTMLButtonElement>(null),
     menuPanel = useRef<HTMLDivElement>(null),
-    focusSection = useRef(false)
-  function goSection(next: Section) {
+    focusSection = useRef(false),
+    pendingEntry = useRef<{ id: string; field: boolean } | null>(null)
+  function goSection(next: Section, reveal = false) {
+    if (
+      reveal &&
+      next !== 'basics' &&
+      next !== 'summary' &&
+      next !== 'skills'
+    ) {
+      setCollapsed((current) => {
+        const expanded = new Set(current)
+        resume[next].forEach((e) => expanded.delete(`${next}:${e.id}`))
+        return expanded
+      })
+    }
     focusSection.current = true
     setSection(next)
     setTab('content')
@@ -204,8 +227,32 @@ export default function Editor({
       }
     update({ ...doc, versions }, `${locale}:${section}:${id}:${key}`)
   }
+  useEffect(() => {
+    if (!pendingEntry.current) return
+    const card = Array.from(
+      form.current?.querySelectorAll<HTMLElement>('[data-entry-id]') || [],
+    ).find((element) => element.dataset.entryId === pendingEntry.current?.id)
+    const target =
+      card?.querySelector<HTMLElement>(
+        pendingEntry.current.field ? 'input' : '.entry-toggle',
+      ) || form.current?.querySelector<HTMLElement>('.add-entry')
+    target?.focus({ preventScroll: true })
+    target?.scrollIntoView?.({ block: 'nearest' })
+    pendingEntry.current = null
+  }, [doc])
+  function toggleEntry(id: string) {
+    id = `${section}:${id}`
+    setCollapsed((current) => {
+      const next = new Set(current)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
   function add(section: EntrySection) {
+    if (resume[section].length >= 100) return
     const e = emptyEntry()
+    pendingEntry.current = { id: e.id, field: true }
     update({
       ...doc,
       versions: {
@@ -219,6 +266,9 @@ export default function Editor({
     })
   }
   function remove(section: EntrySection, id: string) {
+    const index = resume[section].findIndex((e) => e.id === id)
+    const next = resume[section][index + 1] || resume[section][index - 1]
+    pendingEntry.current = { id: next?.id || '', field: false }
     update({
       ...doc,
       versions: {
@@ -235,6 +285,10 @@ export default function Editor({
     })
   }
   function move(section: EntrySection, index: number, direction: number) {
+    pendingEntry.current = { id: resume[section][index].id, field: false }
+    setEntryAnnouncement(
+      `${resume[section][index].title || labels[section]}: ${index + direction + 1} ${t('из', 'of')} ${resume[section].length}`,
+    )
     const entries = [...resume[section]]
     ;[entries[index], entries[index + direction]] = [
       entries[index + direction],
@@ -280,6 +334,9 @@ export default function Editor({
   }
   return (
     <div className="editor">
+      <p className="visually-hidden" role="status">
+        {entryAnnouncement}
+      </p>
       <div className="editor-toolbar">
         <div className="document-title">
           <FileText size={20} />
@@ -698,38 +755,52 @@ export default function Editor({
                 </>
               ) : (
                 <>
+                  {resume[section].length > 1 && (
+                    <div className="entries-toolbar">
+                      <span>
+                        {t('Записей', 'Entries')}: {resume[section].length}
+                      </span>
+                      <button
+                        className="text-button"
+                        onClick={() => {
+                          const allCollapsed = resume[section].every((e) =>
+                            collapsed.has(`${section}:${e.id}`),
+                          )
+                          setCollapsed((current) => {
+                            const next = new Set(current)
+                            resume[section].forEach((e) => {
+                              if (allCollapsed)
+                                next.delete(`${section}:${e.id}`)
+                              else next.add(`${section}:${e.id}`)
+                            })
+                            return next
+                          })
+                        }}
+                      >
+                        {resume[section].every((e) =>
+                          collapsed.has(`${section}:${e.id}`),
+                        )
+                          ? t('Развернуть все', 'Expand all')
+                          : t('Свернуть все', 'Collapse all')}
+                      </button>
+                    </div>
+                  )}
                   {resume[section].map((e, i) => (
-                    <div className="entry-card" key={e.id}>
-                      <div className="entry-header">
-                        <strong>
-                          {e.title || `${labels[section]} ${i + 1}`}
-                        </strong>
-                        <div>
-                          <button
-                            className="icon-button"
-                            disabled={i === 0}
-                            aria-label={t('Поднять', 'Move up')}
-                            onClick={() => move(section, i, -1)}
-                          >
-                            <ArrowUp size={15} />
-                          </button>
-                          <button
-                            className="icon-button"
-                            disabled={i === resume[section].length - 1}
-                            aria-label={t('Опустить', 'Move down')}
-                            onClick={() => move(section, i, 1)}
-                          >
-                            <ArrowDown size={15} />
-                          </button>
-                          <button
-                            className="icon-button delete"
-                            aria-label={t('Удалить запись', 'Remove entry')}
-                            onClick={() => remove(section, e.id)}
-                          >
-                            <Trash2 size={15} />
-                          </button>
-                        </div>
-                      </div>
+                    <EntryCard
+                      key={e.id}
+                      entry={e}
+                      title={e.title || `${labels[section]} ${i + 1}`}
+                      locale={locale}
+                      expanded={!collapsed.has(`${section}:${e.id}`)}
+                      toggle={() => toggleEntry(e.id)}
+                      moveUp={i > 0 ? () => move(section, i, -1) : undefined}
+                      moveDown={
+                        i < resume[section].length - 1
+                          ? () => move(section, i, 1)
+                          : undefined
+                      }
+                      remove={() => remove(section, e.id)}
+                    >
                       <FormField
                         label={
                           section === 'work'
@@ -829,7 +900,7 @@ export default function Editor({
                           )}
                         </>
                       )}
-                    </div>
+                    </EntryCard>
                   ))}
                   {resume[section].length === 0 && (
                     <div className="empty-section">
@@ -845,6 +916,7 @@ export default function Editor({
                   )}
                   <button
                     className="button add-entry"
+                    disabled={resume[section].length >= 100}
                     onClick={() => add(section)}
                   >
                     <Plus size={17} />
@@ -852,8 +924,12 @@ export default function Editor({
                   </button>
                   <p className="field-hint">
                     {t(
-                      'Удаление и изменения можно отменить стрелкой вверху.',
-                      'Use Undo above to restore removed entries or changes.',
+                      resume[section].length >= 100
+                        ? 'В разделе уже 100 записей. Отредактируйте или удалите одну, чтобы добавить новую.'
+                        : 'Удаление и изменения можно отменить стрелкой вверху.',
+                      resume[section].length >= 100
+                        ? 'This section has 100 entries. Edit or remove an entry before adding another.'
+                        : 'Use Undo above to restore removed entries or changes.',
                     )}
                   </p>
                 </>
@@ -870,7 +946,7 @@ export default function Editor({
                     <p key={tip.id}>
                       <button
                         className="tip-link"
-                        onClick={() => goSection(tip.section)}
+                        onClick={() => goSection(tip.section, true)}
                       >
                         {tip.message}
                         <ChevronRight size={14} />

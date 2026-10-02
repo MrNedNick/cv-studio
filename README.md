@@ -10,6 +10,7 @@ A free resume editor with thoughtful templates, a live PDF preview, and no accou
 
 - Start with a blank resume or a fictional example.
 - Edit contact details, profile, experience, education, skills, projects, and languages.
+- Collapse experience, education, projects, and language entries into compact summaries, or expand them all. New entries receive keyboard focus; collapsed text remains in your PDF.
 - Add, remove, and reorder entries, with undo and redo. Fast edits in different fields remain separate undo steps.
 - Follow dismissible guidance for contact details, dates, empty entries, long paragraphs, and concrete achievements. Each tip opens its relevant section.
 - Choose Modern, Classic, Compact, or Editorial, plus accent colors, text density, and Sans, Serif, or mixed typography.
@@ -44,7 +45,7 @@ npm run lint
 npm run build
 ```
 
-The development URL is `http://localhost:5173/cv-studio/`. Tests cover import confirmation/cancellation and edits during file reads, storage recovery, keyboard navigation, targeted guidance, model validation, IndexedDB persistence, JSON round trips, shared contacts, undo/redo, and PDF text, links, attachments, templates, long-document pagination, typography compatibility, preview recovery, and text-view access. GitHub Actions runs lint, tests, and a production build before publishing `main` to Pages.
+The development URL is `http://localhost:5173/cv-studio/`. Tests cover entry collapse/reordering/focus, duplicate imported IDs, sidebar PDF text positioning, import confirmation/cancellation and edits during file reads, storage recovery, keyboard navigation, targeted guidance, model validation, IndexedDB persistence, JSON round trips, shared contacts, undo/redo, and PDF text, links, attachments, templates, long-document pagination, typography compatibility, preview recovery, and text-view access. GitHub Actions runs lint, tests, and a production build before publishing `main` to Pages.
 
 ## Boundaries
 

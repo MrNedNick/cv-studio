@@ -1099,13 +1099,7 @@
   padding-bottom: 10px;
   border-bottom: 1px solid var(--line);
 }
-.entry-header > strong {
-  font-size: 10px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 190px;
-}
+
 .entry-header > div {
   display: flex;
 }
@@ -2274,9 +2268,7 @@ dialog p {
   .entry-card {
     padding: 15px;
   }
-  .entry-header > strong {
-    max-width: 145px;
-  }
+
   .entry-header .icon-button {
     width: 30px;
     height: 36px;
@@ -2435,9 +2427,7 @@ dialog p {
   .tips p {
     font-size: 11px;
   }
-  .entry-header > strong {
-    font-size: 12px;
-  }
+
   .checkbox {
     font-size: 12px;
   }
@@ -2678,4 +2668,82 @@ dialog p {
 }
 .editor-form h1:focus {
   outline: none;
+}
+
+.entries-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin: 24px 0 14px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.entries-toolbar button {
+  font-size: 12px;
+  padding: 8px 0;
+}
+.entry-header {
+  align-items: flex-start;
+  gap: 10px;
+}
+.entry-header h2 {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+}
+.entry-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 0;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+  line-height: 1.5;
+}
+.entry-toggle > span {
+  min-width: 0;
+}
+.entry-toggle strong {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.entry-toggle small {
+  display: block;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--muted);
+  margin-top: 4px;
+  overflow-wrap: anywhere;
+}
+.entry-toggle > svg {
+  margin-top: 2px;
+  transition: transform 0.18s;
+}
+.entry-toggle[aria-expanded='false'] > svg {
+  transform: rotate(-90deg);
+}
+.entry-card.collapsed .entry-header {
+  border: 0;
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+.entry-header .entry-actions {
+  flex-shrink: 0;
+}
+@media (max-width: 600px) {
+  .entry-header {
+    flex-wrap: wrap;
+  }
+  .entry-header h2 {
+    flex-basis: 100%;
+  }
+  .entry-header .entry-actions {
+    margin-left: auto;
+  }
+  .entry-header .icon-button {
+    width: 36px;
+    height: 36px;
+  }
 }
