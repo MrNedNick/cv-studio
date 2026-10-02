@@ -149,12 +149,15 @@ button {
     transform: rotate(360deg);
   }
 }
+/* Reduced motion: no movement. Short fades stay (see App.css). */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
-    animation: none !important;
-    transition: none !important;
+    transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+  .spin {
+    animation-duration: 2.4s;
   }
 }

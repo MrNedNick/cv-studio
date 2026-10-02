@@ -599,3 +599,52 @@ it('collapses the section panel and remembers a narrow form', async () => {
     'true',
   )
 })
+it('hides the form from any tab and brings it back from the preview or a section', async () => {
+  localStorage.removeItem('cv-form-hidden')
+  render(
+    <MemoryRouter initialEntries={['/edit']}>
+      <App />
+    </MemoryRouter>,
+  )
+  fireEvent.click(await screen.findByRole('button', { name: /Новое резюме/ }))
+  fireEvent.click(screen.getByRole('button', { name: 'Скрыть форму' }))
+  expect(localStorage.getItem('cv-form-hidden')).toBe('hidden')
+  fireEvent.click(screen.getByRole('button', { name: 'Показать форму' }))
+  expect(localStorage.getItem('cv-form-hidden')).toBeNull()
+  expect(
+    screen.queryByRole('button', { name: 'Показать форму' }),
+  ).not.toBeInTheDocument()
+  fireEvent.click(screen.getByRole('button', { name: /Дизайн/ }))
+  fireEvent.click(screen.getByRole('button', { name: 'Скрыть форму' }))
+  expect(
+    screen.getByRole('button', { name: 'Показать форму' }),
+  ).toBeInTheDocument()
+  fireEvent.click(
+    within(document.querySelector<HTMLElement>('.section-nav')!).getByRole(
+      'button',
+      { name: /Опыт работы/ },
+    ),
+  )
+  expect(localStorage.getItem('cv-form-hidden')).toBeNull()
+  expect(
+    screen.getByRole('heading', { name: 'Опыт работы' }),
+  ).toBeInTheDocument()
+})
+it('toggles writing guidance as an expandable region', async () => {
+  localStorage.removeItem('cv-guide')
+  render(
+    <MemoryRouter initialEntries={['/edit']}>
+      <App />
+    </MemoryRouter>,
+  )
+  fireEvent.click(await screen.findByRole('button', { name: /Новое резюме/ }))
+  const toggle = screen.getByRole('button', {
+    name: 'Как заполнить этот раздел',
+  })
+  expect(toggle).toHaveAttribute('aria-expanded', 'true')
+  expect(screen.getByText(/Укажите должность/)).toBeVisible()
+  fireEvent.click(toggle)
+  expect(toggle).toHaveAttribute('aria-expanded', 'false')
+  expect(screen.queryByText(/Укажите должность/)).not.toBeInTheDocument()
+  expect(localStorage.getItem('cv-guide')).toBe('closed')
+})

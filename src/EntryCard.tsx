@@ -1,6 +1,7 @@
 import { useId, type ReactNode } from 'react'
 import { ArrowDown, ArrowUp, ChevronDown, Trash2 } from 'lucide-react'
 import { dateRange, type Entry, type Locale } from './model'
+import { Collapse } from './motion'
 
 export default function EntryCard({
   entry,
@@ -82,9 +83,9 @@ export default function EntryCard({
           </button>
         </div>
       </div>
-      <div id={`${id}-fields`} hidden={!expanded}>
-        {expanded ? children : null}
-      </div>
+      <Collapse open={expanded} id={`${id}-fields`}>
+        {children}
+      </Collapse>
     </div>
   )
 }

@@ -2847,7 +2847,7 @@ dialog p {
   color: var(--muted);
   line-height: 1.7;
 }
-.screening-guide summary {
+.screening-guide .disclosure-summary {
   cursor: pointer;
   color: var(--text);
   font-weight: 600;
@@ -3147,7 +3147,7 @@ dialog p {
   line-height: 1.7;
   margin: 16px 0;
 }
-.export-metadata summary {
+.export-metadata .disclosure-summary {
   cursor: pointer;
   color: var(--text);
   font-weight: 700;
@@ -3259,7 +3259,7 @@ dialog p {
   line-height: 1.65;
   background: var(--surface);
 }
-.writing-guide summary {
+.writing-guide .disclosure-summary {
   cursor: pointer;
   font-weight: 700;
   color: var(--accent);
@@ -3853,4 +3853,205 @@ dialog p {
 }
 .template-card-ivy .template-image {
   background: #eeebe4;
+}
+
+/* Motion: every panel, disclosure, menu and dialog opens and closes smoothly. */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+  }
+}
+@keyframes pop-out {
+  to {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+  }
+}
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+}
+@keyframes dialog-out {
+  to {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+}
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 12px);
+  }
+}
+@keyframes toast-out {
+  to {
+    opacity: 0;
+    transform: translate(-50%, 12px);
+  }
+}
+.step-enter {
+  animation: rise-in 0.26s cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+.document-menu {
+  transform-origin: top right;
+  animation: pop-in 0.18s cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+.document-menu.is-closing {
+  animation: pop-out 0.18s ease-in forwards;
+  pointer-events: none;
+}
+dialog[open] {
+  animation: dialog-in 0.24s cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+dialog[open]::backdrop {
+  animation: fade-in 0.24s ease-out;
+}
+dialog.is-closing {
+  animation: dialog-out 0.18s ease-in forwards;
+}
+dialog.is-closing::backdrop {
+  animation: fade-out 0.18s ease-in forwards;
+}
+.copy-toast {
+  animation: toast-in 0.24s cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+.copy-toast.is-closing {
+  animation: toast-out 0.18s ease-in forwards;
+}
+.verb-group,
+.match-result,
+.photo-preview img,
+.field-error {
+  animation: fade-in 0.22s ease-out;
+}
+.check-group li,
+.chip {
+  transition:
+    border-color 0.2s,
+    background-color 0.2s,
+    color 0.2s;
+}
+
+/* Disclosures replace <details> so their bodies can animate. */
+.disclosure-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  background: none;
+  padding: 0;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+.disclosure-summary > svg {
+  flex: none;
+  transform: rotate(-90deg);
+  transition: transform 0.22s cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+.disclosure.is-open > .disclosure-summary > svg {
+  transform: none;
+}
+.entry-toggle > svg {
+  transition: transform 0.22s cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+
+/* Hidden form and animated columns */
+.show-form {
+  display: none;
+}
+@media (min-width: 1050px) {
+  .is-editing .editor-body {
+    transition: grid-template-columns 0.3s cubic-bezier(0.2, 0.75, 0.25, 1);
+  }
+  .is-editing .editor-body.is-resizing {
+    transition: none;
+  }
+  .is-editing .editor-form {
+    transition:
+      opacity 0.22s ease,
+      padding 0.3s cubic-bezier(0.2, 0.75, 0.25, 1);
+  }
+  .is-editing .form-hidden .editor-form {
+    opacity: 0;
+    padding-left: 0;
+    padding-right: 0;
+    overflow: hidden;
+  }
+  .is-editing .form-hidden .panel-resizer {
+    display: none;
+  }
+  .is-editing .form-hidden .show-form {
+    display: inline-flex;
+    position: absolute;
+    left: 20px;
+    top: 12px;
+    z-index: 4;
+    gap: 6px;
+    min-height: 0;
+    padding: 8px 12px;
+    font-size: 13px;
+    animation: fade-in 0.25s ease-out 0.1s both;
+  }
+  .is-editing .form-hidden .preview-controls {
+    padding-left: 150px;
+  }
+  .is-editing .editor-sidebar .section-nav button > span,
+  .is-editing .editor-sidebar .rail-hide,
+  .is-editing .editor-sidebar .sidebar-title {
+    animation: fade-in 0.25s ease-out;
+  }
+}
+@media (max-width: 1049px) {
+  .show-preview .preview-panel,
+  .editor-body:not(.show-preview) .editor-form {
+    animation: fade-in 0.22s ease-out;
+  }
+}
+/* With reduced motion, keep only short fades: nothing slides, scales or resizes. */
+@media (prefers-reduced-motion: reduce) {
+  .step-enter,
+  .document-menu,
+  dialog[open],
+  .copy-toast,
+  .is-editing .form-hidden .show-form {
+    animation-name: fade-in;
+    animation-duration: 0.16s;
+  }
+  .document-menu.is-closing,
+  dialog.is-closing,
+  .copy-toast.is-closing {
+    animation-name: fade-out;
+  }
+  .copy-toast {
+    transform: translateX(-50%);
+  }
+  .is-editing .editor-body,
+  .disclosure-summary > svg,
+  .entry-toggle > svg {
+    transition: none;
+  }
+}
+/* Keep child margins inside so the measured height matches the final one. */
+.collapse:not([hidden]) {
+  display: flow-root;
 }

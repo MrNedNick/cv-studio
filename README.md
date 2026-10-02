@@ -14,7 +14,8 @@ A free resume editor with thoughtful templates, a live PDF preview, and no accou
 - Finish with the Review step: 15 content checks (measurable results, weak openers such as “responsible for”, clichés, pronouns, dates, order, length, placeholders) with a link to the section that needs work.
 - Paste a job posting to see which of its skills your resume already covers and which are missing. Synonyms and plurals count as one skill; missing ones can be added to your skills in one click. Nothing leaves the browser.
 - Start in English, switch to Russian when needed, and keep your chosen language. The theme follows your device until you choose light or dark.
-- Work in a desktop layout with a compact header, independently scrolling form, visible section progress, and a full-page PDF preview. Collapse the section panel to icons, switch the form to a narrow width, or drag the divider.
+- Work in a desktop layout with a compact header, independently scrolling form, visible section progress, and a full-page PDF preview. Collapse the section panel to icons, switch the form to a narrow width, drag the divider, or hide the form on any tab to give the preview the whole width.
+- Panels, entries, guidance, menus, and dialogs open and close with short animations. With the system’s reduced-motion setting, only gentle fades remain.
 - Collapse experience, education, projects, and language entries into compact summaries, or expand them all. New entries receive keyboard focus; collapsed text remains in your PDF.
 - Add, remove, and reorder entries, with undo and redo. Fast edits in different fields remain separate undo steps.
 - Follow dismissible guidance for contact details, dates, empty entries, long paragraphs, and concrete achievements. Each tip opens its relevant section.

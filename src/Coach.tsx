@@ -15,6 +15,7 @@ import {
   reviewResume,
   type Check as ReviewCheck,
 } from './writing'
+import { Disclosure } from './motion'
 import { sectionLabels, type Locale, type Resume, type Section } from './model'
 
 export function WritingGuide({
@@ -43,11 +44,10 @@ export function WritingGuide({
     })
   if (!guide) return null
   return (
-    <details
+    <Disclosure
       className="writing-guide"
       open={open}
-      onToggle={(event) => {
-        const next = (event.currentTarget as HTMLDetailsElement).open
+      onToggle={(next) => {
         setOpen(next)
         try {
           localStorage.setItem('cv-guide', next ? 'open' : 'closed')
@@ -55,10 +55,8 @@ export function WritingGuide({
           /* The choice applies to this visit only. */
         }
       }}
+      summary={t('Как заполнить этот раздел', 'How to write this section')}
     >
-      <summary>
-        {t('Как заполнить этот раздел', 'How to write this section')}
-      </summary>
       <ul>
         {guide.rules.map((rule) => (
           <li key={rule.en}>{rule[locale]}</li>
@@ -132,7 +130,7 @@ export function WritingGuide({
           </div>
         </div>
       )}
-    </details>
+    </Disclosure>
   )
 }
 

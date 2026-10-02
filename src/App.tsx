@@ -35,6 +35,7 @@ import {
 import { loadDocument, saveDocument } from './storage'
 import { MiniResume, TemplateCards, templates } from './components'
 import Editor from './Editor'
+import { Disclosure, useLingering } from './motion'
 import './App.css'
 function download(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob),
@@ -49,22 +50,39 @@ function Dialog({
   children,
   close,
   closeLabel,
+  closing = false,
 }: {
   title: string
   children: ReactNode
   close: () => void
   closeLabel: string
+  closing?: boolean
 }) {
   const ref = useRef<HTMLDialogElement>(null)
   useEffect(() => {
-    const dialog = ref.current!
+    const dialog = ref.current!,
+      opener = document.activeElement as HTMLElement | null
     dialog.showModal()
-    return () => dialog.close()
+    return () => {
+      dialog.close()
+      // The closing animation makes the dialog inert, which drops focus;
+      // hand it back to whatever opened the dialog.
+      if (
+        opener?.isConnected &&
+        (!document.activeElement || document.activeElement === document.body)
+      )
+        opener.focus()
+    }
   }, [])
   return (
     <dialog
       ref={ref}
-      onCancel={close}
+      className={closing ? 'is-closing' : undefined}
+      inert={closing}
+      onCancel={(e) => {
+        e.preventDefault()
+        if (!closing) close()
+      }}
       onClick={(e) => {
         if (e.target === ref.current) close()
       }}
@@ -123,6 +141,13 @@ export default function App() {
     [importing, setImporting] = useState(false),
     [history, setHistory] = useState<StudioDocument[]>([]),
     [future, setFuture] = useState<StudioDocument[]>([])
+  // Dialogs stay mounted briefly after closing so they can animate out.
+  const exportView = useLingering(exportDocument, exportDocument !== null),
+    exportShown = exportView.value,
+    importView = useLingering(pendingImport, pendingImport !== null),
+    importShown = importView.value,
+    startView = useLingering(pendingStart, pendingStart !== null),
+    helpView = useLingering(help, help)
   const input = useRef<HTMLInputElement>(null),
     lastHistory = useRef({ time: 0, key: '' }),
     ru = locale === 'ru',
@@ -836,8 +861,9 @@ export default function App() {
           )}
         </div>
       )}
-      {exportDocument && (
+      {exportView.shown && exportShown && (
         <Dialog
+          closing={exportView.closing}
           title={t('Скачать резюме', 'Download your resume')}
           close={() => setExportDocument(null)}
           closeLabel={t('Закрыть', 'Close')}
@@ -846,31 +872,31 @@ export default function App() {
             <FileText size={22} />
             <div>
               <strong>
-                {exportDocument.versions[exportDocument.language].basics.name ||
+                {exportShown.versions[exportShown.language].basics.name ||
                   t('Моё резюме', 'My resume')}
               </strong>
               <span>
-                {exportDocument.language === 'ru' ? 'Русский' : 'English'} · PDF
-                · A4
+                {exportShown.language === 'ru' ? 'Русский' : 'English'} · PDF ·
+                A4
               </span>
             </div>
           </div>
-          <details className="export-metadata">
-            <summary>{t('Свойства PDF', 'PDF properties')}</summary>
+          <Disclosure
+            className="export-metadata"
+            summary={t('Свойства PDF', 'PDF properties')}
+          >
             <dl>
               <dt>{t('Автор', 'Author')}</dt>
               <dd>
-                {exportDocument.versions[exportDocument.language].basics.name ||
-                  '—'}
+                {exportShown.versions[exportShown.language].basics.name || '—'}
               </dd>
               <dt>{t('Тема', 'Subject')}</dt>
               <dd>
-                {exportDocument.versions[exportDocument.language].basics
-                  .label || '—'}
+                {exportShown.versions[exportShown.language].basics.label || '—'}
               </dd>
               <dt>{t('Ключевые слова', 'Keywords')}</dt>
               <dd>
-                {exportDocument.versions[exportDocument.language].skills || '—'}
+                {exportShown.versions[exportShown.language].skills || '—'}
               </dd>
             </dl>
             <p>
@@ -879,7 +905,7 @@ export default function App() {
                 'Taken from the name, job title, and visible skills in your selected version. Edit these in the form. Metadata describes your file; it does not guarantee a screening rank.',
               )}
             </p>
-          </details>
+          </Disclosure>
           <fieldset className="export-options" disabled={exporting}>
             <legend>
               {t('Какую копию сохранить?', 'Which copy do you need?')}
@@ -953,8 +979,9 @@ export default function App() {
           </div>
         </Dialog>
       )}
-      {pendingImport && (
+      {importView.shown && importShown && (
         <Dialog
+          closing={importView.closing}
           title={t('Открыть это резюме?', 'Open this resume?')}
           close={() => setPendingImport(null)}
           closeLabel={t('Закрыть', 'Close')}
@@ -963,16 +990,16 @@ export default function App() {
             <FileText size={26} />
             <div>
               <strong>
-                {pendingImport.doc.versions[pendingImport.doc.language].basics
+                {importShown.doc.versions[importShown.doc.language].basics
                   .name || t('Резюме без имени', 'Untitled resume')}
               </strong>
-              <span>{pendingImport.filename}</span>
+              <span>{importShown.filename}</span>
               <small>
-                {pendingImport.doc.language.toUpperCase()} ·{' '}
+                {importShown.doc.language.toUpperCase()} ·{' '}
                 {
                   sections.filter((section) => {
                     const resume =
-                      pendingImport.doc.versions[pendingImport.doc.language]
+                      importShown.doc.versions[importShown.doc.language]
                     return section === 'basics'
                       ? Object.values(resume.basics).some(Boolean)
                       : section === 'summary'
@@ -1021,8 +1048,9 @@ export default function App() {
           </div>
         </Dialog>
       )}
-      {pendingStart !== null && (
+      {startView.shown && startView.value !== null && (
         <Dialog
+          closing={startView.closing}
           closeLabel={t('Закрыть', 'Close')}
           title={t('Начать новое резюме?', 'Start a new resume?')}
           close={() => setPendingStart(null)}
@@ -1041,15 +1069,16 @@ export default function App() {
             )}
             <button
               className="button primary"
-              onClick={() => start(pendingStart, true)}
+              onClick={() => start(startView.value!, true)}
             >
               {t('Начать новое', 'Start new')}
             </button>
           </div>
         </Dialog>
       )}
-      {help && (
+      {helpView.shown && (
         <Dialog
+          closing={helpView.closing}
           closeLabel={t('Закрыть', 'Close')}
           title={t(
             'Ваше резюме, без условий.',
