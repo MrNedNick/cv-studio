@@ -9,15 +9,18 @@ A free resume editor with thoughtful templates, a live PDF preview, and no accou
 ## What you can do
 
 - Start with a blank resume or a fictional example.
-- Edit contact details, profile, experience, education, skills, projects, and languages.
+- Edit contact details, profile, experience, education, skills, projects, and languages. Include separate portfolio, LinkedIn, and GitHub links.
+- Start in English, switch to Russian when needed, and keep your chosen language. The theme follows your device until you choose light or dark.
+- Work in a desktop layout with a compact header, independently scrolling form, visible section progress, and a full-page PDF preview.
 - Collapse experience, education, projects, and language entries into compact summaries, or expand them all. New entries receive keyboard focus; collapsed text remains in your PDF.
 - Add, remove, and reorder entries, with undo and redo. Fast edits in different fields remain separate undo steps.
 - Follow dismissible guidance for contact details, dates, empty entries, long paragraphs, and concrete achievements. Each tip opens its relevant section.
-- Choose Modern, Classic, Compact, or Editorial, plus accent colors, text density, and Sans, Serif, or mixed typography.
+- Choose from eight templates — Modern, Classic, Compact, Technical, Executive, Spotlight, Swiss, and the two-column Editorial — plus accent colors, text density, and Sans, Serif, or mixed typography.
 - Keep Russian and English versions together. Translations are entered manually; contact details, dates, and links are shared.
-- Preview the actual paginated A4 document at 75–200% zoom, or switch to an accessible text view for reading and copying. Retry a failed preview without reloading.
+- Fit the actual A4 page to the desktop workspace and step through pages, enlarge it at 75–200% zoom, or switch to an accessible text view for reading and copying. Retry a failed preview without reloading.
 - Choose a PDF for sharing (the default, selected language only) or an editable backup. Both have selectable text, embedded Cyrillic/Latin fonts, and clickable links.
 - Reopen an editable PDF copy made here and continue editing. Editable copies include a `cv-studio.json` attachment containing both language versions and the design settings.
+- Inspect PDF properties before downloading: author, subject, and keywords come from the selected version’s visible name, role, and skills.
 - Review the name and file before importing; save a backup or cancel before replacing the current resume. Undo can restore the previous document.
 - Import and export JSON Resume. The `cvStudio` extension preserves both language versions and presentation settings.
 
@@ -28,6 +31,12 @@ All templates and downloads are free. There are no watermarks, accounts, analyti
 React 19, TypeScript, and Vite. The renderer uses `@react-pdf/renderer` for layout, `pdf-lib` to attach editable source, and PDF.js to display the same PDF in the live preview. Fonts are hosted with the app and licensed under OFL (see `public/fonts/LICENSE`). The accessible form-field primitive comes from a shared component library. Hash routes support direct editor links on GitHub Pages.
 
 PDF code loads only when needed. The interface uses compressed WOFF2 fonts; PDF exports keep the original embedded fonts. Failed storage reads preserve the existing data and offer a retry; failed writes offer retry and JSON backup. The document supports multiple pages; empty sections stay out of the export. Single-column templates are recommended for automated screening. Editorial offers a two-column alternative. Mobile layouts switch between editing and preview; both light and dark themes keep the exported paper white.
+
+## Readability for applications
+
+Single-column templates keep the reading order simple. Technical places skills before work history. The editor links to [Greenhouse’s parsing guidance](https://support.greenhouse.io/hc/en-us/articles/200989175-Unsuccessful-resume-parse) and [CareerOneStop’s formatting guide](https://cloudfront.careeronestop.org/JobSearch/Resumes/ResumeGuide/formatting.aspx): use clear sections, readable text, relevant skills, and concrete experience. Match the wording of a vacancy only when it accurately describes your experience. Check the downloaded PDF and follow the employer’s requested format.
+
+The editor does not add hidden keywords, invent qualifications, or promise an ATS score. PDF metadata describes the document; it is not a ranking guarantee. Sharing exports contain only the chosen language, while editable backups contain both language versions.
 
 ## Keyboard shortcuts
 
