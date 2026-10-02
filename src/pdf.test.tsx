@@ -49,30 +49,35 @@ it('exports selectable Cyrillic text, links, and editable source for every templ
     )
   }
 }, 30000)
-it('paginates long experience without losing the last achievement', async () => {
-  const doc = createDocument(true)
-  doc.versions.ru.work[0].description = Array.from(
-    { length: 85 },
-    (_, i) =>
-      `Достижение ${i + 1}: улучшила конверсию продукта на 24% и сократила время обработки заявок.`,
-  ).join('\n')
-  const blob = await exportPdf(doc),
-    bytes = new Uint8Array(await blob.arrayBuffer())
-  const loaded = await PDFDocument.load(bytes)
-  expect(loaded.getPageCount()).toBeGreaterThan(2)
-  const task = getDocument({ data: bytes })
-  const pdf = await task.promise
-  let text = ''
-  for (let i = 1; i <= pdf.numPages; i++) {
-    const content = await (await pdf.getPage(i)).getTextContent()
-    text += content.items
-      .map((item) => ('str' in item ? item.str : ''))
-      .join(' ')
-  }
-  expect(text).toContain('Достижение 85')
-  expect(text).toContain('Английский')
-  await task.destroy()
-}, 30000)
+it.each(['modern', 'classic', 'compact', 'sidebar'] as const)(
+  'paginates long %s experience without losing the last achievement',
+  async (template) => {
+    const doc = createDocument(true)
+    doc.template = template
+    doc.versions.ru.work[0].description = Array.from(
+      { length: 85 },
+      (_, i) =>
+        `Достижение ${i + 1}: улучшила конверсию продукта на 24% и сократила время обработки заявок.`,
+    ).join('\n')
+    const blob = await exportPdf(doc),
+      bytes = new Uint8Array(await blob.arrayBuffer())
+    const loaded = await PDFDocument.load(bytes)
+    expect(loaded.getPageCount()).toBeGreaterThan(2)
+    const task = getDocument({ data: bytes })
+    const pdf = await task.promise
+    let text = ''
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const content = await (await pdf.getPage(i)).getTextContent()
+      text += content.items
+        .map((item) => ('str' in item ? item.str : ''))
+        .join(' ')
+    }
+    expect(text).toContain('Достижение 85')
+    expect(text).toContain('Английский')
+    await task.destroy()
+  },
+  30000,
+)
 it('exports the selected English version', async () => {
   const doc = createDocument(true)
   doc.language = 'en'

@@ -71,9 +71,10 @@ export function ResumePDF({ doc }: { doc: StudioDocument }) {
               <View minPresenceAhead={30}>
                 <View
                   style={{
-                    flexDirection: 'row',
+                    flexDirection:
+                      sidebar && key === 'education' ? 'column' : 'row',
                     justifyContent: 'space-between',
-                    gap: 12,
+                    gap: sidebar && key === 'education' ? 2 : 12,
                   }}
                 >
                   <Text style={{ fontWeight: 700, flex: 1 }}>{e.title}</Text>
@@ -209,12 +210,12 @@ export function ResumePDF({ doc }: { doc: StudioDocument }) {
         </View>
         {sidebar ? (
           <View style={{ flexDirection: 'row', gap: 25 }}>
-            <View style={{ width: '66%' }}>
+            <View style={{ flex: 2 }}>
               {summary}
               {block('work')}
               {block('projects')}
             </View>
-            <View style={{ width: '30%' }}>
+            <View style={{ flex: 1 }}>
               {skills}
               {block('education')}
               {block('languages')}
