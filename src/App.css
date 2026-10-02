@@ -3661,3 +3661,53 @@ dialog p {
   color: var(--accent);
   border-bottom-color: var(--accent);
 }
+.section-order {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+}
+.section-order li {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 8px 6px 14px;
+  font-size: 14px;
+}
+.section-order li + li {
+  border-top: 1px solid var(--line);
+}
+.section-order li > span {
+  flex: 1;
+  font-weight: 600;
+}
+.section-order small {
+  color: var(--muted);
+  font-size: 12px;
+  margin-right: 6px;
+}
+.section-order li.is-hidden > span {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+.section-order .icon-button[aria-pressed='true'] {
+  color: var(--accent);
+}
+.copy-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 12px 16px;
+  border-radius: 9px;
+  background: var(--text);
+  color: var(--bg);
+  font-size: 14px;
+  box-shadow: 0 8px 30px #0003;
+}

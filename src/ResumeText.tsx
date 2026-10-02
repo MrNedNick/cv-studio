@@ -1,7 +1,9 @@
+import { Fragment } from 'react'
 import {
   dateRange,
   safeUrl,
   sectionLabels,
+  visibleSections,
   type EntrySection,
   type StudioDocument,
 } from './model'
@@ -93,18 +95,18 @@ export default function ResumeText({ doc }: { doc: StudioDocument }) {
             ),
         )}
       </div>
-      {resume.basics.summary.trim() && (
-        <section>
-          <h3>{labels.summary}</h3>
-          <p className="preserve-lines">{resume.basics.summary}</p>
-        </section>
+      {visibleSections(doc).map((section) =>
+        section === 'summary'
+          ? resume.basics.summary.trim() && (
+              <section key="summary">
+                <h3>{labels.summary}</h3>
+                <p className="preserve-lines">{resume.basics.summary}</p>
+              </section>
+            )
+          : section === 'skills'
+            ? skills && <Fragment key="skills">{skills}</Fragment>
+            : entries(section),
       )}
-      {doc.template === 'technical' && skills}
-      {entries('work')}
-      {entries('education')}
-      {doc.template !== 'technical' && skills}
-      {entries('projects')}
-      {entries('languages')}
     </article>
   )
 }

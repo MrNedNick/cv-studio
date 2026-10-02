@@ -33,6 +33,10 @@ import {
   PenLine,
   LoaderCircle,
   ClipboardCheck,
+  ArrowUp,
+  ArrowDown,
+  EyeOff,
+  Copy,
   PanelLeftClose,
   PanelLeftOpen,
   Columns2,
@@ -44,6 +48,8 @@ import {
   getTips,
   sectionLabels,
   sections,
+  plainText,
+  templateOrder,
   type EntrySection,
   type Locale,
   type Resume,
@@ -341,6 +347,37 @@ export default function Editor({
       },
     })
   }
+  const order = doc.sectionOrder.length
+    ? doc.sectionOrder
+    : templateOrder(doc.template)
+  function moveSection(index: number, direction: number) {
+    const next = [...order]
+    ;[next[index], next[index + direction]] = [
+      next[index + direction],
+      next[index],
+    ]
+    update({ ...doc, sectionOrder: next })
+  }
+  const [copied, setCopied] = useState(false)
+  async function copyText() {
+    try {
+      await navigator.clipboard.writeText(plainText(doc))
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2500)
+    } catch {
+      downloadText()
+    }
+  }
+  function downloadText() {
+    const url = URL.createObjectURL(
+      new Blob([plainText(doc)], { type: 'text/plain;charset=utf-8' }),
+    )
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `${(resume.basics.name || 'resume').trim().replace(/\s+/g, '-')}-${locale.toUpperCase()}-CV.txt`
+    link.click()
+    setTimeout(() => URL.revokeObjectURL(url), 1000)
+  }
   function addSkill(term: string) {
     const current = resume.skills.replace(/[,\s]*$/, '')
     update(
@@ -478,6 +515,15 @@ export default function Editor({
       <p className="visually-hidden" role="status">
         {entryAnnouncement}
       </p>
+      {copied && (
+        <p className="copy-toast" role="status">
+          <Check size={16} />
+          {t(
+            'Текст резюме скопирован — вставьте его в анкету.',
+            'Resume text copied — paste it into the application form.',
+          )}
+        </p>
+      )}
       <div className="editor-toolbar">
         <div className="document-title">
           <FileText size={20} />
@@ -576,6 +622,24 @@ export default function Editor({
           >
             <Plus size={16} />
             {t('Новое резюме', 'New resume')}
+          </button>
+          <button
+            onClick={() => {
+              void copyText()
+              setMenu(false)
+            }}
+          >
+            <Copy size={16} />
+            {t('Копировать как текст', 'Copy as plain text')}
+          </button>
+          <button
+            onClick={() => {
+              downloadText()
+              setMenu(false)
+            }}
+          >
+            <FileText size={16} />
+            {t('Скачать .txt для анкет', 'Download .txt for forms')}
           </button>
         </div>
       )}
@@ -714,7 +778,7 @@ export default function Editor({
             </div>
           </div>
         </aside>
-        <section className="editor-form" ref={form}>
+        <section className="editor-form" ref={form} lang={locale} spellCheck>
           {tab === 'design' ? (
             <>
               <div className="eyebrow">{t('ВАШ СТИЛЬ', 'MAKE IT YOURS')}</div>
@@ -749,6 +813,77 @@ export default function Editor({
                     'A single-column template is a safer choice for automated screening.',
                   )}
                 </p>
+              )}
+              <h2 className="control-heading">
+                {t('Порядок разделов', 'Section order')}
+              </h2>
+              <p className="field-hint">
+                {t(
+                  'Переставьте разделы или скройте лишние. Данные скрытых разделов сохраняются.',
+                  'Reorder sections or hide the ones you don’t need. Hidden content is kept.',
+                )}
+              </p>
+              <ol className="section-order">
+                {order.map((s, i) => {
+                  const hidden = doc.hiddenSections.includes(s)
+                  return (
+                    <li key={s} className={hidden ? 'is-hidden' : ''}>
+                      <span>{labels[s]}</span>
+                      {doc.template === 'sidebar' && (
+                        <small>
+                          {['summary', 'work', 'projects'].includes(s)
+                            ? t('основная колонка', 'main column')
+                            : t('боковая колонка', 'side column')}
+                        </small>
+                      )}
+                      <button
+                        className="icon-button"
+                        disabled={i === 0}
+                        onClick={() => moveSection(i, -1)}
+                        aria-label={`${labels[s]}: ${t('выше', 'move up')}`}
+                      >
+                        <ArrowUp size={15} />
+                      </button>
+                      <button
+                        className="icon-button"
+                        disabled={i === order.length - 1}
+                        onClick={() => moveSection(i, 1)}
+                        aria-label={`${labels[s]}: ${t('ниже', 'move down')}`}
+                      >
+                        <ArrowDown size={15} />
+                      </button>
+                      <button
+                        className="icon-button"
+                        aria-pressed={!hidden}
+                        onClick={() =>
+                          update({
+                            ...doc,
+                            hiddenSections: hidden
+                              ? doc.hiddenSections.filter((h) => h !== s)
+                              : [...doc.hiddenSections, s],
+                          })
+                        }
+                        aria-label={`${labels[s]}: ${t('показывать в PDF', 'show in PDF')}`}
+                      >
+                        {hidden ? <EyeOff size={15} /> : <Eye size={15} />}
+                      </button>
+                    </li>
+                  )
+                })}
+              </ol>
+              {(doc.sectionOrder.length > 0 ||
+                doc.hiddenSections.length > 0) && (
+                <button
+                  className="text-button"
+                  onClick={() =>
+                    update({ ...doc, sectionOrder: [], hiddenSections: [] })
+                  }
+                >
+                  {t(
+                    'Вернуть порядок шаблона',
+                    'Reset to the template’s order',
+                  )}
+                </button>
               )}
               <h2 className="control-heading">
                 {t('Цвет акцента', 'Accent color')}

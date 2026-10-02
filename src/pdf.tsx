@@ -14,6 +14,8 @@ import {
   safeUrl,
   sectionLabels,
   toJsonResume,
+  visibleSections,
+  type BodySection,
   type Entry,
   type StudioDocument,
 } from './model'
@@ -199,7 +201,16 @@ export function ResumePDF({ doc }: { doc: StudioDocument }) {
           </Text>
         )),
     )
-  const muted = spotlight ? '#e4ece8' : '#59635f'
+  const muted = spotlight ? '#e4ece8' : '#59635f',
+    order = visibleSections(doc),
+    mainColumn: BodySection[] = ['summary', 'work', 'projects'],
+    // Empty sections render nothing; an empty string would break the PDF tree.
+    sectionBlock = (section: BodySection) =>
+      (section === 'summary'
+        ? summary
+        : section === 'skills'
+          ? skills
+          : block(section)) || null
   return (
     <Document
       title={`${r.basics.name || 'Resume'} — CV`}
@@ -307,26 +318,18 @@ export function ResumePDF({ doc }: { doc: StudioDocument }) {
         {sidebar ? (
           <View style={{ flexDirection: 'row', gap: 25 }}>
             <View style={{ flex: 2 }}>
-              {summary}
-              {block('work')}
-              {block('projects')}
+              {order
+                .filter((s) => mainColumn.includes(s))
+                .map((s) => sectionBlock(s))}
             </View>
             <View style={{ flex: 1 }}>
-              {skills}
-              {block('education')}
-              {block('languages')}
+              {order
+                .filter((s) => !mainColumn.includes(s))
+                .map((s) => sectionBlock(s))}
             </View>
           </View>
         ) : (
-          <>
-            {summary}
-            {technical && skills}
-            {block('work')}
-            {block('education')}
-            {!technical && skills}
-            {block('projects')}
-            {block('languages')}
-          </>
+          order.map((s) => sectionBlock(s))
         )}
         <Text
           fixed

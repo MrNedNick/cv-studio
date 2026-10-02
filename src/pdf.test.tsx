@@ -241,3 +241,28 @@ it('paginates a multiline profile without breaking fonts on later pages', async 
     await task.destroy()
   }
 })
+
+it('follows a custom section order and leaves hidden sections out', async () => {
+  const doc = createDocument(true, 'en')
+  doc.sectionOrder = [
+    'languages',
+    'summary',
+    'work',
+    'education',
+    'skills',
+    'projects',
+  ]
+  doc.hiddenSections = ['education']
+  const bytes = new Uint8Array(
+    await (await exportPdf(doc, { editable: false })).arrayBuffer(),
+  )
+  const task = getDocument({ data: bytes })
+  const content = await (await (await task.promise).getPage(1)).getTextContent()
+  const text = content.items
+    .map((item) => ('str' in item ? item.str : ''))
+    .join(' ')
+  expect(text.indexOf('LANGUAGES')).toBeGreaterThan(-1)
+  expect(text.indexOf('LANGUAGES')).toBeLessThan(text.indexOf('EXPERIENCE'))
+  expect(text).not.toContain('EDUCATION')
+  await task.destroy()
+})

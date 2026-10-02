@@ -5,8 +5,10 @@ import {
   createDocument,
   getTips,
   parseDocument,
+  plainText,
   safeUrl,
   toJsonResume,
+  visibleSections,
 } from './model'
 import { loadDocument, saveDocument } from './storage'
 describe('resume data', () => {
@@ -180,4 +182,51 @@ it('starts new documents in English and preserves profile links through imports'
   )
   expect(parseDocument(toJsonResume(imported))).toEqual(imported)
   expect(toJsonResume(imported).basics.profiles).toHaveLength(2)
+})
+
+it('keeps a custom section order and hidden sections through a round trip', () => {
+  const doc = createDocument(true, 'en')
+  doc.sectionOrder = [
+    'skills',
+    'summary',
+    'work',
+    'education',
+    'projects',
+    'languages',
+  ]
+  doc.hiddenSections = ['projects']
+  const copy = parseDocument(JSON.parse(JSON.stringify(toJsonResume(doc))))
+  expect(copy.sectionOrder).toEqual(doc.sectionOrder)
+  expect(visibleSections(copy)).toEqual([
+    'skills',
+    'summary',
+    'work',
+    'education',
+    'languages',
+  ])
+  expect(
+    parseDocument({
+      ...doc,
+      sectionOrder: ['work', 'work', 'bogus'],
+      hiddenSections: ['basics'],
+    }).sectionOrder,
+  ).toEqual(['work', 'summary', 'education', 'skills', 'projects', 'languages'])
+  expect(
+    parseDocument({ ...doc, sectionOrder: undefined }).hiddenSections,
+  ).toEqual(['projects'])
+})
+
+it('exports readable plain text in the visible order', () => {
+  const doc = createDocument(true, 'en')
+  doc.hiddenSections = ['languages']
+  const text = plainText(doc)
+  expect(text.startsWith('Alex Morgan\nProduct designer')).toBe(true)
+  expect(text).toContain('EXPERIENCE\n\nProduct designer — Forma Studio')
+  expect(text).toContain('• Redesigned checkout')
+  expect(text.indexOf('PROFILE')).toBeLessThan(text.indexOf('EXPERIENCE'))
+  expect(text).not.toContain('LANGUAGES')
+  doc.template = 'technical'
+  expect(plainText(doc).indexOf('SKILLS')).toBeLessThan(
+    plainText(doc).indexOf('EXPERIENCE'),
+  )
 })

@@ -19,6 +19,15 @@ export type Section =
   | 'projects'
   | 'languages'
 export type EntrySection = Exclude<Section, 'basics' | 'summary' | 'skills'>
+export type BodySection = Exclude<Section, 'basics'>
+export const bodySections: BodySection[] = [
+  'summary',
+  'work',
+  'education',
+  'skills',
+  'projects',
+  'languages',
+]
 export interface Entry {
   id: string
   title: string
@@ -54,6 +63,9 @@ export interface StudioDocument {
   accent: string
   typography: 'sans' | 'serif' | 'mixed'
   density: 'comfortable' | 'compact'
+  /** Custom section order; empty means the template's own order. */
+  sectionOrder: BodySection[]
+  hiddenSections: BodySection[]
   versions: Record<Locale, Resume>
 }
 export const accents = ['#24594b', '#284c78', '#7b3d50', '#584689', '#333c40']
@@ -219,6 +231,8 @@ export function createDocument(
     accent: accents[0],
     typography: 'sans',
     density: 'comfortable',
+    sectionOrder: [],
+    hiddenSections: [],
     versions: { ru, en },
   }
 }
@@ -307,6 +321,17 @@ export function parseDocument(input: unknown): StudioDocument {
         ? source.typography
         : 'sans'
     result.density = source.density === 'compact' ? 'compact' : 'comfortable'
+    const known = (value: unknown) =>
+      Array.isArray(value)
+        ? [...new Set(value)].filter((v): v is BodySection =>
+            bodySections.includes(v as BodySection),
+          )
+        : []
+    const order = known(source.sectionOrder)
+    result.sectionOrder = order.length
+      ? [...order, ...bodySections.filter((s) => !order.includes(s))]
+      : []
+    result.hiddenSections = known(source.hiddenSections)
     return result
   }
   if (
@@ -610,4 +635,66 @@ export function getTips(resume: Resume, locale: Locale): ResumeTip[] {
       'Start with an action: “Launched”, “Improved”, “Built” — then add the outcome.',
     )
   return tips
+}
+
+export function templateOrder(template: Template): BodySection[] {
+  return template === 'technical'
+    ? ['summary', 'skills', 'work', 'education', 'projects', 'languages']
+    : bodySections
+}
+/** Sections in reading order, without the ones the person chose to hide. */
+export function visibleSections(doc: StudioDocument): BodySection[] {
+  return (
+    doc.sectionOrder.length ? doc.sectionOrder : templateOrder(doc.template)
+  ).filter((s) => !doc.hiddenSections.includes(s))
+}
+export function plainText(doc: StudioDocument): string {
+  const r = doc.versions[doc.language],
+    labels = sectionLabels[doc.language],
+    b = r.basics
+  const head = [
+    b.name,
+    b.label,
+    [b.location, b.email, b.phone].filter(Boolean).join(' · '),
+    [b.url, b.linkedin, b.github].filter(Boolean).join(' · '),
+  ].filter(Boolean)
+  const blocks = visibleSections(doc).flatMap((section) => {
+    if (section === 'summary')
+      return b.summary.trim() ? [[labels.summary.toUpperCase(), b.summary]] : []
+    if (section === 'skills') {
+      const skills = r.skills
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean)
+      return skills.length
+        ? [[labels.skills.toUpperCase(), skills.join(', ')]]
+        : []
+    }
+    const entries = r[section].filter(
+      (e) => e.title || e.subtitle || e.description,
+    )
+    if (!entries.length) return []
+    return [
+      [
+        labels[section].toUpperCase(),
+        ...entries.map((e) =>
+          [
+            [e.title, e.subtitle].filter(Boolean).join(' — '),
+            section === 'languages' ? '' : dateRange(e, doc.language),
+            ...e.description
+              .split('\n')
+              .filter((line) => line.trim())
+              .map((line) => (section === 'work' ? `• ${line.trim()}` : line)),
+            e.url,
+          ]
+            .filter(Boolean)
+            .join('\n'),
+        ),
+      ],
+    ]
+  })
+  return [head.join('\n'), ...blocks.map((block) => block.join('\n\n'))]
+    .join('\n\n')
+    .trim()
+    .concat('\n')
 }
