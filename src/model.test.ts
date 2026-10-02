@@ -230,3 +230,16 @@ it('exports readable plain text in the visible order', () => {
     plainText(doc).indexOf('EXPERIENCE'),
   )
 })
+
+it('accepts only small JPEG or PNG data URLs as a photo', () => {
+  const doc = createDocument(false, 'en')
+  const png = 'data:image/png;base64,iVBORw0KGgo='
+  expect(parseDocument({ ...doc, photo: png }).photo).toBe(png)
+  for (const photo of [
+    'https://example.com/me.jpg',
+    'data:image/svg+xml;base64,PHN2Zz4=',
+    'data:image/png;base64,abc"onload',
+    `data:image/jpeg;base64,${'A'.repeat(400_001)}`,
+  ])
+    expect(parseDocument({ ...doc, photo }).photo).toBe('')
+})

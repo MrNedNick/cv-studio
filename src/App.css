@@ -3711,3 +3711,146 @@ dialog p {
   font-size: 14px;
   box-shadow: 0 8px 30px #0003;
 }
+.color-options {
+  flex-wrap: wrap;
+}
+.photo-field {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 14px;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  margin-bottom: 22px;
+}
+.photo-preview {
+  flex: none;
+  width: 64px;
+  height: 80px;
+  border-radius: 7px;
+  background: var(--soft);
+  color: var(--muted);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.photo-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.photo-field strong {
+  font-size: 14px;
+}
+.photo-field p {
+  margin: 4px 0 10px;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+.photo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.photo-actions .button {
+  gap: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  min-height: 0;
+  padding: 8px 12px;
+}
+.photo-actions .button:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.field-error {
+  color: #c0503a !important;
+}
+/* Template thumbnails */
+.mini-timeline .mini-job {
+  position: relative;
+  padding-left: 26%;
+}
+.mini-timeline .mini-date {
+  position: absolute;
+  left: 0;
+  top: 0;
+  float: none;
+}
+.mini-minimal .mini-rule,
+.mini-minimal .mini-monogram {
+  visibility: hidden;
+}
+.mini-minimal h3 {
+  font-weight: 400;
+  color: #1d2724;
+}
+.mini-minimal h4 {
+  color: #7a837e;
+  letter-spacing: 1.6px;
+}
+.mini-bold h3 {
+  font-size: 20px;
+  color: #18201d;
+  letter-spacing: -1px;
+}
+.mini-bold .mini-role {
+  color: #24594b;
+  font-weight: 700;
+}
+.mini-bold .mini-rule {
+  height: 3px;
+}
+.mini-bold h4 {
+  display: inline-block;
+  background: #24594b;
+  color: #fff;
+  padding: 1px 4px;
+}
+.mini-ivy h3,
+.mini-ivy .mini-role,
+.mini-ivy .mini-contact {
+  text-align: center;
+}
+.mini-ivy h3 {
+  font-family: Georgia, serif;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 12px;
+}
+.mini-ivy .mini-role {
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 5.5px;
+}
+.mini-ivy .mini-rule {
+  height: 0.5px;
+  background: #cfd6d2;
+}
+.mini-ivy h4 {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: Georgia, serif;
+}
+.mini-ivy h4::before,
+.mini-ivy h4::after {
+  content: '';
+  flex: 1;
+  height: 0.5px;
+  background: #cfd6d2;
+}
+.template-card-timeline .template-image {
+  background: #e8ece7;
+}
+.template-card-minimal .template-image {
+  background: #efefec;
+}
+.template-card-bold .template-image {
+  background: #e4ebe7;
+}
+.template-card-ivy .template-image {
+  background: #eeebe4;
+}

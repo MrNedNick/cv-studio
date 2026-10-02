@@ -58,6 +58,7 @@ import {
 } from './model'
 import { MiniResume, FormField, templates } from './components'
 import EntryCard from './EntryCard'
+import { preparePhoto } from './photo'
 import { ReviewStep, WritingGuide } from './Coach'
 const Preview = lazy(() => import('./Preview'))
 const icons = {
@@ -377,6 +378,20 @@ export default function Editor({
     link.download = `${(resume.basics.name || 'resume').trim().replace(/\s+/g, '-')}-${locale.toUpperCase()}-CV.txt`
     link.click()
     setTimeout(() => URL.revokeObjectURL(url), 1000)
+  }
+  const [photoError, setPhotoError] = useState('')
+  async function choosePhoto(file: File) {
+    setPhotoError('')
+    try {
+      update({ ...doc, photo: await preparePhoto(file) })
+    } catch {
+      setPhotoError(
+        t(
+          'Не удалось открыть изображение. Выберите JPG, PNG или WebP до 15 МБ.',
+          'Could not open that image. Choose a JPG, PNG or WebP up to 15 MB.',
+        ),
+      )
+    }
   }
   function addSkill(term: string) {
     const current = resume.skills.replace(/[,\s]*$/, '')
@@ -893,10 +908,30 @@ export default function Editor({
                   <button
                     key={color}
                     aria-label={t(
-                      ['Лесной', 'Синий', 'Бордовый', 'Фиолетовый', 'Графит'][
-                        i
-                      ],
-                      ['Forest', 'Blue', 'Burgundy', 'Purple', 'Graphite'][i],
+                      [
+                        'Лесной',
+                        'Синий',
+                        'Бордовый',
+                        'Фиолетовый',
+                        'Графит',
+                        'Бирюзовый',
+                        'Терракота',
+                        'Тёмно-синий',
+                        'Оливковый',
+                        'Сливовый',
+                      ][i],
+                      [
+                        'Forest',
+                        'Blue',
+                        'Burgundy',
+                        'Purple',
+                        'Graphite',
+                        'Teal',
+                        'Terracotta',
+                        'Navy',
+                        'Olive',
+                        'Plum',
+                      ][i],
                     )}
                     aria-pressed={doc.accent === color}
                     style={{ background: color }}
@@ -1042,6 +1077,57 @@ export default function Editor({
                   />
                   {section === 'basics' ? (
                     <>
+                      <div className="photo-field">
+                        <div className="photo-preview" aria-hidden="true">
+                          {doc.photo ? (
+                            <img src={doc.photo} alt="" />
+                          ) : (
+                            <UserRound size={26} />
+                          )}
+                        </div>
+                        <div>
+                          <strong>
+                            {t('Фото (необязательно)', 'Photo (optional)')}
+                          </strong>
+                          <p>
+                            {t(
+                              'Принято в Германии, Австрии и Швейцарии. В США, Великобритании и Канаде фото обычно не добавляют.',
+                              'Common in Germany, Austria and Switzerland. Usually left out in the US, UK and Canada.',
+                            )}
+                          </p>
+                          <div className="photo-actions">
+                            <label className="button secondary">
+                              <Upload size={15} />
+                              {doc.photo
+                                ? t('Заменить', 'Replace')
+                                : t('Добавить фото', 'Add photo')}
+                              <input
+                                className="visually-hidden"
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp"
+                                onChange={(event) => {
+                                  const file = event.target.files?.[0]
+                                  event.target.value = ''
+                                  if (file) void choosePhoto(file)
+                                }}
+                              />
+                            </label>
+                            {doc.photo && (
+                              <button
+                                className="text-button"
+                                onClick={() => update({ ...doc, photo: '' })}
+                              >
+                                {t('Убрать фото', 'Remove photo')}
+                              </button>
+                            )}
+                          </div>
+                          {photoError && (
+                            <p className="field-error" role="alert">
+                              {photoError}
+                            </p>
+                          )}
+                        </div>
+                      </div>
                       <FormField
                         label={t('Имя и фамилия', 'Full name')}
                         value={resume.basics.name}

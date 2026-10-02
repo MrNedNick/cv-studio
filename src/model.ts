@@ -7,6 +7,10 @@ export const templateIds = [
   'executive',
   'spotlight',
   'swiss',
+  'timeline',
+  'minimal',
+  'bold',
+  'ivy',
   'sidebar',
 ] as const
 export type Template = (typeof templateIds)[number]
@@ -66,9 +70,30 @@ export interface StudioDocument {
   /** Custom section order; empty means the template's own order. */
   sectionOrder: BodySection[]
   hiddenSections: BodySection[]
+  /** Optional portrait as a small JPEG or PNG data URL, shared by both languages. */
+  photo: string
   versions: Record<Locale, Resume>
 }
-export const accents = ['#24594b', '#284c78', '#7b3d50', '#584689', '#333c40']
+export const accents = [
+  '#24594b',
+  '#284c78',
+  '#7b3d50',
+  '#584689',
+  '#333c40',
+  '#1f6f78',
+  '#9a4a2f',
+  '#1d3557',
+  '#5b6b2f',
+  '#6d2e64',
+]
+export const MAX_PHOTO_LENGTH = 400_000
+export function validPhoto(value: unknown): string {
+  return typeof value === 'string' &&
+    value.length <= MAX_PHOTO_LENGTH &&
+    /^data:image\/(jpeg|png);base64,[A-Za-z0-9+/]+={0,2}$/.test(value)
+    ? value
+    : ''
+}
 export const sections: Section[] = [
   'basics',
   'summary',
@@ -233,6 +258,7 @@ export function createDocument(
     density: 'comfortable',
     sectionOrder: [],
     hiddenSections: [],
+    photo: '',
     versions: { ru, en },
   }
 }
@@ -332,6 +358,7 @@ export function parseDocument(input: unknown): StudioDocument {
       ? [...order, ...bodySections.filter((s) => !order.includes(s))]
       : []
     result.hiddenSections = known(source.hiddenSections)
+    result.photo = validPhoto(source.photo)
     return result
   }
   if (

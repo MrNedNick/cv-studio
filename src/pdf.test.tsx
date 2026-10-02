@@ -29,6 +29,9 @@ it('exports selectable Cyrillic text, links, and editable source for every templ
         .join(' ')
     }
     expect(text).toContain('Александра Морозова')
+    // Letter-spaced headings must still extract as whole words.
+    expect(text).toContain('ОПЫТ РАБОТЫ')
+    expect(text).toContain('Продуктовый дизайнер')
     expect(text).toContain('24%')
     expect(text).toContain('Английский')
     const files = (await pdf.getAttachments()) as Record<
@@ -264,5 +267,57 @@ it('follows a custom section order and leaves hidden sections out', async () => 
   expect(text.indexOf('LANGUAGES')).toBeGreaterThan(-1)
   expect(text.indexOf('LANGUAGES')).toBeLessThan(text.indexOf('EXPERIENCE'))
   expect(text).not.toContain('EDUCATION')
+  await task.destroy()
+})
+
+const pixel =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
+it.each(['modern', 'executive', 'spotlight'] as const)(
+  'embeds an optional photo in the %s header and keeps it in the editable copy',
+  async (template) => {
+    const doc = createDocument(true, 'en')
+    doc.template = template
+    doc.photo = pixel
+    const bytes = new Uint8Array(await (await exportPdf(doc)).arrayBuffer())
+    expect(new TextDecoder('latin1').decode(bytes)).toMatch(
+      /\/Subtype\s*\/Image/,
+    )
+    const task = getDocument({ data: bytes })
+    const pdf = await task.promise
+    const files = (await pdf.getAttachments()) as Record<
+      string,
+      { content: Uint8Array }
+    >
+    expect(
+      parseDocument(
+        JSON.parse(new TextDecoder().decode(files['cv-studio.json'].content)),
+      ).photo,
+    ).toBe(pixel)
+    const text = (await (await pdf.getPage(1)).getTextContent()).items
+      .map((item) => ('str' in item ? item.str : ''))
+      .join(' ')
+    expect(text).toContain('Alex Morgan')
+    await task.destroy()
+  },
+  30000,
+)
+
+it('wraps a long skills line without stray hyphens or glued words', async () => {
+  const doc = createDocument(true, 'ru')
+  doc.template = 'minimal'
+  doc.versions.ru.skills = Array.from(
+    { length: 14 },
+    (_, i) => `Юзабилити-тестирование ${i + 1}`,
+  ).join(', ')
+  const bytes = new Uint8Array(
+    await (await exportPdf(doc, { editable: false })).arrayBuffer(),
+  )
+  const task = getDocument({ data: bytes })
+  const items = (
+    await (await (await task.promise).getPage(1)).getTextContent()
+  ).items.map((item) => ('str' in item ? item.str : ''))
+  const skills = items.filter((s) => s.includes('Юзабилити'))
+  expect(skills.length).toBeGreaterThan(1)
+  for (const line of skills) expect(line).not.toMatch(/·-|·\S|\S·\S/)
   await task.destroy()
 })

@@ -1,6 +1,7 @@
 import {
   Document,
   Font,
+  Image,
   Link,
   Page,
   Text,
@@ -43,6 +44,10 @@ function registerFonts() {
   })
   Font.registerHyphenationCallback((word) => [word])
 }
+// Text extractors split words into letters once tracking exceeds about 0.1em,
+// which is what applicant tracking systems read. Keep it below that.
+const track = (fontSize: number, value: number) =>
+  Math.min(value, fontSize * 0.08)
 export function ResumePDF({ doc }: { doc: StudioDocument }) {
   const r = doc.versions[doc.language],
     labels = sectionLabels[doc.language],
@@ -53,9 +58,14 @@ export function ResumePDF({ doc }: { doc: StudioDocument }) {
     executive = doc.template === 'executive',
     spotlight = doc.template === 'spotlight',
     swiss = doc.template === 'swiss',
+    timeline = doc.template === 'timeline',
+    minimal = doc.template === 'minimal',
+    bold = doc.template === 'bold',
+    ivy = doc.template === 'ivy',
+    centered = executive || ivy,
     accent = classic ? '#252b2a' : doc.accent,
     bodyFont = doc.typography === 'serif' ? 'NotoSerif' : 'Noto',
-    headingFont = doc.typography === 'sans' ? 'Noto' : 'NotoSerif'
+    headingFont = doc.typography === 'sans' && !ivy ? 'Noto' : 'NotoSerif'
   const heading = {
     fontFamily: headingFont,
     color: accent,
@@ -63,13 +73,24 @@ export function ResumePDF({ doc }: { doc: StudioDocument }) {
     fontWeight: 700,
     marginBottom: 8,
     marginTop: compact ? 12 : 18,
-    letterSpacing: executive ? 1.6 : 1,
+    letterSpacing: executive || ivy ? 1.8 : 1,
     ...(executive && {
       borderBottomWidth: 0.75,
       borderBottomColor: '#cfd6d2',
       paddingBottom: 3,
     }),
+    ...(minimal && { color: '#5e6863', fontSize: 8.5, letterSpacing: 2.2 }),
+    ...(bold && {
+      backgroundColor: accent,
+      color: '#ffffff',
+      paddingHorizontal: 7,
+      paddingVertical: 2.5,
+      alignSelf: 'flex-start' as const,
+      letterSpacing: 1.4,
+    }),
   }
+  heading.letterSpacing = track(heading.fontSize, heading.letterSpacing)
+  const rule = { flex: 1, height: 0.75, backgroundColor: '#cfd6d2' }
   // Swiss sets each heading in the left margin; the text order stays heading → content.
   const titled = (
     key: string,
@@ -91,10 +112,31 @@ export function ResumePDF({ doc }: { doc: StudioDocument }) {
             width: 96,
             marginTop: 0,
             fontSize: 8.5,
+            letterSpacing: track(8.5, heading.letterSpacing),
           }}
         >
           {label.toLocaleUpperCase(doc.language)}
         </Text>
+        {children}
+      </View>
+    ) : ivy ? (
+      <View key={key}>
+        <View
+          minPresenceAhead={ahead}
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 10,
+            marginTop: compact ? 12 : 18,
+            marginBottom: 8,
+          }}
+        >
+          <View style={rule} />
+          <Text style={{ ...heading, marginTop: 0, marginBottom: 0 }}>
+            {label.toLocaleUpperCase(doc.language)}
+          </Text>
+          <View style={rule} />
+        </View>
         {children}
       </View>
     ) : (
@@ -113,64 +155,89 @@ export function ResumePDF({ doc }: { doc: StudioDocument }) {
       55,
       r[key]
         .filter((e) => e.title || e.subtitle || e.description)
-        .map((e: Entry) => (
-          <View key={e.id} style={{ marginBottom: compact ? 9 : 13 }}>
-            <View minPresenceAhead={30}>
-              <View
-                style={{
-                  flexDirection:
-                    sidebar && key === 'education' ? 'column' : 'row',
-                  justifyContent: 'space-between',
-                  gap: sidebar && key === 'education' ? 2 : 12,
-                }}
-              >
-                <Text
+        .map((e: Entry) => {
+          const content = (
+            <View style={timeline ? { flex: 1 } : undefined}>
+              <View minPresenceAhead={30}>
+                <View
                   style={{
-                    fontWeight: 700,
-                    flex: sidebar && key === 'education' ? undefined : 1,
+                    flexDirection:
+                      sidebar && key === 'education' ? 'column' : 'row',
+                    justifyContent: 'space-between',
+                    gap: sidebar && key === 'education' ? 2 : 12,
                   }}
                 >
-                  {e.title}
-                </Text>
-                {key !== 'languages' && (
                   <Text
-                    style={{ color: '#59635f', fontSize: 8, maxWidth: 165 }}
+                    style={{
+                      fontWeight: 700,
+                      flex: sidebar && key === 'education' ? undefined : 1,
+                    }}
                   >
-                    {dateRange(e, doc.language)}
+                    {e.title}
+                  </Text>
+                  {key !== 'languages' && !timeline && (
+                    <Text
+                      style={{ color: '#59635f', fontSize: 8, maxWidth: 165 }}
+                    >
+                      {dateRange(e, doc.language)}
+                    </Text>
+                  )}
+                </View>
+                {e.subtitle && (
+                  <Text style={{ color: '#59635f', marginTop: 2 }}>
+                    {e.subtitle}
                   </Text>
                 )}
               </View>
-              {e.subtitle && (
-                <Text style={{ color: '#59635f', marginTop: 2 }}>
-                  {e.subtitle}
-                </Text>
+              {e.description
+                .split('\n')
+                .filter(Boolean)
+                .map((line, i) => (
+                  <Text
+                    key={i}
+                    style={{
+                      marginTop: 4,
+                      paddingLeft: key === 'work' ? 9 : 0,
+                    }}
+                  >
+                    {key === 'work' ? '•  ' : ''}
+                    {line}
+                  </Text>
+                ))}
+              {e.url && safeUrl(e.url) && (
+                <Link
+                  src={safeUrl(e.url)!}
+                  style={{ color: accent, fontSize: 9, marginTop: 4 }}
+                >
+                  {e.url.replace(/^https?:\/\//, '')}
+                </Link>
               )}
             </View>
-            {e.description
-              .split('\n')
-              .filter(Boolean)
-              .map((line, i) => (
+          )
+          return (
+            <View
+              key={e.id}
+              style={{
+                marginBottom: compact ? 9 : 13,
+                ...(timeline && { flexDirection: 'row' as const, gap: 14 }),
+              }}
+            >
+              {timeline && (
                 <Text
-                  key={i}
                   style={{
-                    marginTop: 4,
-                    paddingLeft: key === 'work' ? 9 : 0,
+                    width: 78,
+                    paddingTop: 1.5,
+                    color: '#59635f',
+                    fontSize: 8,
                   }}
                 >
-                  {key === 'work' ? '•  ' : ''}
-                  {line}
+                  {key === 'languages' ? '' : dateRange(e, doc.language)}
                 </Text>
-              ))}
-            {e.url && safeUrl(e.url) && (
-              <Link
-                src={safeUrl(e.url)!}
-                style={{ color: accent, fontSize: 9, marginTop: 4 }}
-              >
-                {e.url.replace(/^https?:\/\//, '')}
-              </Link>
-            )}
-          </View>
-        )),
+              )}
+              {content}
+            </View>
+          )
+        }),
     )
   const skills =
     r.skills.trim() &&
@@ -183,7 +250,7 @@ export function ResumePDF({ doc }: { doc: StudioDocument }) {
           .split(',')
           .map((s) => s.trim())
           .filter(Boolean)
-          .join('  ·  ')}
+          .join(' · ')}
       </Text>,
     )
   const summary =
@@ -200,6 +267,19 @@ export function ResumePDF({ doc }: { doc: StudioDocument }) {
             {line}
           </Text>
         )),
+    )
+  const photo = doc.photo,
+    portrait = (
+      <Image
+        src={photo}
+        style={{
+          width: 64,
+          height: 80,
+          borderRadius: 6,
+          objectFit: 'cover',
+          ...(centered && { marginBottom: 12 }),
+        }}
+      />
     )
   const muted = spotlight ? '#e4ece8' : '#59635f',
     order = visibleSections(doc),
@@ -238,13 +318,22 @@ export function ResumePDF({ doc }: { doc: StudioDocument }) {
         <View
           style={{
             borderBottomWidth:
-              technical || spotlight ? 0 : classic || swiss ? 1 : 2,
+              technical || spotlight || minimal
+                ? 0
+                : bold
+                  ? 4
+                  : classic || swiss || ivy
+                    ? 1
+                    : 2,
             borderLeftWidth: technical ? 3 : 0,
             borderLeftColor: accent,
             paddingLeft: technical ? 14 : 0,
-            borderBottomColor: swiss ? '#cfd6d2' : accent,
-            paddingBottom: 18,
-            ...(executive && { alignItems: 'center', textAlign: 'center' }),
+            borderBottomColor: swiss || ivy ? '#cfd6d2' : accent,
+            paddingBottom: minimal ? 6 : 18,
+            ...(photo && !centered
+              ? { flexDirection: 'row', alignItems: 'center', gap: 18 }
+              : {}),
+            ...(centered && { alignItems: 'center', textAlign: 'center' }),
             ...(spotlight && {
               backgroundColor: accent,
               marginTop: -40,
@@ -255,65 +344,93 @@ export function ResumePDF({ doc }: { doc: StudioDocument }) {
             }),
           }}
         >
-          <Text
-            style={{
-              fontFamily: headingFont,
-              fontSize: compact ? 25 : swiss ? 32 : executive ? 27 : 29,
-              fontWeight: 700,
-              color: spotlight ? '#ffffff' : accent,
-              lineHeight: 1.2,
-              letterSpacing: executive ? 0.6 : swiss ? -0.4 : 0,
-            }}
-          >
-            {r.basics.name ||
-              (doc.language === 'ru' ? 'Ваше имя' : 'Your name')}
-          </Text>
-          {r.basics.label && (
+          {photo && centered && portrait}
+          <View style={photo && !centered ? { flex: 1 } : undefined}>
             <Text
               style={{
-                fontSize: executive ? 10 : 12,
-                marginTop: 7,
-                color: spotlight ? '#ffffff' : undefined,
-                letterSpacing: executive ? 1.8 : 0,
+                fontFamily: headingFont,
+                fontSize: compact
+                  ? 25
+                  : bold
+                    ? 38
+                    : swiss
+                      ? 32
+                      : executive
+                        ? 27
+                        : ivy || minimal
+                          ? 24
+                          : 29,
+                fontWeight: minimal ? 400 : 700,
+                color: spotlight
+                  ? '#ffffff'
+                  : bold || minimal
+                    ? '#18201d'
+                    : accent,
+                lineHeight: 1.2,
+                // Wide tracking on a name breaks text extraction into letters.
+                letterSpacing: ivy
+                  ? 0.4
+                  : executive
+                    ? 0.6
+                    : swiss
+                      ? -0.4
+                      : bold
+                        ? -1
+                        : 0,
               }}
             >
-              {executive
-                ? r.basics.label.toLocaleUpperCase(doc.language)
-                : r.basics.label}
+              {r.basics.name ||
+                (doc.language === 'ru' ? 'Ваше имя' : 'Your name')}
             </Text>
-          )}
-          <View
-            style={{
-              flexDirection: 'row',
-              flexWrap: 'wrap',
-              gap: 10,
-              marginTop: 10,
-              fontSize: 8,
-              color: muted,
-              ...(executive && { justifyContent: 'center' }),
-            }}
-          >
-            {r.basics.location && <Text>{r.basics.location}</Text>}
-            {r.basics.email && (
-              <Link style={{ color: muted }} src={`mailto:${r.basics.email}`}>
-                {r.basics.email}
-              </Link>
+            {r.basics.label && (
+              <Text
+                style={{
+                  fontSize: executive || ivy ? 10 : bold ? 13 : 12,
+                  marginTop: 7,
+                  color: spotlight ? '#ffffff' : bold ? accent : undefined,
+                  fontWeight: bold ? 700 : 400,
+                  letterSpacing: executive || ivy ? track(10, 1.8) : 0,
+                }}
+              >
+                {executive || ivy
+                  ? r.basics.label.toLocaleUpperCase(doc.language)
+                  : r.basics.label}
+              </Text>
             )}
-            {r.basics.phone && <Text>{r.basics.phone}</Text>}
-            {(['url', 'linkedin', 'github'] as const).map(
-              (key) =>
-                r.basics[key] &&
-                safeUrl(r.basics[key]) && (
-                  <Link
-                    key={key}
-                    style={{ color: muted }}
-                    src={safeUrl(r.basics[key])!}
-                  >
-                    {r.basics[key].replace(/^https?:\/\//, '')}
-                  </Link>
-                ),
-            )}
+            <View
+              style={{
+                flexDirection: 'row',
+                flexWrap: 'wrap',
+                gap: 10,
+                marginTop: 10,
+                fontSize: 8,
+                color: muted,
+                ...(centered && { justifyContent: 'center' }),
+              }}
+            >
+              {r.basics.location && <Text>{r.basics.location}</Text>}
+              {r.basics.email && (
+                <Link style={{ color: muted }} src={`mailto:${r.basics.email}`}>
+                  {r.basics.email}
+                </Link>
+              )}
+              {r.basics.phone && <Text>{r.basics.phone}</Text>}
+              {(['url', 'linkedin', 'github'] as const).map(
+                (key) =>
+                  r.basics[key] &&
+                  safeUrl(r.basics[key]) && (
+                    <Link
+                      key={key}
+                      style={{ color: muted }}
+                      src={safeUrl(r.basics[key])!}
+                    >
+                      {r.basics[key].replace(/^https?:\/\//, '')}
+                    </Link>
+                  ),
+              )}
+            </View>
           </View>
+          {photo && !centered && portrait}
         </View>
         {sidebar ? (
           <View style={{ flexDirection: 'row', gap: 25 }}>

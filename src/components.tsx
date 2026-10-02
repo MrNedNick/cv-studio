@@ -50,6 +50,30 @@ export const templates: {
     en: 'Margin headings and generous whitespace',
   },
   {
+    id: 'timeline',
+    name: 'Timeline',
+    ru: 'Даты слева — карьера читается как линия',
+    en: 'Dates in the margin, career at a glance',
+  },
+  {
+    id: 'minimal',
+    name: 'Minimal',
+    ru: 'Только текст и воздух',
+    en: 'Nothing but text and whitespace',
+  },
+  {
+    id: 'bold',
+    name: 'Bold',
+    ru: 'Крупное имя и яркие заголовки',
+    en: 'A big name and confident headings',
+  },
+  {
+    id: 'ivy',
+    name: 'Ivy',
+    ru: 'Классическая типографика с засечками',
+    en: 'Classic serif typography, centered',
+  },
+  {
     id: 'sidebar',
     name: 'Editorial',
     ru: 'Аккуратные две колонки',
