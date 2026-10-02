@@ -208,7 +208,7 @@ const obj = (value: unknown): Record<string, unknown> =>
   value && typeof value === 'object' && !Array.isArray(value)
     ? (value as Record<string, unknown>)
     : {}
-function cleanResume(value: unknown): Resume {
+function cleanResume(value: unknown, otherValue?: unknown): Resume {
   const input = obj(value),
     basics = obj(input.basics),
     result = emptyResume()
@@ -221,23 +221,41 @@ function cleanResume(value: unknown): Resume {
     'projects',
     'languages',
   ] as const) {
-    result[section] = (Array.isArray(input[section]) ? input[section] : [])
-      .slice(0, 100)
-      .map((item: unknown) => {
-        const source = obj(item),
-          entry = emptyEntry(str(source.id) || crypto.randomUUID())
-        for (const key of [
-          'title',
-          'subtitle',
-          'startDate',
-          'endDate',
-          'description',
-          'url',
-        ] as const)
-          entry[key] = str(source[key])
-        entry.current = source.current === true
-        return entry
-      })
+    const items = (Array.isArray(input[section]) ? input[section] : []).slice(
+      0,
+      100,
+    )
+    const other = obj(otherValue)[section]
+    const reserved = new Set(
+      [...items, ...(Array.isArray(other) ? other.slice(0, 100) : [])]
+        .map((item) => str(obj(item).id))
+        .filter(Boolean),
+    )
+    const used = new Set<string>()
+    result[section] = items.map((item: unknown) => {
+      const source = obj(item),
+        originalId = str(source.id) || crypto.randomUUID()
+      let id = originalId,
+        suffix = 2
+      while (used.has(id)) {
+        do {
+          id = `${originalId}~${suffix++}`
+        } while (reserved.has(id))
+      }
+      used.add(id)
+      const entry = emptyEntry(id)
+      for (const key of [
+        'title',
+        'subtitle',
+        'startDate',
+        'endDate',
+        'description',
+        'url',
+      ] as const)
+        entry[key] = str(source[key])
+      entry.current = source.current === true
+      return entry
+    })
   }
   return result
 }
@@ -252,8 +270,8 @@ export function parseDocument(input: unknown): StudioDocument {
   ) {
     const result = createDocument()
     result.versions = {
-      ru: cleanResume(obj(source.versions).ru),
-      en: cleanResume(obj(source.versions).en),
+      ru: cleanResume(obj(source.versions).ru, obj(source.versions).en),
+      en: cleanResume(obj(source.versions).en, obj(source.versions).ru),
     }
     result.language = source.language === 'en' ? 'en' : 'ru'
     result.template = ['modern', 'classic', 'compact', 'sidebar'].includes(

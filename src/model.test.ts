@@ -136,3 +136,27 @@ it('targets guidance to incomplete entries, invalid dates and long descriptions'
     false,
   )
 })
+
+it('repairs duplicate imported entry IDs without changing text or translation pairs', () => {
+  const doc = createDocument(true)
+  for (const locale of ['ru', 'en'] as const) {
+    doc.versions[locale].work[0].id = 'same'
+    doc.versions[locale].work[1].id = 'same'
+  }
+  doc.versions.ru.work.push({
+    ...doc.versions.ru.work[0],
+    id: 'same~2',
+    title: 'Third',
+  })
+  const parsed = parseDocument(doc)
+  expect(parsed.versions.ru.work.map((e) => e.id)).toEqual([
+    'same',
+    'same~3',
+    'same~2',
+  ])
+  expect(parsed.versions.en.work.map((e) => e.id)).toEqual(['same', 'same~3'])
+  expect(parsed.versions.ru.work.map((e) => e.title)).toEqual(
+    doc.versions.ru.work.map((e) => e.title),
+  )
+  expect(parseDocument(parsed)).toEqual(parsed)
+})
