@@ -134,10 +134,12 @@ export function FormField({
   hint,
   type = 'text',
   placeholder,
+  onFocus,
 }: {
   label: string
   value: string
   onChange: (value: string) => void
+  onFocus?: () => void
   multiline?: boolean
   hint?: string
   type?: string
@@ -150,6 +152,7 @@ export function FormField({
           rows={5}
           value={value}
           onChange={(e) => onChange(e.target.value)}
+          onFocus={onFocus}
           placeholder={placeholder}
           maxLength={30000}
         />

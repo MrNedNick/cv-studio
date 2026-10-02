@@ -1,4 +1,13 @@
-import { lazy, Suspense, useEffect, useRef, useState } from 'react'
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type PointerEvent as ReactPointerEvent,
+} from 'react'
 import {
   Check,
   ChevronRight,
@@ -23,6 +32,10 @@ import {
   FolderOpen,
   PenLine,
   LoaderCircle,
+  ClipboardCheck,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Columns2,
 } from 'lucide-react'
 import { Field } from './ui/components/field/field'
 import {
@@ -39,6 +52,7 @@ import {
 } from './model'
 import { MiniResume, FormField, templates } from './components'
 import EntryCard from './EntryCard'
+import { ReviewStep, WritingGuide } from './Coach'
 const Preview = lazy(() => import('./Preview'))
 const icons = {
   basics: UserRound,
@@ -48,6 +62,24 @@ const icons = {
   skills: ListChecks,
   projects: FolderOpen,
   languages: Globe2,
+}
+type Step = Section | 'review'
+const steps: Step[] = [...sections, 'review']
+const NARROW_FORM = 360
+const readSetting = (key: string) => {
+  try {
+    return localStorage.getItem(key)
+  } catch {
+    return null
+  }
+}
+const writeSetting = (key: string, value: string | null) => {
+  try {
+    if (value === null) localStorage.removeItem(key)
+    else localStorage.setItem(key, value)
+  } catch {
+    /* Layout preferences apply to this visit only. */
+  }
 }
 interface EditorProps {
   doc: StudioDocument
@@ -79,7 +111,12 @@ export default function Editor({
   start,
   backup,
 }: EditorProps) {
-  const [section, setSection] = useState<Section>('basics'),
+  const [section, setSection] = useState<Step>('basics'),
+    [railed, setRailed] = useState(() => readSetting('cv-sidebar') === 'rail'),
+    [formWidth, setFormWidth] = useState<number | null>(
+      () => Number(readSetting('cv-form-width')) || null,
+    ),
+    [activeEntry, setActiveEntry] = useState<string | null>(null),
     [tab, setTab] = useState<'content' | 'design'>('content'),
     [mobilePreview, setMobilePreview] = useState(false),
     [menu, setMenu] = useState(false),
@@ -122,12 +159,13 @@ export default function Editor({
     menuPanel = useRef<HTMLDivElement>(null),
     focusSection = useRef(false),
     pendingEntry = useRef<{ id: string; field: boolean } | null>(null)
-  function goSection(next: Section, reveal = false) {
+  function goSection(next: Step, reveal = false) {
     if (
       reveal &&
       next !== 'basics' &&
       next !== 'summary' &&
-      next !== 'skills'
+      next !== 'skills' &&
+      next !== 'review'
     ) {
       setCollapsed((current) => {
         const expanded = new Set(current)
@@ -303,6 +341,108 @@ export default function Editor({
       },
     })
   }
+  function addSkill(term: string) {
+    const current = resume.skills.replace(/[,\s]*$/, '')
+    update(
+      {
+        ...doc,
+        versions: {
+          ...doc.versions,
+          [locale]: {
+            ...resume,
+            skills: current ? `${current}, ${term}` : term,
+          },
+        },
+      },
+      `${locale}:skills`,
+    )
+  }
+  const caretEntry = useRef<string | null>(null)
+  function verbTarget(target: EntrySection) {
+    const list = resume[target]
+    return (
+      list.find((e) => e.id === activeEntry) ||
+      list.find((e) => !collapsed.has(`${target}:${e.id}`)) ||
+      list[0]
+    )
+  }
+  function insertVerb(target: EntrySection, verb: string) {
+    const e = verbTarget(target)
+    if (!e) return
+    const text = e.description.replace(/\s*$/, '')
+    setCollapsed((current) => {
+      const next = new Set(current)
+      next.delete(`${target}:${e.id}`)
+      return next
+    })
+    caretEntry.current = e.id
+    setActiveEntry(e.id)
+    entry(target, e.id, 'description', `${text ? `${text}\n` : ''}${verb} `)
+  }
+  useEffect(() => {
+    if (!caretEntry.current) return
+    const field = form.current?.querySelector<HTMLTextAreaElement>(
+      `[data-entry-id="${CSS.escape(caretEntry.current)}"] textarea`,
+    )
+    caretEntry.current = null
+    if (!field) return
+    field.focus({ preventScroll: true })
+    field.setSelectionRange(field.value.length, field.value.length)
+    field.scrollIntoView?.({ block: 'nearest' })
+  }, [doc])
+  function toggleRail() {
+    writeSetting('cv-sidebar', railed ? null : 'rail')
+    setRailed(!railed)
+  }
+  function changeFormWidth(next: number | null) {
+    writeSetting('cv-form-width', next ? String(Math.round(next)) : null)
+    setFormWidth(next)
+  }
+  const body = useRef<HTMLDivElement>(null)
+  function widthLimits() {
+    const total = body.current?.getBoundingClientRect().width || 1400
+    return { min: 320, max: Math.max(320, total - (railed ? 64 : 212) - 380) }
+  }
+  function startResize(event: ReactPointerEvent<HTMLDivElement>) {
+    const start = form.current?.getBoundingClientRect().left
+    if (start === undefined) return
+    event.preventDefault()
+    const handle = event.currentTarget
+    handle.setPointerCapture?.(event.pointerId)
+    const { min, max } = widthLimits()
+    let width = formWidth
+    const move = (e: PointerEvent) => {
+      width = Math.min(max, Math.max(min, e.clientX - start))
+      setFormWidth(width)
+    }
+    const stop = () => {
+      handle.removeEventListener('pointermove', move)
+      handle.removeEventListener('pointerup', stop)
+      handle.removeEventListener('pointercancel', stop)
+      changeFormWidth(width)
+    }
+    handle.addEventListener('pointermove', move)
+    handle.addEventListener('pointerup', stop)
+    handle.addEventListener('pointercancel', stop)
+  }
+  function resizeWithKeys(event: ReactKeyboardEvent<HTMLDivElement>) {
+    const { min, max } = widthLimits(),
+      current = formWidth || form.current?.getBoundingClientRect().width || 480,
+      step = event.shiftKey ? 80 : 20
+    const next =
+      event.key === 'ArrowLeft'
+        ? current - step
+        : event.key === 'ArrowRight'
+          ? current + step
+          : event.key === 'Home'
+            ? min
+            : event.key === 'End'
+              ? max
+              : null
+    if (next === null) return
+    event.preventDefault()
+    changeFormWidth(Math.min(max, Math.max(min, next)))
+  }
   const subtitles: Record<Section, string> = {
     basics: t(
       'Начните с главного: как вас зовут и чем вы занимаетесь.',
@@ -457,9 +597,43 @@ export default function Editor({
           {t('Просмотр', 'Preview')}
         </button>
       </div>
-      <div className={`editor-body ${mobilePreview ? 'show-preview' : ''}`}>
+      <div
+        ref={body}
+        className={`editor-body ${mobilePreview ? 'show-preview' : ''} ${railed ? 'railed' : ''}`}
+        style={
+          {
+            '--sidebar-w': railed ? '64px' : '212px',
+            '--form-w': formWidth ? `${formWidth}px` : 'minmax(360px, 0.9fr)',
+          } as CSSProperties
+        }
+      >
         <aside className="editor-sidebar">
-          <div className="sidebar-title">{t('ВАШЕ РЕЗЮМЕ', 'YOUR RESUME')}</div>
+          <div className="sidebar-head">
+            <div className="sidebar-title">
+              {t('ВАШЕ РЕЗЮМЕ', 'YOUR RESUME')}
+            </div>
+            <button
+              className="icon-button rail-toggle"
+              onClick={toggleRail}
+              aria-expanded={!railed}
+              aria-label={
+                railed
+                  ? t('Развернуть панель разделов', 'Expand section panel')
+                  : t('Свернуть панель разделов', 'Collapse section panel')
+              }
+              title={
+                railed
+                  ? t('Развернуть панель', 'Expand panel')
+                  : t('Свернуть панель', 'Collapse panel')
+              }
+            >
+              {railed ? (
+                <PanelLeftOpen size={17} />
+              ) : (
+                <PanelLeftClose size={17} />
+              )}
+            </button>
+          </div>
           <div className="editor-mode">
             <button
               aria-pressed={tab === 'content'}
@@ -467,7 +641,7 @@ export default function Editor({
               onClick={() => setTab('content')}
             >
               <PenLine size={15} />
-              {t('Текст', 'Content')}
+              <span className="rail-hide">{t('Текст', 'Content')}</span>
             </button>
             <button
               aria-pressed={tab === 'design'}
@@ -478,29 +652,29 @@ export default function Editor({
               }}
             >
               <LayoutTemplate size={15} />
-              {t('Дизайн', 'Design')}
+              <span className="rail-hide">{t('Дизайн', 'Design')}</span>
             </button>
           </div>
           <div className="section-nav">
-            {sections.map((s, i) => {
-              const Icon = icons[s]
+            {steps.map((s, i) => {
+              const Icon = s === 'review' ? ClipboardCheck : icons[s],
+                label = s === 'review' ? t('Проверка', 'Review') : labels[s],
+                done = s !== 'review' && completedSections.includes(s)
               return (
                 <button
                   key={s}
                   aria-pressed={section === s && tab === 'content'}
-                  className={section === s && tab === 'content' ? 'active' : ''}
+                  className={`${section === s && tab === 'content' ? 'active' : ''} ${s === 'review' ? 'review-link' : ''}`}
+                  aria-label={railed ? label : undefined}
+                  title={railed ? label : undefined}
                   onClick={() => {
                     goSection(s)
                   }}
                 >
                   <Icon size={17} />
-                  <span>{labels[s]}</span>
-                  <small
-                    className={
-                      completedSections.includes(s) ? 'section-complete' : ''
-                    }
-                  >
-                    {completedSections.includes(s) ? (
+                  <span>{label}</span>
+                  <small className={done ? 'section-complete' : ''}>
+                    {done ? (
                       <Check size={15} aria-label={t('Заполнено', 'Filled')} />
                     ) : (
                       `0${i + 1}`
@@ -530,7 +704,9 @@ export default function Editor({
               disabled={exporting}
             >
               <Download size={16} />
-              {t('Получить PDF', 'Finish & export')}
+              <span className="rail-hide">
+                {t('Получить PDF', 'Finish & export')}
+              </span>
             </button>
             <div className="local-badge">
               <ShieldCheck size={16} />
@@ -656,409 +832,493 @@ export default function Editor({
             <>
               <div className="form-step">
                 <div className="eyebrow">
-                  {t('РАЗДЕЛ', 'SECTION')} 0{sections.indexOf(section) + 1} / 07
+                  {t('ШАГ', 'STEP')} 0{steps.indexOf(section) + 1} / 0
+                  {steps.length}
                 </div>
-                <span className="locale-badge">{locale.toUpperCase()}</span>
-              </div>
-              <h1 tabIndex={-1}>{labels[section]}</h1>
-              <p className="form-description">{subtitles[section]}</p>
-              {section === 'basics' ? (
-                <>
-                  <FormField
-                    label={t('Имя и фамилия', 'Full name')}
-                    value={resume.basics.name}
-                    onChange={(v) => basic('name', v)}
-                    placeholder={t('Как к вам обращаться?', 'Your full name')}
-                  />
-                  <FormField
-                    label={t(
-                      'Должность или специализация',
-                      'Job title or speciality',
-                    )}
-                    value={resume.basics.label}
-                    onChange={(v) => basic('label', v)}
-                    placeholder={t(
-                      'Например, продуктовый дизайнер',
-                      'e.g. Product designer',
-                    )}
-                  />
-                  <div className="form-divider">
-                    {t('КОНТАКТЫ', 'CONTACT DETAILS')}
-                  </div>
-                  <div className="field-row">
-                    <FormField
-                      label={t('Электронная почта', 'Email')}
-                      value={resume.basics.email}
-                      onChange={(v) => basic('email', v)}
-                      type="email"
-                      placeholder="you@example.com"
-                    />
-                    <FormField
-                      label={t('Телефон', 'Phone')}
-                      value={resume.basics.phone}
-                      onChange={(v) => basic('phone', v)}
-                      type="tel"
-                      placeholder="+420 …"
-                    />
-                  </div>
-                  <FormField
-                    label={t('Город и страна', 'City and country')}
-                    value={resume.basics.location}
-                    onChange={(v) => basic('location', v)}
-                    placeholder={t(
-                      'Например, Прага, Чехия',
-                      'e.g. Prague, Czechia',
-                    )}
-                  />
-                  <FormField
-                    label={t('Сайт или портфолио', 'Website or portfolio')}
-                    value={resume.basics.url}
-                    onChange={(v) => basic('url', v)}
-                    placeholder="https://…"
-                    hint={t(
-                      'Необязательные поля можно оставить пустыми — они не попадут в PDF.',
-                      'Leave optional fields blank — they won’t appear in your PDF.',
-                    )}
-                  />
-                  <FormField
-                    label="LinkedIn"
-                    value={resume.basics.linkedin}
-                    onChange={(v) => basic('linkedin', v)}
-                    placeholder="linkedin.com/in/your-name"
-                  />
-                  <FormField
-                    label="GitHub"
-                    value={resume.basics.github}
-                    onChange={(v) => basic('github', v)}
-                    placeholder="github.com/your-name"
-                  />
-                </>
-              ) : section === 'summary' ? (
-                <FormField
-                  label={t('Коротко о вас', 'Your professional profile')}
-                  value={resume.basics.summary}
-                  onChange={(v) => basic('summary', v)}
-                  multiline
-                  placeholder={t(
-                    'Что вы умеете, какой у вас опыт и какую пользу приносите?',
-                    'What do you do well, and what value do you bring?',
-                  )}
-                  hint={t(
-                    '2–4 предложения. Пишите конкретно, без общих фраз.',
-                    'Aim for 2–4 specific sentences. Skip generic buzzwords.',
-                  )}
-                />
-              ) : section === 'skills' ? (
-                <>
-                  <FormField
-                    label={t('Ваши навыки', 'Your skills')}
-                    value={resume.skills}
-                    onChange={(v) =>
-                      update(
-                        {
-                          ...doc,
-                          versions: {
-                            ...doc.versions,
-                            [locale]: { ...resume, skills: v },
-                          },
-                        },
-                        `${locale}:skills`,
+                <div className="form-step-tools">
+                  <button
+                    className="icon-button form-width-toggle"
+                    aria-pressed={formWidth === NARROW_FORM}
+                    onClick={() =>
+                      changeFormWidth(
+                        formWidth === NARROW_FORM ? null : NARROW_FORM,
                       )
                     }
-                    multiline
-                    placeholder="Figma, HTML, CSS, …"
-                    hint={t(
-                      'Разделяйте запятыми. Используйте названия из вакансии, только если владеете навыком. Подтвердите ключевые навыки примерами в опыте.',
-                      'Separate with commas. Use the job posting’s terms for skills you actually have, and show your key skills in your experience.',
+                    title={
+                      formWidth === NARROW_FORM
+                        ? t('Обычная ширина формы', 'Standard form width')
+                        : t('Узкая форма', 'Narrow form')
+                    }
+                    aria-label={t('Узкая форма', 'Narrow form')}
+                  >
+                    <Columns2 size={16} />
+                  </button>
+                  <span className="locale-badge">{locale.toUpperCase()}</span>
+                </div>
+              </div>
+              {section === 'review' ? (
+                <>
+                  <h1 tabIndex={-1}>
+                    {t('Проверка и отправка', 'Review & finish')}
+                  </h1>
+                  <p className="form-description">
+                    {t(
+                      'Последний шаг: проверьте содержание, сверьтесь с вакансией и скачайте PDF.',
+                      'Last step: check the content, compare with a vacancy, and download your PDF.',
                     )}
+                  </p>
+                  <ReviewStep
+                    resume={resume}
+                    locale={locale}
+                    goSection={(next) => goSection(next, true)}
+                    addSkill={addSkill}
+                    exportFile={exportFile}
+                    exporting={exporting}
                   />
-                  <div className="skill-chips">
-                    {resume.skills
-                      .split(',')
-                      .filter((s) => s.trim())
-                      .map((s, i) => (
-                        <span key={i}>{s.trim()}</span>
-                      ))}
-                  </div>
                 </>
               ) : (
                 <>
-                  {resume[section].length > 1 && (
-                    <div className="entries-toolbar">
-                      <span>
-                        {t('Записей', 'Entries')}: {resume[section].length}
-                      </span>
-                      <button
-                        className="text-button"
-                        onClick={() => {
-                          const allCollapsed = resume[section].every((e) =>
-                            collapsed.has(`${section}:${e.id}`),
+                  <h1 tabIndex={-1}>{labels[section]}</h1>
+                  <p className="form-description">{subtitles[section]}</p>
+                  <WritingGuide
+                    section={section}
+                    locale={locale}
+                    onPattern={
+                      section === 'summary' && !resume.basics.summary.trim()
+                        ? (pattern) => basic('summary', pattern)
+                        : undefined
+                    }
+                    onVerb={
+                      section === 'work' || section === 'projects'
+                        ? (verb) => insertVerb(section, verb)
+                        : undefined
+                    }
+                    verbTarget={
+                      section === 'work' || section === 'projects'
+                        ? (() => {
+                            const target = verbTarget(section)
+                            return target
+                              ? target.title ||
+                                  `${labels[section]} ${resume[section].indexOf(target) + 1}`
+                              : undefined
+                          })()
+                        : undefined
+                    }
+                  />
+                  {section === 'basics' ? (
+                    <>
+                      <FormField
+                        label={t('Имя и фамилия', 'Full name')}
+                        value={resume.basics.name}
+                        onChange={(v) => basic('name', v)}
+                        placeholder={t(
+                          'Как к вам обращаться?',
+                          'Your full name',
+                        )}
+                      />
+                      <FormField
+                        label={t(
+                          'Должность или специализация',
+                          'Job title or speciality',
+                        )}
+                        value={resume.basics.label}
+                        onChange={(v) => basic('label', v)}
+                        placeholder={t(
+                          'Например, продуктовый дизайнер',
+                          'e.g. Product designer',
+                        )}
+                      />
+                      <div className="form-divider">
+                        {t('КОНТАКТЫ', 'CONTACT DETAILS')}
+                      </div>
+                      <div className="field-row">
+                        <FormField
+                          label={t('Электронная почта', 'Email')}
+                          value={resume.basics.email}
+                          onChange={(v) => basic('email', v)}
+                          type="email"
+                          placeholder="you@example.com"
+                        />
+                        <FormField
+                          label={t('Телефон', 'Phone')}
+                          value={resume.basics.phone}
+                          onChange={(v) => basic('phone', v)}
+                          type="tel"
+                          placeholder="+420 …"
+                        />
+                      </div>
+                      <FormField
+                        label={t('Город и страна', 'City and country')}
+                        value={resume.basics.location}
+                        onChange={(v) => basic('location', v)}
+                        placeholder={t(
+                          'Например, Прага, Чехия',
+                          'e.g. Prague, Czechia',
+                        )}
+                      />
+                      <FormField
+                        label={t('Сайт или портфолио', 'Website or portfolio')}
+                        value={resume.basics.url}
+                        onChange={(v) => basic('url', v)}
+                        placeholder="https://…"
+                        hint={t(
+                          'Необязательные поля можно оставить пустыми — они не попадут в PDF.',
+                          'Leave optional fields blank — they won’t appear in your PDF.',
+                        )}
+                      />
+                      <FormField
+                        label="LinkedIn"
+                        value={resume.basics.linkedin}
+                        onChange={(v) => basic('linkedin', v)}
+                        placeholder="linkedin.com/in/your-name"
+                      />
+                      <FormField
+                        label="GitHub"
+                        value={resume.basics.github}
+                        onChange={(v) => basic('github', v)}
+                        placeholder="github.com/your-name"
+                      />
+                    </>
+                  ) : section === 'summary' ? (
+                    <FormField
+                      label={t('Коротко о вас', 'Your professional profile')}
+                      value={resume.basics.summary}
+                      onChange={(v) => basic('summary', v)}
+                      multiline
+                      placeholder={t(
+                        'Что вы умеете, какой у вас опыт и какую пользу приносите?',
+                        'What do you do well, and what value do you bring?',
+                      )}
+                      hint={t(
+                        '2–4 предложения. Пишите конкретно, без общих фраз.',
+                        'Aim for 2–4 specific sentences. Skip generic buzzwords.',
+                      )}
+                    />
+                  ) : section === 'skills' ? (
+                    <>
+                      <FormField
+                        label={t('Ваши навыки', 'Your skills')}
+                        value={resume.skills}
+                        onChange={(v) =>
+                          update(
+                            {
+                              ...doc,
+                              versions: {
+                                ...doc.versions,
+                                [locale]: { ...resume, skills: v },
+                              },
+                            },
+                            `${locale}:skills`,
                           )
-                          setCollapsed((current) => {
-                            const next = new Set(current)
-                            resume[section].forEach((e) => {
-                              if (allCollapsed)
-                                next.delete(`${section}:${e.id}`)
-                              else next.add(`${section}:${e.id}`)
-                            })
-                            return next
-                          })
-                        }}
-                      >
-                        {resume[section].every((e) =>
-                          collapsed.has(`${section}:${e.id}`),
-                        )
-                          ? t('Развернуть все', 'Expand all')
-                          : t('Свернуть все', 'Collapse all')}
-                      </button>
-                    </div>
-                  )}
-                  {resume[section].map((e, i) => (
-                    <EntryCard
-                      key={e.id}
-                      entry={e}
-                      title={e.title || `${labels[section]} ${i + 1}`}
-                      locale={locale}
-                      expanded={!collapsed.has(`${section}:${e.id}`)}
-                      toggle={() => toggleEntry(e.id)}
-                      moveUp={i > 0 ? () => move(section, i, -1) : undefined}
-                      moveDown={
-                        i < resume[section].length - 1
-                          ? () => move(section, i, 1)
-                          : undefined
-                      }
-                      remove={() => remove(section, e.id)}
-                    >
-                      <FormField
-                        label={
-                          section === 'work'
-                            ? t('Должность', 'Job title')
-                            : section === 'education'
-                              ? t(
-                                  'Специальность / степень',
-                                  'Degree / field of study',
-                                )
-                              : section === 'languages'
-                                ? t('Язык', 'Language')
-                                : t('Название проекта', 'Project name')
                         }
-                        value={e.title}
-                        onChange={(v) => entry(section, e.id, 'title', v)}
+                        multiline
+                        placeholder="Figma, HTML, CSS, …"
+                        hint={t(
+                          'Разделяйте запятыми. Используйте названия из вакансии, только если владеете навыком. Подтвердите ключевые навыки примерами в опыте.',
+                          'Separate with commas. Use the job posting’s terms for skills you actually have, and show your key skills in your experience.',
+                        )}
                       />
-                      <FormField
-                        label={
-                          section === 'work'
-                            ? t('Компания', 'Company')
-                            : section === 'education'
-                              ? t('Учебное заведение', 'Institution')
-                              : section === 'languages'
-                                ? t('Уровень владения', 'Proficiency')
-                                : t('Роль / организация', 'Role / organization')
-                        }
-                        value={e.subtitle}
-                        onChange={(v) => entry(section, e.id, 'subtitle', v)}
-                      />
-                      {section !== 'languages' && (
-                        <>
-                          <div className="field-row">
-                            <FormField
-                              label={t('Начало', 'Start date')}
-                              type="month"
-                              value={e.startDate}
-                              onChange={(v) =>
-                                entry(section, e.id, 'startDate', v)
-                              }
-                            />
-                            {!e.current && (
-                              <FormField
-                                label={t('Окончание', 'End date')}
-                                type="month"
-                                value={e.endDate}
-                                onChange={(v) =>
-                                  entry(section, e.id, 'endDate', v)
-                                }
-                              />
-                            )}
-                          </div>
-                          <label className="checkbox">
-                            <input
-                              type="checkbox"
-                              checked={e.current}
-                              onChange={(event) =>
-                                entry(
-                                  section,
-                                  e.id,
-                                  'current',
-                                  event.target.checked,
-                                )
-                              }
-                            />
-                            {t('По настоящее время', 'Present')}
-                          </label>
+                      <div className="skill-chips">
+                        {resume.skills
+                          .split(',')
+                          .filter((s) => s.trim())
+                          .map((s, i) => (
+                            <span key={i}>{s.trim()}</span>
+                          ))}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      {resume[section].length > 1 && (
+                        <div className="entries-toolbar">
+                          <span>
+                            {t('Записей', 'Entries')}: {resume[section].length}
+                          </span>
+                          <button
+                            className="text-button"
+                            onClick={() => {
+                              const allCollapsed = resume[section].every((e) =>
+                                collapsed.has(`${section}:${e.id}`),
+                              )
+                              setCollapsed((current) => {
+                                const next = new Set(current)
+                                resume[section].forEach((e) => {
+                                  if (allCollapsed)
+                                    next.delete(`${section}:${e.id}`)
+                                  else next.add(`${section}:${e.id}`)
+                                })
+                                return next
+                              })
+                            }}
+                          >
+                            {resume[section].every((e) =>
+                              collapsed.has(`${section}:${e.id}`),
+                            )
+                              ? t('Развернуть все', 'Expand all')
+                              : t('Свернуть все', 'Collapse all')}
+                          </button>
+                        </div>
+                      )}
+                      {resume[section].map((e, i) => (
+                        <EntryCard
+                          key={e.id}
+                          entry={e}
+                          title={e.title || `${labels[section]} ${i + 1}`}
+                          locale={locale}
+                          expanded={!collapsed.has(`${section}:${e.id}`)}
+                          toggle={() => toggleEntry(e.id)}
+                          moveUp={
+                            i > 0 ? () => move(section, i, -1) : undefined
+                          }
+                          moveDown={
+                            i < resume[section].length - 1
+                              ? () => move(section, i, 1)
+                              : undefined
+                          }
+                          remove={() => remove(section, e.id)}
+                        >
                           <FormField
                             label={
                               section === 'work'
-                                ? t(
-                                    'Результаты и достижения',
-                                    'Achievements and impact',
-                                  )
-                                : t('Описание', 'Description')
+                                ? t('Должность', 'Job title')
+                                : section === 'education'
+                                  ? t(
+                                      'Специальность / степень',
+                                      'Degree / field of study',
+                                    )
+                                  : section === 'languages'
+                                    ? t('Язык', 'Language')
+                                    : t('Название проекта', 'Project name')
                             }
-                            multiline
-                            value={e.description}
-                            onChange={(v) =>
-                              entry(section, e.id, 'description', v)
-                            }
-                            hint={
+                            value={e.title}
+                            onChange={(v) => entry(section, e.id, 'title', v)}
+                          />
+                          <FormField
+                            label={
                               section === 'work'
-                                ? t(
-                                    'Каждая новая строка — отдельный пункт. Добавьте результаты в цифрах.',
-                                    'One achievement per line. Include measurable results.',
-                                  )
-                                : undefined
+                                ? t('Компания', 'Company')
+                                : section === 'education'
+                                  ? t('Учебное заведение', 'Institution')
+                                  : section === 'languages'
+                                    ? t('Уровень владения', 'Proficiency')
+                                    : t(
+                                        'Роль / организация',
+                                        'Role / organization',
+                                      )
+                            }
+                            value={e.subtitle}
+                            onChange={(v) =>
+                              entry(section, e.id, 'subtitle', v)
                             }
                           />
-                          {section === 'projects' && (
-                            <FormField
-                              label={t('Ссылка на проект', 'Project link')}
-                              value={e.url}
-                              onChange={(v) => entry(section, e.id, 'url', v)}
-                              placeholder="https://…"
-                            />
+                          {section !== 'languages' && (
+                            <>
+                              <div className="field-row">
+                                <FormField
+                                  label={t('Начало', 'Start date')}
+                                  type="month"
+                                  value={e.startDate}
+                                  onChange={(v) =>
+                                    entry(section, e.id, 'startDate', v)
+                                  }
+                                />
+                                {!e.current && (
+                                  <FormField
+                                    label={t('Окончание', 'End date')}
+                                    type="month"
+                                    value={e.endDate}
+                                    onChange={(v) =>
+                                      entry(section, e.id, 'endDate', v)
+                                    }
+                                  />
+                                )}
+                              </div>
+                              <label className="checkbox">
+                                <input
+                                  type="checkbox"
+                                  checked={e.current}
+                                  onChange={(event) =>
+                                    entry(
+                                      section,
+                                      e.id,
+                                      'current',
+                                      event.target.checked,
+                                    )
+                                  }
+                                />
+                                {t('По настоящее время', 'Present')}
+                              </label>
+                              <FormField
+                                label={
+                                  section === 'work'
+                                    ? t(
+                                        'Результаты и достижения',
+                                        'Achievements and impact',
+                                      )
+                                    : t('Описание', 'Description')
+                                }
+                                multiline
+                                value={e.description}
+                                onChange={(v) =>
+                                  entry(section, e.id, 'description', v)
+                                }
+                                onFocus={() => setActiveEntry(e.id)}
+                                hint={
+                                  section === 'work'
+                                    ? t(
+                                        'Каждая новая строка — отдельный пункт. Добавьте результаты в цифрах.',
+                                        'One achievement per line. Include measurable results.',
+                                      )
+                                    : undefined
+                                }
+                              />
+                              {section === 'projects' && (
+                                <FormField
+                                  label={t('Ссылка на проект', 'Project link')}
+                                  value={e.url}
+                                  onChange={(v) =>
+                                    entry(section, e.id, 'url', v)
+                                  }
+                                  placeholder="https://…"
+                                />
+                              )}
+                            </>
                           )}
-                        </>
+                        </EntryCard>
+                      ))}
+                      {resume[section].length === 0 && (
+                        <div className="empty-section">
+                          <Plus size={24} />
+                          <p>{t('Здесь пока пусто', 'Nothing here yet')}</p>
+                          <span>
+                            {t(
+                              'Добавьте запись или пропустите раздел.',
+                              'Add an entry, or skip this section.',
+                            )}
+                          </span>
+                        </div>
                       )}
-                    </EntryCard>
-                  ))}
-                  {resume[section].length === 0 && (
-                    <div className="empty-section">
-                      <Plus size={24} />
-                      <p>{t('Здесь пока пусто', 'Nothing here yet')}</p>
-                      <span>
+                      <button
+                        className="button add-entry"
+                        disabled={resume[section].length >= 100}
+                        onClick={() => add(section)}
+                      >
+                        <Plus size={17} />
+                        {t('Добавить запись', 'Add entry')}
+                      </button>
+                      <p className="field-hint">
                         {t(
-                          'Добавьте запись или пропустите раздел.',
-                          'Add an entry, or skip this section.',
+                          resume[section].length >= 100
+                            ? 'В разделе уже 100 записей. Отредактируйте или удалите одну, чтобы добавить новую.'
+                            : 'Удаление и изменения можно отменить стрелкой вверху.',
+                          resume[section].length >= 100
+                            ? 'This section has 100 entries. Edit or remove an entry before adding another.'
+                            : 'Use Undo above to restore removed entries or changes.',
                         )}
-                      </span>
+                      </p>
+                    </>
+                  )}
+                  <details className="screening-guide">
+                    <summary>
+                      {t(
+                        'Резюме для людей и систем отбора',
+                        'Make it easy to read & parse',
+                      )}
+                    </summary>
+                    <p>
+                      {t(
+                        'Выбирайте одну колонку для систем отбора. Добавляйте реальные навыки из вакансии в видимый текст и показывайте, как применяли их в работе. Скрытые ключевые слова не заменяют опыт.',
+                        'Choose a single column for application systems. Include relevant skills from the job posting in visible text, backed by examples of your work. Hidden keywords do not replace experience.',
+                      )}
+                    </p>
+                    <p>
+                      {t(
+                        'Проверьте текст PDF после скачивания: имя, контакты, даты, порядок разделов. Если работодатель просит другой формат, следуйте его инструкции. Универсального балла ATS нет.',
+                        'After downloading, check the PDF text: your name, contacts, dates, and section order. Follow the employer’s requested file format. There is no universal ATS score.',
+                      )}
+                    </p>
+                    <a
+                      href="https://support.greenhouse.io/hc/en-us/articles/200989175-Unsuccessful-resume-parse"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Greenhouse: resume parsing ↗
+                    </a>
+                    <a
+                      href="https://cloudfront.careeronestop.org/JobSearch/Resumes/ResumeGuide/formatting.aspx"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      CareerOneStop: formatting ↗
+                    </a>
+                  </details>
+                  {tips.length > 0 && (
+                    <div className="tips">
+                      <div>
+                        <Lightbulb size={17} />
+                        <strong>
+                          {t('Небольшая подсказка', 'A little guidance')}
+                        </strong>
+                      </div>
+                      {tips.map((tip) => (
+                        <p key={tip.id}>
+                          <button
+                            className="tip-link"
+                            onClick={() => goSection(tip.section, true)}
+                          >
+                            {tip.message}
+                            <ChevronRight size={14} />
+                          </button>
+                          <button
+                            aria-label={`${t('Скрыть подсказку', 'Dismiss tip')}: ${tip.message}`}
+                            onClick={() =>
+                              setHiddenTips([...hiddenTips, tip.id])
+                            }
+                          >
+                            <X size={14} />
+                          </button>
+                        </p>
+                      ))}
                     </div>
                   )}
-                  <button
-                    className="button add-entry"
-                    disabled={resume[section].length >= 100}
-                    onClick={() => add(section)}
-                  >
-                    <Plus size={17} />
-                    {t('Добавить запись', 'Add entry')}
-                  </button>
-                  <p className="field-hint">
+                  {hiddenTips.length > 0 && (
+                    <button
+                      className="text-button restore-tips"
+                      onClick={() => setHiddenTips([])}
+                    >
+                      {t('Показать скрытые подсказки', 'Show dismissed tips')}
+                    </button>
+                  )}
+                  <div className="form-bottom">
+                    <span>
+                      {t(
+                        'Пустые разделы не попадут в PDF',
+                        'Empty sections stay out of your PDF',
+                      )}
+                    </span>
+                    <button
+                      className="button secondary"
+                      onClick={() =>
+                        steps.indexOf(section) < steps.length - 1
+                          ? goSection(steps[steps.indexOf(section) + 1])
+                          : ((focusSection.current = true), setTab('design'))
+                      }
+                    >
+                      {steps.indexOf(section) < steps.length - 1
+                        ? t('Далее', 'Next')
+                        : t('К оформлению', 'Choose a design')}
+                      <ChevronRight size={16} />
+                    </button>
+                  </div>
+                  <p className="translation-note">
+                    <Globe2 size={14} />
                     {t(
-                      resume[section].length >= 100
-                        ? 'В разделе уже 100 записей. Отредактируйте или удалите одну, чтобы добавить новую.'
-                        : 'Удаление и изменения можно отменить стрелкой вверху.',
-                      resume[section].length >= 100
-                        ? 'This section has 100 entries. Edit or remove an entry before adding another.'
-                        : 'Use Undo above to restore removed entries or changes.',
+                      'RU / EN вверху переключает версии. Перевод заполняется вручную.',
+                      'RU / EN above switches versions. Translations are entered manually.',
                     )}
                   </p>
                 </>
               )}
-              <details className="screening-guide">
-                <summary>
-                  {t(
-                    'Резюме для людей и систем отбора',
-                    'Make it easy to read & parse',
-                  )}
-                </summary>
-                <p>
-                  {t(
-                    'Выбирайте одну колонку для систем отбора. Добавляйте реальные навыки из вакансии в видимый текст и показывайте, как применяли их в работе. Скрытые ключевые слова не заменяют опыт.',
-                    'Choose a single column for application systems. Include relevant skills from the job posting in visible text, backed by examples of your work. Hidden keywords do not replace experience.',
-                  )}
-                </p>
-                <p>
-                  {t(
-                    'Проверьте текст PDF после скачивания: имя, контакты, даты, порядок разделов. Если работодатель просит другой формат, следуйте его инструкции. Универсального балла ATS нет.',
-                    'After downloading, check the PDF text: your name, contacts, dates, and section order. Follow the employer’s requested file format. There is no universal ATS score.',
-                  )}
-                </p>
-                <a
-                  href="https://support.greenhouse.io/hc/en-us/articles/200989175-Unsuccessful-resume-parse"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Greenhouse: resume parsing ↗
-                </a>
-                <a
-                  href="https://cloudfront.careeronestop.org/JobSearch/Resumes/ResumeGuide/formatting.aspx"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  CareerOneStop: formatting ↗
-                </a>
-              </details>
-              {tips.length > 0 && (
-                <div className="tips">
-                  <div>
-                    <Lightbulb size={17} />
-                    <strong>
-                      {t('Небольшая подсказка', 'A little guidance')}
-                    </strong>
-                  </div>
-                  {tips.map((tip) => (
-                    <p key={tip.id}>
-                      <button
-                        className="tip-link"
-                        onClick={() => goSection(tip.section, true)}
-                      >
-                        {tip.message}
-                        <ChevronRight size={14} />
-                      </button>
-                      <button
-                        aria-label={`${t('Скрыть подсказку', 'Dismiss tip')}: ${tip.message}`}
-                        onClick={() => setHiddenTips([...hiddenTips, tip.id])}
-                      >
-                        <X size={14} />
-                      </button>
-                    </p>
-                  ))}
-                </div>
-              )}
-              {hiddenTips.length > 0 && (
-                <button
-                  className="text-button restore-tips"
-                  onClick={() => setHiddenTips([])}
-                >
-                  {t('Показать скрытые подсказки', 'Show dismissed tips')}
-                </button>
-              )}
-              <div className="form-bottom">
-                <span>
-                  {t(
-                    'Пустые разделы не попадут в PDF',
-                    'Empty sections stay out of your PDF',
-                  )}
-                </span>
-                <button
-                  className="button secondary"
-                  onClick={() =>
-                    sections.indexOf(section) < 6
-                      ? goSection(sections[sections.indexOf(section) + 1])
-                      : ((focusSection.current = true), setTab('design'))
-                  }
-                >
-                  {sections.indexOf(section) < 6
-                    ? t('Далее', 'Next')
-                    : t('К оформлению', 'Choose a design')}
-                  <ChevronRight size={16} />
-                </button>
-              </div>
-              <p className="translation-note">
-                <Globe2 size={14} />
-                {t(
-                  'RU / EN вверху переключает версии. Перевод заполняется вручную.',
-                  'RU / EN above switches versions. Translations are entered manually.',
-                )}
-              </p>
             </>
           )}
         </section>
@@ -1066,6 +1326,24 @@ export default function Editor({
           className="preview-panel"
           aria-label={t('Предпросмотр резюме', 'Resume preview')}
         >
+          <div
+            className="panel-resizer"
+            role="separator"
+            aria-orientation="vertical"
+            aria-label={t('Ширина формы', 'Form width')}
+            aria-valuenow={Math.round(
+              formWidth || form.current?.getBoundingClientRect().width || 0,
+            )}
+            aria-valuemin={320}
+            tabIndex={0}
+            title={t(
+              'Потяните, чтобы изменить ширину. Двойной клик — сброс.',
+              'Drag to resize. Double-click to reset.',
+            )}
+            onPointerDown={startResize}
+            onKeyDown={resizeWithKeys}
+            onDoubleClick={() => changeFormWidth(null)}
+          />
           <div className="preview-heading">
             <span>
               <Eye size={16} />

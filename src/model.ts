@@ -143,7 +143,7 @@ export function createDocument(
       label: 'Product designer',
       location: 'Prague, Czechia',
       summary:
-        'I turn complex problems into thoughtful digital experiences. From first insight to launch, I connect user needs with business goals through clear, considered design.',
+        'Product designer with 6 years of turning complex problems into clear digital experiences. Raised checkout conversion by 24% with research-led redesigns. Looking for a product team where user needs and business goals meet.',
     }
     ru.work = [
       {
@@ -196,8 +196,9 @@ export function createDocument(
       },
     ]
     ru.skills =
-      'Figma, UX-исследования, Прототипирование, Дизайн-системы, HTML / CSS'
-    en.skills = 'Figma, User research, Prototyping, Design systems, HTML / CSS'
+      'Figma, UX-исследования, Прототипирование, Дизайн-системы, Юзабилити-тестирование, Доступность, HTML / CSS'
+    en.skills =
+      'Figma, User research, Prototyping, Design systems, Usability testing, Accessibility, HTML / CSS'
     ru.languages = [
       { ...emptyEntry('language-1'), title: 'Русский', subtitle: 'Родной' },
       {

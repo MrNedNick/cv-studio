@@ -528,3 +528,74 @@ it('follows the device theme until the visitor picks one', async () => {
     document.documentElement.dataset.theme,
   )
 })
+it('reviews content, adds a missing vacancy skill, and inserts an action verb', async () => {
+  localStorage.removeItem('cv-job-posting')
+  render(
+    <MemoryRouter initialEntries={['/edit']}>
+      <App />
+    </MemoryRouter>,
+  )
+  fireEvent.click(
+    await screen.findByRole('button', { name: /Начать с примера/ }),
+  )
+  fireEvent.click(screen.getByRole('button', { name: /Опыт работы/ }))
+  fireEvent.click(screen.getByRole('button', { name: 'Улучшение' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Оптимизировал' }))
+  expect(screen.getAllByLabelText('Результаты и достижения')[0]).toHaveFocus()
+  expect(
+    (
+      screen.getAllByLabelText(
+        'Результаты и достижения',
+      )[0] as HTMLTextAreaElement
+    ).value,
+  ).toMatch(/\nОптимизировал $/)
+  fireEvent.click(screen.getByRole('button', { name: /Проверка/ }))
+  expect(
+    await screen.findByRole('heading', { name: 'Проверка и отправка' }),
+  ).toBeVisible()
+  expect(screen.getByText(/проверок содержания/)).toBeVisible()
+  fireEvent.change(screen.getByLabelText('Текст вакансии'), {
+    target: {
+      value:
+        'Ищем дизайнера: Figma, дизайн-системы, Amplitude и A/B testing для продуктовых экспериментов.',
+    },
+  })
+  const chip = screen.getByRole('button', { name: /Amplitude/ })
+  fireEvent.click(chip)
+  fireEvent.click(screen.getByRole('button', { name: /Навыки/ }))
+  expect(
+    (screen.getByLabelText('Ваши навыки') as HTMLTextAreaElement).value,
+  ).toMatch(/, Amplitude$/)
+})
+it('collapses the section panel and remembers a narrow form', async () => {
+  localStorage.removeItem('cv-sidebar')
+  localStorage.removeItem('cv-form-width')
+  const view = render(
+    <MemoryRouter initialEntries={['/edit']}>
+      <App />
+    </MemoryRouter>,
+  )
+  fireEvent.click(await screen.findByRole('button', { name: /Новое резюме/ }))
+  fireEvent.click(
+    screen.getByRole('button', { name: 'Свернуть панель разделов' }),
+  )
+  expect(localStorage.getItem('cv-sidebar')).toBe('rail')
+  expect(screen.getByRole('button', { name: 'Опыт работы' })).toBeVisible()
+  fireEvent.click(screen.getByRole('button', { name: 'Узкая форма' }))
+  expect(localStorage.getItem('cv-form-width')).toBe('360')
+  view.unmount()
+  vi.mocked(loadDocument).mockResolvedValueOnce(createDocument(false, 'ru'))
+  render(
+    <MemoryRouter initialEntries={['/edit']}>
+      <App />
+    </MemoryRouter>,
+  )
+  await screen.findByLabelText('Имя и фамилия')
+  expect(
+    await screen.findByRole('button', { name: 'Развернуть панель разделов' }),
+  ).toHaveAttribute('aria-expanded', 'false')
+  expect(screen.getByRole('button', { name: 'Узкая форма' })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  )
+})
