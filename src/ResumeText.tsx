@@ -50,6 +50,18 @@ export default function ResumeText({ doc }: { doc: StudioDocument }) {
       )
     )
   }
+  const skills = resume.skills.trim() && (
+    <section>
+      <h3>{labels.skills}</h3>
+      <p>
+        {resume.skills
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean)
+          .join(' · ')}
+      </p>
+    </section>
+  )
   return (
     <article
       className="resume-text"
@@ -66,10 +78,19 @@ export default function ResumeText({ doc }: { doc: StudioDocument }) {
           <a href={`mailto:${resume.basics.email}`}>{resume.basics.email}</a>
         )}
         {resume.basics.phone && <p>{resume.basics.phone}</p>}
-        {resume.basics.url && safeUrl(resume.basics.url) && (
-          <a href={safeUrl(resume.basics.url)} target="_blank" rel="noreferrer">
-            {resume.basics.url}
-          </a>
+        {(['url', 'linkedin', 'github'] as const).map(
+          (key) =>
+            resume.basics[key] &&
+            safeUrl(resume.basics[key]) && (
+              <a
+                key={key}
+                href={safeUrl(resume.basics[key])}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {resume.basics[key]}
+              </a>
+            ),
         )}
       </div>
       {resume.basics.summary.trim() && (
@@ -78,20 +99,10 @@ export default function ResumeText({ doc }: { doc: StudioDocument }) {
           <p className="preserve-lines">{resume.basics.summary}</p>
         </section>
       )}
+      {doc.template === 'technical' && skills}
       {entries('work')}
       {entries('education')}
-      {resume.skills.trim() && (
-        <section>
-          <h3>{labels.skills}</h3>
-          <p>
-            {resume.skills
-              .split(',')
-              .map((s) => s.trim())
-              .filter(Boolean)
-              .join(' · ')}
-          </p>
-        </section>
-      )}
+      {doc.template !== 'technical' && skills}
       {entries('projects')}
       {entries('languages')}
     </article>

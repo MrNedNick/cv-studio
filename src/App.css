@@ -29,7 +29,7 @@
   margin-right: 10px;
 }
 .free-badge {
-  font-size: 9px;
+  font-size: 12px;
   letter-spacing: 0.5px;
   background: var(--lime);
   color: #32442c;
@@ -42,7 +42,7 @@
   display: flex;
   align-items: center;
   gap: 30px;
-  font-size: 12px;
+  font-size: 14px;
 }
 .site-header nav a,
 .site-header nav button {
@@ -64,7 +64,7 @@
   align-items: center;
   gap: 7px;
   background: none;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   padding: 11px;
 }
@@ -90,7 +90,7 @@
   padding: 12px 19px;
   border-radius: 7px;
   font-weight: 700;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.5;
 }
 .primary {
@@ -115,7 +115,7 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   padding: 8px 0;
 }
@@ -123,7 +123,7 @@
   color: var(--accent);
 }
 .eyebrow {
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 1.8px;
   display: flex;
@@ -188,7 +188,7 @@
   min-height: 51px;
 }
 .hero-actions .text-button {
-  font-size: 11px;
+  font-size: 13px;
 }
 .hero-trust {
   display: flex;
@@ -196,7 +196,7 @@
   flex-wrap: wrap;
   margin-top: 24px;
   color: var(--muted);
-  font-size: 10px;
+  font-size: 13px;
 }
 .hero-trust span {
   display: flex;
@@ -231,7 +231,7 @@
   top: 20px;
   left: 24px;
   color: #6f7f60;
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 1.7px;
 }
 .hero-paper {
@@ -428,11 +428,11 @@
   color: #507334;
 }
 .floating-note strong {
-  font-size: 11px;
+  font-size: 13px;
   display: block;
 }
 .floating-note small {
-  font-size: 9px;
+  font-size: 12px;
   color: #758171;
   display: block;
   margin-top: 4px;
@@ -446,7 +446,7 @@
   align-items: center;
   gap: 8px;
   color: #67785d;
-  font-size: 8px;
+  font-size: 11px;
 }
 .art-caption > span:last-child {
   margin-left: auto;
@@ -479,11 +479,11 @@
 }
 .promise-strip strong {
   display: block;
-  font-size: 11px;
+  font-size: 13px;
 }
 .promise-strip small {
   display: block;
-  font-size: 10px;
+  font-size: 13px;
   color: var(--muted);
   margin-top: 6px;
 }
@@ -546,7 +546,7 @@
   left: 13px;
   top: 12px;
   color: #75816d;
-  font-size: 9px;
+  font-size: 12px;
 }
 .template-use {
   position: absolute;
@@ -560,7 +560,7 @@
   color: #fff;
   padding: 11px;
   border-radius: 5px;
-  font-size: 10px;
+  font-size: 13px;
   transform: translateY(70px);
   transition: transform 0.2s;
 }
@@ -582,7 +582,7 @@
   letter-spacing: -0.2px;
 }
 .template-caption p {
-  font-size: 10px;
+  font-size: 13px;
   color: var(--muted);
   margin-top: 5px;
 }
@@ -603,16 +603,16 @@
   font-size: 26px;
 }
 .step > span {
-  font-size: 12px;
+  font-size: 14px;
   font-family: Georgia, serif;
   color: var(--accent);
 }
 .step h3 {
-  font-size: 12px;
+  font-size: 14px;
   margin: 18px 0 10px;
 }
 .step p {
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.8;
   color: var(--muted);
 }
@@ -623,7 +623,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  font-size: 10px;
+  font-size: 13px;
   color: var(--muted);
 }
 .site-footer .brand {
@@ -636,7 +636,7 @@
   margin-left: 12px;
 }
 .site-footer .text-button {
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 400;
 }
 .gallery-page {
@@ -653,7 +653,7 @@
 }
 .gallery-page > p {
   color: var(--muted);
-  font-size: 13px;
+  font-size: 15px;
   line-height: 1.8;
   max-width: 630px;
 }
@@ -697,7 +697,7 @@
 .start-page > p {
   color: var(--muted);
   line-height: 1.8;
-  font-size: 12px;
+  font-size: 14px;
 }
 .start-choices {
   display: grid;
@@ -732,7 +732,7 @@
   margin: 18px 0 8px;
 }
 .start-choices span {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--muted);
 }
 .privacy-caption {
@@ -741,7 +741,7 @@
   justify-content: center;
   gap: 7px;
   margin-top: 30px;
-  font-size: 10px !important;
+  font-size: 13px !important;
 }
 .loading {
   padding: 60px 20px;
@@ -774,7 +774,7 @@
   color: var(--accent);
 }
 .document-title strong {
-  font-size: 13px;
+  font-size: 15px;
   display: block;
   white-space: nowrap;
   overflow: hidden;
@@ -785,7 +785,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 9px;
+  font-size: 12px;
   color: var(--muted);
   margin-top: 4px;
 }
@@ -808,7 +808,7 @@
   gap: 10px;
 }
 .editor-actions .button {
-  font-size: 11px;
+  font-size: 13px;
   min-height: 39px;
   padding: 10px 15px;
 }
@@ -839,7 +839,7 @@
   text-align: left;
   width: 100%;
   padding: 12px;
-  font-size: 12px;
+  font-size: 14px;
   border-radius: 5px;
 }
 .document-menu button:hover {
@@ -858,7 +858,7 @@
   flex-direction: column;
 }
 .sidebar-title {
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 1.7px;
   font-weight: 700;
   color: var(--muted);
@@ -880,7 +880,7 @@
   flex: 1;
   background: none;
   padding: 9px 5px;
-  font-size: 10px;
+  font-size: 13px;
   border-radius: 4px;
   color: var(--muted);
 }
@@ -903,7 +903,7 @@
   color: var(--muted);
   border-radius: 6px;
   padding: 13px 10px;
-  font-size: 10px;
+  font-size: 13px;
   white-space: nowrap;
 }
 .section-nav button.active {
@@ -917,7 +917,7 @@
 .section-nav small {
   margin-left: auto;
   color: var(--muted);
-  font-size: 8px;
+  font-size: 11px;
   opacity: 0.7;
 }
 .sidebar-bottom {
@@ -927,11 +927,11 @@
 .completion {
   display: flex;
   justify-content: space-between;
-  font-size: 8px;
+  font-size: 11px;
   color: var(--muted);
 }
 .completion strong {
-  font-size: 9px;
+  font-size: 12px;
   color: var(--text);
 }
 .progress-track {
@@ -947,7 +947,7 @@
   background: var(--accent);
 }
 .sidebar-bottom p {
-  font-size: 9px;
+  font-size: 12px;
   line-height: 1.7;
   color: var(--muted);
 }
@@ -956,7 +956,7 @@
   align-items: center;
   gap: 6px;
   color: var(--accent);
-  font-size: 8px;
+  font-size: 11px;
   padding-top: 25px;
 }
 .editor-form {
@@ -970,14 +970,14 @@
   justify-content: space-between;
 }
 .editor-form .eyebrow {
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 1.5px;
 }
 .locale-badge {
   border: 1px solid var(--line);
   border-radius: 4px;
   padding: 3px 6px;
-  font-size: 8px;
+  font-size: 11px;
   color: var(--muted);
 }
 .editor-form h1 {
@@ -989,7 +989,7 @@
 }
 .form-description {
   color: var(--muted);
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.8;
   margin-bottom: 29px;
   max-width: 400px;
@@ -1002,7 +1002,7 @@
   min-width: 0;
 }
 .field label {
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
 }
 .field input,
@@ -1015,7 +1015,7 @@
   background: var(--surface);
   color: var(--text);
   padding: 12px 11px;
-  font-size: 11px;
+  font-size: 13px;
   outline-offset: 1px;
 }
 .field textarea {
@@ -1035,7 +1035,7 @@
 }
 .field > p,
 .field-hint {
-  font-size: 9px;
+  font-size: 12px;
   color: var(--muted);
   line-height: 1.7;
 }
@@ -1043,7 +1043,7 @@
   margin: 10px 0 24px;
 }
 .form-divider {
-  font-size: 8px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 1.4px;
   border-top: 1px solid var(--line);
@@ -1066,20 +1066,20 @@
   border-top: 1px solid var(--line);
 }
 .form-bottom > span {
-  font-size: 8px;
+  font-size: 11px;
   color: var(--muted);
   max-width: 160px;
   line-height: 1.6;
 }
 .form-bottom .button {
-  font-size: 10px;
+  font-size: 13px;
   padding: 9px 12px;
   min-height: 35px;
 }
 .translation-note {
   display: flex;
   gap: 6px;
-  font-size: 8px;
+  font-size: 11px;
   line-height: 1.8;
   color: var(--muted);
   margin-top: 22px;
@@ -1114,7 +1114,7 @@
   display: flex;
   align-items: center;
   gap: 7px;
-  font-size: 10px;
+  font-size: 13px;
   margin: 0 0 20px;
 }
 .checkbox input {
@@ -1135,19 +1135,19 @@
   margin-bottom: 12px;
 }
 .empty-section p {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--text);
   margin-bottom: 6px;
 }
 .empty-section span {
-  font-size: 10px;
+  font-size: 13px;
 }
 .add-entry {
   border: 1px dashed var(--accent);
   background: none;
   color: var(--accent);
   width: 100%;
-  font-size: 11px;
+  font-size: 13px;
 }
 .add-entry:hover {
   background: var(--soft);
@@ -1161,7 +1161,7 @@
 .skill-chips > span {
   padding: 7px 10px;
   background: var(--soft);
-  font-size: 10px;
+  font-size: 13px;
   border-radius: 5px;
 }
 .tips {
@@ -1174,12 +1174,12 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 10px;
+  font-size: 13px;
   color: var(--accent);
   margin-bottom: 10px;
 }
 .tips p {
-  font-size: 10px;
+  font-size: 13px;
   line-height: 1.8;
   color: var(--muted);
   display: flex;
@@ -1203,7 +1203,7 @@
   justify-content: space-between;
   gap: 15px;
   color: var(--muted);
-  font-size: 9px;
+  font-size: 12px;
   margin-bottom: 14px;
 }
 .preview-heading > span {
@@ -1218,7 +1218,7 @@
   border-radius: 3px;
 }
 .preview-status {
-  font-size: 8px;
+  font-size: 11px;
   min-height: 18px;
   margin-bottom: 13px;
   color: var(--muted);
@@ -1251,13 +1251,13 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  font-size: 8px;
+  font-size: 11px;
   color: var(--muted);
   margin: 23px 0 0;
 }
 .page-tip {
   color: var(--muted);
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.8;
   padding: 15px 0;
 }
@@ -1330,14 +1330,14 @@
   margin-top: 12px;
 }
 .design-options > button > span {
-  font-size: 8px;
+  font-size: 11px;
   color: var(--muted);
   display: block;
   margin-top: 5px;
   line-height: 1.6;
 }
 .control-heading {
-  font-size: 11px;
+  font-size: 13px;
   margin: 28px 0 14px;
 }
 .color-options {
@@ -1362,7 +1362,7 @@
     0 0 0 4px var(--accent);
 }
 .inline-tip {
-  font-size: 10px;
+  font-size: 13px;
   line-height: 1.8;
   color: var(--muted);
   background: var(--soft);
@@ -1399,7 +1399,7 @@ dialog::backdrop {
   font-weight: 400;
 }
 dialog p {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--muted);
   line-height: 1.9;
 }
@@ -1428,7 +1428,7 @@ dialog p {
   color: var(--bg);
   border-radius: 9px;
   box-shadow: 0 5px 30px #0002;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.7;
   z-index: 40;
   display: flex;
@@ -1449,7 +1449,7 @@ dialog p {
   right: 0;
   background: #fff0be;
   color: #61480e;
-  font-size: 11px;
+  font-size: 13px;
   padding: 10px;
   text-align: center;
   z-index: 35;
@@ -1470,7 +1470,7 @@ dialog p {
     padding: 35px 20px;
   }
   .section-nav button {
-    font-size: 12px;
+    font-size: 14px;
   }
   .preview-panel {
     padding: 28px 50px;
@@ -1479,7 +1479,7 @@ dialog p {
   .field input,
   .field textarea,
   .field select {
-    font-size: 12px;
+    font-size: 14px;
   }
 }
 @media (max-width: 1150px) {
@@ -1511,20 +1511,20 @@ dialog p {
     padding: 12px;
   }
   .hero-description {
-    font-size: 12px;
+    font-size: 14px;
   }
   .hero-trust {
     gap: 10px;
-    font-size: 9px;
+    font-size: 12px;
   }
   .hero-actions {
     gap: 15px;
   }
   .hero-actions .button {
-    font-size: 11px;
+    font-size: 13px;
   }
   .hero-actions .text-button {
-    font-size: 10px;
+    font-size: 13px;
   }
   .promise-strip {
     margin: 0 4%;
@@ -1532,10 +1532,10 @@ dialog p {
     gap: 15px;
   }
   .promise-strip strong {
-    font-size: 10px;
+    font-size: 13px;
   }
   .promise-strip small {
-    font-size: 9px;
+    font-size: 12px;
   }
   .promise-strip > div {
     gap: 10px;
@@ -1561,10 +1561,10 @@ dialog p {
     font-size: 23px;
   }
   .steps-section .eyebrow {
-    font-size: 8px;
+    font-size: 11px;
   }
   .step h3 {
-    font-size: 11px;
+    font-size: 13px;
   }
   .editor-body {
     grid-template-columns: 165px minmax(320px, 1fr) minmax(310px, 1fr);
@@ -1573,7 +1573,7 @@ dialog p {
     padding: 25px 10px;
   }
   .section-nav button {
-    font-size: 9px;
+    font-size: 12px;
     gap: 8px;
     padding: 12px 8px;
   }
@@ -1603,7 +1603,7 @@ dialog p {
     max-width: 220px;
   }
   .editor-mode button {
-    font-size: 9px;
+    font-size: 12px;
     gap: 4px;
   }
   .editor-mode svg {
@@ -1642,7 +1642,7 @@ dialog p {
     margin-left: 25px;
   }
   .floating-note {
-    font-size: 10px;
+    font-size: 13px;
     bottom: 55px;
   }
   .hero-trust {
@@ -1674,7 +1674,7 @@ dialog p {
     min-height: 330px;
   }
   .template-caption p {
-    font-size: 11px;
+    font-size: 13px;
   }
   .steps-section {
     grid-template-columns: 1fr 1fr;
@@ -1755,7 +1755,7 @@ dialog p {
   }
   .language-button {
     padding: 8px;
-    font-size: 10px;
+    font-size: 13px;
     gap: 5px;
   }
   .header-tools .icon-button {
@@ -1770,7 +1770,7 @@ dialog p {
     max-width: 450px;
   }
   .hero .eyebrow {
-    font-size: 9px;
+    font-size: 12px;
   }
   .hero h1 {
     font-size: 62px;
@@ -1788,7 +1788,7 @@ dialog p {
     margin-left: 12px;
   }
   .hero-description {
-    font-size: 13px;
+    font-size: 15px;
     max-width: 365px;
     line-height: 1.85;
   }
@@ -1797,18 +1797,18 @@ dialog p {
     margin-top: 24px;
   }
   .hero-actions .button {
-    font-size: 12px;
+    font-size: 14px;
     min-height: 49px;
     width: 100%;
   }
   .hero-actions .text-button {
     align-self: center;
-    font-size: 11px;
+    font-size: 13px;
   }
   .hero-trust {
     max-width: none;
     gap: 8px 13px;
-    font-size: 8px;
+    font-size: 11px;
     margin-top: 18px;
     justify-content: center;
   }
@@ -1865,7 +1865,7 @@ dialog p {
     width: 29px;
   }
   .floating-note strong {
-    font-size: 9px;
+    font-size: 12px;
   }
   .floating-note small {
     font-size: 7.5px;
@@ -1892,10 +1892,10 @@ dialog p {
     display: flex;
   }
   .promise-strip strong {
-    font-size: 11px;
+    font-size: 13px;
   }
   .promise-strip small {
-    font-size: 10px;
+    font-size: 13px;
   }
   .templates-section {
     padding: 43px 24px;
@@ -1907,14 +1907,14 @@ dialog p {
     margin-bottom: 24px;
   }
   .section-top .eyebrow {
-    font-size: 8px;
+    font-size: 11px;
   }
   .section-top h2 {
     font-size: 27px;
     margin-top: 11px;
   }
   .section-top .text-button {
-    font-size: 10px;
+    font-size: 13px;
   }
   .template-grid {
     gap: 22px 14px;
@@ -1978,10 +1978,10 @@ dialog p {
     display: none;
   }
   .template-caption h3 {
-    font-size: 12px;
+    font-size: 14px;
   }
   .template-caption p {
-    font-size: 8px;
+    font-size: 11px;
     line-height: 1.7;
   }
   .template-caption {
@@ -2011,11 +2011,11 @@ dialog p {
   }
   .step h3 {
     margin: 0 0 8px;
-    font-size: 12px;
+    font-size: 14px;
   }
   .step p {
     grid-column: 2;
-    font-size: 11px;
+    font-size: 13px;
   }
   .site-footer {
     padding: 23px 24px;
@@ -2027,10 +2027,10 @@ dialog p {
     max-width: none;
     width: 100%;
     text-align: left;
-    font-size: 9px;
+    font-size: 12px;
   }
   .site-footer .text-button {
-    font-size: 8px;
+    font-size: 11px;
   }
   .site-footer .brand {
     font-size: 20px;
@@ -2043,16 +2043,16 @@ dialog p {
     letter-spacing: -1.5px;
   }
   .gallery-page .eyebrow {
-    font-size: 8px;
+    font-size: 11px;
   }
   .gallery-page > p {
-    font-size: 11px;
+    font-size: 13px;
   }
   .gallery-page .template-image {
     height: 220px;
   }
   .gallery-page .gallery-note {
-    font-size: 10px;
+    font-size: 13px;
     align-items: flex-start;
   }
   .start-page {
@@ -2062,7 +2062,7 @@ dialog p {
     font-size: 29px;
   }
   .start-page .eyebrow {
-    font-size: 8px;
+    font-size: 11px;
   }
   .start-choices {
     grid-template-columns: 1fr;
@@ -2078,7 +2078,7 @@ dialog p {
   .privacy-caption {
     align-items: flex-start;
     text-align: left;
-    font-size: 9px !important;
+    font-size: 12px !important;
     line-height: 1.9 !important;
   }
   .privacy-caption svg {
@@ -2095,7 +2095,7 @@ dialog p {
     display: none;
   }
   .document-title strong {
-    font-size: 11px;
+    font-size: 13px;
     max-width: 125px;
   }
   .document-title span {
@@ -2107,7 +2107,7 @@ dialog p {
     margin-left: auto;
   }
   .editor-actions .export-button {
-    font-size: 9px;
+    font-size: 12px;
     padding: 9px 10px;
     gap: 6px;
     min-height: 35px;
@@ -2145,7 +2145,7 @@ dialog p {
     background: none;
     border-radius: 5px;
     padding: 9px;
-    font-size: 9px;
+    font-size: 12px;
     color: var(--muted);
   }
   .mobile-view-switch button.active {
@@ -2171,7 +2171,7 @@ dialog p {
     margin: 0 0 13px;
   }
   .editor-mode button {
-    font-size: 10px;
+    font-size: 13px;
   }
   .section-nav {
     flex-direction: row;
@@ -2181,7 +2181,7 @@ dialog p {
     gap: 5px;
   }
   .section-nav button {
-    font-size: 9px;
+    font-size: 12px;
     padding: 10px;
     gap: 6px;
     flex-shrink: 0;
@@ -2197,11 +2197,11 @@ dialog p {
     font-size: 27px;
   }
   .form-description {
-    font-size: 11px;
+    font-size: 13px;
     margin-bottom: 26px;
   }
   .field label {
-    font-size: 11px;
+    font-size: 13px;
   }
   .field input,
   .field textarea,
@@ -2214,29 +2214,29 @@ dialog p {
     gap: 10px;
   }
   .field-row input {
-    font-size: 13px;
+    font-size: 15px;
   }
   .field > p,
   .field-hint {
-    font-size: 10px;
+    font-size: 13px;
   }
   .field {
     margin-bottom: 20px;
   }
   .form-bottom > span {
-    font-size: 9px;
+    font-size: 12px;
   }
   .form-bottom .button {
-    font-size: 11px;
+    font-size: 13px;
   }
   .translation-note {
-    font-size: 9px;
+    font-size: 12px;
   }
   .tips p {
-    font-size: 11px;
+    font-size: 13px;
   }
   .tips > div {
-    font-size: 11px;
+    font-size: 13px;
   }
   .preview-panel {
     display: none;
@@ -2251,14 +2251,14 @@ dialog p {
     min-height: calc(100vh - 200px);
   }
   .preview-status {
-    font-size: 8px;
+    font-size: 11px;
     line-height: 1.6;
   }
   .preview-footnote {
-    font-size: 8px;
+    font-size: 11px;
   }
   .preview-heading {
-    font-size: 10px;
+    font-size: 13px;
     margin-bottom: 20px;
   }
   .document-menu {
@@ -2274,23 +2274,23 @@ dialog p {
     height: 36px;
   }
   .checkbox {
-    font-size: 11px;
+    font-size: 13px;
   }
   .design-options .mini-resume {
     height: 160px;
   }
   .design-options > button > span {
-    font-size: 9px;
+    font-size: 12px;
   }
   .control-heading {
-    font-size: 12px;
+    font-size: 14px;
   }
   .color-options button {
     width: 34px;
     height: 34px;
   }
   .toast {
-    font-size: 11px;
+    font-size: 13px;
     padding: 13px;
     bottom: 15px;
   }
@@ -2304,7 +2304,7 @@ dialog p {
     padding: 22px;
   }
   .help-content p {
-    font-size: 11px;
+    font-size: 13px;
   }
 }
 @media (max-width: 370px) {
@@ -2388,53 +2388,53 @@ dialog p {
 /* Comfortable reading sizes for the editing workspace. */
 @media (min-width: 601px) {
   .field label {
-    font-size: 12px;
+    font-size: 14px;
   }
   .field input,
   .field textarea,
   .field select {
-    font-size: 13px;
+    font-size: 15px;
   }
   .field > p,
   .field-hint {
-    font-size: 11px;
+    font-size: 13px;
   }
   .form-description {
-    font-size: 12px;
+    font-size: 14px;
   }
   .section-nav button {
-    font-size: 11px;
+    font-size: 13px;
   }
   .editor-mode button {
-    font-size: 11px;
+    font-size: 13px;
   }
   .form-bottom > span,
   .translation-note {
-    font-size: 10px;
+    font-size: 13px;
   }
   .preview-status {
-    font-size: 10px;
+    font-size: 13px;
   }
   .preview-heading {
-    font-size: 11px;
+    font-size: 13px;
   }
   .preview-footnote {
-    font-size: 10px;
+    font-size: 13px;
   }
   .document-title span {
-    font-size: 10px;
+    font-size: 13px;
   }
   .tips p {
-    font-size: 11px;
+    font-size: 13px;
   }
 
   .checkbox {
-    font-size: 12px;
+    font-size: 14px;
   }
   .completion,
   .local-badge,
   .sidebar-bottom p {
-    font-size: 10px;
+    font-size: 13px;
   }
 }
 @media (min-width: 901px) {
@@ -2451,16 +2451,16 @@ dialog p {
     font-size: 15px;
   }
   .promise-strip strong {
-    font-size: 12px;
+    font-size: 14px;
   }
   .promise-strip small {
-    font-size: 11px;
+    font-size: 13px;
   }
   .template-caption p {
-    font-size: 11px;
+    font-size: 13px;
   }
   .step p {
-    font-size: 12px;
+    font-size: 14px;
   }
 }
 .preview-controls {
@@ -2479,7 +2479,7 @@ dialog p {
   background: var(--bg);
 }
 .preview-modes button {
-  font-size: 11px;
+  font-size: 13px;
   padding: 8px 13px;
   border-radius: 4px;
   background: transparent;
@@ -2499,7 +2499,7 @@ dialog p {
   height: 32px;
 }
 .zoom-reset {
-  font-size: 11px;
+  font-size: 13px;
   background: transparent;
   min-width: 45px;
   min-height: 32px;
@@ -2529,7 +2529,7 @@ dialog p {
 }
 .text-preview-note {
   color: var(--muted);
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.8;
   margin: 0 0 16px;
 }
@@ -2539,7 +2539,7 @@ dialog p {
   color: var(--text);
   border: 1px solid var(--line);
   border-radius: 7px;
-  font-size: 13px;
+  font-size: 15px;
   line-height: 1.8;
   overflow-wrap: anywhere;
 }
@@ -2564,14 +2564,14 @@ dialog p {
   text-underline-offset: 3px;
 }
 .resume-text h3 {
-  font-size: 13px;
+  font-size: 15px;
   color: var(--accent);
   margin: 25px 0 12px;
   padding-top: 15px;
   border-top: 1px solid var(--line);
 }
 .resume-text h4 {
-  font-size: 13px;
+  font-size: 15px;
   margin-bottom: 3px;
 }
 .resume-text-entry {
@@ -2609,7 +2609,7 @@ dialog p {
     max-height: 75vh;
   }
   .text-preview-note {
-    font-size: 10px;
+    font-size: 13px;
   }
 }
 
@@ -2638,7 +2638,7 @@ dialog p {
 .import-summary span,
 .import-summary small {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.8;
 }
 .import-actions {
@@ -2664,7 +2664,7 @@ dialog p {
 }
 .restore-tips {
   margin-bottom: 16px;
-  font-size: 12px;
+  font-size: 14px;
 }
 .editor-form h1:focus {
   outline: none;
@@ -2677,10 +2677,10 @@ dialog p {
   gap: 12px;
   margin: 24px 0 14px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 14px;
 }
 .entries-toolbar button {
-  font-size: 12px;
+  font-size: 14px;
   padding: 8px 0;
 }
 .entry-header {
@@ -2711,7 +2711,7 @@ dialog p {
 }
 .entry-toggle small {
   display: block;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 400;
   color: var(--muted);
   margin-top: 4px;
@@ -2767,7 +2767,7 @@ dialog p {
 }
 .export-summary span {
   margin-top: 5px;
-  font-size: 12px;
+  font-size: 14px;
   color: var(--muted);
 }
 .export-options {
@@ -2777,7 +2777,7 @@ dialog p {
   min-width: 0;
 }
 .export-options legend {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--muted);
   margin-bottom: 12px;
 }
@@ -2808,7 +2808,7 @@ dialog p {
 }
 .export-options small {
   display: block;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.7;
   color: var(--muted);
 }
@@ -2824,4 +2824,425 @@ dialog p {
   background: var(--soft);
   padding: 12px;
   margin: 12px 0;
+}
+
+/* A fixed desktop workspace keeps the document visible while the form scrolls. */
+.section-nav .section-complete {
+  color: var(--accent);
+  opacity: 1;
+  display: flex;
+}
+.sidebar-export {
+  width: 100%;
+  margin-top: 14px;
+  gap: 8px;
+  font-size: 14px;
+}
+.screening-guide {
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 14px;
+  margin: 24px 0;
+  font-size: 15px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+.screening-guide summary {
+  cursor: pointer;
+  color: var(--text);
+  font-weight: 600;
+}
+.screening-guide p {
+  margin: 12px 0;
+}
+.screening-guide a {
+  display: block;
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.fit-page-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  padding: 8px;
+  border-radius: 5px;
+  font-size: 13px;
+}
+.fit-page-button[aria-pressed='true'] {
+  background: var(--soft);
+  color: var(--accent);
+}
+.pdf-pages canvas[hidden],
+.pdf-preview-content[hidden] {
+  display: none;
+}
+.page-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  font-size: 14px;
+  margin-top: 8px;
+  flex: none;
+}
+.mini-technical h3 {
+  border-left: 3px solid var(--accent);
+  padding-left: 10px;
+}
+.mini-technical .mini-rule {
+  height: 1px;
+  opacity: 0.35;
+}
+.mini-technical h4 {
+  letter-spacing: 0.7px;
+}
+@media (min-width: 1050px) {
+  .app-shell.is-editing {
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  /* One bar: the brand sits above the section list, tools at the far right,
+     and the document toolbar fills the space between them. */
+  .app-shell.is-editing {
+    position: relative;
+  }
+  .is-editing .site-header {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 60px;
+    padding: 0 20px;
+    border: 0;
+    z-index: 21;
+    pointer-events: none;
+  }
+  .is-editing .site-header > * {
+    pointer-events: auto;
+  }
+  .is-editing .site-header nav,
+  .is-editing .free-badge {
+    display: none;
+  }
+  .is-editing .brand {
+    font-size: 22px;
+  }
+  .is-editing .brand-symbol {
+    width: 28px;
+    height: 30px;
+    border-radius: 6px;
+  }
+  .is-editing .header-tools {
+    width: 104px;
+    justify-content: flex-end;
+  }
+  .is-editing main {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .is-editing .site-footer {
+    display: none;
+  }
+  .is-editing .editor {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+  }
+  .is-editing .editor-toolbar {
+    height: 60px;
+    min-height: 60px;
+    padding: 0 140px 0 236px;
+  }
+  .is-editing .document-menu {
+    top: 54px;
+    right: 140px;
+  }
+  .is-editing .document-title strong {
+    font-size: 14px;
+  }
+  .is-editing .document-title span {
+    font-size: 13px;
+  }
+  .is-editing .editor-actions .button {
+    font-size: 14px;
+  }
+  .is-editing .editor-body {
+    grid-template-columns: 212px minmax(360px, 0.9fr) minmax(370px, 1.15fr);
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .is-editing .editor-sidebar {
+    min-height: 0;
+    overflow-y: auto;
+    padding: 18px 12px;
+    overscroll-behavior: contain;
+  }
+  .is-editing .sidebar-title {
+    font-size: 13px;
+  }
+  .is-editing .editor-mode {
+    margin: 12px 0;
+  }
+  .is-editing .editor-mode button {
+    font-size: 14px;
+  }
+  .is-editing .section-nav button {
+    padding: 11px 8px;
+    font-size: 14px;
+    gap: 8px;
+  }
+  .is-editing .section-nav small {
+    font-size: 13px;
+  }
+  .is-editing .sidebar-bottom {
+    padding: 24px 6px 0;
+  }
+  .is-editing .completion {
+    font-size: 13px;
+    align-items: center;
+    gap: 6px;
+  }
+  .is-editing .completion strong {
+    font-size: 19px;
+    white-space: nowrap;
+  }
+  .is-editing .progress-track {
+    height: 6px;
+    border-radius: 4px;
+    margin: 10px 0;
+  }
+  .is-editing .sidebar-bottom p {
+    font-size: 13px;
+  }
+  .is-editing .local-badge {
+    font-size: 13px;
+    padding-top: 16px;
+  }
+  .is-editing .editor-form {
+    overflow-y: auto;
+    min-height: 0;
+    padding: 24px;
+    overscroll-behavior: contain;
+    scroll-padding: 24px;
+  }
+  .is-editing .editor-form h1 {
+    font-size: 29px;
+    margin: 12px 0;
+  }
+  .is-editing .form-description {
+    font-size: 14px;
+    line-height: 1.65;
+    margin-bottom: 24px;
+  }
+  .is-editing .field label {
+    font-size: 15px;
+  }
+  .is-editing .field input,
+  .is-editing .field textarea,
+  .is-editing .field select {
+    font-size: 15px;
+  }
+  .is-editing .field-hint,
+  .is-editing .translation-note,
+  .is-editing .tips p {
+    font-size: 14px;
+  }
+  .is-editing .preview-panel {
+    padding: 12px 20px;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .is-editing .preview-heading {
+    display: none;
+  }
+  .is-editing .preview-controls {
+    margin-bottom: 4px;
+    flex-wrap: nowrap;
+    flex-shrink: 0;
+    gap: 6px;
+  }
+  .is-editing .pdf-preview-content {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    flex: 1;
+  }
+  .is-editing .pdf-preview-content[hidden] {
+    display: none;
+  }
+  .is-editing .preview-status {
+    font-size: 13px;
+    min-height: 22px;
+    margin-bottom: 6px;
+    flex-shrink: 0;
+  }
+  .is-editing .preview-scroll {
+    flex: 1;
+    min-height: 0;
+    margin: 0 auto;
+    padding: 4px;
+    overscroll-behavior: contain;
+  }
+  .is-editing .preview-scroll.is-fit {
+    container-type: size;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+  }
+  .is-editing .is-fit .pdf-pages {
+    width: min(100cqw, calc(100cqh * 210 / 297));
+    margin: 0;
+    min-height: 0;
+  }
+  .is-editing .preview-footnote {
+    margin: 8px 0 0;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+  .is-editing .page-tip {
+    font-size: 13px;
+    padding: 4px 0 0;
+    margin: 0;
+  }
+  .is-editing .resume-text {
+    overflow-y: auto;
+    min-height: 0;
+  }
+  .is-editing .text-preview-note {
+    margin-bottom: 8px;
+    flex-shrink: 0;
+  }
+}
+@media (min-width: 1050px) and (max-height: 760px) {
+  .is-editing .editor-sidebar {
+    padding-top: 12px;
+  }
+  .is-editing .section-nav {
+    gap: 2px;
+  }
+  .is-editing .section-nav button {
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+  .is-editing .sidebar-bottom {
+    padding-top: 14px;
+  }
+  .is-editing .local-badge {
+    display: none;
+  }
+}
+.export-metadata {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.7;
+  margin: 16px 0;
+}
+.export-metadata summary {
+  cursor: pointer;
+  color: var(--text);
+  font-weight: 700;
+}
+.export-metadata dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 14px;
+  margin: 12px 0;
+}
+.export-metadata dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.export-metadata dt {
+  font-weight: 700;
+}
+.is-editing .preview-scroll[hidden] {
+  display: none;
+}
+.mini-executive h3,
+.mini-executive .mini-role,
+.mini-executive .mini-contact {
+  text-align: center;
+}
+.mini-executive .mini-role {
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 5.5px;
+}
+.mini-executive h4 {
+  border-bottom: 0.5px solid #cfd6d2;
+  padding-bottom: 2px;
+}
+.mini-spotlight {
+  padding-top: 0;
+}
+.mini-spotlight .mini-top,
+.mini-spotlight h3,
+.mini-spotlight .mini-role,
+.mini-spotlight .mini-contact {
+  background: #24594b;
+  color: #fff;
+  margin: 0 -21px;
+  padding: 0 21px;
+}
+.mini-spotlight .mini-top {
+  color: #d7e4dc;
+  padding-top: 16px;
+  padding-bottom: 10px;
+}
+.mini-spotlight .mini-monogram {
+  background: #ffffff26;
+  color: #fff;
+}
+.mini-spotlight .mini-role {
+  padding-top: 5px;
+}
+.mini-spotlight .mini-contact {
+  color: #d7e4dc;
+  padding-top: 7px;
+  padding-bottom: 14px;
+}
+.mini-spotlight .mini-rule {
+  background: none;
+  margin: 4px 0;
+}
+.mini-swiss h3 {
+  font-size: 17px;
+}
+.mini-swiss .mini-rule {
+  height: 0.5px;
+  background: #cfd6d2;
+}
+.mini-swiss .mini-body > div {
+  position: relative;
+  padding-left: 30%;
+}
+.mini-swiss .mini-body h4 {
+  position: absolute;
+  left: 0;
+  width: 27%;
+  margin: 10px 0 0;
+  font-size: 4.6px;
+}
+.mini-swiss .mini-body h4 + * {
+  margin-top: 10px;
+}
+.template-card-executive .template-image {
+  background: #ece9e3;
+}
+.template-card-spotlight .template-image {
+  background: #e6ede9;
+}
+.template-card-swiss .template-image {
+  background: #eceeef;
+}
+.mini-swiss .mini-body h4 + strong {
+  display: block;
 }

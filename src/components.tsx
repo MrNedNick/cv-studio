@@ -26,6 +26,30 @@ export const templates: {
     en: 'More room for your experience',
   },
   {
+    id: 'technical',
+    name: 'Technical',
+    ru: 'Навыки на первом плане · одна колонка',
+    en: 'Skills first · a clear single column',
+  },
+  {
+    id: 'executive',
+    name: 'Executive',
+    ru: 'Сдержанно, по центру, для senior-ролей',
+    en: 'Centered and composed for senior roles',
+  },
+  {
+    id: 'spotlight',
+    name: 'Spotlight',
+    ru: 'Яркая шапка, спокойный текст',
+    en: 'A bold header over calm, clear text',
+  },
+  {
+    id: 'swiss',
+    name: 'Swiss',
+    ru: 'Заголовки на полях, много воздуха',
+    en: 'Margin headings and generous whitespace',
+  },
+  {
     id: 'sidebar',
     name: 'Editorial',
     ru: 'Аккуратные две колонки',
@@ -62,6 +86,12 @@ export function MiniResume({
         <div>
           <h4>{ru ? 'ПРОФИЛЬ' : 'PROFILE'}</h4>
           <p>{r.basics.summary}</p>
+          {template === 'technical' && (
+            <>
+              <h4>{ru ? 'НАВЫКИ' : 'SKILLS'}</h4>
+              <p>{r.skills}</p>
+            </>
+          )}
           <h4>{ru ? 'ОПЫТ РАБОТЫ' : 'EXPERIENCE'}</h4>
           {r.work.map((e, i) => (
             <div className="mini-job" key={e.id}>
@@ -85,8 +115,12 @@ export function MiniResume({
           <h4>{ru ? 'ОБРАЗОВАНИЕ' : 'EDUCATION'}</h4>
           <strong>{r.education[0].title}</strong>
           <p>{r.education[0].subtitle} · 2020</p>
-          <h4>{ru ? 'НАВЫКИ' : 'SKILLS'}</h4>
-          <p>{r.skills}</p>
+          {template !== 'technical' && (
+            <>
+              <h4>{ru ? 'НАВЫКИ' : 'SKILLS'}</h4>
+              <p>{r.skills}</p>
+            </>
+          )}
         </div>
       </div>
     </div>

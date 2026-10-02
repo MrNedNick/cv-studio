@@ -4,17 +4,17 @@ import { PDFDocument } from 'pdf-lib'
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs'
 import { writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
-import { createDocument, parseDocument, type Template } from './model'
+import {
+  createDocument,
+  parseDocument,
+  templateIds,
+  type Template,
+} from './model'
 import { configurePdfFonts, exportPdf } from './pdf'
 beforeAll(() => configurePdfFonts(`${resolve('public')}/`))
 it('exports selectable Cyrillic text, links, and editable source for every template', async () => {
-  for (const template of [
-    'modern',
-    'classic',
-    'compact',
-    'sidebar',
-  ] as Template[]) {
-    const doc = createDocument(true)
+  for (const template of templateIds as readonly Template[]) {
+    const doc = createDocument(true, 'ru')
     doc.template = template
     const blob = await exportPdf(doc),
       bytes = new Uint8Array(await blob.arrayBuffer())
@@ -49,10 +49,10 @@ it('exports selectable Cyrillic text, links, and editable source for every templ
     )
   }
 }, 30000)
-it.each(['modern', 'classic', 'compact', 'sidebar'] as const)(
+it.each(templateIds)(
   'paginates long %s experience without losing the last achievement',
   async (template) => {
-    const doc = createDocument(true)
+    const doc = createDocument(true, 'ru')
     doc.template = template
     doc.versions.ru.work[0].description = Array.from(
       { length: 85 },
@@ -79,7 +79,7 @@ it.each(['modern', 'classic', 'compact', 'sidebar'] as const)(
   30000,
 )
 it('exports the selected English version', async () => {
-  const doc = createDocument(true)
+  const doc = createDocument(true, 'ru')
   doc.language = 'en'
   const blob = await exportPdf(doc),
     task = getDocument({ data: new Uint8Array(await blob.arrayBuffer()) }),
@@ -96,7 +96,7 @@ it('exports the selected English version', async () => {
 it('keeps both alphabets readable in serif and mixed typography', async () => {
   for (const typography of ['serif', 'mixed'] as const) {
     for (const language of ['ru', 'en'] as const) {
-      const doc = createDocument(true)
+      const doc = createDocument(true, 'ru')
       doc.typography = typography
       doc.language = language
       const blob = await exportPdf(doc)
@@ -136,7 +136,7 @@ it('keeps both alphabets readable in serif and mixed typography', async () => {
 }, 30000)
 
 it('keeps education dates below the title in the Editorial sidebar', async () => {
-  const doc = createDocument(true)
+  const doc = createDocument(true, 'ru')
   doc.language = 'en'
   doc.template = 'sidebar'
   doc.versions.en.education[0].title = 'Design degree'
@@ -157,7 +157,7 @@ it('keeps education dates below the title in the Editorial sidebar', async () =>
 })
 
 it('exports a sharing copy with only the selected language and no editable source', async () => {
-  const doc = createDocument(true)
+  const doc = createDocument(true, 'ru')
   doc.versions.en.basics.name = 'Private English draft'
   const blob = await exportPdf(doc, { editable: false })
   const task = getDocument({ data: new Uint8Array(await blob.arrayBuffer()) })
@@ -176,6 +176,67 @@ it('exports a sharing copy with only the selected language and no editable sourc
       '/tmp/cv-studio-sharing.pdf',
       new Uint8Array(await blob.arrayBuffer()),
     )
+  } finally {
+    await task.destroy()
+  }
+})
+
+it('exports visible skills as metadata and keeps profile links and Technical reading order', async () => {
+  const doc = createDocument(true)
+  doc.template = 'technical'
+  doc.versions.en.basics.linkedin = 'https://linkedin.com/in/example'
+  doc.versions.en.basics.github = 'https://github.com/example'
+  const bytes = new Uint8Array(
+    await (await exportPdf(doc, { editable: false })).arrayBuffer(),
+  )
+  const metadata = await PDFDocument.load(bytes)
+  expect(metadata.getAuthor()).toBe('Alex Morgan')
+  expect(metadata.getSubject()).toBe('Product designer')
+  expect(metadata.getKeywords()).toBe(doc.versions.en.skills)
+  const task = getDocument({ data: bytes })
+  try {
+    const pdf = await task.promise
+    const page = await pdf.getPage(1)
+    const text = (await page.getTextContent()).items
+      .map((i) => ('str' in i ? i.str : ''))
+      .join(' ')
+    expect(text.indexOf('SKILLS')).toBeLessThan(text.indexOf('EXPERIENCE'))
+    expect(text).toContain('github.com/example')
+    const annotations = await page.getAnnotations()
+    expect(
+      annotations.some((a) => a.url === 'https://github.com/example'),
+    ).toBe(true)
+    expect(
+      annotations.some((a) => a.url === 'https://linkedin.com/in/example'),
+    ).toBe(true)
+    expect(await pdf.getAttachments()).toBeNull()
+  } finally {
+    await task.destroy()
+  }
+})
+
+it('paginates a multiline profile without breaking fonts on later pages', async () => {
+  const doc = createDocument(true)
+  doc.template = 'technical'
+  doc.versions.en.basics.summary = Array.from(
+    { length: 65 },
+    (_, i) =>
+      `Example ${i + 1}: designed accessible interfaces and improved the checkout experience.`,
+  ).join('\n')
+  const bytes = new Uint8Array(
+    await (await exportPdf(doc, { editable: false })).arrayBuffer(),
+  )
+  const task = getDocument({ data: bytes })
+  try {
+    const pdf = await task.promise
+    expect(pdf.numPages).toBeGreaterThan(1)
+    let text = ''
+    for (let i = 1; i <= pdf.numPages; i++)
+      text += (await (await pdf.getPage(i)).getTextContent()).items
+        .map((item) => ('str' in item ? item.str : ''))
+        .join(' ')
+    expect(text).toContain('Example 65')
+    expect(text).toContain('English')
   } finally {
     await task.destroy()
   }

@@ -1,5 +1,12 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { Link, Navigate, Route, Routes, useNavigate } from 'react-router-dom'
+import {
+  Link,
+  Navigate,
+  Route,
+  Routes,
+  useNavigate,
+  useLocation,
+} from 'react-router-dom'
 import {
   ArrowRight,
   Check,
@@ -26,7 +33,7 @@ import {
   type Template,
 } from './model'
 import { loadDocument, saveDocument } from './storage'
-import { MiniResume, TemplateCards } from './components'
+import { MiniResume, TemplateCards, templates } from './components'
 import Editor from './Editor'
 import './App.css'
 function download(blob: Blob, filename: string) {
@@ -75,16 +82,28 @@ function Dialog({
 }
 export default function App() {
   const navigate = useNavigate(),
+    location = useLocation(),
     [doc, setDoc] = useState<StudioDocument | null>(null),
     [ready, setReady] = useState(false),
     [loadError, setLoadError] = useState(false),
     [loadAttempt, setLoadAttempt] = useState(0),
     [saveAttempt, setSaveAttempt] = useState(0),
     [documentRevision, setDocumentRevision] = useState(0),
-    [locale, setLocale] = useState<Locale>('ru'),
+    [locale, setLocale] = useState<Locale>(() => {
+      try {
+        return localStorage.getItem('cv-locale') === 'ru' ? 'ru' : 'en'
+      } catch {
+        return 'en'
+      }
+    }),
     [theme, setTheme] = useState(() => {
       try {
-        return localStorage.getItem('cv-theme') || 'light'
+        return (
+          localStorage.getItem('cv-theme') ||
+          (window.matchMedia?.('(prefers-color-scheme: dark)').matches
+            ? 'dark'
+            : 'light')
+        )
       } catch {
         return 'light'
       }
@@ -131,12 +150,17 @@ export default function App() {
   }, [loadAttempt])
   useEffect(() => {
     document.documentElement.dataset.theme = theme
+  }, [theme])
+  // Only an explicit choice is remembered; otherwise the device theme applies.
+  function toggleTheme() {
+    const next = theme === 'dark' ? 'light' : 'dark'
     try {
-      localStorage.setItem('cv-theme', theme)
+      localStorage.setItem('cv-theme', next)
     } catch {
       /* Theme remains available for this visit. */
     }
-  }, [theme])
+    setTheme(next)
+  }
   useEffect(() => {
     document.documentElement.lang = locale
   }, [locale])
@@ -305,7 +329,15 @@ export default function App() {
       setExporting(false)
     }
   }
+  useEffect(() => {
+    document.documentElement.lang = locale
+  }, [locale])
   function changeLocale(next: Locale) {
+    try {
+      localStorage.setItem('cv-locale', next)
+    } catch {
+      /* The language still changes for this visit. */
+    }
     setLocale(next)
     if (doc) update({ ...doc, language: next })
   }
@@ -409,7 +441,7 @@ export default function App() {
           <div className="art-caption">
             <span className="small-dot" />
             {t('Шаблон Modern', 'Modern template')}
-            <span>01 / 04</span>
+            <span>01 / {String(templates.length).padStart(2, '0')}</span>
           </div>
         </div>
       </section>
@@ -526,7 +558,9 @@ export default function App() {
     </>
   )
   return (
-    <>
+    <div
+      className={`app-shell ${location.pathname === '/edit' && doc ? 'is-editing' : ''}`}
+    >
       <a
         className="skip-link"
         href="#main"
@@ -566,7 +600,7 @@ export default function App() {
           </button>
           <button
             className="icon-button"
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            onClick={toggleTheme}
             aria-label={t('Переключить тему', 'Toggle color theme')}
           >
             {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
@@ -611,8 +645,8 @@ export default function App() {
                 <p className="gallery-note">
                   <Lightbulb size={18} />
                   {t(
-                    'Для автоматического отбора резюме рекомендуем одноколоночные Modern, Classic и Compact.',
-                    'For automated resume screening, choose a single-column template: Modern, Classic, or Compact.',
+                    'Для автоматического отбора подходит любой шаблон, кроме двухколоночного Editorial: текст в них читается сверху вниз.',
+                    'For automated resume screening, choose any template except the two-column Editorial: the others read top to bottom.',
                   )}
                 </p>
               </div>
@@ -821,6 +855,31 @@ export default function App() {
               </span>
             </div>
           </div>
+          <details className="export-metadata">
+            <summary>{t('Свойства PDF', 'PDF properties')}</summary>
+            <dl>
+              <dt>{t('Автор', 'Author')}</dt>
+              <dd>
+                {exportDocument.versions[exportDocument.language].basics.name ||
+                  '—'}
+              </dd>
+              <dt>{t('Тема', 'Subject')}</dt>
+              <dd>
+                {exportDocument.versions[exportDocument.language].basics
+                  .label || '—'}
+              </dd>
+              <dt>{t('Ключевые слова', 'Keywords')}</dt>
+              <dd>
+                {exportDocument.versions[exportDocument.language].skills || '—'}
+              </dd>
+            </dl>
+            <p>
+              {t(
+                'Имя, должность и навыки берутся из выбранной версии. Измените их в редакторе. Метаданные помогают описать файл, но не гарантируют позиции в отборе.',
+                'Taken from the name, job title, and visible skills in your selected version. Edit these in the form. Metadata describes your file; it does not guarantee a screening rank.',
+              )}
+            </p>
+          </details>
           <fieldset className="export-options" disabled={exporting}>
             <legend>
               {t('Какую копию сохранить?', 'Which copy do you need?')}
@@ -1014,8 +1073,8 @@ export default function App() {
                 )}
               </strong>{' '}
               {t(
-                'Все четыре шаблона, скачивание и редактирование доступны без регистрации, подписок и водяных знаков.',
-                'All four templates, downloads, and editing are available without sign-up, subscriptions, or watermarks.',
+                'Все шаблоны, скачивание и редактирование доступны без регистрации, подписок и водяных знаков.',
+                'All templates, downloads, and editing are available without sign-up, subscriptions, or watermarks.',
               )}
             </p>
             <p>
@@ -1053,7 +1112,7 @@ export default function App() {
           </button>
         </Dialog>
       )}
-    </>
+    </div>
   )
 }
 function ArrowUpRight() {

@@ -11,7 +11,7 @@ import {
 import { loadDocument, saveDocument } from './storage'
 describe('resume data', () => {
   it('round trips both languages and design without loss', () => {
-    const doc = createDocument(true)
+    const doc = createDocument(true, 'ru')
     doc.template = 'sidebar'
     doc.accent = accents[2]
     expect(
@@ -19,7 +19,7 @@ describe('resume data', () => {
     ).toEqual(doc)
   })
   it('persists a document in IndexedDB', async () => {
-    const doc = createDocument(true)
+    const doc = createDocument(true, 'ru')
     await saveDocument(doc)
     expect(await loadDocument()).toEqual(doc)
   })
@@ -44,7 +44,7 @@ describe('resume data', () => {
     expect(() => parseDocument({ schemaVersion: 99, basics: {} })).toThrow()
   })
   it('normalizes malformed fields and untrusted design values', () => {
-    const doc = createDocument()
+    const doc = createDocument(false, 'ru')
     const source = {
       ...doc,
       accent: 'url(evil)',
@@ -63,9 +63,9 @@ describe('resume data', () => {
     expect(safeUrl('example.com')).toBe('https://example.com/')
   })
   it('gives useful tips for missing contacts and measurable achievements', () => {
-    const doc = createDocument()
+    const doc = createDocument(false, 'ru')
     expect(getTips(doc.versions.ru, 'ru')).toHaveLength(2)
-    const example = createDocument(true).versions.ru
+    const example = createDocument(true, 'ru').versions.ru
     expect(getTips(example, 'ru')).toHaveLength(0)
     example.work[0].description = 'Работала над продуктом'
     expect(getTips(example, 'ru').map((tip) => tip.id)).toEqual([
@@ -92,10 +92,12 @@ it('keeps imported project descriptions and shared fields for translation', () =
   expect(doc.versions.ru.basics.email).toBe('jane@example.com')
 })
 it('loads older backups with the original font and preserves new typography', () => {
-  const old = createDocument(true) as Partial<ReturnType<typeof createDocument>>
+  const old = createDocument(true, 'ru') as Partial<
+    ReturnType<typeof createDocument>
+  >
   delete old.typography
   expect(parseDocument(old).typography).toBe('sans')
-  const doc = createDocument(true)
+  const doc = createDocument(true, 'ru')
   doc.typography = 'mixed'
   expect(parseDocument(toJsonResume(doc)).typography).toBe('mixed')
   expect(parseDocument({ ...doc, typography: 'unknown' }).typography).toBe(
@@ -118,7 +120,7 @@ it('rejects disguised non-web schemes, credentials and recursive document wrappe
   expect(() => parseDocument(wrapper)).toThrow('Nested resume source')
 })
 it('targets guidance to incomplete entries, invalid dates and long descriptions', () => {
-  const resume = createDocument(true).versions.en
+  const resume = createDocument(true, 'ru').versions.en
   resume.basics.email = 'broken@'
   resume.education[0].startDate = '2025-01'
   resume.education[0].endDate = '2020-01'
@@ -138,7 +140,7 @@ it('targets guidance to incomplete entries, invalid dates and long descriptions'
 })
 
 it('repairs duplicate imported entry IDs without changing text or translation pairs', () => {
-  const doc = createDocument(true)
+  const doc = createDocument(true, 'ru')
   for (const locale of ['ru', 'en'] as const) {
     doc.versions[locale].work[0].id = 'same'
     doc.versions[locale].work[1].id = 'same'
@@ -159,4 +161,23 @@ it('repairs duplicate imported entry IDs without changing text or translation pa
     doc.versions.ru.work.map((e) => e.title),
   )
   expect(parseDocument(parsed)).toEqual(parsed)
+})
+
+it('starts new documents in English and preserves profile links through imports', () => {
+  expect(createDocument().language).toBe('en')
+  const imported = parseDocument({
+    basics: {
+      name: 'Alex Morgan',
+      profiles: [
+        { network: 'LinkedIn', url: 'https://linkedin.com/in/example' },
+        { network: 'GitHub', url: 'https://github.com/example' },
+      ],
+    },
+  })
+  expect(imported.versions.en.basics.github).toBe('https://github.com/example')
+  expect(imported.versions.ru.basics.linkedin).toBe(
+    'https://linkedin.com/in/example',
+  )
+  expect(parseDocument(toJsonResume(imported))).toEqual(imported)
+  expect(toJsonResume(imported).basics.profiles).toHaveLength(2)
 })

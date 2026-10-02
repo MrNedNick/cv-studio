@@ -7,6 +7,7 @@ import {
   View,
   pdf,
 } from '@react-pdf/renderer'
+import type { ReactNode } from 'react'
 import { PDFDocument } from 'pdf-lib'
 import {
   dateRange,
@@ -46,6 +47,10 @@ export function ResumePDF({ doc }: { doc: StudioDocument }) {
     compact = doc.template === 'compact' || doc.density === 'compact',
     sidebar = doc.template === 'sidebar',
     classic = doc.template === 'classic',
+    technical = doc.template === 'technical',
+    executive = doc.template === 'executive',
+    spotlight = doc.template === 'spotlight',
+    swiss = doc.template === 'swiss',
     accent = classic ? '#252b2a' : doc.accent,
     bodyFont = doc.typography === 'serif' ? 'NotoSerif' : 'Noto',
     headingFont = doc.typography === 'sans' ? 'Noto' : 'NotoSerif'
@@ -56,102 +61,155 @@ export function ResumePDF({ doc }: { doc: StudioDocument }) {
     fontWeight: 700,
     marginBottom: 8,
     marginTop: compact ? 12 : 18,
-    letterSpacing: 1,
+    letterSpacing: executive ? 1.6 : 1,
+    ...(executive && {
+      borderBottomWidth: 0.75,
+      borderBottomColor: '#cfd6d2',
+      paddingBottom: 3,
+    }),
   }
-  const block = (key: 'work' | 'education' | 'projects' | 'languages') =>
-    r[key].filter((e) => e.title || e.subtitle || e.description).length > 0 && (
-      <View key={key}>
-        <Text style={heading} minPresenceAhead={55}>
-          {labels[key].toLocaleUpperCase(doc.language)}
+  // Swiss sets each heading in the left margin; the text order stays heading → content.
+  const titled = (
+    key: string,
+    label: string,
+    ahead: number,
+    children: ReactNode,
+  ) =>
+    swiss ? (
+      <View
+        key={key}
+        style={{ paddingLeft: 108, marginTop: compact ? 12 : 18 }}
+      >
+        <Text
+          style={{
+            ...heading,
+            position: 'absolute',
+            left: 0,
+            top: 1,
+            width: 96,
+            marginTop: 0,
+            fontSize: 8.5,
+          }}
+        >
+          {label.toLocaleUpperCase(doc.language)}
         </Text>
-        {r[key]
-          .filter((e) => e.title || e.subtitle || e.description)
-          .map((e: Entry) => (
-            <View key={e.id} style={{ marginBottom: compact ? 9 : 13 }}>
-              <View minPresenceAhead={30}>
-                <View
+        {children}
+      </View>
+    ) : (
+      <View key={key}>
+        <Text style={heading} minPresenceAhead={ahead}>
+          {label.toLocaleUpperCase(doc.language)}
+        </Text>
+        {children}
+      </View>
+    )
+  const block = (key: 'work' | 'education' | 'projects' | 'languages') =>
+    r[key].filter((e) => e.title || e.subtitle || e.description).length > 0 &&
+    titled(
+      key,
+      labels[key],
+      55,
+      r[key]
+        .filter((e) => e.title || e.subtitle || e.description)
+        .map((e: Entry) => (
+          <View key={e.id} style={{ marginBottom: compact ? 9 : 13 }}>
+            <View minPresenceAhead={30}>
+              <View
+                style={{
+                  flexDirection:
+                    sidebar && key === 'education' ? 'column' : 'row',
+                  justifyContent: 'space-between',
+                  gap: sidebar && key === 'education' ? 2 : 12,
+                }}
+              >
+                <Text
                   style={{
-                    flexDirection:
-                      sidebar && key === 'education' ? 'column' : 'row',
-                    justifyContent: 'space-between',
-                    gap: sidebar && key === 'education' ? 2 : 12,
+                    fontWeight: 700,
+                    flex: sidebar && key === 'education' ? undefined : 1,
                   }}
                 >
+                  {e.title}
+                </Text>
+                {key !== 'languages' && (
                   <Text
-                    style={{
-                      fontWeight: 700,
-                      flex: sidebar && key === 'education' ? undefined : 1,
-                    }}
+                    style={{ color: '#59635f', fontSize: 8, maxWidth: 165 }}
                   >
-                    {e.title}
-                  </Text>
-                  {key !== 'languages' && (
-                    <Text
-                      style={{ color: '#59635f', fontSize: 8, maxWidth: 165 }}
-                    >
-                      {dateRange(e, doc.language)}
-                    </Text>
-                  )}
-                </View>
-                {e.subtitle && (
-                  <Text style={{ color: '#59635f', marginTop: 2 }}>
-                    {e.subtitle}
+                    {dateRange(e, doc.language)}
                   </Text>
                 )}
               </View>
-              {e.description
-                .split('\n')
-                .filter(Boolean)
-                .map((line, i) => (
-                  <Text
-                    key={i}
-                    style={{
-                      marginTop: 4,
-                      paddingLeft: key === 'work' ? 9 : 0,
-                    }}
-                  >
-                    {key === 'work' ? '•  ' : ''}
-                    {line}
-                  </Text>
-                ))}
-              {e.url && safeUrl(e.url) && (
-                <Link
-                  src={safeUrl(e.url)!}
-                  style={{ color: accent, fontSize: 9, marginTop: 4 }}
-                >
-                  {e.url.replace(/^https?:\/\//, '')}
-                </Link>
+              {e.subtitle && (
+                <Text style={{ color: '#59635f', marginTop: 2 }}>
+                  {e.subtitle}
+                </Text>
               )}
             </View>
-          ))}
-      </View>
+            {e.description
+              .split('\n')
+              .filter(Boolean)
+              .map((line, i) => (
+                <Text
+                  key={i}
+                  style={{
+                    marginTop: 4,
+                    paddingLeft: key === 'work' ? 9 : 0,
+                  }}
+                >
+                  {key === 'work' ? '•  ' : ''}
+                  {line}
+                </Text>
+              ))}
+            {e.url && safeUrl(e.url) && (
+              <Link
+                src={safeUrl(e.url)!}
+                style={{ color: accent, fontSize: 9, marginTop: 4 }}
+              >
+                {e.url.replace(/^https?:\/\//, '')}
+              </Link>
+            )}
+          </View>
+        )),
     )
-  const skills = r.skills.trim() && (
-    <View>
-      <Text style={heading} minPresenceAhead={30}>
-        {labels.skills.toLocaleUpperCase(doc.language)}
-      </Text>
+  const skills =
+    r.skills.trim() &&
+    titled(
+      'skills',
+      labels.skills,
+      30,
       <Text>
         {r.skills
           .split(',')
           .map((s) => s.trim())
           .filter(Boolean)
           .join('  ·  ')}
-      </Text>
-    </View>
-  )
-  const summary = r.basics.summary.trim() && (
-    <View>
-      <Text style={heading} minPresenceAhead={35}>
-        {labels.summary.toLocaleUpperCase(doc.language)}
-      </Text>
-      <Text>{r.basics.summary}</Text>
-    </View>
-  )
+      </Text>,
+    )
+  const summary =
+    r.basics.summary.trim() &&
+    titled(
+      'summary',
+      labels.summary,
+      35,
+      r.basics.summary
+        .split(/\r?\n/)
+        .filter((line) => line.trim())
+        .map((line, i) => (
+          <Text key={i} style={{ marginTop: i ? 4 : 0 }}>
+            {line}
+          </Text>
+        )),
+    )
+  const muted = spotlight ? '#e4ece8' : '#59635f'
   return (
     <Document
       title={`${r.basics.name || 'Resume'} — CV`}
       author={r.basics.name}
+      subject={r.basics.label}
+      keywords={r.skills
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .join(', ')}
       language={doc.language}
     >
       <Page
@@ -168,25 +226,50 @@ export function ResumePDF({ doc }: { doc: StudioDocument }) {
       >
         <View
           style={{
-            borderBottomWidth: classic ? 1 : 2,
-            borderBottomColor: accent,
+            borderBottomWidth:
+              technical || spotlight ? 0 : classic || swiss ? 1 : 2,
+            borderLeftWidth: technical ? 3 : 0,
+            borderLeftColor: accent,
+            paddingLeft: technical ? 14 : 0,
+            borderBottomColor: swiss ? '#cfd6d2' : accent,
             paddingBottom: 18,
+            ...(executive && { alignItems: 'center', textAlign: 'center' }),
+            ...(spotlight && {
+              backgroundColor: accent,
+              marginTop: -40,
+              marginHorizontal: -42,
+              paddingHorizontal: 42,
+              paddingTop: 36,
+              paddingBottom: 24,
+            }),
           }}
         >
           <Text
             style={{
               fontFamily: headingFont,
-              fontSize: compact ? 25 : 29,
+              fontSize: compact ? 25 : swiss ? 32 : executive ? 27 : 29,
               fontWeight: 700,
-              color: accent,
+              color: spotlight ? '#ffffff' : accent,
               lineHeight: 1.2,
+              letterSpacing: executive ? 0.6 : swiss ? -0.4 : 0,
             }}
           >
             {r.basics.name ||
               (doc.language === 'ru' ? 'Ваше имя' : 'Your name')}
           </Text>
           {r.basics.label && (
-            <Text style={{ fontSize: 12, marginTop: 7 }}>{r.basics.label}</Text>
+            <Text
+              style={{
+                fontSize: executive ? 10 : 12,
+                marginTop: 7,
+                color: spotlight ? '#ffffff' : undefined,
+                letterSpacing: executive ? 1.8 : 0,
+              }}
+            >
+              {executive
+                ? r.basics.label.toLocaleUpperCase(doc.language)
+                : r.basics.label}
+            </Text>
           )}
           <View
             style={{
@@ -195,23 +278,29 @@ export function ResumePDF({ doc }: { doc: StudioDocument }) {
               gap: 10,
               marginTop: 10,
               fontSize: 8,
-              color: '#59635f',
+              color: muted,
+              ...(executive && { justifyContent: 'center' }),
             }}
           >
             {r.basics.location && <Text>{r.basics.location}</Text>}
             {r.basics.email && (
-              <Link
-                style={{ color: '#59635f' }}
-                src={`mailto:${r.basics.email}`}
-              >
+              <Link style={{ color: muted }} src={`mailto:${r.basics.email}`}>
                 {r.basics.email}
               </Link>
             )}
             {r.basics.phone && <Text>{r.basics.phone}</Text>}
-            {r.basics.url && safeUrl(r.basics.url) && (
-              <Link style={{ color: '#59635f' }} src={safeUrl(r.basics.url)!}>
-                {r.basics.url.replace(/^https?:\/\//, '')}
-              </Link>
+            {(['url', 'linkedin', 'github'] as const).map(
+              (key) =>
+                r.basics[key] &&
+                safeUrl(r.basics[key]) && (
+                  <Link
+                    key={key}
+                    style={{ color: muted }}
+                    src={safeUrl(r.basics[key])!}
+                  >
+                    {r.basics[key].replace(/^https?:\/\//, '')}
+                  </Link>
+                ),
             )}
           </View>
         </View>
@@ -231,9 +320,10 @@ export function ResumePDF({ doc }: { doc: StudioDocument }) {
         ) : (
           <>
             {summary}
+            {technical && skills}
             {block('work')}
             {block('education')}
-            {skills}
+            {!technical && skills}
             {block('projects')}
             {block('languages')}
           </>

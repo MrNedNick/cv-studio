@@ -32,7 +32,10 @@ beforeAll(() => {
     this.removeAttribute('open')
   }
 })
-beforeEach(() => vi.clearAllMocks())
+beforeEach(() => {
+  vi.clearAllMocks()
+  localStorage.setItem('cv-locale', 'ru')
+})
 afterEach(cleanup)
 it('offers clear starting choices on the editor route', async () => {
   render(
@@ -70,10 +73,16 @@ it('preserves shared contacts while keeping translated names separate', async ()
   fireEvent.change(screen.getByLabelText('Электронная почта'), {
     target: { value: 'test@example.com' },
   })
+  fireEvent.change(screen.getByLabelText('GitHub'), {
+    target: { value: 'https://github.com/example' },
+  })
   fireEvent.click(
     screen.getByRole('button', { name: 'Switch to English version' }),
   )
   expect(screen.getByLabelText('Email')).toHaveValue('test@example.com')
+  expect(screen.getByLabelText('GitHub')).toHaveValue(
+    'https://github.com/example',
+  )
   expect(screen.getByLabelText('Full name')).toHaveValue('Alex Morgan')
 })
 it('adds, edits, deletes, and restores an experience entry', async () => {
@@ -268,7 +277,7 @@ it('closes document actions with Escape and returns focus to its trigger', async
 
 it('protects unreadable saved data and retries loading without creating an empty replacement', async () => {
   vi.mocked(loadDocument).mockRejectedValueOnce(new Error('Read failed'))
-  vi.mocked(loadDocument).mockResolvedValueOnce(createDocument(true))
+  vi.mocked(loadDocument).mockResolvedValueOnce(createDocument(true, 'ru'))
   render(
     <MemoryRouter initialEntries={['/edit']}>
       <App />
@@ -362,7 +371,7 @@ it('focuses a new entry and keeps keyboard focus after deleting it', async () =>
 })
 
 it('prevents adding entries beyond the supported persistence limit', async () => {
-  const doc = createDocument()
+  const doc = createDocument(false, 'ru')
   doc.versions.ru.work = Array.from({ length: 100 }, (_, i) => ({
     ...emptyEntry(),
     title: `Role ${i + 1}`,
@@ -476,4 +485,46 @@ it('shows a failed export inside the dialog and retries without changing the cho
     click.mockRestore()
     error.mockRestore()
   }
+})
+
+it('opens in English for a new visitor and remembers a deliberate language choice', async () => {
+  localStorage.removeItem('cv-locale')
+  vi.mocked(loadDocument).mockResolvedValueOnce(null)
+  const view = render(
+    <MemoryRouter initialEntries={['/edit']}>
+      <App />
+    </MemoryRouter>,
+  )
+  expect(
+    await screen.findByRole('button', { name: /Start with an example/ }),
+  ).toBeVisible()
+  fireEvent.click(
+    screen.getByRole('button', { name: 'Переключиться на русскую версию' }),
+  )
+  expect(localStorage.getItem('cv-locale')).toBe('ru')
+  view.unmount()
+  render(
+    <MemoryRouter initialEntries={['/edit']}>
+      <App />
+    </MemoryRouter>,
+  )
+  expect(
+    await screen.findByRole('heading', { name: 'Первый шаг — простой.' }),
+  ).toBeVisible()
+})
+it('follows the device theme until the visitor picks one', async () => {
+  localStorage.removeItem('cv-theme')
+  render(
+    <MemoryRouter initialEntries={['/edit']}>
+      <App />
+    </MemoryRouter>,
+  )
+  await screen.findByRole('heading', { name: 'Первый шаг — простой.' })
+  expect(localStorage.getItem('cv-theme')).toBeNull()
+  const before = document.documentElement.dataset.theme
+  fireEvent.click(screen.getByRole('button', { name: 'Переключить тему' }))
+  expect(document.documentElement.dataset.theme).not.toBe(before)
+  expect(localStorage.getItem('cv-theme')).toBe(
+    document.documentElement.dataset.theme,
+  )
 })

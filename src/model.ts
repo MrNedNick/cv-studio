@@ -1,5 +1,15 @@
 export type Locale = 'ru' | 'en'
-export type Template = 'modern' | 'classic' | 'compact' | 'sidebar'
+export const templateIds = [
+  'modern',
+  'classic',
+  'compact',
+  'technical',
+  'executive',
+  'spotlight',
+  'swiss',
+  'sidebar',
+] as const
+export type Template = (typeof templateIds)[number]
 export type Section =
   | 'basics'
   | 'summary'
@@ -27,6 +37,8 @@ export interface Resume {
     phone: string
     location: string
     url: string
+    linkedin: string
+    github: string
     summary: string
   }
   work: Entry[]
@@ -95,6 +107,8 @@ export function emptyResume(): Resume {
       phone: '',
       location: '',
       url: '',
+      linkedin: '',
+      github: '',
       summary: '',
     },
     work: [],
@@ -104,7 +118,10 @@ export function emptyResume(): Resume {
     skills: '',
   }
 }
-export function createDocument(sample = false): StudioDocument {
+export function createDocument(
+  sample = false,
+  language: Locale = 'en',
+): StudioDocument {
   const ru = emptyResume(),
     en = emptyResume()
   if (sample) {
@@ -115,6 +132,8 @@ export function createDocument(sample = false): StudioDocument {
       phone: '',
       location: 'Прага, Чехия',
       url: 'https://example.com',
+      linkedin: '',
+      github: '',
       summary:
         'Создаю понятные цифровые продукты — от первого исследования до запуска. Соединяю потребности людей и задачи бизнеса в простых, продуманных решениях.',
     }
@@ -194,7 +213,7 @@ export function createDocument(sample = false): StudioDocument {
   }
   return {
     schemaVersion: 1,
-    language: 'ru',
+    language,
     template: 'modern',
     accent: accents[0],
     typography: 'sans',
@@ -274,7 +293,7 @@ export function parseDocument(input: unknown): StudioDocument {
       en: cleanResume(obj(source.versions).en, obj(source.versions).ru),
     }
     result.language = source.language === 'en' ? 'en' : 'ru'
-    result.template = ['modern', 'classic', 'compact', 'sidebar'].includes(
+    result.template = (templateIds as readonly string[]).includes(
       str(source.template),
     )
       ? (source.template as Template)
@@ -302,6 +321,14 @@ export function parseDocument(input: unknown): StudioDocument {
   for (const key of Object.keys(resume.basics) as (keyof Resume['basics'])[])
     resume.basics[key] = str(b[key])
   resume.basics.location = str(obj(b.location).city) || str(b.location)
+  for (const profile of Array.isArray(b.profiles)
+    ? b.profiles.slice(0, 100)
+    : []) {
+    const entry = obj(profile),
+      network = str(entry.network).toLowerCase()
+    if (network === 'linkedin' || network === 'github')
+      resume.basics[network] = str(entry.url)
+  }
   const mappings = {
     work: ['position', 'name'],
     education: ['studyType', 'institution'],
@@ -351,7 +378,7 @@ export function parseDocument(input: unknown): StudioDocument {
   const result = createDocument()
   result.language = 'en'
   result.versions.en = resume
-  for (const key of ['email', 'phone', 'url'] as const)
+  for (const key of ['email', 'phone', 'url', 'linkedin', 'github'] as const)
     result.versions.ru.basics[key] = resume.basics[key]
   for (const section of [
     'work',
@@ -374,7 +401,21 @@ export function toJsonResume(doc: StudioDocument) {
   return {
     $schema:
       'https://raw.githubusercontent.com/jsonresume/resume-schema/v1.0.0/schema.json',
-    basics: { ...r.basics, location: { city: r.basics.location } },
+    basics: {
+      name: r.basics.name,
+      label: r.basics.label,
+      email: r.basics.email,
+      phone: r.basics.phone,
+      url: r.basics.url,
+      summary: r.basics.summary,
+      location: { city: r.basics.location },
+      profiles: (['linkedin', 'github'] as const)
+        .filter((key) => r.basics[key])
+        .map((key) => ({
+          network: key === 'github' ? 'GitHub' : 'LinkedIn',
+          url: r.basics[key],
+        })),
+    },
     work: r.work.map((e) => ({
       name: e.subtitle,
       position: e.title,
@@ -485,13 +526,14 @@ export function getTips(resume: Resume, locale: Locale): ResumeTip[] {
       'Проверьте почту: адрес должен содержать @ и домен.',
       'Check your email: include @ and a domain.',
     )
-  if (resume.basics.url.trim() && !safeUrl(resume.basics.url))
-    add(
-      'url',
-      'basics',
-      'Проверьте ссылку на сайт. Используйте адрес http или https.',
-      'Check your website link. Use an http or https address.',
-    )
+  for (const key of ['url', 'linkedin', 'github'] as const)
+    if (resume.basics[key].trim() && !safeUrl(resume.basics[key]))
+      add(
+        key,
+        'basics',
+        'Проверьте ссылку на сайт. Используйте адрес http или https.',
+        'Check your website link. Use an http or https address.',
+      )
   if (resume.basics.summary.length > 600)
     add(
       'summary-length',

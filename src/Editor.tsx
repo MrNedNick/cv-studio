@@ -104,7 +104,7 @@ export default function Editor({
     tips = getTips(resume, locale).filter(
       (tip) => !hiddenTips.includes(tip.id),
     ),
-    completed = sections.filter((s) =>
+    completedSections = sections.filter((s) =>
       s === 'basics'
         ? resume.basics.name.trim()
         : s === 'summary'
@@ -115,7 +115,8 @@ export default function Editor({
                 (e) =>
                   e.title.trim() || e.subtitle.trim() || e.description.trim(),
               ),
-    ).length
+    ),
+    completed = completedSections.length
   const form = useRef<HTMLElement>(null),
     menuButton = useRef<HTMLButtonElement>(null),
     menuPanel = useRef<HTMLDivElement>(null),
@@ -196,7 +197,7 @@ export default function Editor({
       ...doc.versions,
       [locale]: { ...resume, basics: { ...resume.basics, [key]: value } },
     }
-    if (['email', 'phone', 'url'].includes(key))
+    if (['email', 'phone', 'url', 'linkedin', 'github'].includes(key))
       versions[other] = {
         ...versions[other],
         basics: { ...versions[other].basics, [key]: value },
@@ -494,7 +495,17 @@ export default function Editor({
                 >
                   <Icon size={17} />
                   <span>{labels[s]}</span>
-                  <small>0{i + 1}</small>
+                  <small
+                    className={
+                      completedSections.includes(s) ? 'section-complete' : ''
+                    }
+                  >
+                    {completedSections.includes(s) ? (
+                      <Check size={15} aria-label={t('Заполнено', 'Filled')} />
+                    ) : (
+                      `0${i + 1}`
+                    )}
+                  </small>
                 </button>
               )
             })}
@@ -509,10 +520,18 @@ export default function Editor({
             </div>
             <p>
               {t(
-                'Оставьте только то, что важно для вашей следующей работы.',
-                'Include what matters for your next opportunity.',
+                'Все разделы необязательны. Оставьте важное для вашей работы.',
+                'Every section is optional. Keep what matters for your next role.',
               )}
             </p>
+            <button
+              className="button primary sidebar-export"
+              onClick={exportFile}
+              disabled={exporting}
+            >
+              <Download size={16} />
+              {t('Получить PDF', 'Finish & export')}
+            </button>
             <div className="local-badge">
               <ShieldCheck size={16} />
               {t('Только на вашем устройстве', 'Only on your device')}
@@ -692,10 +711,7 @@ export default function Editor({
                     )}
                   />
                   <FormField
-                    label={t(
-                      'Сайт, портфолио или LinkedIn',
-                      'Website, portfolio, or LinkedIn',
-                    )}
+                    label={t('Сайт или портфолио', 'Website or portfolio')}
                     value={resume.basics.url}
                     onChange={(v) => basic('url', v)}
                     placeholder="https://…"
@@ -703,6 +719,18 @@ export default function Editor({
                       'Необязательные поля можно оставить пустыми — они не попадут в PDF.',
                       'Leave optional fields blank — they won’t appear in your PDF.',
                     )}
+                  />
+                  <FormField
+                    label="LinkedIn"
+                    value={resume.basics.linkedin}
+                    onChange={(v) => basic('linkedin', v)}
+                    placeholder="linkedin.com/in/your-name"
+                  />
+                  <FormField
+                    label="GitHub"
+                    value={resume.basics.github}
+                    onChange={(v) => basic('github', v)}
+                    placeholder="github.com/your-name"
                   />
                 </>
               ) : section === 'summary' ? (
@@ -740,8 +768,8 @@ export default function Editor({
                     multiline
                     placeholder="Figma, HTML, CSS, …"
                     hint={t(
-                      'Разделяйте навыки запятыми.',
-                      'Separate skills with commas.',
+                      'Разделяйте запятыми. Используйте названия из вакансии, только если владеете навыком. Подтвердите ключевые навыки примерами в опыте.',
+                      'Separate with commas. Use the job posting’s terms for skills you actually have, and show your key skills in your experience.',
                     )}
                   />
                   <div className="skill-chips">
@@ -934,6 +962,40 @@ export default function Editor({
                   </p>
                 </>
               )}
+              <details className="screening-guide">
+                <summary>
+                  {t(
+                    'Резюме для людей и систем отбора',
+                    'Make it easy to read & parse',
+                  )}
+                </summary>
+                <p>
+                  {t(
+                    'Выбирайте одну колонку для систем отбора. Добавляйте реальные навыки из вакансии в видимый текст и показывайте, как применяли их в работе. Скрытые ключевые слова не заменяют опыт.',
+                    'Choose a single column for application systems. Include relevant skills from the job posting in visible text, backed by examples of your work. Hidden keywords do not replace experience.',
+                  )}
+                </p>
+                <p>
+                  {t(
+                    'Проверьте текст PDF после скачивания: имя, контакты, даты, порядок разделов. Если работодатель просит другой формат, следуйте его инструкции. Универсального балла ATS нет.',
+                    'After downloading, check the PDF text: your name, contacts, dates, and section order. Follow the employer’s requested file format. There is no universal ATS score.',
+                  )}
+                </p>
+                <a
+                  href="https://support.greenhouse.io/hc/en-us/articles/200989175-Unsuccessful-resume-parse"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Greenhouse: resume parsing ↗
+                </a>
+                <a
+                  href="https://cloudfront.careeronestop.org/JobSearch/Resumes/ResumeGuide/formatting.aspx"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  CareerOneStop: formatting ↗
+                </a>
+              </details>
               {tips.length > 0 && (
                 <div className="tips">
                   <div>

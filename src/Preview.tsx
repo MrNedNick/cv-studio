@@ -1,5 +1,13 @@
-import { useEffect, useRef, useState } from 'react'
-import { LoaderCircle, ZoomIn, ZoomOut, RotateCcw } from 'lucide-react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import {
+  LoaderCircle,
+  ZoomIn,
+  ZoomOut,
+  RotateCcw,
+  Scan,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react'
 import ResumeText from './ResumeText'
 import type { StudioDocument } from './model'
 export default function Preview({ doc }: { doc: StudioDocument }) {
@@ -10,6 +18,8 @@ export default function Preview({ doc }: { doc: StudioDocument }) {
     [pages, setPages] = useState(1),
     [mode, setMode] = useState<'pdf' | 'text'>('pdf'),
     [zoom, setZoom] = useState(100),
+    [fit, setFit] = useState(true),
+    [page, setPage] = useState(1),
     [retry, setRetry] = useState(0)
   useEffect(() => {
     if (mode === 'text') return
@@ -49,6 +59,7 @@ export default function Preview({ doc }: { doc: StudioDocument }) {
           if (generation.current === version && host.current) {
             host.current.replaceChildren(fragment)
             setPages(pdf.numPages)
+            setPage((value) => Math.min(value, pdf.numPages))
             setBusy(false)
           }
         } finally {
@@ -67,6 +78,11 @@ export default function Preview({ doc }: { doc: StudioDocument }) {
       generation.current++
     }
   }, [doc, retry, mode])
+  useLayoutEffect(() => {
+    host.current?.querySelectorAll('canvas').forEach((canvas, i) => {
+      canvas.hidden = fit && i + 1 !== page
+    })
+  }, [page, fit, pages, busy])
   const ru = doc.language === 'ru'
   return (
     <>
@@ -93,16 +109,31 @@ export default function Preview({ doc }: { doc: StudioDocument }) {
             aria-label={ru ? 'Масштаб просмотра' : 'Preview zoom'}
           >
             <button
+              className="fit-page-button"
+              aria-pressed={fit}
+              onClick={() => setFit(true)}
+              title={ru ? 'Вся страница' : 'Fit page'}
+            >
+              <Scan size={15} />
+              {ru ? 'Вся страница' : 'Fit page'}
+            </button>
+            <button
               className="icon-button"
               disabled={zoom <= 75}
               aria-label={ru ? 'Уменьшить' : 'Zoom out'}
-              onClick={() => setZoom((value) => value - 25)}
+              onClick={() => {
+                setFit(false)
+                setZoom((value) => value - 25)
+              }}
             >
               <ZoomOut size={16} />
             </button>
             <button
               className="zoom-reset"
-              onClick={() => setZoom(100)}
+              onClick={() => {
+                setFit(false)
+                setZoom(100)
+              }}
               aria-label={ru ? 'По ширине страницы' : 'Fit to width'}
               title={ru ? 'По ширине страницы' : 'Fit to width'}
             >
@@ -112,7 +143,10 @@ export default function Preview({ doc }: { doc: StudioDocument }) {
               className="icon-button"
               disabled={zoom >= 200}
               aria-label={ru ? 'Увеличить' : 'Zoom in'}
-              onClick={() => setZoom((value) => value + 25)}
+              onClick={() => {
+                setFit(false)
+                setZoom((value) => value + 25)
+              }}
             >
               <ZoomIn size={16} />
             </button>
@@ -129,7 +163,7 @@ export default function Preview({ doc }: { doc: StudioDocument }) {
           <ResumeText doc={doc} />
         </>
       )}
-      <div hidden={mode !== 'pdf'}>
+      <div className="pdf-preview-content" hidden={mode !== 'pdf'}>
         <div className="preview-status" aria-live="polite">
           {busy ? (
             <>
@@ -156,19 +190,54 @@ export default function Preview({ doc }: { doc: StudioDocument }) {
           </button>
         )}
         <div
-          className="preview-scroll"
+          className={`preview-scroll ${fit ? 'is-fit' : ''}`}
           tabIndex={0}
           role="region"
           aria-label={
-            ru
-              ? 'Страницы PDF — прокрутите для просмотра'
-              : 'PDF pages — scroll to explore'
+            fit
+              ? ru
+                ? 'Страница PDF целиком'
+                : 'Full PDF page'
+              : ru
+                ? 'Страницы PDF — прокрутите для просмотра'
+                : 'PDF pages — scroll to explore'
           }
           aria-busy={busy}
           hidden={error}
         >
-          <div ref={host} className="pdf-pages" style={{ width: `${zoom}%` }} />
+          <div
+            ref={host}
+            className="pdf-pages"
+            style={fit ? undefined : { width: `${zoom}%` }}
+          />
         </div>
+        {fit && pages > 1 && !error && (
+          <div
+            className="page-navigation"
+            role="group"
+            aria-label={ru ? 'Страницы PDF' : 'PDF pages'}
+          >
+            <button
+              className="icon-button"
+              disabled={page === 1}
+              onClick={() => setPage((value) => value - 1)}
+              aria-label={ru ? 'Предыдущая страница' : 'Previous page'}
+            >
+              <ChevronLeft size={17} />
+            </button>
+            <span aria-live="polite">
+              {ru ? 'Страница' : 'Page'} {page} / {pages}
+            </span>
+            <button
+              className="icon-button"
+              disabled={page === pages}
+              onClick={() => setPage((value) => value + 1)}
+              aria-label={ru ? 'Следующая страница' : 'Next page'}
+            >
+              <ChevronRight size={17} />
+            </button>
+          </div>
+        )}
         {pages > 2 && (
           <p className="page-tip">
             {ru
