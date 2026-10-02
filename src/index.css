@@ -1,13 +1,13 @@
 @font-face {
   font-family: Noto;
-  src: url('/fonts/NotoSans-Regular.ttf') format('truetype');
+  src: url('/fonts/NotoSans-Regular.woff2') format('woff2');
   font-style: normal;
   font-weight: 400;
   font-display: swap;
 }
 @font-face {
   font-family: Noto;
-  src: url('/fonts/NotoSans-Bold.ttf') format('truetype');
+  src: url('/fonts/NotoSans-Bold.woff2') format('woff2');
   font-style: normal;
   font-weight: 700;
   font-display: swap;
@@ -22,7 +22,7 @@
   --bg: #fcfcf8;
   --surface: #fff;
   --text: #263a32;
-  --muted: #69756d;
+  --muted: #59675e;
   --line: #e3e7df;
   --soft: #f1f3ec;
   --accent: #24594b;
