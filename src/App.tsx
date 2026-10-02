@@ -98,6 +98,9 @@ export default function App() {
     [pendingStart, setPendingStart] = useState<boolean | null>(null),
     [help, setHelp] = useState(false),
     [exporting, setExporting] = useState(false),
+    [exportDocument, setExportDocument] = useState<StudioDocument | null>(null),
+    [editableExport, setEditableExport] = useState(false),
+    [exportError, setExportError] = useState(false),
     [importing, setImporting] = useState(false),
     [history, setHistory] = useState<StudioDocument[]>([]),
     [future, setFuture] = useState<StudioDocument[]>([])
@@ -227,8 +230,8 @@ export default function App() {
     } catch {
       setNotice(
         t(
-          'Не удалось открыть файл. Выберите JSON Resume или PDF, скачанный из CV Studio (до 10 МБ). Обычный PDF пока не поддерживается.',
-          'Could not open this file. Choose JSON Resume or a PDF exported from CV Studio (up to 10 MB). Other PDFs are not supported.',
+          'Не удалось открыть файл. Выберите JSON Resume или редактируемую PDF-копию из CV Studio (до 10 МБ). PDF для отправки и сторонние PDF не содержат исходных данных.',
+          'Could not open this file. Choose JSON Resume or an editable PDF copy from CV Studio (up to 10 MB). Sharing copies and other PDFs do not include editable source.',
         ),
       )
     } finally {
@@ -261,27 +264,36 @@ export default function App() {
     )
   }
   async function exportFile() {
-    if (!doc) return
+    if (!exportDocument || exporting) return
+    const snapshot = exportDocument,
+      editable = editableExport
     setExporting(true)
+    setExportError(false)
     try {
       const { exportPdf } = await import('./pdf')
-      const blob = await exportPdf(doc)
+      const blob = await exportPdf(snapshot, { editable })
       download(
         blob,
         `${
-          doc.versions[doc.language].basics.name
+          snapshot.versions[snapshot.language].basics.name
             .trim()
             .replace(/[^\p{L}\p{N} -]/gu, '')
             .replace(/\s+/g, '-') || 'Resume'
-        }-CV.pdf`,
+        }-${snapshot.language.toUpperCase()}${editable ? '-editable' : ''}-CV.pdf`,
       )
       setNotice(
         t(
-          'PDF скачан. Откройте его здесь в любое время, чтобы продолжить редактирование.',
-          'PDF downloaded. Open it here any time to keep editing.',
+          editable
+            ? 'Редактируемая копия скачана. Откройте её здесь, чтобы восстановить обе версии и оформление.'
+            : 'PDF для отправки скачан. В нём только выбранная языковая версия. Ваше резюме остаётся в редакторе.',
+          editable
+            ? 'Editable copy downloaded. Open it here to restore both versions and design settings.'
+            : 'PDF downloaded for sharing. It contains only the selected language. Your resume remains in the editor.',
         ),
       )
+      setExportDocument(null)
     } catch (error) {
+      setExportError(true)
       console.error(error)
       setNotice(
         t(
@@ -427,8 +439,8 @@ export default function App() {
             </strong>
             <small>
               {t(
-                'Откройте свой PDF здесь снова',
-                'Reopen your PDF here to make changes',
+                'Сохраните редактируемую PDF-копию',
+                'Keep an editable PDF copy for future changes',
               )}
             </small>
           </span>
@@ -716,7 +728,11 @@ export default function App() {
                   canRedo={!!future.length}
                   saveState={saveState}
                   exporting={exporting}
-                  exportFile={exportFile}
+                  exportFile={() => {
+                    setEditableExport(false)
+                    setExportError(false)
+                    setExportDocument(doc)
+                  }}
                   openFile={openFile}
                   start={() => start(false)}
                   backup={backup}
@@ -785,6 +801,98 @@ export default function App() {
             </button>
           )}
         </div>
+      )}
+      {exportDocument && (
+        <Dialog
+          title={t('Скачать резюме', 'Download your resume')}
+          close={() => setExportDocument(null)}
+          closeLabel={t('Закрыть', 'Close')}
+        >
+          <div className="export-summary">
+            <FileText size={22} />
+            <div>
+              <strong>
+                {exportDocument.versions[exportDocument.language].basics.name ||
+                  t('Моё резюме', 'My resume')}
+              </strong>
+              <span>
+                {exportDocument.language === 'ru' ? 'Русский' : 'English'} · PDF
+                · A4
+              </span>
+            </div>
+          </div>
+          <fieldset className="export-options" disabled={exporting}>
+            <legend>
+              {t('Какую копию сохранить?', 'Which copy do you need?')}
+            </legend>
+            <label className={!editableExport ? 'selected' : ''}>
+              <input
+                type="radio"
+                name="export-mode"
+                checked={!editableExport}
+                onChange={() => setEditableExport(false)}
+              />
+              <span>
+                <strong>{t('Для отправки', 'For sharing')}</strong>
+                <small>
+                  {t(
+                    'Только выбранный язык, без вложения с исходными данными. Подойдёт для отклика на вакансию.',
+                    'Only the selected language, without an editable attachment. Ready for a job application.',
+                  )}
+                </small>
+              </span>
+            </label>
+            <label className={editableExport ? 'selected' : ''}>
+              <input
+                type="radio"
+                name="export-mode"
+                checked={editableExport}
+                onChange={() => setEditableExport(true)}
+              />
+              <span>
+                <strong>{t('Редактируемая копия', 'Editable copy')}</strong>
+                <small>
+                  {t(
+                    'Внутри — обе языковые версии и оформление. Сохраните для себя и откройте здесь, чтобы продолжить правки.',
+                    'Includes both language versions and design settings. Keep it for yourself and reopen it here to continue editing.',
+                  )}
+                </small>
+              </span>
+            </label>
+          </fieldset>
+          {exportError && (
+            <p className="export-error" role="alert">
+              {t(
+                'Не удалось создать PDF. Повторите скачивание или вернитесь к правкам и сохраните JSON-копию через меню.',
+                'Could not create the PDF. Retry the download, or return to editing and save a JSON backup from the menu.',
+              )}
+            </p>
+          )}
+          <p className="export-note">
+            {t(
+              'Оба варианта бесплатны, без водяных знаков. Данные остаются на вашем устройстве.',
+              'Both options are free, with no watermarks. Your data stays on your device.',
+            )}
+          </p>
+          <div className="dialog-actions">
+            <button
+              className="button secondary"
+              onClick={() => setExportDocument(null)}
+            >
+              {t('Назад к правкам', 'Back to editing')}
+            </button>
+            <button
+              className="button primary"
+              disabled={exporting}
+              onClick={() => void exportFile()}
+            >
+              {exporting && <LoaderCircle className="spin" size={16} />}
+              {exporting
+                ? t('Готовим PDF…', 'Preparing PDF…')
+                : t('Скачать', 'Download')}
+            </button>
+          </div>
+        </Dialog>
       )}
       {pendingImport && (
         <Dialog
@@ -915,17 +1023,20 @@ export default function App() {
                 {t('Данные остаются у вас.', 'Your data stays with you.')}
               </strong>{' '}
               {t(
-                'Резюме сохраняется только в этом браузере. Очистка данных браузера удалит локальную копию — сохраняйте PDF или JSON.',
-                'Your resume is stored only in this browser. Clearing browser data removes the local copy, so keep a PDF or JSON backup.',
+                'Резюме сохраняется только в этом браузере. Очистка данных браузера удалит локальную копию — сохраняйте редактируемый PDF или JSON.',
+                'Your resume is stored only in this browser. Clearing browser data removes the local copy, so keep an editable PDF or JSON backup.',
               )}
             </p>
             <p>
               <strong>
-                {t('PDF можно открыть снова.', 'Your PDF can be reopened.')}
+                {t(
+                  'Редактируемую копию можно открыть снова.',
+                  'Editable copies can be reopened.',
+                )}
               </strong>{' '}
               {t(
-                'В PDF встроена копия данных, включая обе языковые версии. Через «Открыть файл» можно восстановить резюме. Обычные сторонние PDF не импортируются.',
-                'The PDF includes editable source data, including both language versions. Use “Open file” to restore it. PDFs from other tools cannot be imported.',
+                'При скачивании выберите «Редактируемая копия», чтобы сохранить обе языковые версии и оформление внутри PDF. Такая копия восстанавливается через «Открыть файл». Вариант «Для отправки» содержит только выбранный язык и не открывается для редактирования.',
+                'Choose “Editable copy” when downloading to include both language versions and design settings. Use “Open file” to restore that copy. “For sharing” contains only the selected language and cannot be reopened for editing.',
               )}
             </p>
             <p>

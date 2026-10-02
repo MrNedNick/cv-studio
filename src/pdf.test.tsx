@@ -155,3 +155,28 @@ it('keeps education dates below the title in the Editorial sidebar', async () =>
     await task.destroy()
   }
 })
+
+it('exports a sharing copy with only the selected language and no editable source', async () => {
+  const doc = createDocument(true)
+  doc.versions.en.basics.name = 'Private English draft'
+  const blob = await exportPdf(doc, { editable: false })
+  const task = getDocument({ data: new Uint8Array(await blob.arrayBuffer()) })
+  try {
+    const pdf = await task.promise
+    expect(await pdf.getAttachments()).toBeNull()
+    const content = await (await pdf.getPage(1)).getTextContent()
+    const text = content.items
+      .map((item) => ('str' in item ? item.str : ''))
+      .join(' ')
+    expect(text).toContain('Александра Морозова')
+    expect(text).not.toContain('Private English draft')
+    const links = await (await pdf.getPage(1)).getAnnotations()
+    expect(links.some((link) => link.url === 'https://example.com/')).toBe(true)
+    await writeFile(
+      '/tmp/cv-studio-sharing.pdf',
+      new Uint8Array(await blob.arrayBuffer()),
+    )
+  } finally {
+    await task.destroy()
+  }
+})

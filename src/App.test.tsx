@@ -11,14 +11,20 @@ import {
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeAll, beforeEach, expect, it, vi } from 'vitest'
 import App from './App'
+import { exportPdf } from './pdf'
 import { loadDocument, saveDocument } from './storage'
 import { createDocument, emptyEntry } from './model'
+vi.mock('./pdf', () => ({
+  exportPdf: vi.fn(async () => new Blob(['PDF'], { type: 'application/pdf' })),
+}))
 vi.mock('./Preview', () => ({ default: () => <div>PDF preview</div> }))
 vi.mock('./storage', () => ({
   loadDocument: vi.fn(async () => null),
   saveDocument: vi.fn(async () => undefined),
 }))
 beforeAll(() => {
+  URL.createObjectURL = vi.fn(() => 'blob:test')
+  URL.revokeObjectURL = vi.fn()
   HTMLDialogElement.prototype.showModal = function () {
     this.setAttribute('open', '')
   }
@@ -370,4 +376,104 @@ it('prevents adding entries beyond the supported persistence limit', async () =>
   fireEvent.click(await screen.findByRole('button', { name: /Опыт работы/ }))
   expect(screen.getByRole('button', { name: 'Добавить запись' })).toBeDisabled()
   expect(screen.getByText(/В разделе уже 100 записей/)).toBeInTheDocument()
+})
+
+it('lets users choose a sharing PDF or editable backup with distinct filenames', async () => {
+  const create = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:test')
+  const filenames: string[] = []
+  const click = vi
+    .spyOn(HTMLAnchorElement.prototype, 'click')
+    .mockImplementation(function (this: HTMLAnchorElement) {
+      filenames.push(this.download)
+    })
+  try {
+    render(
+      <MemoryRouter initialEntries={['/edit']}>
+        <App />
+      </MemoryRouter>,
+    )
+    fireEvent.click(
+      await screen.findByRole('button', { name: /Начать с примера/ }),
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Скачать PDF' }))
+    expect(screen.getByRole('radio', { name: /Для отправки/ })).toBeChecked()
+    fireEvent.click(screen.getByRole('button', { name: 'Назад к правкам' }))
+    expect(exportPdf).not.toHaveBeenCalled()
+    fireEvent.click(screen.getByRole('button', { name: 'Скачать PDF' }))
+    fireEvent.click(
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: 'Скачать',
+      }),
+    )
+    await waitFor(() =>
+      expect(exportPdf).toHaveBeenCalledWith(
+        expect.objectContaining({ language: 'ru' }),
+        { editable: false },
+      ),
+    )
+    await waitFor(() =>
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument(),
+    )
+    expect(filenames[0]).toBe('Александра-Морозова-RU-CV.pdf')
+    fireEvent.click(screen.getByRole('button', { name: 'Скачать PDF' }))
+    fireEvent.click(screen.getByRole('radio', { name: /Редактируемая копия/ }))
+    fireEvent.click(
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: 'Скачать',
+      }),
+    )
+    await waitFor(() =>
+      expect(filenames[1]).toBe('Александра-Морозова-RU-editable-CV.pdf'),
+    )
+    expect(exportPdf).toHaveBeenLastCalledWith(expect.any(Object), {
+      editable: true,
+    })
+  } finally {
+    create.mockRestore()
+    click.mockRestore()
+  }
+})
+it('shows a failed export inside the dialog and retries without changing the choice', async () => {
+  const create = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:test')
+  const click = vi
+    .spyOn(HTMLAnchorElement.prototype, 'click')
+    .mockImplementation(() => {})
+  const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+  vi.mocked(exportPdf).mockRejectedValueOnce(new Error('Render failed'))
+  try {
+    render(
+      <MemoryRouter initialEntries={['/edit']}>
+        <App />
+      </MemoryRouter>,
+    )
+    fireEvent.click(
+      await screen.findByRole('button', { name: /Начать с примера/ }),
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Скачать PDF' }))
+    fireEvent.click(screen.getByRole('radio', { name: /Редактируемая копия/ }))
+    fireEvent.click(
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: 'Скачать',
+      }),
+    )
+    expect(
+      await within(screen.getByRole('dialog')).findByRole('alert'),
+    ).toHaveTextContent('Не удалось создать PDF')
+    expect(
+      screen.getByRole('radio', { name: /Редактируемая копия/ }),
+    ).toBeChecked()
+    fireEvent.click(
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: 'Скачать',
+      }),
+    )
+    await waitFor(() =>
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument(),
+    )
+    expect(exportPdf).toHaveBeenCalledTimes(2)
+  } finally {
+    create.mockRestore()
+    click.mockRestore()
+    error.mockRestore()
+  }
 })

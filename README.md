@@ -16,12 +16,12 @@ A free resume editor with thoughtful templates, a live PDF preview, and no accou
 - Choose Modern, Classic, Compact, or Editorial, plus accent colors, text density, and Sans, Serif, or mixed typography.
 - Keep Russian and English versions together. Translations are entered manually; contact details, dates, and links are shared.
 - Preview the actual paginated A4 document at 75–200% zoom, or switch to an accessible text view for reading and copying. Retry a failed preview without reloading.
-- Download a PDF with selectable text, embedded Cyrillic/Latin fonts, and clickable links.
-- Reopen a PDF made here and continue editing. Each PDF includes a `cv-studio.json` attachment containing both language versions and the design settings.
+- Choose a PDF for sharing (the default, selected language only) or an editable backup. Both have selectable text, embedded Cyrillic/Latin fonts, and clickable links.
+- Reopen an editable PDF copy made here and continue editing. Editable copies include a `cv-studio.json` attachment containing both language versions and the design settings.
 - Review the name and file before importing; save a backup or cancel before replacing the current resume. Undo can restore the previous document.
 - Import and export JSON Resume. The `cvStudio` extension preserves both language versions and presentation settings.
 
-All templates and downloads are free. There are no watermarks, accounts, analytics, or resume uploads. Data is saved in IndexedDB on the current browser. Clearing browser data removes that local copy: keep a PDF or JSON backup. Shared PDF files contain both language versions in their editable attachment.
+All templates and downloads are free. There are no watermarks, accounts, analytics, or resume uploads. Data is saved in IndexedDB on the current browser. Clearing browser data removes that local copy: keep an editable PDF or JSON backup. Sharing PDFs have no source attachment; editable copies contain both language versions and design settings, so keep those for your own use.
 
 ## Design and implementation
 
@@ -45,8 +45,8 @@ npm run lint
 npm run build
 ```
 
-The development URL is `http://localhost:5173/cv-studio/`. Tests cover entry collapse/reordering/focus, duplicate imported IDs, sidebar PDF text positioning, import confirmation/cancellation and edits during file reads, storage recovery, keyboard navigation, targeted guidance, model validation, IndexedDB persistence, JSON round trips, shared contacts, undo/redo, and PDF text, links, attachments, templates, long-document pagination, typography compatibility, preview recovery, and text-view access. GitHub Actions runs lint, tests, and a production build before publishing `main` to Pages.
+The development URL is `http://localhost:5173/cv-studio/`. Tests cover entry collapse/reordering/focus, duplicate imported IDs, sidebar PDF text positioning, import confirmation/cancellation and edits during file reads, storage recovery, keyboard navigation, targeted guidance, model validation, IndexedDB persistence, JSON round trips, shared contacts, undo/redo, export mode selection and retry, and PDF text, links, attachment inclusion/omission, templates, long-document pagination, typography compatibility, preview recovery, and text-view access. GitHub Actions runs lint, tests, and a production build before publishing `main` to Pages.
 
 ## Boundaries
 
-PDF import supports files exported by CV Studio, not arbitrary PDFs or scanned documents. JSON Resume imports use the supported sections listed above; unsupported fields are not imported. Files are limited to 10 MB, entries to 100 per section, and individual imported text values to 30,000 characters. Each browser stores one active resume; use backups for multiple documents. There is no automatic translation or cloud sync.
+PDF import supports editable copies exported by CV Studio (including older exports). Sharing copies, arbitrary PDFs, and scanned documents cannot be reopened for editing. JSON Resume imports use the supported sections listed above; unsupported fields are not imported. Files are limited to 10 MB, entries to 100 per section, and individual imported text values to 30,000 characters. Each browser stores one active resume; use backups for multiple documents. There is no automatic translation or cloud sync.

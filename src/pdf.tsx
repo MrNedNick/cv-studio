@@ -264,9 +264,13 @@ export function renderResume(doc: StudioDocument): Promise<Blob> {
   renderQueue = result.catch(() => undefined)
   return result
 }
-export async function exportPdf(doc: StudioDocument) {
-  const raw = await renderResume(doc),
-    result = await PDFDocument.load(await raw.arrayBuffer())
+export async function exportPdf(
+  doc: StudioDocument,
+  { editable = true }: { editable?: boolean } = {},
+) {
+  const raw = await renderResume(doc)
+  if (!editable) return raw
+  const result = await PDFDocument.load(await raw.arrayBuffer())
   await result.attach(
     new TextEncoder().encode(JSON.stringify(toJsonResume(doc))),
     'cv-studio.json',
