@@ -12,10 +12,15 @@ export const EXIT_MS = 180
 
 export const reducedMotion = () =>
   Boolean(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)
-/** Movement and size changes; skipped when the system asks for less motion. */
+/**
+ * Panels and lists animate on every user action; with the system's
+ * reduced-motion setting the same transitions run shorter and calmer.
+ */
 export function canAnimate(element?: Element | null) {
-  return typeof element?.animate === 'function' && !reducedMotion()
+  return typeof element?.animate === 'function'
 }
+export const motionMs = (ms: number) =>
+  reducedMotion() ? Math.round(ms * 0.6) : ms
 /** Fades are kept even with reduced motion: they do not move anything. */
 export const canFade = (element?: Element | null) =>
   typeof element?.animate === 'function'
@@ -83,8 +88,6 @@ export function Collapse({
     if (!element) return
     if (!canAnimate(element)) {
       if (!open) setShown(false)
-      else if (canFade(element))
-        element.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 160 })
       return
     }
     element.getAnimations().forEach((animation) => animation.cancel())
@@ -101,7 +104,7 @@ export function Collapse({
             { height: '0px', opacity: 0 },
           ],
       {
-        duration: open ? 240 : EXIT_MS,
+        duration: motionMs(open ? 240 : EXIT_MS),
         easing: open ? 'cubic-bezier(.2,.8,.2,1)' : 'ease-in',
       },
     )

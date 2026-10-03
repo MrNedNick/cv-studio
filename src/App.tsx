@@ -31,6 +31,7 @@ import {
   type Locale,
   isLocale,
   isEmptyVersion,
+  pdfMetadata,
   locales,
   localeNames,
   type StudioDocument,
@@ -164,7 +165,7 @@ export default function App() {
         if (active) {
           setLoadError(false)
           setSaveState('saved')
-          setDoc(value)
+          setDoc(value && { ...value, language: locale })
         }
       })
       .catch(() => {
@@ -293,7 +294,22 @@ export default function App() {
   function confirmImport() {
     if (!pendingImport) return
     setLoadError(false)
-    update(pendingImport.doc)
+    const imported = pendingImport.doc
+    // The editor shows the site language. If that version is empty but the file
+    // has text in another language (JSON Resume is read as English), start from it.
+    update(
+      isEmptyVersion(imported.versions[locale]) &&
+        !isEmptyVersion(imported.versions[imported.language])
+        ? {
+            ...imported,
+            language: locale,
+            versions: {
+              ...imported.versions,
+              [locale]: imported.versions[imported.language],
+            },
+          }
+        : { ...imported, language: locale },
+    )
     setPendingImport(null)
     setDocumentRevision((value) => value + 1)
     navigate('/edit')
@@ -324,12 +340,14 @@ export default function App() {
       const blob = await exportPdf(snapshot, { editable })
       download(
         blob,
-        `${
-          snapshot.versions[snapshot.language].basics.name
-            .trim()
-            .replace(/[^\p{L}\p{N} -]/gu, '')
-            .replace(/\s+/g, '-') || 'Resume'
-        }-${snapshot.language.toUpperCase()}${editable ? '-editable' : ''}-CV.pdf`,
+        snapshot.pdf.fileName.trim()
+          ? `${pdfMetadata(snapshot).fileName}${editable ? '-editable' : ''}.pdf`
+          : `${
+              snapshot.versions[snapshot.language].basics.name
+                .trim()
+                .replace(/[^\p{L}\p{N} -]/gu, '')
+                .replace(/\s+/g, '-') || 'Resume'
+            }-${snapshot.language.toUpperCase()}${editable ? '-editable' : ''}-CV.pdf`,
       )
       setNotice(
         editable
@@ -366,16 +384,16 @@ export default function App() {
       /* The language still changes for this visit. */
     }
     setLocale(next)
-    // A resume written in the interface language follows it, as long as the
-    // other version has text; a deliberately different language stays put.
-    if (
-      doc &&
-      doc.language === locale &&
-      next !== locale &&
-      !isEmptyVersion(doc.versions[next])
-    )
-      update({ ...doc, language: next })
   }
+  // The resume is always edited and exported in the site language; each
+  // language keeps its own version of the text.
+  useEffect(() => {
+    setDoc((current) =>
+      current && current.language !== locale
+        ? { ...current, language: locale }
+        : current,
+    )
+  }, [locale, doc?.language])
   function undo() {
     if (!doc || !history.length) return
     const previous = history[history.length - 1]
@@ -896,22 +914,16 @@ export default function App() {
           >
             <dl>
               <dt>{t('Автор', 'Author')}</dt>
-              <dd>
-                {exportShown.versions[exportShown.language].basics.name || '—'}
-              </dd>
+              <dd>{pdfMetadata(exportShown).author || '—'}</dd>
               <dt>{t('Тема', 'Subject')}</dt>
-              <dd>
-                {exportShown.versions[exportShown.language].basics.label || '—'}
-              </dd>
+              <dd>{pdfMetadata(exportShown).subject || '—'}</dd>
               <dt>{t('Ключевые слова', 'Keywords')}</dt>
-              <dd>
-                {exportShown.versions[exportShown.language].skills || '—'}
-              </dd>
+              <dd>{pdfMetadata(exportShown).keywords || '—'}</dd>
             </dl>
             <p>
               {t(
-                'Имя, должность и навыки берутся из выбранной версии. Измените их в редакторе. Метаданные помогают описать файл, но не гарантируют позиции в отборе.',
-                'Taken from the name, job title, and visible skills in your selected version. Edit these in the form. Metadata describes your file; it does not guarantee a screening rank.',
+                'По умолчанию берутся из имени, должности и навыков. Изменить можно в «Дизайн → PDF». Метаданные описывают файл, но не гарантируют позиции в отборе.',
+                'By default these come from your name, job title, and skills. Change them under Design → PDF. Metadata describes the file; it does not guarantee a screening rank.',
               )}
             </p>
           </Disclosure>

@@ -5,6 +5,7 @@ import {
   createDocument,
   getTips,
   parseDocument,
+  pdfMetadata,
   plainText,
   safeUrl,
   toJsonResume,
@@ -260,4 +261,25 @@ it('opens an older two-language file and pairs the new versions by entry', () =>
     expect(doc.versions[locale].work[0].startDate).toBe('2022-03')
   }
   expect(parseDocument({ ...old, language: 'xx' }).language).toBe('en')
+})
+
+it('derives PDF metadata from the resume unless overridden', () => {
+  const doc = createDocument(true, 'en')
+  expect(pdfMetadata(doc)).toMatchObject({
+    author: 'Alex Morgan',
+    subject: 'Product designer',
+    fileName: 'Alex-Morgan-EN-CV',
+  })
+  doc.pdf.fileName = 'my/cv:final.pdf'
+  doc.pdf.keywords = 'React, TypeScript'
+  expect(pdfMetadata(doc)).toMatchObject({
+    fileName: 'mycvfinal',
+    keywords: 'React, TypeScript',
+  })
+  const copy = parseDocument(
+    JSON.parse(JSON.stringify({ ...doc, textSize: 'xl' })),
+  )
+  expect(copy.pdf.keywords).toBe('React, TypeScript')
+  expect(copy.textSize).toBe('xl')
+  expect(parseDocument({ ...doc, textSize: 'huge' }).textSize).toBe('m')
 })

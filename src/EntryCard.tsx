@@ -1,7 +1,7 @@
-import { useId, type ReactNode } from 'react'
+import { useId, useLayoutEffect, useRef, type ReactNode } from 'react'
 import { ArrowDown, ArrowUp, ChevronDown, Trash2 } from 'lucide-react'
 import { dateRange, type Entry, type Locale } from './model'
-import { Collapse } from './motion'
+import { Collapse, canFade, reducedMotion } from './motion'
 import { translator } from './i18n'
 
 export default function EntryCard({
@@ -14,6 +14,7 @@ export default function EntryCard({
   moveUp,
   moveDown,
   remove,
+  fresh = false,
   children,
 }: {
   entry: Entry
@@ -26,13 +27,57 @@ export default function EntryCard({
   moveUp?: () => void
   moveDown?: () => void
   remove: () => void
+  /** Just added: grows into place instead of appearing at once. */
+  fresh?: boolean
   children: ReactNode
 }) {
   const id = useId(),
     t = translator(locale)
-  const dates = dateRange(entry, contentLocale ?? locale)
+  const dates = dateRange(entry, contentLocale ?? locale),
+    card = useRef<HTMLDivElement>(null),
+    leaving = useRef(false)
+  useLayoutEffect(() => {
+    const element = card.current
+    if (!fresh || !element || !canFade(element)) return
+    const height = element.offsetHeight
+    element.animate(
+      reducedMotion()
+        ? [{ opacity: 0 }, { opacity: 1 }]
+        : [
+            { opacity: 0, height: '0px', transform: 'translateY(-6px)' },
+            { opacity: 1, height: `${height}px`, transform: 'none' },
+          ],
+      { duration: 260, easing: 'cubic-bezier(.2,.8,.2,1)' },
+    )
+    // Only the first render of a new card animates.
+  }, [])
+  // Removing folds the card away first, so the list closes the gap smoothly.
+  function removeSmoothly() {
+    const element = card.current
+    if (leaving.current) return
+    if (!element || !canFade(element)) return remove()
+    leaving.current = true
+    element.style.overflow = 'hidden'
+    const animation = element.animate(
+      reducedMotion()
+        ? [{ opacity: 1 }, { opacity: 0 }]
+        : [
+            { opacity: 1, height: `${element.offsetHeight}px` },
+            {
+              opacity: 0,
+              height: '0px',
+              marginBottom: '0px',
+              paddingTop: '0px',
+              paddingBottom: '0px',
+            },
+          ],
+      { duration: 200, easing: 'cubic-bezier(.4,0,.6,1)', fill: 'forwards' },
+    )
+    animation.onfinish = () => remove()
+  }
   return (
     <div
+      ref={card}
       className={`entry-card ${expanded ? '' : 'collapsed'}`}
       data-entry-id={entry.id}
     >
@@ -81,7 +126,7 @@ export default function EntryCard({
             aria-label={t('Удалить запись', 'Remove entry')}
             title={t('Удалить запись', 'Remove entry')}
             aria-describedby={`${id}-title`}
-            onClick={remove}
+            onClick={removeSmoothly}
           >
             <Trash2 size={15} />
           </button>
@@ -89,6 +134,12 @@ export default function EntryCard({
       </div>
       <Collapse open={expanded} id={`${id}-fields`}>
         {children}
+        <div className="entry-footer">
+          <button className="text-button danger" onClick={removeSmoothly}>
+            <Trash2 size={14} />
+            {t('Удалить эту запись', 'Delete this entry')}
+          </button>
+        </div>
       </Collapse>
     </div>
   )

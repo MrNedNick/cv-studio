@@ -16,7 +16,7 @@ export const samples: Record<Locale, SampleText> = {
   en: {
     name: 'Alex Morgan',
     label: 'Product designer',
-    location: 'Prague, Czechia',
+    location: 'Berlin, Germany',
     summary:
       'Product designer with 6 years of turning complex problems into clear digital experiences. Raised checkout conversion by 24% with research-led redesigns. Looking for a product team where user needs and business goals meet.',
     work: [
@@ -29,18 +29,19 @@ export const samples: Record<Locale, SampleText> = {
         'Designed a dashboard for 12,000 customers.\nReduced time to complete key tasks by 35%.',
       ],
     ],
-    education: ['BA, Visual communication', 'University of Applied Arts'],
+    education: ['BA, Visual communication', 'Universität der Künste Berlin'],
     skills:
       'Figma, User research, Prototyping, Design systems, Usability testing, Accessibility, HTML / CSS',
     languages: [
       ['Russian', 'Native'],
+      ['German', 'C1 — advanced'],
       ['English', 'C1 — advanced'],
     ],
   },
   ru: {
     name: 'Александра Морозова',
     label: 'Продуктовый дизайнер',
-    location: 'Прага, Чехия',
+    location: 'Берлин, Германия',
     summary:
       'Создаю понятные цифровые продукты — от первого исследования до запуска. Соединяю потребности людей и задачи бизнеса в простых, продуманных решениях.',
     work: [
@@ -55,19 +56,20 @@ export const samples: Record<Locale, SampleText> = {
     ],
     education: [
       'Дизайн и визуальные коммуникации',
-      'Университет прикладных искусств',
+      'Universität der Künste Berlin',
     ],
     skills:
       'Figma, UX-исследования, Прототипирование, Дизайн-системы, Юзабилити-тестирование, Доступность, HTML / CSS',
     languages: [
       ['Русский', 'Родной'],
+      ['Немецкий', 'C1 — продвинутый'],
       ['Английский', 'C1 — продвинутый'],
     ],
   },
   de: {
     name: 'Alex Morgan',
     label: 'Produktdesignerin',
-    location: 'Prag, Tschechien',
+    location: 'Berlin, Deutschland',
     summary:
       'Produktdesignerin mit 6 Jahren Erfahrung, die komplexe Probleme in klare digitale Produkte verwandelt. Steigerte die Checkout-Konversion durch forschungsbasierte Redesigns um 24 %. Sucht ein Produktteam, in dem Nutzerbedürfnisse und Geschäftsziele zusammenkommen.',
     work: [
@@ -80,21 +82,19 @@ export const samples: Record<Locale, SampleText> = {
         'Kundenportal für 12.000 Nutzer konzipiert.\nBearbeitungszeit der wichtigsten Aufgaben um 35 % verkürzt.',
       ],
     ],
-    education: [
-      'B.A. Visuelle Kommunikation',
-      'Hochschule für angewandte Kunst',
-    ],
+    education: ['B.A. Visuelle Kommunikation', 'Universität der Künste Berlin'],
     skills:
       'Figma, Nutzerforschung, Prototyping, Designsysteme, Usability-Tests, Barrierefreiheit, HTML / CSS',
     languages: [
       ['Russisch', 'Muttersprache'],
+      ['Deutsch', 'C1 — fortgeschritten'],
       ['Englisch', 'C1 — fortgeschritten'],
     ],
   },
   es: {
     name: 'Alex Morgan',
     label: 'Diseñadora de producto',
-    location: 'Praga, Chequia',
+    location: 'Berlín, Alemania',
     summary:
       'Diseñadora de producto con 6 años de experiencia convirtiendo problemas complejos en experiencias digitales claras. Aumentó un 24 % la conversión del checkout con rediseños basados en investigación. Busca un equipo de producto donde se unan las necesidades de los usuarios y los objetivos del negocio.',
     work: [
@@ -109,19 +109,20 @@ export const samples: Record<Locale, SampleText> = {
     ],
     education: [
       'Grado en Comunicación Visual',
-      'Universidad de Artes Aplicadas',
+      'Universität der Künste Berlin',
     ],
     skills:
       'Figma, Investigación de usuarios, Prototipado, Sistemas de diseño, Pruebas de usabilidad, Accesibilidad, HTML / CSS',
     languages: [
       ['Ruso', 'Nativo'],
+      ['Alemán', 'C1 — avanzado'],
       ['Inglés', 'C1 — avanzado'],
     ],
   },
   bg: {
     name: 'Александра Морозова',
     label: 'Продуктов дизайнер',
-    location: 'Прага, Чехия',
+    location: 'Берлин, Германия',
     summary:
       'Продуктов дизайнер с 6 години опит в превръщането на сложни проблеми в ясни дигитални продукти. Повиших конверсията на поръчките с 24% чрез редизайн, основан на проучвания. Търся продуктов екип, в който нуждите на потребителите и целите на бизнеса се срещат.',
     work: [
@@ -136,19 +137,20 @@ export const samples: Record<Locale, SampleText> = {
     ],
     education: [
       'Бакалавър, Визуални комуникации',
-      'Университет за приложни изкуства',
+      'Universität der Künste Berlin',
     ],
     skills:
       'Figma, Потребителски проучвания, Прототипиране, Дизайн системи, Тестове за използваемост, Достъпност, HTML / CSS',
     languages: [
       ['Руски', 'Майчин'],
+      ['Немски', 'C1 — напреднал'],
       ['Английски', 'C1 — напреднал'],
     ],
   },
   uk: {
     name: 'Олександра Морозова',
     label: 'Продуктова дизайнерка',
-    location: 'Прага, Чехія',
+    location: 'Берлін, Німеччина',
     summary:
       'Продуктова дизайнерка з 6 роками досвіду перетворення складних задач на зрозумілі цифрові продукти. Підвищила конверсію оформлення замовлення на 24% завдяки редизайну на основі досліджень. Шукаю продуктову команду, де зустрічаються потреби людей і цілі бізнесу.',
     work: [
@@ -163,12 +165,13 @@ export const samples: Record<Locale, SampleText> = {
     ],
     education: [
       'Бакалавр, Візуальні комунікації',
-      'Університет прикладних мистецтв',
+      'Universität der Künste Berlin',
     ],
     skills:
       'Figma, UX-дослідження, Прототипування, Дизайн-системи, Юзабіліті-тестування, Доступність, HTML / CSS',
     languages: [
       ['Російська', 'Рідна'],
+      ['Німецька', 'C1 — просунутий'],
       ['Англійська', 'C1 — просунутий'],
     ],
   },

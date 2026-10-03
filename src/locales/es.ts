@@ -57,6 +57,8 @@ const messages: Record<string, string> = {
   'At least 3 achievement points for your most recent job.':
     'Al menos 3 logros para tu empleo más reciente.',
   Author: 'Autor',
+  Back: 'Atrás',
+  'Back to content': 'Volver al contenido',
   'Back to editing': 'Volver a editar',
   Before: 'Antes',
   Blue: 'Azul',
@@ -66,6 +68,8 @@ const messages: Record<string, string> = {
     'En breve: quién eres, tu mejor resultado y qué buscas.',
   Build: 'Crear',
   Burgundy: 'Burdeos',
+  'By default these come from your name, job title, and skills. Change them under Design → PDF. Metadata describes the file; it does not guarantee a screening rank.':
+    'Por defecto salen de tu nombre, puesto y habilidades. Puedes cambiarlos en Diseño → PDF. Los metadatos describen el archivo; no garantizan una posición en la selección.',
   'CONTACT DETAILS': 'DATOS DE CONTACTO',
   Cancel: 'Cancelar',
   'Centered and composed for senior roles':
@@ -80,7 +84,6 @@ const messages: Record<string, string> = {
     'Revisa tu correo: debe incluir @ y un dominio.',
   'Check your website link. Use an http or https address.':
     'Revisa el enlace a tu web. Usa una dirección http o https.',
-  'Choose a design': 'Elegir diseño',
   'Choose what feels like you. Switch templates any time without losing a word.':
     'Elige lo que va contigo. Cambia de plantilla cuando quieras sin perder ni una palabra.',
   'Choose your template and color. See every change in the live preview.':
@@ -94,6 +97,7 @@ const messages: Record<string, string> = {
     'Tipografía clásica con serifa, centrada',
   'Classic uses a timeless monochrome palette.':
     'Classic usa una paleta monocromática atemporal.',
+  'Clear everything': 'Borrar todo',
   Close: 'Cerrar',
   'Collapse all': 'Contraer todo',
   Comfortable: 'Holgada',
@@ -127,10 +131,13 @@ const messages: Record<string, string> = {
   'Degree / field of study': 'Título / área de estudio',
   'Degree, institution and years. Recent graduates can add relevant courses or a thesis.':
     'Título, centro y años. Si te has graduado hace poco, añade cursos relevantes o tu trabajo final.',
+  'Delete this entry': 'Eliminar esta entrada',
   Description: 'Descripción',
   Design: 'Diseño',
+  'Design settings': 'Ajustes de diseño',
   'Dismiss notification': 'Cerrar notificación',
   'Dismiss tip': 'Ocultar sugerencia',
+  'Document title': 'Título del documento',
   Done: 'Hecho',
   Download: 'Descargar',
   'Download .txt for forms': 'Descargar .txt para formularios',
@@ -158,6 +165,7 @@ const messages: Record<string, string> = {
     'Todas las plantillas y funciones son gratis',
   'Expand all': 'Expandir todo',
   'Explore templates': 'Ver plantillas',
+  'File name': 'Nombre del archivo',
   'Fill in the sections at your own pace. Your changes save automatically.':
     'Rellena las secciones a tu ritmo. Los cambios se guardan automáticamente.',
   Filled: 'Completada',
@@ -252,7 +260,6 @@ const messages: Record<string, string> = {
   'My resume': 'Mi currículum',
   'Name and contact': 'Nombre y contacto',
   Navy: 'Azul marino',
-  'New resume': 'Nuevo currículum',
   Next: 'Siguiente',
   'Next page': 'Página siguiente',
   'No clichés': 'Sin tópicos',
@@ -267,7 +274,6 @@ const messages: Record<string, string> = {
   'Not saved': 'Sin guardar',
   'Nothing but text and whitespace': 'Solo texto y espacio',
   'Nothing here yet': 'Aún no hay nada',
-  'Now editing the {language} version': 'Ahora editas la versión: {language}',
   'Now: {count}. Concrete tools and methods, no generic traits.':
     'Ahora: {count}. Herramientas y métodos concretos, sin rasgos genéricos.',
   Olive: 'Oliva',
@@ -306,6 +312,8 @@ const messages: Record<string, string> = {
   'Photo (optional)': 'Foto (opcional)',
   'Pick 2–4 projects that match the role. Link to the live version or code.':
     'Elige 2–4 proyectos acordes al puesto. Enlaza la versión publicada o el código.',
+  'Pick a template, then tune the style, sections, and PDF file. Your content stays the same.':
+    'Elige una plantilla y luego ajusta el estilo, las secciones y el PDF. Tu contenido no cambia.',
   Plum: 'Ciruela',
   'Points for your latest role': 'Puntos del puesto más reciente',
   'Points start with actions, not duties.':
@@ -346,7 +354,6 @@ const messages: Record<string, string> = {
   'Reset to the template’s order': 'Restablecer el orden de la plantilla',
   'Responsible for the checkout page.': 'Responsable de la página de pago.',
   'Resume actions': 'Acciones del currículum',
-  'Resume language': 'Idioma del currículum',
   'Resume opened. Undo restores the previous document.':
     'Currículum abierto. Deshacer recupera el documento anterior.',
   'Resume preview': 'Vista previa del currículum',
@@ -405,17 +412,20 @@ const messages: Record<string, string> = {
   'Start with your most recent role. Focus on what you achieved.':
     'Empieza por tu puesto más reciente. Céntrate en lo que lograste.',
   'Strong action verbs': 'Verbos de acción',
+  Style: 'Estilo',
   Subject: 'Asunto',
   'Take the next step': 'Da el siguiente paso',
-  'Taken from the name, job title, and visible skills in your selected version. Edit these in the form. Metadata describes your file; it does not guarantee a screening rank.':
-    'Se toman del nombre, el puesto y las habilidades visibles de la versión elegida. Cámbialos en el formulario. Los metadatos describen el archivo; no garantizan una posición en la selección.',
   'Target job title': 'Puesto objetivo',
   Teal: 'Turquesa',
   'Tell your story': 'Cuenta tu historia',
+  Template: 'Plantilla',
   Templates: 'Plantillas',
   Terracotta: 'Terracota',
   Text: 'Texto',
   'Text density': 'Densidad del texto',
+  'Text size': 'Tamaño del texto',
+  'The file name and the properties that apps and screening systems read. Empty fields are filled from your resume.':
+    'El nombre del archivo y las propiedades que leen las aplicaciones y los sistemas de selección. Los campos vacíos se rellenan con tu currículum.',
   'The first step is simple.': 'El primer paso es sencillo.',
   'The title under your name is the first thing matched to a vacancy.':
     'El título bajo tu nombre es lo primero que se compara con la oferta.',
@@ -437,8 +447,6 @@ const messages: Record<string, string> = {
   'To improve': 'Por mejorar',
   'Toggle color theme': 'Cambiar el tema de color',
   'Try an example': 'Ver un ejemplo',
-  'Try different looks. Your content stays the same.':
-    'Prueba distintos estilos. Tu contenido no cambia.',
   Undo: 'Deshacer',
   'Undo · Ctrl/⌘ Z': 'Deshacer · Ctrl/⌘ Z',
   'Untitled resume': 'Currículum sin título',
@@ -451,6 +459,7 @@ const messages: Record<string, string> = {
     'Usa Deshacer arriba para recuperar entradas eliminadas o cambios.',
   'Use a web address, like linkedin.com/in/name.':
     'Usa una dirección web, como linkedin.com/in/nombre.',
+  'Use automatic values': 'Usar valores automáticos',
   'Use template': 'Usar plantilla',
   'Use the job title you are applying for, written the way vacancies write it.':
     'Escribe el puesto al que aspiras tal como aparece en las ofertas.',
@@ -461,6 +470,7 @@ const messages: Record<string, string> = {
   'What do you do well, and what value do you bring?':
     '¿Qué haces bien y qué valor aportas?',
   'Which copy do you need?': '¿Qué copia necesitas?',
+  'Without “.pdf” — it is added for you.': 'Sin «.pdf»: se añade solo.',
   'YOUR NEXT CHAPTER': 'TU PRÓXIMO CAPÍTULO',
   'Your data stays in your browser': 'Tus datos se quedan en tu navegador',
   'Your data stays with you.': 'Tus datos se quedan contigo.',
@@ -488,9 +498,8 @@ const messages: Record<string, string> = {
   '[Job title] with [N] years of experience in [field]. [Strongest result with a number]. Looking for [the role or team you want].':
     '[Puesto] con [N] años de experiencia en [área]. [Mejor resultado con una cifra]. Busca [el puesto o equipo que quieres].',
   'best.': 'mejor versión.',
-  'e.g. Prague, Czechia': 'p. ej., Praga, Chequia',
+  'e.g. Berlin, Germany': 'p. ej., Berlín, Alemania',
   'e.g. Product designer': 'p. ej., Diseñadora de producto',
-  empty: 'vacía',
   'great presentation.': 'una gran presentación.',
   'key skills from the posting appear in your resume.':
     'habilidades clave de la oferta aparecen en tu currículum.',

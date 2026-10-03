@@ -55,6 +55,8 @@ const messages: Record<string, string> = {
   'At least 3 achievement points for your most recent job.':
     'Щонайменше 3 досягнення для останнього місця роботи.',
   Author: 'Автор',
+  Back: 'Назад',
+  'Back to content': 'До змісту',
   'Back to editing': 'Повернутися до редагування',
   Before: 'Було',
   Blue: 'Синій',
@@ -64,6 +66,8 @@ const messages: Record<string, string> = {
     'Коротко: хто ви, ваш найкращий результат і що шукаєте далі.',
   Build: 'Створення',
   Burgundy: 'Бордовий',
+  'By default these come from your name, job title, and skills. Change them under Design → PDF. Metadata describes the file; it does not guarantee a screening rank.':
+    'За замовчуванням беруться з імені, посади та навичок. Змінити можна в «Дизайн → PDF». Метадані описують файл, але не гарантують місця у відборі.',
   'CONTACT DETAILS': 'КОНТАКТИ',
   Cancel: 'Скасувати',
   'Centered and composed for senior roles':
@@ -78,7 +82,6 @@ const messages: Record<string, string> = {
     'Перевірте пошту: адреса має містити @ і домен.',
   'Check your website link. Use an http or https address.':
     'Перевірте посилання на сайт. Використовуйте адресу http або https.',
-  'Choose a design': 'Обрати дизайн',
   'Choose what feels like you. Switch templates any time without losing a word.':
     'Оберіть те, що вам до вподоби. Змінюйте шаблон будь-коли, не втрачаючи жодного слова.',
   'Choose your template and color. See every change in the live preview.':
@@ -92,6 +95,7 @@ const messages: Record<string, string> = {
     'Класична типографіка із засічками, по центру',
   'Classic uses a timeless monochrome palette.':
     'Classic використовує позачасову монохромну палітру.',
+  'Clear everything': 'Очистити все',
   Close: 'Закрити',
   'Collapse all': 'Згорнути всі',
   Comfortable: 'Вільніше',
@@ -125,10 +129,13 @@ const messages: Record<string, string> = {
   'Degree / field of study': 'Ступінь / спеціальність',
   'Degree, institution and years. Recent graduates can add relevant courses or a thesis.':
     'Ступінь, навчальний заклад і роки. Нещодавнім випускникам — профільні курси чи диплом.',
+  'Delete this entry': 'Видалити цей запис',
   Description: 'Опис',
   Design: 'Дизайн',
+  'Design settings': 'Налаштування дизайну',
   'Dismiss notification': 'Закрити сповіщення',
   'Dismiss tip': 'Приховати підказку',
+  'Document title': 'Заголовок документа',
   Done: 'Готово',
   Download: 'Завантажити',
   'Download .txt for forms': 'Завантажити .txt для анкет',
@@ -155,6 +162,7 @@ const messages: Record<string, string> = {
   'Every template and feature is free': 'Усі шаблони й функції безкоштовні',
   'Expand all': 'Розгорнути всі',
   'Explore templates': 'Усі шаблони',
+  'File name': 'Назва файлу',
   'Fill in the sections at your own pace. Your changes save automatically.':
     'Заповнюйте розділи у своєму темпі. Зміни зберігаються автоматично.',
   Filled: 'Заповнено',
@@ -249,7 +257,6 @@ const messages: Record<string, string> = {
   'My resume': 'Моє резюме',
   'Name and contact': 'Ім’я та контакт',
   Navy: 'Темно-синій',
-  'New resume': 'Нове резюме',
   Next: 'Далі',
   'Next page': 'Наступна сторінка',
   'No clichés': 'Без штампів',
@@ -264,7 +271,6 @@ const messages: Record<string, string> = {
   'Not saved': 'Не збережено',
   'Nothing but text and whitespace': 'Лише текст і простір',
   'Nothing here yet': 'Тут поки порожньо',
-  'Now editing the {language} version': 'Редагується версія: {language}',
   'Now: {count}. Concrete tools and methods, no generic traits.':
     'Зараз: {count}. Конкретні інструменти й методи, без загальних слів.',
   Olive: 'Оливковий',
@@ -303,6 +309,8 @@ const messages: Record<string, string> = {
   'Photo (optional)': 'Фото (необов’язково)',
   'Pick 2–4 projects that match the role. Link to the live version or code.':
     'Оберіть 2–4 проєкти під посаду. Дайте посилання на робочу версію або код.',
+  'Pick a template, then tune the style, sections, and PDF file. Your content stays the same.':
+    'Оберіть шаблон, потім налаштуйте стиль, розділи й файл PDF. Текст залишиться на місці.',
   Plum: 'Сливовий',
   'Points for your latest role': 'Пункти для останньої посади',
   'Points start with actions, not duties.':
@@ -344,7 +352,6 @@ const messages: Record<string, string> = {
   'Responsible for the checkout page.':
     'Відповідав за сторінку оформлення замовлення.',
   'Resume actions': 'Дії з резюме',
-  'Resume language': 'Мова резюме',
   'Resume opened. Undo restores the previous document.':
     'Резюме відкрито. Скасування поверне попередній документ.',
   'Resume preview': 'Перегляд резюме',
@@ -403,17 +410,20 @@ const messages: Record<string, string> = {
   'Start with your most recent role. Focus on what you achieved.':
     'Почніть з останнього місця роботи. Розкажіть про результати.',
   'Strong action verbs': 'Сильні дієслова',
+  Style: 'Стиль',
   Subject: 'Тема',
   'Take the next step': 'Зробіть наступний крок',
-  'Taken from the name, job title, and visible skills in your selected version. Edit these in the form. Metadata describes your file; it does not guarantee a screening rank.':
-    'Беруться з імені, посади та видимих навичок обраної версії. Змініть їх у формі. Метадані описують файл, але не гарантують місця у відборі.',
   'Target job title': 'Цільова посада',
   Teal: 'Бірюзовий',
   'Tell your story': 'Розкажіть свою історію',
+  Template: 'Шаблон',
   Templates: 'Шаблони',
   Terracotta: 'Теракотовий',
   Text: 'Текст',
   'Text density': 'Щільність тексту',
+  'Text size': 'Розмір тексту',
+  'The file name and the properties that apps and screening systems read. Empty fields are filled from your resume.':
+    'Назва файлу та властивості, які читають програми й системи відбору. Порожні поля заповнюються з резюме автоматично.',
   'The first step is simple.': 'Перший крок — простий.',
   'The title under your name is the first thing matched to a vacancy.':
     'Заголовок під ім’ям — перше, що порівнюють з вакансією.',
@@ -435,8 +445,6 @@ const messages: Record<string, string> = {
   'To improve': 'Що покращити',
   'Toggle color theme': 'Змінити тему',
   'Try an example': 'Спробувати на прикладі',
-  'Try different looks. Your content stays the same.':
-    'Спробуйте різні варіанти. Текст залишиться на місці.',
   Undo: 'Скасувати',
   'Undo · Ctrl/⌘ Z': 'Скасувати · Ctrl/⌘ Z',
   'Untitled resume': 'Резюме без назви',
@@ -449,6 +457,7 @@ const messages: Record<string, string> = {
     'Видалення та зміни можна скасувати стрілкою вгорі.',
   'Use a web address, like linkedin.com/in/name.':
     'Потрібна веб-адреса, наприклад linkedin.com/in/name.',
+  'Use automatic values': 'Повернути автоматичні значення',
   'Use template': 'Обрати шаблон',
   'Use the job title you are applying for, written the way vacancies write it.':
     'Вкажіть посаду, на яку відгукуєтеся, — так, як її пишуть у вакансіях.',
@@ -459,6 +468,8 @@ const messages: Record<string, string> = {
   'What do you do well, and what value do you bring?':
     'Що ви вмієте й яку користь приносите?',
   'Which copy do you need?': 'Яка копія вам потрібна?',
+  'Without “.pdf” — it is added for you.':
+    'Без «.pdf» — розширення додасться само.',
   'YOUR NEXT CHAPTER': 'ВАШ НАСТУПНИЙ РОЗДІЛ',
   'Your data stays in your browser': 'Ваші дані залишаються в браузері',
   'Your data stays with you.': 'Ваші дані залишаються у вас.',
@@ -486,9 +497,8 @@ const messages: Record<string, string> = {
   '[Job title] with [N] years of experience in [field]. [Strongest result with a number]. Looking for [the role or team you want].':
     '[Посада], [N] років досвіду в [галузь]. [Головний результат у цифрах]. Шукаю [яку роль або команду].',
   'best.': 'вигляді.',
-  'e.g. Prague, Czechia': 'Наприклад, Прага, Чехія',
+  'e.g. Berlin, Germany': 'Наприклад, Берлін, Німеччина',
   'e.g. Product designer': 'Наприклад, продуктова дизайнерка',
-  empty: 'порожня',
   'great presentation.': 'гарного оформлення.',
   'key skills from the posting appear in your resume.':
     'ключових навичок з вакансії є в резюме.',

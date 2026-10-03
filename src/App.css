@@ -4330,3 +4330,143 @@ dialog[open] {
     font-size: 13px;
   }
 }
+
+/* Panels still slide with reduced motion — shorter, so the change stays legible. */
+@media (prefers-reduced-motion: reduce) {
+  .is-editing .editor-body {
+    transition: grid-template-columns 0.2s var(--ease) !important;
+  }
+  .is-editing .editor-sidebar,
+  .is-editing .editor-form {
+    transition: opacity 0.16s var(--ease) !important;
+  }
+}
+
+/* Scrollbars in the project's palette: thin, rounded, quiet until used. */
+.editor-form,
+.editor-sidebar,
+.preview-scroll,
+.resume-text {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--accent) 28%, transparent)
+    transparent;
+}
+.editor-form::-webkit-scrollbar,
+.editor-sidebar::-webkit-scrollbar,
+.preview-scroll::-webkit-scrollbar,
+.resume-text::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.editor-form::-webkit-scrollbar-thumb,
+.editor-sidebar::-webkit-scrollbar-thumb,
+.preview-scroll::-webkit-scrollbar-thumb,
+.resume-text::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 28%, transparent) padding-box;
+}
+.editor-form::-webkit-scrollbar-thumb:hover,
+.editor-sidebar::-webkit-scrollbar-thumb:hover,
+.preview-scroll::-webkit-scrollbar-thumb:hover,
+.resume-text::-webkit-scrollbar-thumb:hover {
+  background-color: color-mix(in srgb, var(--accent) 50%, transparent);
+}
+.editor-form::-webkit-scrollbar-track,
+.editor-sidebar::-webkit-scrollbar-track,
+.preview-scroll::-webkit-scrollbar-track,
+.resume-text::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Sticky step footer: Back and Next never move. */
+.form-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 28px -24px 0;
+  padding: 12px 24px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--line);
+}
+.form-footer .button {
+  min-height: 0;
+  padding: 9px 14px;
+  gap: 6px;
+  font-size: 13px;
+  max-width: 45%;
+}
+.form-footer .button span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.form-footer .button:last-child {
+  margin-left: auto;
+}
+.form-footer-step {
+  flex: 1;
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.form-footer .button:disabled {
+  visibility: hidden;
+}
+.entry-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+.text-button.danger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #b4583f;
+  font-size: 13px;
+}
+[data-theme='dark'] .text-button.danger {
+  color: #ef9a86;
+}
+.design-panes {
+  margin: 0 0 22px;
+}
+.pane-enter {
+  animation: fade-in 0.2s var(--ease);
+}
+.size-sample {
+  font-weight: 700;
+  line-height: 1;
+}
+@media (min-width: 1050px) {
+  .is-editing [data-animating] .editor-form > .form-footer {
+    width: var(--form-freeze);
+    box-sizing: border-box;
+  }
+}
+@media (min-width: 1050px) {
+  /* The footer sits at the bottom even when a step is short. */
+  .is-editing .editor-form {
+    display: flex;
+    flex-direction: column;
+  }
+  .is-editing .editor-form > .step-enter {
+    flex: none;
+  }
+  .is-editing .form-footer {
+    margin-top: auto;
+  }
+}
+.form-footer {
+  background: color-mix(in srgb, var(--surface) 96%, transparent);
+}
+@media (min-width: 1050px) {
+  .is-editing .editor-form {
+    padding-bottom: 0;
+  }
+}

@@ -8,19 +8,21 @@ A free resume editor with thoughtful templates, a live PDF preview, and no accou
 
 ## What you can do
 
-- Start with a blank resume or a fictional example.
+- Start with a blank resume or a fictional example (a Berlin-based designer, in all six languages).
 - Edit contact details, profile, experience, education, skills, projects, and languages. Include separate portfolio, LinkedIn, and GitHub links, and an optional photo (cropped to a 4:5 portrait in the browser).
 - Write with guidance in every section: short rules, a before/after example, a sentence structure for profiles and achievements, and an action-verb library that starts a new point in the entry you are editing.
 - Finish with the Review step: 15 content checks (measurable results, weak openers such as “responsible for”, clichés, pronouns, dates, order, length, placeholders) with a link to the section that needs work.
 - Paste a job posting to see which of its skills your resume already covers and which are missing. Synonyms and plurals count as one skill; missing ones can be added to your skills in one click. Nothing leaves the browser.
 - Use the interface in English, German, Spanish, Bulgarian, Ukrainian, or Russian. The theme follows your device until you choose light or dark.
-- Write the resume itself in any of those six languages (chosen under “Resume language” in the sidebar). A resume in the interface language follows it when you switch; a deliberately different language stays. Each version keeps its own text; contacts, dates, and links are shared. An empty version can start as a copy of another one for translation.
+- Each site language has its own version of the resume: switch the language at the top and the editor, preview, and PDF follow. Contacts, dates, and links are shared; an empty version can start as a copy of another one for translation.
 - Work in a desktop layout with a compact header, independently scrolling form, visible section progress, and a full-page PDF preview. Two toolbar buttons show or hide the section list and the form; panels slide without re-wrapping their content. Drag the divider to resize the form, as in a macOS split view: it stops at the minimum, snaps closed past it, and opens again from the edge. Double-click the divider for the default width; Ctrl/⌘ \\ toggles the form.
 - Panels, entries, guidance, menus, and dialogs open and close with short animations. With the system’s reduced-motion setting, only gentle fades remain.
 - Collapse experience, education, projects, and language entries into compact summaries, or expand them all. New entries receive keyboard focus; collapsed text remains in your PDF.
 - Add, remove, and reorder entries, with undo and redo. Fast edits in different fields remain separate undo steps.
 - Fields check themselves when you leave them: email, phone, links, and end dates show a short, specific message and a red outline (shared Field, Select, Switch, and auto-growing Textarea components).
 - Follow dismissible guidance for contact details, dates, empty entries, long paragraphs, and concrete achievements. Each tip opens its relevant section.
+- Design has four panes: Template, Style (accent, five text sizes, typography, density), Sections (order and visibility), and PDF (file name, title, author, subject, keywords — empty fields come from the resume).
+- Move through the steps with a fixed Back / Next footer; Review ends with the download. Delete an entry from its card, or clear everything from the menu — both can be undone.
 - Choose from twelve templates — Modern, Classic, Compact, Technical, Executive, Spotlight, Swiss, Timeline, Minimal, Bold, Ivy, and the two-column Editorial — plus ten accent colors, text density, and Sans, Serif, or mixed typography.
 - Reorder sections or hide the ones you don’t need; hidden content is kept.
 - PDF headings, dates (“Present”, “heute”, “actualidad”…), writing tips, action verbs, and the content checks follow the language of the version you edit. The built-in example exists in all six languages.

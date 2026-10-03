@@ -95,12 +95,67 @@ export interface StudioDocument {
   accent: string
   typography: 'sans' | 'serif' | 'mixed'
   density: 'comfortable' | 'compact'
+  /** Body text size of the PDF. */
+  textSize: TextSize
+  /** Advanced: overrides for the PDF file; empty fields use the resume text. */
+  pdf: PdfMeta
   /** Custom section order; empty means the template's own order. */
   sectionOrder: BodySection[]
   hiddenSections: BodySection[]
   /** Optional portrait as a small JPEG or PNG data URL, shared by both languages. */
   photo: string
   versions: Record<Locale, Resume>
+}
+export const textSizes = ['xs', 's', 'm', 'l', 'xl'] as const
+export type TextSize = (typeof textSizes)[number]
+/** Body size in points for each text size. */
+export const textSizePoints: Record<TextSize, number> = {
+  xs: 8.5,
+  s: 9.25,
+  m: 10,
+  l: 10.75,
+  xl: 11.5,
+}
+export interface PdfMeta {
+  fileName: string
+  title: string
+  author: string
+  subject: string
+  keywords: string
+}
+export const emptyPdfMeta = (): PdfMeta => ({
+  fileName: '',
+  title: '',
+  author: '',
+  subject: '',
+  keywords: '',
+})
+/** Metadata written into the PDF: overrides first, then the visible resume. */
+export function pdfMetadata(doc: StudioDocument) {
+  const r = doc.versions[doc.language],
+    o = doc.pdf
+  const name = r.basics.name.trim()
+  return {
+    title: o.title.trim() || `${name || 'Resume'} — CV`,
+    author: o.author.trim() || name,
+    subject: o.subject.trim() || r.basics.label.trim(),
+    keywords:
+      o.keywords.trim() ||
+      r.skills
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .join(', '),
+    fileName:
+      (
+        o.fileName.trim() ||
+        `${name || 'Resume'}-${doc.language.toUpperCase()}-CV`
+      )
+        .replace(/\.pdf$/i, '')
+        .replace(/[\\/:*?"<>|]+/g, '')
+        .replace(/\s+/g, '-')
+        .slice(0, 120) || 'Resume',
+  }
 }
 export const accents = [
   '#24594b',
@@ -244,6 +299,8 @@ export function createDocument(
     accent: accents[0],
     typography: 'sans',
     density: 'comfortable',
+    textSize: 'm',
+    pdf: emptyPdfMeta(),
     sectionOrder: [],
     hiddenSections: [],
     photo: '',
@@ -258,6 +315,7 @@ function sampleResume(locale: Locale): Resume {
     name: text.name,
     label: text.label,
     email: 'alex@example.com',
+    phone: '+49 30 1234 5678',
     location: text.location,
     url: 'https://example.com',
     summary: text.summary,
@@ -266,7 +324,7 @@ function sampleResume(locale: Locale): Resume {
     {
       ...emptyEntry('work-1'),
       title: text.work[0][0],
-      subtitle: 'Forma Studio',
+      subtitle: 'Forma Studio GmbH',
       startDate: '2022-03',
       current: true,
       description: text.work[0][1],
@@ -274,7 +332,7 @@ function sampleResume(locale: Locale): Resume {
     {
       ...emptyEntry('work-2'),
       title: text.work[1][0],
-      subtitle: 'North Digital',
+      subtitle: 'Nordlicht Digital',
       startDate: '2020-06',
       endDate: '2022-02',
       description: text.work[1][1],
@@ -419,6 +477,19 @@ export function parseDocument(input: unknown): StudioDocument {
         ? source.typography
         : 'sans'
     result.density = source.density === 'compact' ? 'compact' : 'comfortable'
+    result.textSize = (textSizes as readonly string[]).includes(
+      str(source.textSize),
+    )
+      ? (source.textSize as TextSize)
+      : 'm'
+    const meta = obj(source.pdf)
+    result.pdf = {
+      fileName: str(meta.fileName).slice(0, 120),
+      title: str(meta.title).slice(0, 300),
+      author: str(meta.author).slice(0, 300),
+      subject: str(meta.subject).slice(0, 300),
+      keywords: str(meta.keywords).slice(0, 2000),
+    }
     const known = (value: unknown) =>
       Array.isArray(value)
         ? [...new Set(value)].filter((v): v is BodySection =>

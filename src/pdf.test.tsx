@@ -351,3 +351,33 @@ it.each([
   },
   30000,
 )
+
+it('writes custom PDF properties and scales text with the chosen size', async () => {
+  const doc = createDocument(true, 'en')
+  doc.pdf = {
+    ...doc.pdf,
+    title: 'Alex Morgan — Product Designer',
+    author: 'A. Morgan',
+  }
+  const load = async (size: typeof doc.textSize) => {
+    doc.textSize = size
+    const bytes = new Uint8Array(
+      await (await exportPdf(doc, { editable: false })).arrayBuffer(),
+    )
+    const task = getDocument({ data: bytes })
+    const pdf = await task.promise
+    const info = (await pdf.getMetadata()).info as Record<string, string>
+    const page = await pdf.getPage(1)
+    const item = (await page.getTextContent()).items.find(
+      (i) => 'str' in i && i.str.startsWith('Redesigned checkout'),
+    ) as { transform: number[] }
+    const height = item.transform[0]
+    await task.destroy()
+    return { info, height }
+  }
+  const small = await load('xs'),
+    large = await load('xl')
+  expect(small.info.Title).toBe('Alex Morgan — Product Designer')
+  expect(small.info.Author).toBe('A. Morgan')
+  expect(large.height).toBeGreaterThan(small.height)
+})

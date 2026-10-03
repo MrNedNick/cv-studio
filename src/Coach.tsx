@@ -1,13 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import {
-  ArrowRight,
-  Check,
-  ChevronRight,
-  CircleAlert,
-  Download,
-  Plus,
-  Target,
-} from 'lucide-react'
+import { Check, ChevronRight, CircleAlert, Plus, Target } from 'lucide-react'
 import {
   actionVerbs,
   verbGroups,
@@ -41,26 +33,14 @@ export function WritingGuide({
     pattern =
       guide?.pattern && translate(lang, guide.pattern.ru, guide.pattern.en),
     [verbGroup, setVerbGroup] = useState(0),
-    [open, setOpen] = useState(() => {
-      try {
-        return localStorage.getItem('cv-guide') === 'open'
-      } catch {
-        return false
-      }
-    })
+    // Closed until asked for, in every section; nothing is remembered.
+    [open, setOpen] = useState(false)
   if (!guide) return null
   return (
     <Disclosure
       className="writing-guide"
       open={open}
-      onToggle={(next) => {
-        setOpen(next)
-        try {
-          localStorage.setItem('cv-guide', next ? 'open' : 'closed')
-        } catch {
-          /* The choice applies to this visit only. */
-        }
-      }}
+      onToggle={setOpen}
       summary={t('Как заполнить этот раздел', 'How to write this section')}
     >
       <ul>
@@ -144,16 +124,12 @@ export function ReviewStep({
   lang = locale,
   goSection,
   addSkill,
-  exportFile,
-  exporting,
 }: {
   resume: Resume
   locale: Locale
   lang?: Locale
   goSection: (section: Section) => void
   addSkill: (skill: string) => void
-  exportFile: () => void
-  exporting: boolean
 }) {
   const t = translator(locale),
     checks = reviewResume(resume, locale, lang),
@@ -356,15 +332,6 @@ export function ReviewStep({
             )}
           </span>
         </div>
-        <button
-          className="button primary"
-          onClick={exportFile}
-          disabled={exporting}
-        >
-          <Download size={16} />
-          {t('Скачать PDF', 'Download PDF')}
-          <ArrowRight size={16} />
-        </button>
       </div>
     </div>
   )

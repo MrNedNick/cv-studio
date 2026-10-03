@@ -12,6 +12,7 @@ import {
 import {
   Check,
   ChevronRight,
+  ChevronLeft,
   Download,
   Eye,
   FileText,
@@ -39,7 +40,6 @@ import {
   PanelLeft,
   SquarePen,
 } from 'lucide-react'
-import { Field } from './ui/components/field/field'
 import {
   accents,
   emptyEntry,
@@ -47,6 +47,10 @@ import {
   sectionLabels,
   sections,
   safeUrl,
+  pdfMetadata,
+  emptyPdfMeta,
+  textSizes,
+  textSizePoints,
   plainText,
   locales,
   localeNames,
@@ -151,12 +155,15 @@ export default function Editor({
       () => Number(readSetting('cv-form-width')) || null,
     ),
     [activeEntry, setActiveEntry] = useState<string | null>(null),
+    [freshEntry, setFreshEntry] = useState<string | null>(null),
     [tab, setTab] = useState<'content' | 'design'>('content'),
+    [designPane, setDesignPane] = useState<
+      'template' | 'style' | 'sections' | 'pdf'
+    >('template'),
     [mobilePreview, setMobilePreview] = useState(false),
     [menu, setMenu] = useState(false),
     [hiddenTips, setHiddenTips] = useState<string[]>([]),
     [entryAnnouncement, setEntryAnnouncement] = useState(''),
-    [languageNotice, setLanguageNotice] = useState(''),
     [preferredSource, setCopySource] = useState<Locale>('en'),
     [collapsed, setCollapsed] = useState<Set<string>>(
       () =>
@@ -343,6 +350,7 @@ export default function Editor({
     if (resume[section].length >= 100) return
     const e = emptyEntry()
     pendingEntry.current = { id: e.id, field: true }
+    setFreshEntry(e.id)
     update({
       ...doc,
       versions: mapVersions((version) => ({
@@ -670,6 +678,16 @@ export default function Editor({
             'Нужна веб-ссылка, например linkedin.com/in/name.',
             'Use a web address, like linkedin.com/in/name.',
           )
+  const stepIndex = steps.indexOf(section),
+    stepLabel = (step: Step) =>
+      step === 'review' ? t('Проверка', 'Review') : labels[step]
+  const meta = pdfMetadata(doc),
+    designPanes = [
+      ['template', t('Шаблон', 'Template')],
+      ['style', t('Стиль', 'Style')],
+      ['sections', t('Разделы', 'Sections')],
+      ['pdf', 'PDF'],
+    ] as const
   const emptyVersion = isEmptyVersion(resume),
     sources = locales.filter(
       (l) => l !== lang && !isEmptyVersion(doc.versions[l]),
@@ -711,9 +729,6 @@ export default function Editor({
     <div className="editor">
       <p className="visually-hidden" role="status">
         {entryAnnouncement}
-      </p>
-      <p className="visually-hidden" role="status">
-        {languageNotice}
       </p>
       {copyView.shown && (
         <p
@@ -863,7 +878,7 @@ export default function Editor({
             }}
           >
             <Plus size={16} />
-            {t('Новое резюме', 'New resume')}
+            {t('Очистить всё', 'Clear everything')}
           </button>
           <button
             onClick={() => {
@@ -943,35 +958,6 @@ export default function Editor({
               <span>{t('Дизайн', 'Design')}</span>
             </button>
           </div>
-          <Field
-            className="field resume-language"
-            label={t('Язык резюме', 'Resume language')}
-          >
-            <Select
-              className="ui-select"
-              value={lang}
-              onChange={(event) => {
-                const next = event.target.value as Locale
-                update({ ...doc, language: next })
-                setLanguageNotice(
-                  t(
-                    'Редактируется версия: {language}',
-                    'Now editing the {language} version',
-                    { language: localeNames[next] },
-                  ),
-                )
-              }}
-            >
-              {locales.map((l) => (
-                <option key={l} value={l}>
-                  {localeNames[l]}
-                  {l !== lang && isEmptyVersion(doc.versions[l])
-                    ? ` — ${t('пусто', 'empty')}`
-                    : ''}
-                </option>
-              ))}
-            </Select>
-          </Field>
           <div className="section-nav">
             {steps.map((s, i) => {
               const Icon = s === 'review' ? ClipboardCheck : icons[s],
@@ -1033,184 +1019,334 @@ export default function Editor({
                   <h1 tabIndex={-1}>{t('Оформление', 'Design')}</h1>
                   <p className="form-description">
                     {t(
-                      'Попробуйте разные варианты. Текст останется на месте.',
-                      'Try different looks. Your content stays the same.',
+                      'Выберите шаблон, затем настройте стиль, разделы и файл PDF. Текст останется на месте.',
+                      'Pick a template, then tune the style, sections, and PDF file. Your content stays the same.',
                     )}
                   </p>
-                  <div className="design-options">
-                    {templates.map((template) => (
+                  <div
+                    className="segmented design-panes"
+                    role="tablist"
+                    aria-label={t('Настройки оформления', 'Design settings')}
+                  >
+                    {designPanes.map(([pane, label]) => (
                       <button
-                        key={template.id}
-                        aria-pressed={doc.template === template.id}
-                        className={
-                          doc.template === template.id ? 'selected' : ''
-                        }
-                        onClick={() =>
-                          update({ ...doc, template: template.id })
-                        }
+                        key={pane}
+                        role="tab"
+                        aria-selected={designPane === pane}
+                        aria-pressed={designPane === pane}
+                        onClick={() => setDesignPane(pane)}
                       >
-                        <MiniResume template={template.id} locale={lang} />
-                        <div>
-                          <strong>{template.name}</strong>
-                          {doc.template === template.id && <Check size={16} />}
-                        </div>
-                        <span>{t(template.ru, template.en)}</span>
+                        {label}
                       </button>
                     ))}
                   </div>
-                  {doc.template === 'sidebar' && (
-                    <p className="inline-tip">
-                      {t(
-                        'Для автоматического отбора лучше выбрать одноколоночный шаблон.',
-                        'A single-column template is a safer choice for automated screening.',
-                      )}
-                    </p>
-                  )}
-                  <h2 className="control-heading">
-                    {t('Порядок разделов', 'Section order')}
-                  </h2>
-                  <p className="field-hint">
-                    {t(
-                      'Переставьте разделы или скройте лишние. Данные скрытых разделов сохраняются.',
-                      'Reorder sections or hide the ones you don’t need. Hidden content is kept.',
-                    )}
-                  </p>
-                  <ol className="section-order">
-                    {order.map((s, i) => {
-                      const hidden = doc.hiddenSections.includes(s)
-                      return (
-                        <li key={s} className={hidden ? 'is-hidden' : ''}>
-                          <span>{labels[s]}</span>
-                          {doc.template === 'sidebar' && (
-                            <small>
-                              {['summary', 'work', 'projects'].includes(s)
-                                ? t('основная колонка', 'main column')
-                                : t('боковая колонка', 'side column')}
-                            </small>
+                  <div key={designPane} className="pane-enter" role="tabpanel">
+                    {designPane === 'template' ? (
+                      <>
+                        <div className="design-options">
+                          {templates.map((template) => (
+                            <button
+                              key={template.id}
+                              aria-pressed={doc.template === template.id}
+                              className={
+                                doc.template === template.id ? 'selected' : ''
+                              }
+                              onClick={() =>
+                                update({ ...doc, template: template.id })
+                              }
+                            >
+                              <MiniResume
+                                template={template.id}
+                                locale={lang}
+                              />
+                              <div>
+                                <strong>{template.name}</strong>
+                                {doc.template === template.id && (
+                                  <Check size={16} />
+                                )}
+                              </div>
+                              <span>{t(template.ru, template.en)}</span>
+                            </button>
+                          ))}
+                        </div>
+                        {doc.template === 'sidebar' && (
+                          <p className="inline-tip">
+                            {t(
+                              'Для автоматического отбора лучше выбрать одноколоночный шаблон.',
+                              'A single-column template is a safer choice for automated screening.',
+                            )}
+                          </p>
+                        )}
+                      </>
+                    ) : designPane === 'style' ? (
+                      <>
+                        <h2 className="control-heading">
+                          {t('Цвет акцента', 'Accent color')}
+                        </h2>
+                        <div className="color-options">
+                          {accents.map((color, i) => (
+                            <button
+                              key={color}
+                              aria-label={t(colorNames[i].ru, colorNames[i].en)}
+                              aria-pressed={doc.accent === color}
+                              style={{ background: color }}
+                              onClick={() => update({ ...doc, accent: color })}
+                            >
+                              {doc.accent === color && <Check size={18} />}
+                            </button>
+                          ))}
+                        </div>
+                        {doc.template === 'classic' && (
+                          <p className="field-hint">
+                            {t(
+                              'Classic использует строгую монохромную палитру.',
+                              'Classic uses a timeless monochrome palette.',
+                            )}
+                          </p>
+                        )}
+                        <div className="control-block">
+                          <h2 className="control-heading" id="size-heading">
+                            {t('Размер текста', 'Text size')}
+                          </h2>
+                          <div
+                            className="segmented"
+                            role="group"
+                            aria-labelledby="size-heading"
+                          >
+                            {textSizes.map((size) => (
+                              <button
+                                key={size}
+                                aria-pressed={doc.textSize === size}
+                                onClick={() =>
+                                  update({ ...doc, textSize: size })
+                                }
+                                title={`${textSizePoints[size]} pt`}
+                              >
+                                <span
+                                  className="size-sample"
+                                  style={{
+                                    fontSize: `${10 + (textSizePoints[size] - 8.5) * 2.4}px`,
+                                  }}
+                                  aria-hidden="true"
+                                >
+                                  Aa
+                                </span>
+                                <span className="visually-hidden">
+                                  {textSizePoints[size]} pt
+                                </span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="control-block">
+                          <h2
+                            className="control-heading"
+                            id="typography-heading"
+                          >
+                            {t('Шрифт резюме', 'Resume typography')}
+                          </h2>
+                          <div
+                            className="segmented"
+                            role="group"
+                            aria-labelledby="typography-heading"
+                          >
+                            {(
+                              [
+                                ['sans', t('Без засечек', 'Sans')],
+                                ['serif', t('С засечками', 'Serif')],
+                                ['mixed', t('Смешанный', 'Mixed')],
+                              ] as const
+                            ).map(([value, label]) => (
+                              <button
+                                key={value}
+                                aria-pressed={doc.typography === value}
+                                onClick={() =>
+                                  update({ ...doc, typography: value })
+                                }
+                              >
+                                {label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="control-block">
+                          <h2 className="control-heading" id="density-heading">
+                            {t('Плотность текста', 'Text density')}
+                          </h2>
+                          <div
+                            className="segmented"
+                            role="group"
+                            aria-labelledby="density-heading"
+                          >
+                            {(
+                              [
+                                ['comfortable', t('Свободнее', 'Comfortable')],
+                                ['compact', t('Компактнее', 'Compact')],
+                              ] as const
+                            ).map(([value, label]) => (
+                              <button
+                                key={value}
+                                aria-pressed={doc.density === value}
+                                onClick={() =>
+                                  update({ ...doc, density: value })
+                                }
+                              >
+                                {label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </>
+                    ) : designPane === 'sections' ? (
+                      <>
+                        <h2 className="control-heading">
+                          {t('Порядок разделов', 'Section order')}
+                        </h2>
+                        <p className="field-hint">
+                          {t(
+                            'Переставьте разделы или скройте лишние. Данные скрытых разделов сохраняются.',
+                            'Reorder sections or hide the ones you don’t need. Hidden content is kept.',
                           )}
+                        </p>
+                        <ol className="section-order">
+                          {order.map((s, i) => {
+                            const hidden = doc.hiddenSections.includes(s)
+                            return (
+                              <li key={s} className={hidden ? 'is-hidden' : ''}>
+                                <span>{labels[s]}</span>
+                                {doc.template === 'sidebar' && (
+                                  <small>
+                                    {['summary', 'work', 'projects'].includes(s)
+                                      ? t('основная колонка', 'main column')
+                                      : t('боковая колонка', 'side column')}
+                                  </small>
+                                )}
+                                <button
+                                  className="icon-button"
+                                  disabled={i === 0}
+                                  onClick={() => moveSection(i, -1)}
+                                  aria-label={`${labels[s]}: ${t('выше', 'move up')}`}
+                                >
+                                  <ArrowUp size={15} />
+                                </button>
+                                <button
+                                  className="icon-button"
+                                  disabled={i === order.length - 1}
+                                  onClick={() => moveSection(i, 1)}
+                                  aria-label={`${labels[s]}: ${t('ниже', 'move down')}`}
+                                >
+                                  <ArrowDown size={15} />
+                                </button>
+                                <button
+                                  className="icon-button"
+                                  aria-pressed={!hidden}
+                                  onClick={() =>
+                                    update({
+                                      ...doc,
+                                      hiddenSections: hidden
+                                        ? doc.hiddenSections.filter(
+                                            (h) => h !== s,
+                                          )
+                                        : [...doc.hiddenSections, s],
+                                    })
+                                  }
+                                  aria-label={`${labels[s]}: ${t('показывать в PDF', 'show in PDF')}`}
+                                >
+                                  {hidden ? (
+                                    <EyeOff size={15} />
+                                  ) : (
+                                    <Eye size={15} />
+                                  )}
+                                </button>
+                              </li>
+                            )
+                          })}
+                        </ol>
+                        {(doc.sectionOrder.length > 0 ||
+                          doc.hiddenSections.length > 0) && (
                           <button
-                            className="icon-button"
-                            disabled={i === 0}
-                            onClick={() => moveSection(i, -1)}
-                            aria-label={`${labels[s]}: ${t('выше', 'move up')}`}
-                          >
-                            <ArrowUp size={15} />
-                          </button>
-                          <button
-                            className="icon-button"
-                            disabled={i === order.length - 1}
-                            onClick={() => moveSection(i, 1)}
-                            aria-label={`${labels[s]}: ${t('ниже', 'move down')}`}
-                          >
-                            <ArrowDown size={15} />
-                          </button>
-                          <button
-                            className="icon-button"
-                            aria-pressed={!hidden}
+                            className="text-button"
                             onClick={() =>
                               update({
                                 ...doc,
-                                hiddenSections: hidden
-                                  ? doc.hiddenSections.filter((h) => h !== s)
-                                  : [...doc.hiddenSections, s],
+                                sectionOrder: [],
+                                hiddenSections: [],
                               })
                             }
-                            aria-label={`${labels[s]}: ${t('показывать в PDF', 'show in PDF')}`}
                           >
-                            {hidden ? <EyeOff size={15} /> : <Eye size={15} />}
+                            {t(
+                              'Вернуть порядок шаблона',
+                              'Reset to the template’s order',
+                            )}
                           </button>
-                        </li>
-                      )
-                    })}
-                  </ol>
-                  {(doc.sectionOrder.length > 0 ||
-                    doc.hiddenSections.length > 0) && (
-                    <button
-                      className="text-button"
-                      onClick={() =>
-                        update({ ...doc, sectionOrder: [], hiddenSections: [] })
-                      }
-                    >
-                      {t(
-                        'Вернуть порядок шаблона',
-                        'Reset to the template’s order',
-                      )}
-                    </button>
-                  )}
-                  <h2 className="control-heading">
-                    {t('Цвет акцента', 'Accent color')}
-                  </h2>
-                  <div className="color-options">
-                    {accents.map((color, i) => (
-                      <button
-                        key={color}
-                        aria-label={t(colorNames[i].ru, colorNames[i].en)}
-                        aria-pressed={doc.accent === color}
-                        style={{ background: color }}
-                        onClick={() => update({ ...doc, accent: color })}
-                      >
-                        {doc.accent === color && <Check size={18} />}
-                      </button>
-                    ))}
-                  </div>
-                  {doc.template === 'classic' && (
-                    <p className="field-hint">
-                      {t(
-                        'Classic использует строгую монохромную палитру.',
-                        'Classic uses a timeless monochrome palette.',
-                      )}
-                    </p>
-                  )}
-                  <div className="control-block">
-                    <h2 className="control-heading" id="typography-heading">
-                      {t('Шрифт резюме', 'Resume typography')}
-                    </h2>
-                    <div
-                      className="segmented"
-                      role="group"
-                      aria-labelledby="typography-heading"
-                    >
-                      {(
-                        [
-                          ['sans', t('Без засечек', 'Sans')],
-                          ['serif', t('С засечками', 'Serif')],
-                          ['mixed', t('Смешанный', 'Mixed')],
-                        ] as const
-                      ).map(([value, label]) => (
-                        <button
-                          key={value}
-                          aria-pressed={doc.typography === value}
-                          onClick={() => update({ ...doc, typography: value })}
-                        >
-                          {label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="control-block">
-                    <h2 className="control-heading" id="density-heading">
-                      {t('Плотность текста', 'Text density')}
-                    </h2>
-                    <div
-                      className="segmented"
-                      role="group"
-                      aria-labelledby="density-heading"
-                    >
-                      {(
-                        [
-                          ['comfortable', t('Свободнее', 'Comfortable')],
-                          ['compact', t('Компактнее', 'Compact')],
-                        ] as const
-                      ).map(([value, label]) => (
-                        <button
-                          key={value}
-                          aria-pressed={doc.density === value}
-                          onClick={() => update({ ...doc, density: value })}
-                        >
-                          {label}
-                        </button>
-                      ))}
-                    </div>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        <p className="form-description">
+                          {t(
+                            'Имя файла и свойства, которые видят программы и системы отбора. Пустые поля заполняются из резюме автоматически.',
+                            'The file name and the properties that apps and screening systems read. Empty fields are filled from your resume.',
+                          )}
+                        </p>
+                        {(
+                          [
+                            [
+                              'fileName',
+                              t('Имя файла', 'File name'),
+                              meta.fileName,
+                            ],
+                            [
+                              'title',
+                              t('Заголовок документа', 'Document title'),
+                              meta.title,
+                            ],
+                            ['author', t('Автор', 'Author'), meta.author],
+                            ['subject', t('Тема', 'Subject'), meta.subject],
+                            [
+                              'keywords',
+                              t('Ключевые слова', 'Keywords'),
+                              meta.keywords,
+                            ],
+                          ] as const
+                        ).map(([key, label, fallback]) => (
+                          <FormField
+                            key={key}
+                            label={label}
+                            value={doc.pdf[key]}
+                            multiline={key === 'keywords'}
+                            placeholder={fallback}
+                            hint={
+                              key === 'fileName'
+                                ? t(
+                                    'Без «.pdf» — расширение добавится само.',
+                                    'Without “.pdf” — it is added for you.',
+                                  )
+                                : undefined
+                            }
+                            onChange={(v) =>
+                              update(
+                                { ...doc, pdf: { ...doc.pdf, [key]: v } },
+                                `pdf:${key}`,
+                              )
+                            }
+                          />
+                        ))}
+                        {Object.values(doc.pdf).some((v) => v.trim()) && (
+                          <button
+                            className="text-button"
+                            onClick={() =>
+                              update({ ...doc, pdf: emptyPdfMeta() })
+                            }
+                          >
+                            {t(
+                              'Вернуть автоматические значения',
+                              'Use automatic values',
+                            )}
+                          </button>
+                        )}
+                      </>
+                    )}
                   </div>
                 </>
               ) : (
@@ -1238,8 +1374,6 @@ export default function Editor({
                         lang={lang}
                         goSection={(next) => goSection(next, true)}
                         addSkill={addSkill}
-                        exportFile={exportFile}
-                        exporting={exporting}
                       />
                     </>
                   ) : (
@@ -1420,7 +1554,7 @@ export default function Editor({
                               value={resume.basics.phone}
                               onChange={(v) => basic('phone', v)}
                               type="tel"
-                              placeholder="+420 …"
+                              placeholder="+49 …"
                               validate={checkPhone}
                             />
                           </div>
@@ -1429,8 +1563,8 @@ export default function Editor({
                             value={resume.basics.location}
                             onChange={(v) => basic('location', v)}
                             placeholder={t(
-                              'Например, Прага, Чехия',
-                              'e.g. Prague, Czechia',
+                              'Например, Берлин, Германия',
+                              'e.g. Berlin, Germany',
                             )}
                           />
                           <FormField
@@ -1553,6 +1687,7 @@ export default function Editor({
                               title={e.title || `${labels[section]} ${i + 1}`}
                               locale={locale}
                               contentLocale={lang}
+                              fresh={freshEntry === e.id}
                               expanded={!collapsed.has(`${section}:${e.id}`)}
                               toggle={() => toggleEntry(e.id)}
                               moveUp={
@@ -1761,28 +1896,78 @@ export default function Editor({
                           )}
                         </button>
                       )}
-                      <div className="form-bottom">
-                        <button
-                          className="button secondary"
-                          onClick={() =>
-                            steps.indexOf(section) < steps.length - 1
-                              ? goSection(steps[steps.indexOf(section) + 1])
-                              : ((focusSection.current = true),
-                                setTab('design'))
-                          }
-                        >
-                          {steps.indexOf(section) < steps.length - 1
-                            ? t('Далее', 'Next')
-                            : t('К оформлению', 'Choose a design')}
-                          <ChevronRight size={16} />
-                        </button>
-                      </div>
                     </>
                   )}
                 </>
               )}
             </div>
           </ContentLang.Provider>
+          <footer className="form-footer">
+            {tab === 'design' ? (
+              <>
+                <button
+                  className="button secondary"
+                  onClick={() => {
+                    focusSection.current = true
+                    setTab('content')
+                  }}
+                >
+                  <ChevronLeft size={16} />
+                  {t('К содержанию', 'Back to content')}
+                </button>
+                <button
+                  className="button primary"
+                  onClick={exportFile}
+                  disabled={exporting}
+                >
+                  <Download size={16} />
+                  {t('Скачать PDF', 'Download PDF')}
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  className="button secondary"
+                  disabled={stepIndex === 0}
+                  onClick={() => goSection(steps[stepIndex - 1])}
+                  aria-label={
+                    stepIndex > 0
+                      ? `${t('Назад', 'Back')}: ${stepLabel(steps[stepIndex - 1])}`
+                      : t('Назад', 'Back')
+                  }
+                >
+                  <ChevronLeft size={16} />
+                  <span>
+                    {stepIndex > 0
+                      ? stepLabel(steps[stepIndex - 1])
+                      : t('Назад', 'Back')}
+                  </span>
+                </button>
+                <span className="form-footer-step" aria-hidden="true">
+                  {stepIndex + 1} / {steps.length}
+                </span>
+                {section === 'review' ? (
+                  <button
+                    className="button primary"
+                    onClick={exportFile}
+                    disabled={exporting}
+                  >
+                    <Download size={16} />
+                    {t('Скачать PDF', 'Download PDF')}
+                  </button>
+                ) : (
+                  <button
+                    className="button primary"
+                    onClick={() => goSection(steps[stepIndex + 1])}
+                    aria-label={`${t('Далее', 'Next')}: ${stepLabel(steps[stepIndex + 1])}`}
+                  >
+                    <span>{stepLabel(steps[stepIndex + 1])}</span>
+                    <ChevronRight size={16} />
+                  </button>
+                )}
+              </>
+            )}
+          </footer>
         </section>
         <section
           className="preview-panel"

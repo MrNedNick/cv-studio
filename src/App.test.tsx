@@ -76,26 +76,25 @@ it('preserves shared contacts while keeping translated names separate', async ()
   fireEvent.change(screen.getByLabelText('GitHub'), {
     target: { value: 'https://github.com/example' },
   })
-  fireEvent.change(screen.getByRole('combobox', { name: 'Язык резюме' }), {
+  fireEvent.change(screen.getByRole('combobox', { name: 'Язык интерфейса' }), {
     target: { value: 'de' },
   })
-  // The interface stays Russian; the form now edits the German version.
-  expect(screen.getByLabelText('Электронная почта')).toHaveValue(
-    'test@example.com',
-  )
+  // The site and the resume switch together to the German version.
+  expect(screen.getByLabelText('E-Mail')).toHaveValue('test@example.com')
   expect(screen.getByLabelText('GitHub')).toHaveValue(
     'https://github.com/example',
   )
-  expect(screen.getByLabelText('Имя и фамилия')).toHaveValue('Alex Morgan')
-  expect(screen.getByLabelText('Должность или специализация')).toHaveValue(
+  expect(screen.getByLabelText('Vollständiger Name')).toHaveValue('Alex Morgan')
+  expect(screen.getByLabelText('Position oder Fachgebiet')).toHaveValue(
     'Produktdesignerin',
   )
-  fireEvent.change(screen.getByLabelText('Имя и фамилия'), {
+  fireEvent.change(screen.getByLabelText('Vollständiger Name'), {
     target: { value: 'Alex M.' },
   })
-  fireEvent.change(screen.getByRole('combobox', { name: 'Язык резюме' }), {
-    target: { value: 'ru' },
-  })
+  fireEvent.change(
+    screen.getByRole('combobox', { name: 'Sprache der Oberfläche' }),
+    { target: { value: 'ru' } },
+  )
   expect(screen.getByLabelText('Имя и фамилия')).toHaveValue(
     'Александра Морозова',
   )
@@ -121,14 +120,18 @@ it('adds, edits, deletes, and restores an experience entry', async () => {
   expect(screen.queryByLabelText('Должность')).not.toBeInTheDocument()
   fireEvent.click(screen.getByRole('button', { name: 'Отменить' }))
   expect(screen.getByLabelText('Должность')).toHaveValue('Designer')
-  for (const version of ['en', 'uk']) {
-    fireEvent.change(screen.getByRole('combobox', { name: 'Язык резюме' }), {
-      target: { value: version },
-    })
-    expect(screen.getByLabelText('Должность')).toHaveValue('')
-    expect(screen.getByLabelText('Начало')).toHaveValue('2024-01')
-    expect(screen.getByLabelText('По настоящее время')).toBeChecked()
-  }
+  fireEvent.change(screen.getByRole('combobox', { name: 'Язык интерфейса' }), {
+    target: { value: 'en' },
+  })
+  expect(screen.getByLabelText('Job title')).toHaveValue('')
+  expect(screen.getByLabelText('Start date')).toHaveValue('2024-01')
+  expect(screen.getByLabelText('Present')).toBeChecked()
+  fireEvent.change(
+    screen.getByRole('combobox', { name: 'Interface language' }),
+    { target: { value: 'uk' } },
+  )
+  expect(screen.getByLabelText('Посада')).toHaveValue('')
+  expect(screen.getByLabelText('Початок')).toHaveValue('2024-01')
 })
 it('announces selected design controls and restores typography with undo', async () => {
   render(
@@ -142,6 +145,7 @@ it('announces selected design controls and restores typography with undo', async
     'aria-pressed',
     'true',
   )
+  fireEvent.click(screen.getByRole('tab', { name: 'Стиль' }))
   const typography = screen.getByRole('group', { name: 'Шрифт резюме' })
   fireEvent.click(
     within(typography).getByRole('button', { name: 'С засечками' }),
@@ -713,7 +717,11 @@ it('keeps writing guidance tucked away until it is opened', async () => {
   fireEvent.click(toggle)
   expect(toggle).toHaveAttribute('aria-expanded', 'true')
   expect(screen.getByText(/Укажите должность/)).toBeVisible()
-  expect(localStorage.getItem('cv-guide')).toBe('open')
+  // The next section starts closed again.
+  fireEvent.click(screen.getByRole('button', { name: /^Далее/ }))
+  expect(
+    screen.getByRole('button', { name: 'Как заполнить этот раздел' }),
+  ).toHaveAttribute('aria-expanded', 'false')
 })
 it('offers to start an empty language version from a filled one', async () => {
   render(
@@ -728,26 +736,26 @@ it('offers to start an empty language version from a filled one', async () => {
   fireEvent.change(screen.getByLabelText('Должность или специализация'), {
     target: { value: 'Фронтенд-разработчик' },
   })
-  fireEvent.change(screen.getByRole('combobox', { name: 'Язык резюме' }), {
+  fireEvent.change(screen.getByRole('combobox', { name: 'Язык интерфейса' }), {
     target: { value: 'bg' },
   })
-  expect(screen.getByText('Версия «Български» пока пустая')).toBeVisible()
-  fireEvent.click(screen.getByRole('button', { name: /Скопировать текст/ }))
-  expect(screen.getByLabelText('Должность или специализация')).toHaveValue(
+  expect(screen.getByText('Версията „Български“ е празна')).toBeVisible()
+  fireEvent.click(screen.getByRole('button', { name: /Копирай текста/ }))
+  expect(screen.getByLabelText('Длъжност или специалност')).toHaveValue(
     'Фронтенд-разработчик',
   )
-  expect(screen.queryByText(/пока пустая/)).not.toBeInTheDocument()
-  fireEvent.change(screen.getByLabelText('Должность или специализация'), {
+  fireEvent.change(screen.getByLabelText('Длъжност или специалност'), {
     target: { value: 'Frontend разработчик' },
   })
-  fireEvent.change(screen.getByRole('combobox', { name: 'Язык резюме' }), {
-    target: { value: 'ru' },
-  })
+  fireEvent.change(
+    screen.getByRole('combobox', { name: 'Език на интерфейса' }),
+    { target: { value: 'ru' } },
+  )
   expect(screen.getByLabelText('Должность или специализация')).toHaveValue(
     'Фронтенд-разработчик',
   )
 })
-it('translates the interface into German while editing another version', async () => {
+it('shows the interface and the resume in German together', async () => {
   localStorage.setItem('cv-locale', 'de')
   render(
     <MemoryRouter initialEntries={['/edit']}>
@@ -758,36 +766,80 @@ it('translates the interface into German while editing another version', async (
     await screen.findByRole('button', { name: /Mit einem Beispiel beginnen/ }),
   )
   expect(screen.getByLabelText('Vollständiger Name')).toHaveValue('Alex Morgan')
-  expect(
-    screen.getByRole('combobox', { name: 'Sprache des Lebenslaufs' }),
-  ).toHaveValue('de')
+  expect(screen.getByLabelText('Position oder Fachgebiet')).toHaveValue(
+    'Produktdesignerin',
+  )
+  expect(screen.getByLabelText('Stadt und Land')).toHaveValue(
+    'Berlin, Deutschland',
+  )
 })
-it('keeps the resume in the interface language unless another one was chosen', async () => {
-  vi.mocked(loadDocument).mockResolvedValueOnce(createDocument(true, 'ru'))
+it('opens the resume version that matches the site language', async () => {
+  vi.mocked(loadDocument).mockResolvedValueOnce(createDocument(true, 'de'))
   render(
     <MemoryRouter initialEntries={['/edit']}>
       <App />
     </MemoryRouter>,
   )
-  await screen.findByLabelText('Имя и фамилия')
-  const ui = screen.getByRole('combobox', { name: 'Язык интерфейса' })
-  fireEvent.change(ui, { target: { value: 'de' } })
-  // In sync: the German version (filled in the example) follows.
+  // Stored as German, shown in the site language (Russian here).
+  expect(await screen.findByLabelText('Имя и фамилия')).toHaveValue(
+    'Александра Морозова',
+  )
+  fireEvent.change(screen.getByRole('combobox', { name: 'Язык интерфейса' }), {
+    target: { value: 'es' },
+  })
+  expect(screen.getByLabelText('Nombre completo')).toHaveValue('Alex Morgan')
+  expect(screen.getByLabelText('Puesto o especialidad')).toHaveValue(
+    'Diseñadora de producto',
+  )
+})
+it('moves between steps with a fixed Back and Next footer', async () => {
+  render(
+    <MemoryRouter initialEntries={['/edit']}>
+      <App />
+    </MemoryRouter>,
+  )
+  fireEvent.click(await screen.findByRole('button', { name: /Новое резюме/ }))
+  expect(screen.getByRole('button', { name: /^Назад/ })).toBeDisabled()
+  fireEvent.click(screen.getByRole('button', { name: 'Далее: О себе' }))
+  expect(screen.getByRole('heading', { name: 'О себе' })).toBeInTheDocument()
+  fireEvent.click(screen.getByRole('button', { name: 'Назад: Личные данные' }))
   expect(
-    screen.getByRole('combobox', { name: 'Sprache des Lebenslaufs' }),
-  ).toHaveValue('de')
-  fireEvent.change(
-    screen.getByRole('combobox', { name: 'Sprache des Lebenslaufs' }),
-    { target: { value: 'uk' } },
+    screen.getByRole('heading', { name: 'Личные данные' }),
+  ).toBeInTheDocument()
+})
+it('deletes an entry from the button under its fields', async () => {
+  render(
+    <MemoryRouter initialEntries={['/edit']}>
+      <App />
+    </MemoryRouter>,
   )
-  fireEvent.change(
-    screen.getByRole('combobox', { name: 'Sprache der Oberfläche' }),
-    {
-      target: { value: 'en' },
-    },
+  fireEvent.click(await screen.findByRole('button', { name: /Новое резюме/ }))
+  fireEvent.click(screen.getByRole('button', { name: /Опыт работы/ }))
+  fireEvent.click(screen.getByRole('button', { name: 'Добавить запись' }))
+  fireEvent.change(screen.getByLabelText('Должность'), {
+    target: { value: 'Temp' },
+  })
+  fireEvent.click(screen.getByRole('button', { name: 'Удалить эту запись' }))
+  expect(screen.queryByLabelText('Должность')).not.toBeInTheDocument()
+  fireEvent.click(screen.getByRole('button', { name: 'Отменить' }))
+  expect(screen.getByLabelText('Должность')).toHaveValue('Temp')
+})
+it('edits PDF properties in Design and falls back to the resume', async () => {
+  render(
+    <MemoryRouter initialEntries={['/edit']}>
+      <App />
+    </MemoryRouter>,
   )
-  // Chosen separately: Ukrainian stays.
-  expect(screen.getByRole('combobox', { name: 'Resume language' })).toHaveValue(
-    'uk',
+  fireEvent.click(
+    await screen.findByRole('button', { name: /Начать с примера/ }),
   )
+  fireEvent.click(screen.getByRole('button', { name: 'Дизайн' }))
+  fireEvent.click(screen.getByRole('tab', { name: 'PDF' }))
+  const author = screen.getByLabelText('Автор')
+  expect(author).toHaveAttribute('placeholder', 'Александра Морозова')
+  fireEvent.change(author, { target: { value: 'A. Morozova' } })
+  fireEvent.click(
+    screen.getByRole('button', { name: 'Вернуть автоматические значения' }),
+  )
+  expect(screen.getByLabelText('Автор')).toHaveValue('')
 })

@@ -55,6 +55,8 @@ const messages: Record<string, string> = {
   'At least 3 achievement points for your most recent job.':
     'Поне 3 постижения за последната Ви работа.',
   Author: 'Автор',
+  Back: 'Назад',
+  'Back to content': 'Към съдържанието',
   'Back to editing': 'Обратно към редакцията',
   Before: 'Преди',
   Blue: 'Син',
@@ -64,6 +66,8 @@ const messages: Record<string, string> = {
     'Накратко: кой сте, най-добрият Ви резултат и какво търсите.',
   Build: 'Създаване',
   Burgundy: 'Бордо',
+  'By default these come from your name, job title, and skills. Change them under Design → PDF. Metadata describes the file; it does not guarantee a screening rank.':
+    'По подразбиране се взимат от името, длъжността и уменията. Можете да ги промените в „Дизайн → PDF“. Метаданните описват файла; те не гарантират позиция при подбора.',
   'CONTACT DETAILS': 'КОНТАКТИ',
   Cancel: 'Отказ',
   'Centered and composed for senior roles':
@@ -78,7 +82,6 @@ const messages: Record<string, string> = {
     'Проверете имейла: трябва да съдържа @ и домейн.',
   'Check your website link. Use an http or https address.':
     'Проверете линка към сайта. Използвайте адрес с http или https.',
-  'Choose a design': 'Изберете дизайн',
   'Choose what feels like you. Switch templates any time without losing a word.':
     'Изберете това, което Ви подхожда. Сменяйте шаблона по всяко време, без да губите и дума.',
   'Choose your template and color. See every change in the live preview.':
@@ -92,6 +95,7 @@ const messages: Record<string, string> = {
     'Класическа типография със серифи, центрирана',
   'Classic uses a timeless monochrome palette.':
     'Classic използва безвремева монохромна палитра.',
+  'Clear everything': 'Изчисти всичко',
   Close: 'Затвори',
   'Collapse all': 'Свий всички',
   Comfortable: 'Просторно',
@@ -126,10 +130,13 @@ const messages: Record<string, string> = {
   'Degree / field of study': 'Степен / специалност',
   'Degree, institution and years. Recent graduates can add relevant courses or a thesis.':
     'Степен, учебно заведение и години. Наскоро завършилите могат да добавят курсове или дипломна работа.',
+  'Delete this entry': 'Изтрий този запис',
   Description: 'Описание',
   Design: 'Дизайн',
+  'Design settings': 'Настройки на дизайна',
   'Dismiss notification': 'Затвори известието',
   'Dismiss tip': 'Скрий подсказката',
+  'Document title': 'Заглавие на документа',
   Done: 'Готово',
   Download: 'Изтегли',
   'Download .txt for forms': 'Изтегли .txt за формуляри',
@@ -156,6 +163,7 @@ const messages: Record<string, string> = {
   'Every template and feature is free': 'Всички шаблони и функции са безплатни',
   'Expand all': 'Разгъни всички',
   'Explore templates': 'Разгледайте шаблоните',
+  'File name': 'Име на файла',
   'Fill in the sections at your own pace. Your changes save automatically.':
     'Попълвайте разделите със свое темпо. Промените се запазват автоматично.',
   Filled: 'Попълнено',
@@ -249,7 +257,6 @@ const messages: Record<string, string> = {
   'My resume': 'Моята автобиография',
   'Name and contact': 'Име и контакт',
   Navy: 'Тъмносин',
-  'New resume': 'Нова автобиография',
   Next: 'Напред',
   'Next page': 'Следваща страница',
   'No clichés': 'Без клишета',
@@ -264,7 +271,6 @@ const messages: Record<string, string> = {
   'Not saved': 'Не е запазено',
   'Nothing but text and whitespace': 'Само текст и въздух',
   'Nothing here yet': 'Тук още няма нищо',
-  'Now editing the {language} version': 'Редактира се версията: {language}',
   'Now: {count}. Concrete tools and methods, no generic traits.':
     'Сега: {count}. Конкретни инструменти и методи, без общи качества.',
   Olive: 'Маслинено',
@@ -304,6 +310,8 @@ const messages: Record<string, string> = {
   'Photo (optional)': 'Снимка (по избор)',
   'Pick 2–4 projects that match the role. Link to the live version or code.':
     'Изберете 2–4 проекта, подходящи за позицията. Дайте линк към работещата версия или кода.',
+  'Pick a template, then tune the style, sections, and PDF file. Your content stays the same.':
+    'Изберете шаблон, после настройте стила, разделите и PDF файла. Съдържанието остава същото.',
   Plum: 'Сливово',
   'Points for your latest role': 'Точки за последната позиция',
   'Points start with actions, not duties.':
@@ -344,7 +352,6 @@ const messages: Record<string, string> = {
   'Reset to the template’s order': 'Върни реда на шаблона',
   'Responsible for the checkout page.': 'Отговарях за страницата за поръчки.',
   'Resume actions': 'Действия с автобиографията',
-  'Resume language': 'Език на автобиографията',
   'Resume opened. Undo restores the previous document.':
     'Автобиографията е отворена. „Отмени“ връща предишния документ.',
   'Resume preview': 'Преглед на автобиографията',
@@ -402,17 +409,20 @@ const messages: Record<string, string> = {
   'Start with your most recent role. Focus on what you achieved.':
     'Започнете с последната си позиция. Наблегнете на постигнатото.',
   'Strong action verbs': 'Силни глаголи за действие',
+  Style: 'Стил',
   Subject: 'Тема',
   'Take the next step': 'Направете следващата стъпка',
-  'Taken from the name, job title, and visible skills in your selected version. Edit these in the form. Metadata describes your file; it does not guarantee a screening rank.':
-    'Взимат се от името, длъжността и видимите умения в избраната версия. Променете ги във формуляра. Метаданните описват файла; те не гарантират позиция при подбора.',
   'Target job title': 'Целева длъжност',
   Teal: 'Тюркоазено',
   'Tell your story': 'Разкажете своята история',
+  Template: 'Шаблон',
   Templates: 'Шаблони',
   Terracotta: 'Теракота',
   Text: 'Текст',
   'Text density': 'Плътност на текста',
+  'Text size': 'Размер на текста',
+  'The file name and the properties that apps and screening systems read. Empty fields are filled from your resume.':
+    'Името на файла и свойствата, които четат програмите и системите за подбор. Празните полета се попълват от автобиографията.',
   'The first step is simple.': 'Първата стъпка е лесна.',
   'The title under your name is the first thing matched to a vacancy.':
     'Заглавието под името е първото, което се сравнява с обявата.',
@@ -434,8 +444,6 @@ const messages: Record<string, string> = {
   'To improve': 'За подобрение',
   'Toggle color theme': 'Смени цветовата тема',
   'Try an example': 'Вижте пример',
-  'Try different looks. Your content stays the same.':
-    'Опитайте различни стилове. Съдържанието остава същото.',
   Undo: 'Отмени',
   'Undo · Ctrl/⌘ Z': 'Отмени · Ctrl/⌘ Z',
   'Untitled resume': 'Автобиография без заглавие',
@@ -448,6 +456,7 @@ const messages: Record<string, string> = {
     'С „Отмени“ горе възстановявате премахнати записи или промени.',
   'Use a web address, like linkedin.com/in/name.':
     'Нужен е уеб адрес, например linkedin.com/in/name.',
+  'Use automatic values': 'Използвай автоматичните стойности',
   'Use template': 'Използвай шаблона',
   'Use the job title you are applying for, written the way vacancies write it.':
     'Посочете длъжността, за която кандидатствате, така, както е изписана в обявите.',
@@ -458,6 +467,8 @@ const messages: Record<string, string> = {
   'What do you do well, and what value do you bring?':
     'В какво сте добри и каква стойност носите?',
   'Which copy do you need?': 'Какво копие Ви трябва?',
+  'Without “.pdf” — it is added for you.':
+    'Без „.pdf“ — разширението се добавя само.',
   'YOUR NEXT CHAPTER': 'ВАШАТА СЛЕДВАЩА ГЛАВА',
   'Your data stays in your browser': 'Данните Ви остават в браузъра',
   'Your data stays with you.': 'Данните Ви остават при Вас.',
@@ -484,9 +495,8 @@ const messages: Record<string, string> = {
   '[Job title] with [N] years of experience in [field]. [Strongest result with a number]. Looking for [the role or team you want].':
     '[Длъжност] с [N] години опит в [област]. [Най-силният резултат с число]. Търси [желаната роля или екип].',
   'best.': 'си вид.',
-  'e.g. Prague, Czechia': 'напр. Прага, Чехия',
+  'e.g. Berlin, Germany': 'напр. Берлин, Германия',
   'e.g. Product designer': 'напр. Продуктов дизайнер',
-  empty: 'празна',
   'great presentation.': 'добро представяне.',
   'key skills from the posting appear in your resume.':
     'ключови умения от обявата има в автобиографията Ви.',

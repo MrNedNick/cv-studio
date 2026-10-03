@@ -17,6 +17,8 @@ import {
   sectionLabels,
   toJsonResume,
   visibleSections,
+  pdfMetadata,
+  textSizePoints,
   type BodySection,
   type Entry,
   type StudioDocument,
@@ -67,10 +69,15 @@ export function ResumePDF({ doc }: { doc: StudioDocument }) {
     accent = classic ? '#252b2a' : doc.accent,
     bodyFont = doc.typography === 'serif' ? 'NotoSerif' : 'Noto',
     headingFont = doc.typography === 'sans' && !ivy ? 'Noto' : 'NotoSerif'
+  const meta = pdfMetadata(doc),
+    base =
+      textSizePoints[doc.textSize] - (doc.template === 'compact' ? 0.5 : 0),
+    // Secondary sizes follow the body size so every text size stays balanced.
+    scale = base / 10
   const heading = {
     fontFamily: headingFont,
     color: accent,
-    fontSize: 10,
+    fontSize: 10 * scale,
     fontWeight: 700,
     marginBottom: 8,
     marginTop: compact ? 12 : 18,
@@ -178,7 +185,11 @@ export function ResumePDF({ doc }: { doc: StudioDocument }) {
                   </Text>
                   {key !== 'languages' && !timeline && (
                     <Text
-                      style={{ color: '#59635f', fontSize: 8, maxWidth: 165 }}
+                      style={{
+                        color: '#59635f',
+                        fontSize: 8 * scale,
+                        maxWidth: 165,
+                      }}
                     >
                       {dateRange(e, doc.language)}
                     </Text>
@@ -208,7 +219,7 @@ export function ResumePDF({ doc }: { doc: StudioDocument }) {
               {e.url && safeUrl(e.url) && (
                 <Link
                   src={safeUrl(e.url)!}
-                  style={{ color: accent, fontSize: 9, marginTop: 4 }}
+                  style={{ color: accent, fontSize: 9 * scale, marginTop: 4 }}
                 >
                   {e.url.replace(/^https?:\/\//, '')}
                 </Link>
@@ -294,14 +305,10 @@ export function ResumePDF({ doc }: { doc: StudioDocument }) {
           : block(section)) || null
   return (
     <Document
-      title={`${r.basics.name || 'Resume'} — CV`}
-      author={r.basics.name}
-      subject={r.basics.label}
-      keywords={r.skills
-        .split(',')
-        .map((s) => s.trim())
-        .filter(Boolean)
-        .join(', ')}
+      title={meta.title}
+      author={meta.author}
+      subject={meta.subject}
+      keywords={meta.keywords}
       language={doc.language}
     >
       <Page
@@ -309,7 +316,7 @@ export function ResumePDF({ doc }: { doc: StudioDocument }) {
         style={{
           fontFamily: bodyFont,
           color: '#25332e',
-          fontSize: compact ? 9 : 10,
+          fontSize: base,
           lineHeight: 1.5,
           paddingTop: 40,
           paddingBottom: 42,
@@ -404,7 +411,7 @@ export function ResumePDF({ doc }: { doc: StudioDocument }) {
                 flexWrap: 'wrap',
                 gap: 10,
                 marginTop: 10,
-                fontSize: 8,
+                fontSize: 8 * scale,
                 color: muted,
                 ...(centered && { justifyContent: 'center' }),
               }}
