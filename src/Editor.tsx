@@ -3,6 +3,7 @@ import {
   Suspense,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
   type CSSProperties,
@@ -46,6 +47,7 @@ import {
 } from 'lucide-react'
 import {
   accents,
+  createDocument,
   emptyEntry,
   getTips,
   sectionLabels,
@@ -62,6 +64,7 @@ import {
   sharedBasics,
   sharedEntryFields,
   templateOrder,
+  type BodySection,
   type EntrySection,
   type Locale,
   type Resume,
@@ -74,8 +77,12 @@ import { Switch } from './ui/components/switch/switch'
 import EntryCard from './EntryCard'
 import { translator } from './i18n'
 import { preparePhoto } from './photo'
-import { canAnimate, useLingering, useMediaQuery } from './motion'
+import { canAnimate, Disclosure, useLingering, useMediaQuery } from './motion'
 import { ReviewStep, WritingGuide } from './Coach'
+import { SkillsField } from './SkillsField'
+import { LanguageFields } from './LanguageFields'
+import { languageName, proficiency } from './suggestions'
+import { reviewResume } from './writing'
 const Preview = lazy(() => import('./Preview'))
 const icons = {
   basics: UserRound,
@@ -87,8 +94,14 @@ const icons = {
   languages: Globe2,
 }
 type Step = 'design' | Section | 'review'
-// Design comes first: people pick a look, then fill in the content.
+// A template comes first: people pick a look, then fill in the content.
 const steps: Step[] = ['design', ...sections, 'review']
+/** Steps that can be left out of the resume; personal details always stay. */
+const hideable = (step: Step): step is BodySection =>
+  step !== 'design' && step !== 'review' && step !== 'basics'
+const entrySections = ['work', 'education', 'projects', 'languages'] as const
+const isEntrySection = (step: Step): step is EntrySection =>
+  (entrySections as readonly Step[]).includes(step)
 const colorNames = [
   { ru: 'Лесной', en: 'Forest' },
   { ru: 'Синий', en: 'Blue' },
@@ -167,9 +180,6 @@ export default function Editor({
     ),
     [activeEntry, setActiveEntry] = useState<string | null>(null),
     [freshEntry, setFreshEntry] = useState<string | null>(null),
-    [designPane, setDesignPane] = useState<
-      'template' | 'style' | 'sections' | 'pdf'
-    >('template'),
     [mobilePreview, setMobilePreview] = useState(false),
     [menu, setMenu] = useState(false),
     [hiddenTips, setHiddenTips] = useState<string[]>([]),
@@ -208,7 +218,24 @@ export default function Editor({
                   e.title.trim() || e.subtitle.trim() || e.description.trim(),
               ),
     ),
-    completed = completedSections.length
+    isHidden = (step: Step) =>
+      hideable(step) && doc.hiddenSections.includes(step),
+    reviewChecks = useMemo(
+      () => reviewResume(resume, locale, lang),
+      [resume, locale, lang],
+    ),
+    reviewScore =
+      reviewChecks.filter((c) => c.ok).length / (reviewChecks.length || 1),
+    // Every row in the step list can earn a check, so the count matches the list.
+    stepDone = (step: Step) =>
+      step === 'design'
+        ? Boolean(doc.templateChosen)
+        : step === 'review'
+          ? reviewScore >= 0.85
+          : (completedSections as Step[]).includes(step),
+    countedSteps = steps.filter((step) => !isHidden(step)),
+    completed = countedSteps.filter(stepDone).length,
+    totalSteps = countedSteps.length
   const form = useRef<HTMLElement>(null),
     menuButton = useRef<HTMLButtonElement>(null),
     menuPanel = useRef<HTMLDivElement>(null),
@@ -231,6 +258,8 @@ export default function Editor({
     }
     focusSection.current = true
     toggleForm(false)
+    if (section === 'design' && next !== 'design' && !doc.templateChosen)
+      update({ ...doc, templateChosen: true })
     setSection(next)
     if (section === next) focusForm()
   }
@@ -370,6 +399,55 @@ export default function Editor({
       })),
     })
   }
+  /** Writes per-version values into one entry, e.g. a language name in each language. */
+  function entryEverywhere(
+    section: EntrySection,
+    id: string,
+    values: (version: Locale) => Partial<Resume['work'][number]>,
+    group: string,
+  ) {
+    const versions = Object.fromEntries(
+      locales.map((l) => [
+        l,
+        {
+          ...doc.versions[l],
+          [section]: doc.versions[l][section].map((e) =>
+            e.id === id ? { ...e, ...values(l) } : e,
+          ),
+        },
+      ]),
+    ) as ResumeDocument['versions']
+    update({ ...doc, versions }, group)
+  }
+  function toggleHidden(step: BodySection) {
+    const hidden = doc.hiddenSections.includes(step)
+    update({
+      ...doc,
+      hiddenSections: hidden
+        ? doc.hiddenSections.filter((h) => h !== step)
+        : [...doc.hiddenSections, step],
+    })
+  }
+  // A section with entries opens with one empty entry ready to fill,
+  // instead of an empty state and an extra click.
+  useEffect(() => {
+    if (
+      !isEntrySection(section) ||
+      resume[section].length ||
+      doc.hiddenSections.includes(section)
+    )
+      return
+    const e = emptyEntry()
+    update({
+      ...doc,
+      versions: mapVersions((version) => ({
+        ...version,
+        [section]: [...version[section], { ...e }],
+      })),
+    })
+    // Only when a section is opened or shown again; deleting the last entry keeps it empty.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [section, isHidden(section)])
   function remove(section: EntrySection, id: string) {
     const index = resume[section].findIndex((e) => e.id === id)
     const next = resume[section][index + 1] || resume[section][index - 1]
@@ -690,19 +768,19 @@ export default function Editor({
             'Use a web address, like linkedin.com/in/name.',
           )
   const stepIndex = steps.indexOf(section),
+    // Back and Next skip the sections the person left out of the resume.
+    prevStep = steps
+      .slice(0, stepIndex)
+      .reverse()
+      .find((step) => !isHidden(step)),
+    nextStep = steps.slice(stepIndex + 1).find((step) => !isHidden(step)),
     stepLabel = (step: Step) =>
       step === 'review'
         ? t('Проверка', 'Review')
         : step === 'design'
-          ? t('Дизайн', 'Design')
+          ? t('Шаблон', 'Template')
           : labels[step]
-  const meta = pdfMetadata(doc),
-    designPanes = [
-      ['template', t('Шаблон', 'Template')],
-      ['style', t('Стиль', 'Style')],
-      ['sections', t('Разделы', 'Sections')],
-      ['pdf', 'PDF'],
-    ] as const
+  const meta = pdfMetadata(doc)
   const emptyVersion = isEmptyVersion(resume),
     sources = locales.filter(
       (l) => l !== lang && !isEmptyVersion(doc.versions[l]),
@@ -740,6 +818,137 @@ export default function Editor({
       'List the languages you speak and your proficiency.',
     ),
   }
+  // On the template step an empty resume would show a blank page; show the
+  // template with example text instead, so the choice is visible.
+  const exampleVersion = useMemo(
+      () => createDocument(true, lang).versions[lang],
+      [lang],
+    ),
+    showExample = section === 'design' && emptyVersion,
+    previewDoc = showExample
+      ? {
+          ...doc,
+          versions: { ...doc.versions, [lang]: exampleVersion },
+        }
+      : doc
+  const sectionOrderControls = (
+    <>
+      <p className="field-hint">
+        {t(
+          'Переставьте разделы или скройте лишние. Данные скрытых разделов сохраняются.',
+          'Reorder sections or hide the ones you don’t need. Hidden content is kept.',
+        )}
+      </p>
+      <ol className="section-order">
+        {order.map((s, i) => {
+          const hidden = doc.hiddenSections.includes(s)
+          return (
+            <li key={s} className={hidden ? 'is-hidden' : ''}>
+              <span>{labels[s]}</span>
+              {doc.template === 'sidebar' && (
+                <small>
+                  {['summary', 'work', 'projects'].includes(s)
+                    ? t('основная колонка', 'main column')
+                    : t('боковая колонка', 'side column')}
+                </small>
+              )}
+              <button
+                className="icon-button"
+                disabled={i === 0}
+                onClick={() => moveSection(i, -1)}
+                aria-label={`${labels[s]}: ${t('выше', 'move up')}`}
+              >
+                <ArrowUp size={15} />
+              </button>
+              <button
+                className="icon-button"
+                disabled={i === order.length - 1}
+                onClick={() => moveSection(i, 1)}
+                aria-label={`${labels[s]}: ${t('ниже', 'move down')}`}
+              >
+                <ArrowDown size={15} />
+              </button>
+              <button
+                className="icon-button"
+                aria-pressed={!hidden}
+                onClick={() =>
+                  update({
+                    ...doc,
+                    hiddenSections: hidden
+                      ? doc.hiddenSections.filter((h) => h !== s)
+                      : [...doc.hiddenSections, s],
+                  })
+                }
+                aria-label={`${labels[s]}: ${t('показывать в PDF', 'show in PDF')}`}
+              >
+                {hidden ? <EyeOff size={15} /> : <Eye size={15} />}
+              </button>
+            </li>
+          )
+        })}
+      </ol>
+      {(doc.sectionOrder.length > 0 || doc.hiddenSections.length > 0) && (
+        <button
+          className="text-button"
+          onClick={() =>
+            update({
+              ...doc,
+              sectionOrder: [],
+              hiddenSections: [],
+            })
+          }
+        >
+          {t('Вернуть порядок шаблона', 'Reset to the template’s order')}
+        </button>
+      )}
+    </>
+  )
+  const pdfControls = (
+    <>
+      <p className="form-description">
+        {t(
+          'Имя файла и свойства, которые видят программы и системы отбора. Пустые поля заполняются из резюме автоматически.',
+          'The file name and the properties that apps and screening systems read. Empty fields are filled from your resume.',
+        )}
+      </p>
+      {(
+        [
+          ['fileName', t('Имя файла', 'File name'), meta.fileName],
+          ['title', t('Заголовок документа', 'Document title'), meta.title],
+          ['author', t('Автор', 'Author'), meta.author],
+          ['subject', t('Тема', 'Subject'), meta.subject],
+          ['keywords', t('Ключевые слова', 'Keywords'), meta.keywords],
+        ] as const
+      ).map(([key, label, fallback]) => (
+        <FormField
+          key={key}
+          label={label}
+          value={doc.pdf[key]}
+          multiline={key === 'keywords'}
+          placeholder={fallback}
+          hint={
+            key === 'fileName'
+              ? t(
+                  'Без «.pdf» — расширение добавится само.',
+                  'Without “.pdf” — it is added for you.',
+                )
+              : undefined
+          }
+          onChange={(v) =>
+            update({ ...doc, pdf: { ...doc.pdf, [key]: v } }, `pdf:${key}`)
+          }
+        />
+      ))}
+      {Object.values(doc.pdf).some((v) => v.trim()) && (
+        <button
+          className="text-button"
+          onClick={() => update({ ...doc, pdf: emptyPdfMeta() })}
+        >
+          {t('Вернуть автоматические значения', 'Use automatic values')}
+        </button>
+      )}
+    </>
+  )
   return (
     <div className="editor">
       <p className="visually-hidden" role="status">
@@ -957,42 +1166,70 @@ export default function Editor({
                       ? Palette
                       : icons[s],
                 label = stepLabel(s),
-                done =
-                  s !== 'review' &&
-                  s !== 'design' &&
-                  completedSections.includes(s)
+                hidden = isHidden(s),
+                done = !hidden && stepDone(s)
               return (
-                <button
+                <div
                   key={s}
-                  aria-pressed={section === s}
-                  className={`${section === s ? 'active' : ''} ${s === 'review' ? 'review-link' : ''} ${s === 'design' ? 'design-link' : ''}`}
-                  onClick={() => {
-                    goSection(s)
-                  }}
+                  className={`section-row ${hidden ? 'is-off' : ''} ${s === 'review' ? 'review-row' : ''} ${s === 'design' ? 'design-row' : ''}`}
                 >
-                  <Icon size={17} />
-                  <span title={label}>{label}</span>
-                  <small className={done ? 'section-complete' : ''}>
-                    {done ? (
-                      <Check size={15} aria-label={t('Заполнено', 'Filled')} />
-                    ) : (
-                      `0${i + 1}`
-                    )}
-                  </small>
-                </button>
+                  <button
+                    aria-pressed={section === s}
+                    className={`${section === s ? 'active' : ''} ${s === 'review' ? 'review-link' : ''} ${s === 'design' ? 'design-link' : ''}`}
+                    onClick={() => {
+                      goSection(s)
+                    }}
+                  >
+                    <Icon size={17} />
+                    <span title={label}>{label}</span>
+                    <small className={done ? 'section-complete' : ''}>
+                      {done ? (
+                        <Check size={15} aria-label={t('Готово', 'Done')} />
+                      ) : (
+                        `0${i + 1}`
+                      )}
+                    </small>
+                  </button>
+                  {hideable(s) && (
+                    <button
+                      className="section-eye"
+                      aria-pressed={!hidden}
+                      aria-label={t(
+                        '«{section}» в резюме',
+                        '{section} in resume',
+                        {
+                          section: label,
+                        },
+                      )}
+                      title={
+                        hidden
+                          ? t('Показать в резюме', 'Show in resume')
+                          : t('Скрыть из резюме', 'Hide from resume')
+                      }
+                      onClick={() => toggleHidden(s)}
+                    >
+                      {hidden ? <EyeOff size={15} /> : <Eye size={15} />}
+                    </button>
+                  )}
+                </div>
               )
             })}
           </nav>
           <div className="sidebar-bottom">
             <div
               className="completion"
-              title={t('Заполнено разделов', 'Sections filled')}
+              title={t(
+                'Готовые шаги; скрытые разделы не считаются',
+                'Steps done; hidden sections are not counted',
+              )}
             >
-              <span>{t('Заполнено', 'Filled')}</span>
-              <strong>{completed} / 7</strong>
+              <span>{t('Готово', 'Done')}</span>
+              <strong>
+                {completed} / {totalSteps}
+              </strong>
             </div>
             <div className="progress-track" aria-hidden="true">
-              <span style={{ width: `${(completed / 7) * 100}%` }} />
+              <span style={{ width: `${(completed / totalSteps) * 100}%` }} />
             </div>
             <button className="text-button clear-all" onClick={start}>
               <RotateCcw size={14} />
@@ -1041,336 +1278,155 @@ export default function Editor({
                       {t('ШАГ', 'STEP')} 01 / 0{steps.length}
                     </div>
                   </div>
-                  <h1 tabIndex={-1}>{t('Оформление', 'Design')}</h1>
+                  <h1 tabIndex={-1}>{t('Шаблон', 'Template')}</h1>
                   <p className="form-description">
                     {t(
-                      'Выберите шаблон, затем настройте стиль, разделы и файл PDF. Текст останется на месте.',
-                      'Pick a template, then tune the style, sections, and PDF file. Your content stays the same.',
+                      'Выберите вид резюме. Его можно сменить в любой момент — текст останется на месте.',
+                      'Choose how your resume looks. You can switch at any time — your text stays.',
                     )}
                   </p>
-                  <div
-                    className="segmented design-panes"
-                    role="tablist"
-                    aria-label={t('Настройки оформления', 'Design settings')}
-                  >
-                    {designPanes.map(([pane, label]) => (
+                  <div className="design-options">
+                    {templates.map((template) => (
                       <button
-                        key={pane}
-                        role="tab"
-                        aria-selected={designPane === pane}
-                        onClick={() => setDesignPane(pane)}
+                        key={template.id}
+                        aria-pressed={doc.template === template.id}
+                        className={
+                          doc.template === template.id ? 'selected' : ''
+                        }
+                        onClick={() =>
+                          update({
+                            ...doc,
+                            template: template.id,
+                            templateChosen: true,
+                          })
+                        }
                       >
-                        {label}
+                        <MiniResume template={template.id} locale={lang} />
+                        <div>
+                          <strong>{template.name}</strong>
+                          {doc.template === template.id && <Check size={16} />}
+                        </div>
+                        <span>{t(template.ru, template.en)}</span>
                       </button>
                     ))}
                   </div>
-                  <div key={designPane} className="pane-enter" role="tabpanel">
-                    {designPane === 'template' ? (
-                      <>
-                        <div className="design-options">
-                          {templates.map((template) => (
-                            <button
-                              key={template.id}
-                              aria-pressed={doc.template === template.id}
-                              className={
-                                doc.template === template.id ? 'selected' : ''
-                              }
-                              onClick={() =>
-                                update({ ...doc, template: template.id })
-                              }
-                            >
-                              <MiniResume
-                                template={template.id}
-                                locale={lang}
-                              />
-                              <div>
-                                <strong>{template.name}</strong>
-                                {doc.template === template.id && (
-                                  <Check size={16} />
-                                )}
-                              </div>
-                              <span>{t(template.ru, template.en)}</span>
-                            </button>
-                          ))}
-                        </div>
-                        {doc.template === 'sidebar' && (
-                          <p className="inline-tip">
-                            {t(
-                              'Для автоматического отбора лучше выбрать одноколоночный шаблон.',
-                              'A single-column template is a safer choice for automated screening.',
-                            )}
-                          </p>
-                        )}
-                      </>
-                    ) : designPane === 'style' ? (
-                      <>
-                        <h2 className="control-heading">
-                          {t('Цвет акцента', 'Accent color')}
-                        </h2>
-                        <div className="color-options">
-                          {accents.map((color, i) => (
-                            <button
-                              key={color}
-                              aria-label={t(colorNames[i].ru, colorNames[i].en)}
-                              aria-pressed={doc.accent === color}
-                              style={{ background: color }}
-                              onClick={() => update({ ...doc, accent: color })}
-                            >
-                              {doc.accent === color && <Check size={18} />}
-                            </button>
-                          ))}
-                        </div>
-                        {doc.template === 'classic' && (
-                          <p className="field-hint">
-                            {t(
-                              'Classic использует строгую монохромную палитру.',
-                              'Classic uses a timeless monochrome palette.',
-                            )}
-                          </p>
-                        )}
-                        <div className="control-block">
-                          <h2 className="control-heading" id="size-heading">
-                            {t('Размер текста', 'Text size')}
-                          </h2>
-                          <div
-                            className="segmented"
-                            role="group"
-                            aria-labelledby="size-heading"
+                  {doc.template === 'sidebar' && (
+                    <p className="inline-tip">
+                      {t(
+                        'Для автоматического отбора лучше выбрать одноколоночный шаблон.',
+                        'A single-column template is a safer choice for automated screening.',
+                      )}
+                    </p>
+                  )}
+                  <h2 className="design-subhead">
+                    {t('Цвет и текст', 'Color and type')}
+                  </h2>
+                  <h2 className="control-heading">
+                    {t('Цвет акцента', 'Accent color')}
+                  </h2>
+                  <div className="color-options">
+                    {accents.map((color, i) => (
+                      <button
+                        key={color}
+                        aria-label={t(colorNames[i].ru, colorNames[i].en)}
+                        aria-pressed={doc.accent === color}
+                        style={{ background: color }}
+                        onClick={() => update({ ...doc, accent: color })}
+                      >
+                        {doc.accent === color && <Check size={18} />}
+                      </button>
+                    ))}
+                  </div>
+                  {doc.template === 'classic' && (
+                    <p className="field-hint">
+                      {t(
+                        'Classic использует строгую монохромную палитру.',
+                        'Classic uses a timeless monochrome palette.',
+                      )}
+                    </p>
+                  )}
+                  <div className="control-block">
+                    <h2 className="control-heading" id="size-heading">
+                      {t('Размер текста', 'Text size')}
+                    </h2>
+                    <div
+                      className="segmented"
+                      role="group"
+                      aria-labelledby="size-heading"
+                    >
+                      {textSizes.map((size) => (
+                        <button
+                          key={size}
+                          aria-pressed={doc.textSize === size}
+                          onClick={() => update({ ...doc, textSize: size })}
+                          title={`${textSizePoints[size]} pt`}
+                        >
+                          <span
+                            className="size-sample"
+                            style={{
+                              fontSize: `${10 + (textSizePoints[size] - 8.5) * 2.4}px`,
+                            }}
+                            aria-hidden="true"
                           >
-                            {textSizes.map((size) => (
-                              <button
-                                key={size}
-                                aria-pressed={doc.textSize === size}
-                                onClick={() =>
-                                  update({ ...doc, textSize: size })
-                                }
-                                title={`${textSizePoints[size]} pt`}
-                              >
-                                <span
-                                  className="size-sample"
-                                  style={{
-                                    fontSize: `${10 + (textSizePoints[size] - 8.5) * 2.4}px`,
-                                  }}
-                                  aria-hidden="true"
-                                >
-                                  Aa
-                                </span>
-                                <span className="visually-hidden">
-                                  {textSizePoints[size]} pt
-                                </span>
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                        <div className="control-block">
-                          <h2
-                            className="control-heading"
-                            id="typography-heading"
-                          >
-                            {t('Шрифт резюме', 'Resume typography')}
-                          </h2>
-                          <div
-                            className="segmented"
-                            role="group"
-                            aria-labelledby="typography-heading"
-                          >
-                            {(
-                              [
-                                ['sans', t('Без засечек', 'Sans')],
-                                ['serif', t('С засечками', 'Serif')],
-                                ['mixed', t('Смешанный', 'Mixed')],
-                              ] as const
-                            ).map(([value, label]) => (
-                              <button
-                                key={value}
-                                aria-pressed={doc.typography === value}
-                                onClick={() =>
-                                  update({ ...doc, typography: value })
-                                }
-                              >
-                                {label}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                        <div className="control-block">
-                          <h2 className="control-heading" id="density-heading">
-                            {t('Плотность текста', 'Text density')}
-                          </h2>
-                          <div
-                            className="segmented"
-                            role="group"
-                            aria-labelledby="density-heading"
-                          >
-                            {(
-                              [
-                                ['comfortable', t('Свободнее', 'Comfortable')],
-                                ['compact', t('Компактнее', 'Compact')],
-                              ] as const
-                            ).map(([value, label]) => (
-                              <button
-                                key={value}
-                                aria-pressed={doc.density === value}
-                                onClick={() =>
-                                  update({ ...doc, density: value })
-                                }
-                              >
-                                {label}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      </>
-                    ) : designPane === 'sections' ? (
-                      <>
-                        <h2 className="control-heading">
-                          {t('Порядок разделов', 'Section order')}
-                        </h2>
-                        <p className="field-hint">
-                          {t(
-                            'Переставьте разделы или скройте лишние. Данные скрытых разделов сохраняются.',
-                            'Reorder sections or hide the ones you don’t need. Hidden content is kept.',
-                          )}
-                        </p>
-                        <ol className="section-order">
-                          {order.map((s, i) => {
-                            const hidden = doc.hiddenSections.includes(s)
-                            return (
-                              <li key={s} className={hidden ? 'is-hidden' : ''}>
-                                <span>{labels[s]}</span>
-                                {doc.template === 'sidebar' && (
-                                  <small>
-                                    {['summary', 'work', 'projects'].includes(s)
-                                      ? t('основная колонка', 'main column')
-                                      : t('боковая колонка', 'side column')}
-                                  </small>
-                                )}
-                                <button
-                                  className="icon-button"
-                                  disabled={i === 0}
-                                  onClick={() => moveSection(i, -1)}
-                                  aria-label={`${labels[s]}: ${t('выше', 'move up')}`}
-                                >
-                                  <ArrowUp size={15} />
-                                </button>
-                                <button
-                                  className="icon-button"
-                                  disabled={i === order.length - 1}
-                                  onClick={() => moveSection(i, 1)}
-                                  aria-label={`${labels[s]}: ${t('ниже', 'move down')}`}
-                                >
-                                  <ArrowDown size={15} />
-                                </button>
-                                <button
-                                  className="icon-button"
-                                  aria-pressed={!hidden}
-                                  onClick={() =>
-                                    update({
-                                      ...doc,
-                                      hiddenSections: hidden
-                                        ? doc.hiddenSections.filter(
-                                            (h) => h !== s,
-                                          )
-                                        : [...doc.hiddenSections, s],
-                                    })
-                                  }
-                                  aria-label={`${labels[s]}: ${t('показывать в PDF', 'show in PDF')}`}
-                                >
-                                  {hidden ? (
-                                    <EyeOff size={15} />
-                                  ) : (
-                                    <Eye size={15} />
-                                  )}
-                                </button>
-                              </li>
-                            )
-                          })}
-                        </ol>
-                        {(doc.sectionOrder.length > 0 ||
-                          doc.hiddenSections.length > 0) && (
-                          <button
-                            className="text-button"
-                            onClick={() =>
-                              update({
-                                ...doc,
-                                sectionOrder: [],
-                                hiddenSections: [],
-                              })
-                            }
-                          >
-                            {t(
-                              'Вернуть порядок шаблона',
-                              'Reset to the template’s order',
-                            )}
-                          </button>
-                        )}
-                      </>
-                    ) : (
-                      <>
-                        <p className="form-description">
-                          {t(
-                            'Имя файла и свойства, которые видят программы и системы отбора. Пустые поля заполняются из резюме автоматически.',
-                            'The file name and the properties that apps and screening systems read. Empty fields are filled from your resume.',
-                          )}
-                        </p>
-                        {(
-                          [
-                            [
-                              'fileName',
-                              t('Имя файла', 'File name'),
-                              meta.fileName,
-                            ],
-                            [
-                              'title',
-                              t('Заголовок документа', 'Document title'),
-                              meta.title,
-                            ],
-                            ['author', t('Автор', 'Author'), meta.author],
-                            ['subject', t('Тема', 'Subject'), meta.subject],
-                            [
-                              'keywords',
-                              t('Ключевые слова', 'Keywords'),
-                              meta.keywords,
-                            ],
-                          ] as const
-                        ).map(([key, label, fallback]) => (
-                          <FormField
-                            key={key}
-                            label={label}
-                            value={doc.pdf[key]}
-                            multiline={key === 'keywords'}
-                            placeholder={fallback}
-                            hint={
-                              key === 'fileName'
-                                ? t(
-                                    'Без «.pdf» — расширение добавится само.',
-                                    'Without “.pdf” — it is added for you.',
-                                  )
-                                : undefined
-                            }
-                            onChange={(v) =>
-                              update(
-                                { ...doc, pdf: { ...doc.pdf, [key]: v } },
-                                `pdf:${key}`,
-                              )
-                            }
-                          />
-                        ))}
-                        {Object.values(doc.pdf).some((v) => v.trim()) && (
-                          <button
-                            className="text-button"
-                            onClick={() =>
-                              update({ ...doc, pdf: emptyPdfMeta() })
-                            }
-                          >
-                            {t(
-                              'Вернуть автоматические значения',
-                              'Use automatic values',
-                            )}
-                          </button>
-                        )}
-                      </>
-                    )}
+                            Aa
+                          </span>
+                          <span className="visually-hidden">
+                            {textSizePoints[size]} pt
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="control-block">
+                    <h2 className="control-heading" id="typography-heading">
+                      {t('Шрифт резюме', 'Resume typography')}
+                    </h2>
+                    <div
+                      className="segmented"
+                      role="group"
+                      aria-labelledby="typography-heading"
+                    >
+                      {(
+                        [
+                          ['sans', t('Без засечек', 'Sans')],
+                          ['serif', t('С засечками', 'Serif')],
+                          ['mixed', t('Смешанный', 'Mixed')],
+                        ] as const
+                      ).map(([value, label]) => (
+                        <button
+                          key={value}
+                          aria-pressed={doc.typography === value}
+                          onClick={() => update({ ...doc, typography: value })}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="control-block">
+                    <h2 className="control-heading" id="density-heading">
+                      {t('Плотность текста', 'Text density')}
+                    </h2>
+                    <div
+                      className="segmented"
+                      role="group"
+                      aria-labelledby="density-heading"
+                    >
+                      {(
+                        [
+                          ['comfortable', t('Свободнее', 'Comfortable')],
+                          ['compact', t('Компактнее', 'Compact')],
+                        ] as const
+                      ).map(([value, label]) => (
+                        <button
+                          key={value}
+                          aria-pressed={doc.density === value}
+                          onClick={() => update({ ...doc, density: value })}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </>
               ) : (
@@ -1399,11 +1455,55 @@ export default function Editor({
                         goSection={(next) => goSection(next, true)}
                         addSkill={addSkill}
                       />
+                      <Disclosure
+                        className="review-settings"
+                        summary={t(
+                          'Порядок и видимость разделов',
+                          'Section order and visibility',
+                        )}
+                      >
+                        {sectionOrderControls}
+                      </Disclosure>
+                      <Disclosure
+                        className="review-settings"
+                        summary={t('Свойства файла PDF', 'PDF file properties')}
+                      >
+                        {pdfControls}
+                      </Disclosure>
                     </>
                   ) : (
                     <>
-                      <h1 tabIndex={-1}>{labels[section]}</h1>
+                      <div className="section-head">
+                        <h1 tabIndex={-1}>{labels[section]}</h1>
+                        {hideable(section) && (
+                          <div className="switch-row">
+                            <Switch
+                              className="ui-switch"
+                              checked={!isHidden(section)}
+                              onChange={() => toggleHidden(section)}
+                              label={t('В резюме', 'In resume')}
+                            />
+                          </div>
+                        )}
+                      </div>
                       <p className="form-description">{subtitles[section]}</p>
+                      {isHidden(section) && (
+                        <div className="section-off" role="note">
+                          <EyeOff size={17} aria-hidden="true" />
+                          <p>
+                            {t(
+                              'Раздел скрыт и не попадёт в PDF. Всё, что вы ввели, сохранено.',
+                              'This section is hidden and won’t appear in your PDF. What you entered is kept.',
+                            )}
+                          </p>
+                          <button
+                            className="button secondary"
+                            onClick={() => toggleHidden(section as BodySection)}
+                          >
+                            {t('Показать', 'Show it')}
+                          </button>
+                        </div>
+                      )}
                       {emptyVersion && sources.length > 0 && (
                         <div className="version-start" role="note">
                           <Languages size={18} aria-hidden="true" />
@@ -1485,163 +1585,168 @@ export default function Editor({
                             : undefined
                         }
                       />
-                      {section === 'basics' ? (
-                        <>
-                          <div className="photo-field">
-                            <div className="photo-preview" aria-hidden="true">
-                              {doc.photo ? (
-                                <img src={doc.photo} alt="" />
-                              ) : (
-                                <UserRound size={26} />
-                              )}
-                            </div>
-                            <div>
-                              <strong>
-                                {t('Фото (необязательно)', 'Photo (optional)')}
-                              </strong>
-                              <p>
-                                {t(
-                                  'Принято в Германии, Австрии и Швейцарии. В США, Великобритании и Канаде фото обычно не добавляют.',
-                                  'Common in Germany, Austria and Switzerland. Usually left out in the US, UK and Canada.',
-                                )}
-                              </p>
-                              <div className="photo-actions">
-                                <label className="button secondary">
-                                  <Upload size={15} />
-                                  {doc.photo
-                                    ? t('Заменить', 'Replace')
-                                    : t('Добавить фото', 'Add photo')}
-                                  <input
-                                    className="visually-hidden"
-                                    type="file"
-                                    accept="image/jpeg,image/png,image/webp"
-                                    onChange={(event) => {
-                                      const file = event.target.files?.[0]
-                                      event.target.value = ''
-                                      if (file) void choosePhoto(file)
-                                    }}
-                                  />
-                                </label>
-                                {doc.photo && (
-                                  <button
-                                    className="text-button"
-                                    onClick={() =>
-                                      update({ ...doc, photo: '' })
-                                    }
-                                  >
-                                    {t('Убрать фото', 'Remove photo')}
-                                  </button>
+                      <fieldset
+                        className="section-fields"
+                        disabled={isHidden(section)}
+                      >
+                        {section === 'basics' ? (
+                          <>
+                            <div className="photo-field">
+                              <div className="photo-preview" aria-hidden="true">
+                                {doc.photo ? (
+                                  <img src={doc.photo} alt="" />
+                                ) : (
+                                  <UserRound size={26} />
                                 )}
                               </div>
-                              {photoError && (
-                                <p className="field-error" role="alert">
-                                  {photoError}
+                              <div>
+                                <strong>
+                                  {t(
+                                    'Фото (необязательно)',
+                                    'Photo (optional)',
+                                  )}
+                                </strong>
+                                <p>
+                                  {t(
+                                    'Принято в Германии, Австрии и Швейцарии. В США, Великобритании и Канаде фото обычно не добавляют.',
+                                    'Common in Germany, Austria and Switzerland. Usually left out in the US, UK and Canada.',
+                                  )}
                                 </p>
-                              )}
+                                <div className="photo-actions">
+                                  <label className="button secondary">
+                                    <Upload size={15} />
+                                    {doc.photo
+                                      ? t('Заменить', 'Replace')
+                                      : t('Добавить фото', 'Add photo')}
+                                    <input
+                                      className="visually-hidden"
+                                      type="file"
+                                      accept="image/jpeg,image/png,image/webp"
+                                      onChange={(event) => {
+                                        const file = event.target.files?.[0]
+                                        event.target.value = ''
+                                        if (file) void choosePhoto(file)
+                                      }}
+                                    />
+                                  </label>
+                                  {doc.photo && (
+                                    <button
+                                      className="text-button"
+                                      onClick={() =>
+                                        update({ ...doc, photo: '' })
+                                      }
+                                    >
+                                      {t('Убрать фото', 'Remove photo')}
+                                    </button>
+                                  )}
+                                </div>
+                                {photoError && (
+                                  <p className="field-error" role="alert">
+                                    {photoError}
+                                  </p>
+                                )}
+                              </div>
                             </div>
-                          </div>
-                          <FormField
-                            label={t('Имя и фамилия', 'Full name')}
-                            value={resume.basics.name}
-                            onChange={(v) => basic('name', v)}
-                            placeholder={t(
-                              'Как к вам обращаться?',
-                              'Your full name',
-                            )}
-                          />
-                          <FormField
-                            label={t(
-                              'Должность или специализация',
-                              'Job title or speciality',
-                            )}
-                            value={resume.basics.label}
-                            onChange={(v) => basic('label', v)}
-                            placeholder={t(
-                              'Например, продуктовый дизайнер',
-                              'e.g. Product designer',
-                            )}
-                          />
-                          <div className="form-divider">
-                            {t('КОНТАКТЫ', 'CONTACT DETAILS')}
-                          </div>
-                          <div className="field-row">
                             <FormField
-                              label={t('Электронная почта', 'Email')}
-                              value={resume.basics.email}
-                              onChange={(v) => basic('email', v)}
-                              type="email"
-                              placeholder="you@example.com"
-                              validate={checkEmail}
+                              label={t('Имя и фамилия', 'Full name')}
+                              value={resume.basics.name}
+                              onChange={(v) => basic('name', v)}
+                              placeholder={t(
+                                'Как к вам обращаться?',
+                                'Your full name',
+                              )}
                             />
                             <FormField
-                              label={t('Телефон', 'Phone')}
-                              value={resume.basics.phone}
-                              onChange={(v) => basic('phone', v)}
-                              type="tel"
-                              placeholder="+49 …"
-                              validate={checkPhone}
+                              label={t(
+                                'Должность или специализация',
+                                'Job title or speciality',
+                              )}
+                              value={resume.basics.label}
+                              onChange={(v) => basic('label', v)}
+                              placeholder={t(
+                                'Например, продуктовый дизайнер',
+                                'e.g. Product designer',
+                              )}
                             />
-                          </div>
-                          <FormField
-                            label={t('Город и страна', 'City and country')}
-                            value={resume.basics.location}
-                            onChange={(v) => basic('location', v)}
-                            placeholder={t(
-                              'Например, Берлин, Германия',
-                              'e.g. Berlin, Germany',
-                            )}
-                          />
+                            <div className="form-divider">
+                              {t('КОНТАКТЫ', 'CONTACT DETAILS')}
+                            </div>
+                            <div className="field-row">
+                              <FormField
+                                label={t('Электронная почта', 'Email')}
+                                value={resume.basics.email}
+                                onChange={(v) => basic('email', v)}
+                                type="email"
+                                placeholder="you@example.com"
+                                validate={checkEmail}
+                              />
+                              <FormField
+                                label={t('Телефон', 'Phone')}
+                                value={resume.basics.phone}
+                                onChange={(v) => basic('phone', v)}
+                                type="tel"
+                                placeholder="+49 …"
+                                validate={checkPhone}
+                              />
+                            </div>
+                            <FormField
+                              label={t('Город и страна', 'City and country')}
+                              value={resume.basics.location}
+                              onChange={(v) => basic('location', v)}
+                              placeholder={t(
+                                'Например, Берлин, Германия',
+                                'e.g. Berlin, Germany',
+                              )}
+                            />
+                            <FormField
+                              label={t(
+                                'Сайт или портфолио',
+                                'Website or portfolio',
+                              )}
+                              value={resume.basics.url}
+                              onChange={(v) => basic('url', v)}
+                              placeholder="https://…"
+                              validate={checkUrl}
+                              hint={t(
+                                'Необязательные поля можно оставить пустыми — они не попадут в PDF.',
+                                'Leave optional fields blank — they won’t appear in your PDF.',
+                              )}
+                            />
+                            <FormField
+                              label="LinkedIn"
+                              value={resume.basics.linkedin}
+                              onChange={(v) => basic('linkedin', v)}
+                              placeholder="linkedin.com/in/your-name"
+                              validate={checkUrl}
+                            />
+                            <FormField
+                              label="GitHub"
+                              value={resume.basics.github}
+                              onChange={(v) => basic('github', v)}
+                              placeholder="github.com/your-name"
+                              validate={checkUrl}
+                            />
+                          </>
+                        ) : section === 'summary' ? (
                           <FormField
                             label={t(
-                              'Сайт или портфолио',
-                              'Website or portfolio',
+                              'Коротко о вас',
+                              'Your professional profile',
                             )}
-                            value={resume.basics.url}
-                            onChange={(v) => basic('url', v)}
-                            placeholder="https://…"
-                            validate={checkUrl}
+                            value={resume.basics.summary}
+                            onChange={(v) => basic('summary', v)}
+                            multiline
+                            placeholder={t(
+                              'Что вы умеете, какой у вас опыт и какую пользу приносите?',
+                              'What do you do well, and what value do you bring?',
+                            )}
                             hint={t(
-                              'Необязательные поля можно оставить пустыми — они не попадут в PDF.',
-                              'Leave optional fields blank — they won’t appear in your PDF.',
+                              '2–4 предложения. Пишите конкретно, без общих фраз.',
+                              'Aim for 2–4 specific sentences. Skip generic buzzwords.',
                             )}
                           />
-                          <FormField
-                            label="LinkedIn"
-                            value={resume.basics.linkedin}
-                            onChange={(v) => basic('linkedin', v)}
-                            placeholder="linkedin.com/in/your-name"
-                            validate={checkUrl}
-                          />
-                          <FormField
-                            label="GitHub"
-                            value={resume.basics.github}
-                            onChange={(v) => basic('github', v)}
-                            placeholder="github.com/your-name"
-                            validate={checkUrl}
-                          />
-                        </>
-                      ) : section === 'summary' ? (
-                        <FormField
-                          label={t(
-                            'Коротко о вас',
-                            'Your professional profile',
-                          )}
-                          value={resume.basics.summary}
-                          onChange={(v) => basic('summary', v)}
-                          multiline
-                          placeholder={t(
-                            'Что вы умеете, какой у вас опыт и какую пользу приносите?',
-                            'What do you do well, and what value do you bring?',
-                          )}
-                          hint={t(
-                            '2–4 предложения. Пишите конкретно, без общих фраз.',
-                            'Aim for 2–4 specific sentences. Skip generic buzzwords.',
-                          )}
-                        />
-                      ) : section === 'skills' ? (
-                        <>
-                          <FormField
-                            label={t('Ваши навыки', 'Your skills')}
+                        ) : section === 'skills' ? (
+                          <SkillsField
                             value={resume.skills}
                             onChange={(v) =>
                               update(
@@ -1655,231 +1760,264 @@ export default function Editor({
                                 `${lang}:skills`,
                               )
                             }
-                            multiline
-                            placeholder="Figma, HTML, CSS, …"
-                            hint={t(
-                              'Разделяйте запятыми. Используйте названия из вакансии, только если владеете навыком. Подтвердите ключевые навыки примерами в опыте.',
-                              'Separate with commas. Use the job posting’s terms for skills you actually have, and show your key skills in your experience.',
-                            )}
+                            locale={locale}
+                            lang={lang}
+                            jobTitle={resume.basics.label}
                           />
-                          <div className="skill-chips">
-                            {resume.skills
-                              .split(',')
-                              .filter((s) => s.trim())
-                              .map((s, i) => (
-                                <span key={i}>{s.trim()}</span>
-                              ))}
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          {resume[section].length > 1 && (
-                            <div className="entries-toolbar">
-                              <span>
-                                {t('Записей', 'Entries')}:{' '}
-                                {resume[section].length}
-                              </span>
-                              <button
-                                className="text-button"
-                                onClick={() => {
-                                  const allCollapsed = resume[section].every(
-                                    (e) => collapsed.has(`${section}:${e.id}`),
-                                  )
-                                  setCollapsed((current) => {
-                                    const next = new Set(current)
-                                    resume[section].forEach((e) => {
-                                      if (allCollapsed)
-                                        next.delete(`${section}:${e.id}`)
-                                      else next.add(`${section}:${e.id}`)
+                        ) : (
+                          <>
+                            {resume[section].length > 1 && (
+                              <div className="entries-toolbar">
+                                <span>
+                                  {t('Записей', 'Entries')}:{' '}
+                                  {resume[section].length}
+                                </span>
+                                <button
+                                  className="text-button"
+                                  onClick={() => {
+                                    const allCollapsed = resume[section].every(
+                                      (e) =>
+                                        collapsed.has(`${section}:${e.id}`),
+                                    )
+                                    setCollapsed((current) => {
+                                      const next = new Set(current)
+                                      resume[section].forEach((e) => {
+                                        if (allCollapsed)
+                                          next.delete(`${section}:${e.id}`)
+                                        else next.add(`${section}:${e.id}`)
+                                      })
+                                      return next
                                     })
-                                    return next
-                                  })
-                                }}
+                                  }}
+                                >
+                                  {resume[section].every((e) =>
+                                    collapsed.has(`${section}:${e.id}`),
+                                  )
+                                    ? t('Развернуть все', 'Expand all')
+                                    : t('Свернуть все', 'Collapse all')}
+                                </button>
+                              </div>
+                            )}
+                            {resume[section].map((e, i) => (
+                              <EntryCard
+                                key={e.id}
+                                entry={e}
+                                title={e.title || `${labels[section]} ${i + 1}`}
+                                locale={locale}
+                                contentLocale={lang}
+                                fresh={freshEntry === e.id}
+                                expanded={!collapsed.has(`${section}:${e.id}`)}
+                                toggle={() => toggleEntry(e.id)}
+                                moveUp={
+                                  i > 0 ? () => move(section, i, -1) : undefined
+                                }
+                                moveDown={
+                                  i < resume[section].length - 1
+                                    ? () => move(section, i, 1)
+                                    : undefined
+                                }
+                                remove={() => remove(section, e.id)}
                               >
-                                {resume[section].every((e) =>
-                                  collapsed.has(`${section}:${e.id}`),
-                                )
-                                  ? t('Развернуть все', 'Expand all')
-                                  : t('Свернуть все', 'Collapse all')}
-                              </button>
-                            </div>
-                          )}
-                          {resume[section].map((e, i) => (
-                            <EntryCard
-                              key={e.id}
-                              entry={e}
-                              title={e.title || `${labels[section]} ${i + 1}`}
-                              locale={locale}
-                              contentLocale={lang}
-                              fresh={freshEntry === e.id}
-                              expanded={!collapsed.has(`${section}:${e.id}`)}
-                              toggle={() => toggleEntry(e.id)}
-                              moveUp={
-                                i > 0 ? () => move(section, i, -1) : undefined
-                              }
-                              moveDown={
-                                i < resume[section].length - 1
-                                  ? () => move(section, i, 1)
-                                  : undefined
-                              }
-                              remove={() => remove(section, e.id)}
-                            >
-                              <FormField
-                                label={
-                                  section === 'work'
-                                    ? t('Должность', 'Job title')
-                                    : section === 'education'
-                                      ? t(
-                                          'Специальность / степень',
-                                          'Degree / field of study',
-                                        )
-                                      : section === 'languages'
-                                        ? t('Язык', 'Language')
-                                        : t('Название проекта', 'Project name')
-                                }
-                                value={e.title}
-                                onChange={(v) =>
-                                  entry(section, e.id, 'title', v)
-                                }
-                              />
-                              <FormField
-                                label={
-                                  section === 'work'
-                                    ? t('Компания', 'Company')
-                                    : section === 'education'
-                                      ? t('Учебное заведение', 'Institution')
-                                      : section === 'languages'
-                                        ? t('Уровень владения', 'Proficiency')
-                                        : t(
-                                            'Роль / организация',
-                                            'Role / organization',
-                                          )
-                                }
-                                value={e.subtitle}
-                                onChange={(v) =>
-                                  entry(section, e.id, 'subtitle', v)
-                                }
-                              />
-                              {section !== 'languages' && (
-                                <>
-                                  <div className="field-row">
-                                    <FormField
-                                      label={t('Начало', 'Start date')}
-                                      type="month"
-                                      value={e.startDate}
-                                      onChange={(v) =>
-                                        entry(section, e.id, 'startDate', v)
-                                      }
-                                    />
-                                    {!e.current && (
-                                      <FormField
-                                        label={t('Окончание', 'End date')}
-                                        type="month"
-                                        value={e.endDate}
-                                        onChange={(v) =>
-                                          entry(section, e.id, 'endDate', v)
-                                        }
-                                        validate={(v) =>
-                                          e.startDate && v < e.startDate
-                                            ? t(
-                                                'Окончание раньше начала.',
-                                                'This is before the start date.',
-                                              )
-                                            : undefined
-                                        }
-                                      />
-                                    )}
-                                  </div>
-                                  <div className="switch-row">
-                                    <Switch
-                                      className="ui-switch"
-                                      checked={e.current}
-                                      onChange={(event) =>
-                                        entry(
-                                          section,
-                                          e.id,
-                                          'current',
-                                          event.target.checked,
-                                        )
-                                      }
-                                      label={t('По настоящее время', 'Present')}
-                                    />
-                                  </div>
-                                  <FormField
-                                    label={
-                                      section === 'work'
-                                        ? t(
-                                            'Результаты и достижения',
-                                            'Achievements and impact',
-                                          )
-                                        : t('Описание', 'Description')
+                                {section === 'languages' ? (
+                                  <LanguageFields
+                                    entry={e}
+                                    locale={locale}
+                                    lang={lang}
+                                    pickLanguage={(code) =>
+                                      entryEverywhere(
+                                        section,
+                                        e.id,
+                                        (l) => ({
+                                          title: languageName(code, l),
+                                        }),
+                                        `languages:${e.id}:title`,
+                                      )
                                     }
-                                    multiline
-                                    value={e.description}
-                                    onChange={(v) =>
-                                      entry(section, e.id, 'description', v)
+                                    pickLevel={(index) =>
+                                      entryEverywhere(
+                                        section,
+                                        e.id,
+                                        (l) => ({
+                                          subtitle: proficiency[l][index],
+                                        }),
+                                        `languages:${e.id}:level`,
+                                      )
                                     }
-                                    onFocus={() => setActiveEntry(e.id)}
-                                    hint={
-                                      section === 'work'
-                                        ? t(
-                                            'Каждая новая строка — отдельный пункт. Добавьте результаты в цифрах.',
-                                            'One achievement per line. Include measurable results.',
-                                          )
-                                        : undefined
+                                    setTitle={(v) =>
+                                      entry(section, e.id, 'title', v)
+                                    }
+                                    setLevel={(v) =>
+                                      entry(section, e.id, 'subtitle', v)
                                     }
                                   />
-                                  {section === 'projects' && (
+                                ) : (
+                                  <>
                                     <FormField
-                                      label={t(
-                                        'Ссылка на проект',
-                                        'Project link',
-                                      )}
-                                      value={e.url}
-                                      onChange={(v) =>
-                                        entry(section, e.id, 'url', v)
+                                      label={
+                                        section === 'work'
+                                          ? t('Должность', 'Job title')
+                                          : section === 'education'
+                                            ? t(
+                                                'Специальность / степень',
+                                                'Degree / field of study',
+                                              )
+                                            : t(
+                                                'Название проекта',
+                                                'Project name',
+                                              )
                                       }
-                                      validate={checkUrl}
-                                      placeholder="https://…"
+                                      value={e.title}
+                                      onChange={(v) =>
+                                        entry(section, e.id, 'title', v)
+                                      }
                                     />
+                                    <FormField
+                                      label={
+                                        section === 'work'
+                                          ? t('Компания', 'Company')
+                                          : section === 'education'
+                                            ? t(
+                                                'Учебное заведение',
+                                                'Institution',
+                                              )
+                                            : t(
+                                                'Роль / организация',
+                                                'Role / organization',
+                                              )
+                                      }
+                                      value={e.subtitle}
+                                      onChange={(v) =>
+                                        entry(section, e.id, 'subtitle', v)
+                                      }
+                                    />
+                                  </>
+                                )}
+                                {section !== 'languages' && (
+                                  <>
+                                    <div className="field-row">
+                                      <FormField
+                                        label={t('Начало', 'Start date')}
+                                        type="month"
+                                        value={e.startDate}
+                                        onChange={(v) =>
+                                          entry(section, e.id, 'startDate', v)
+                                        }
+                                      />
+                                      {!e.current && (
+                                        <FormField
+                                          label={t('Окончание', 'End date')}
+                                          type="month"
+                                          value={e.endDate}
+                                          onChange={(v) =>
+                                            entry(section, e.id, 'endDate', v)
+                                          }
+                                          validate={(v) =>
+                                            e.startDate && v < e.startDate
+                                              ? t(
+                                                  'Окончание раньше начала.',
+                                                  'This is before the start date.',
+                                                )
+                                              : undefined
+                                          }
+                                        />
+                                      )}
+                                    </div>
+                                    <div className="switch-row">
+                                      <Switch
+                                        className="ui-switch"
+                                        checked={e.current}
+                                        onChange={(event) =>
+                                          entry(
+                                            section,
+                                            e.id,
+                                            'current',
+                                            event.target.checked,
+                                          )
+                                        }
+                                        label={t(
+                                          'По настоящее время',
+                                          'Present',
+                                        )}
+                                      />
+                                    </div>
+                                    <FormField
+                                      label={
+                                        section === 'work'
+                                          ? t(
+                                              'Результаты и достижения',
+                                              'Achievements and impact',
+                                            )
+                                          : t('Описание', 'Description')
+                                      }
+                                      multiline
+                                      value={e.description}
+                                      onChange={(v) =>
+                                        entry(section, e.id, 'description', v)
+                                      }
+                                      onFocus={() => setActiveEntry(e.id)}
+                                      hint={
+                                        section === 'work'
+                                          ? t(
+                                              'Каждая новая строка — отдельный пункт. Добавьте результаты в цифрах.',
+                                              'One achievement per line. Include measurable results.',
+                                            )
+                                          : undefined
+                                      }
+                                    />
+                                    {section === 'projects' && (
+                                      <FormField
+                                        label={t(
+                                          'Ссылка на проект',
+                                          'Project link',
+                                        )}
+                                        value={e.url}
+                                        onChange={(v) =>
+                                          entry(section, e.id, 'url', v)
+                                        }
+                                        validate={checkUrl}
+                                        placeholder="https://…"
+                                      />
+                                    )}
+                                  </>
+                                )}
+                              </EntryCard>
+                            ))}
+                            {resume[section].length === 0 && (
+                              <div className="empty-section">
+                                <Plus size={24} />
+                                <p>
+                                  {t('Здесь пока пусто', 'Nothing here yet')}
+                                </p>
+                                <span>
+                                  {t(
+                                    'Добавьте запись или пропустите раздел.',
+                                    'Add an entry, or skip this section.',
                                   )}
-                                </>
-                              )}
-                            </EntryCard>
-                          ))}
-                          {resume[section].length === 0 && (
-                            <div className="empty-section">
-                              <Plus size={24} />
-                              <p>{t('Здесь пока пусто', 'Nothing here yet')}</p>
-                              <span>
-                                {t(
-                                  'Добавьте запись или пропустите раздел.',
-                                  'Add an entry, or skip this section.',
-                                )}
-                              </span>
-                            </div>
-                          )}
-                          <button
-                            className="button add-entry"
-                            disabled={resume[section].length >= 100}
-                            onClick={() => add(section)}
-                          >
-                            <Plus size={17} />
-                            {t('Добавить запись', 'Add entry')}
-                          </button>
-                          <p className="field-hint">
-                            {resume[section].length >= 100
-                              ? t(
-                                  'В разделе уже 100 записей. Отредактируйте или удалите одну, чтобы добавить новую.',
-                                  'This section has 100 entries. Edit or remove an entry before adding another.',
-                                )
-                              : t(
-                                  'Удаление и изменения можно отменить стрелкой вверху.',
-                                  'Use Undo above to restore removed entries or changes.',
-                                )}
-                          </p>
-                        </>
-                      )}
+                                </span>
+                              </div>
+                            )}
+                            <button
+                              className="button add-entry"
+                              disabled={resume[section].length >= 100}
+                              onClick={() => add(section)}
+                            >
+                              <Plus size={17} />
+                              {t('Добавить запись', 'Add entry')}
+                            </button>
+                            <p className="field-hint">
+                              {resume[section].length >= 100
+                                ? t(
+                                    'В разделе уже 100 записей. Отредактируйте или удалите одну, чтобы добавить новую.',
+                                    'This section has 100 entries. Edit or remove an entry before adding another.',
+                                  )
+                                : t(
+                                    'Удаление и изменения можно отменить стрелкой вверху.',
+                                    'Use Undo above to restore removed entries or changes.',
+                                  )}
+                            </p>
+                          </>
+                        )}
+                      </fieldset>
                       {tips.length > 0 && (
                         <div className="tips">
                           <div>
@@ -1931,26 +2069,24 @@ export default function Editor({
               <>
                 <button
                   className="button secondary"
-                  disabled={stepIndex === 0}
-                  onClick={() => goSection(steps[stepIndex - 1])}
+                  disabled={!prevStep}
+                  onClick={() => prevStep && goSection(prevStep)}
                   aria-label={
-                    stepIndex > 0
-                      ? `${t('Назад', 'Back')}: ${stepLabel(steps[stepIndex - 1])}`
+                    prevStep
+                      ? `${t('Назад', 'Back')}: ${stepLabel(prevStep)}`
                       : t('Назад', 'Back')
                   }
                 >
                   <ChevronLeft size={16} />
                   <span className="step-long">
-                    {stepIndex > 0
-                      ? stepLabel(steps[stepIndex - 1])
-                      : t('Назад', 'Back')}
+                    {prevStep ? stepLabel(prevStep) : t('Назад', 'Back')}
                   </span>
                   <span className="step-short">{t('Назад', 'Back')}</span>
                 </button>
                 <span className="form-footer-step" aria-hidden="true">
                   {stepIndex + 1} / {steps.length}
                 </span>
-                {section === 'review' ? (
+                {section === 'review' || !nextStep ? (
                   <button
                     className="button primary"
                     onClick={exportFile}
@@ -1962,12 +2098,10 @@ export default function Editor({
                 ) : (
                   <button
                     className="button primary"
-                    onClick={() => goSection(steps[stepIndex + 1])}
-                    aria-label={`${t('Далее', 'Next')}: ${stepLabel(steps[stepIndex + 1])}`}
+                    onClick={() => goSection(nextStep)}
+                    aria-label={`${t('Далее', 'Next')}: ${stepLabel(nextStep)}`}
                   >
-                    <span className="step-long">
-                      {stepLabel(steps[stepIndex + 1])}
-                    </span>
+                    <span className="step-long">{stepLabel(nextStep)}</span>
                     <span className="step-short">{t('Далее', 'Next')}</span>
                     <ChevronRight size={16} />
                   </button>
@@ -2020,7 +2154,16 @@ export default function Editor({
               </div>
             }
           >
-            <Preview doc={doc} locale={locale} />
+            {showExample && (
+              <p className="preview-example" role="note">
+                <Sparkles size={14} aria-hidden="true" />
+                {t(
+                  'Пример текста — ваш текст появится вместо него',
+                  'Example text — your own text will replace it',
+                )}
+              </p>
+            )}
+            <Preview doc={previewDoc} locale={locale} />
           </Suspense>
         </section>
       </div>

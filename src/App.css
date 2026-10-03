@@ -4266,9 +4266,11 @@ dialog[open] {
   color: var(--text);
 }
 .segmented button[aria-pressed='true'] {
-  background: var(--surface);
-  color: var(--text);
-  box-shadow: 0 1px 3px #0000001f;
+  background: color-mix(in srgb, var(--accent) 14%, var(--surface));
+  color: var(--accent);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent),
+    0 1px 3px #0000001f;
 }
 /* Resume language in the sidebar */
 .editor-sidebar .resume-language {
@@ -4693,4 +4695,342 @@ dialog[open] {
   justify-content: center;
   gap: 10px;
   color: var(--muted);
+}
+
+/* ---- Editor: template step, section visibility, chips ---- */
+.design-subhead {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 30px 0 4px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+}
+.section-row {
+  position: relative;
+  display: flex;
+}
+.section-row > button:first-child {
+  flex: 1;
+  min-width: 0;
+}
+.section-nav .section-row > .section-eye {
+  position: absolute;
+  top: 50%;
+  right: 34px;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--muted);
+  opacity: 0;
+  transition:
+    opacity 0.16s var(--ease),
+    background-color 0.16s var(--ease);
+}
+.section-row:hover > .section-eye,
+.section-row > .section-eye:focus-visible,
+.section-row.is-off > .section-eye {
+  opacity: 1;
+}
+.section-nav .section-row > .section-eye:hover {
+  background: var(--surface);
+  color: var(--text);
+}
+.section-row.is-off > button:first-child > span,
+.section-row.is-off > button:first-child > svg {
+  opacity: 0.5;
+}
+.section-row.is-off > button:first-child > span {
+  text-decoration: line-through;
+  text-decoration-color: color-mix(in srgb, var(--muted) 60%, transparent);
+}
+.section-nav .design-row > .section-eye,
+.section-nav .review-row > .section-eye {
+  display: none;
+}
+@media (max-width: 1049px) {
+  .section-nav .section-row > .section-eye {
+    display: none;
+  }
+}
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.section-head .switch-row {
+  margin: 0;
+  flex: none;
+}
+.section-head .switch-row label {
+  font-size: 13px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.section-off {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 20px;
+  padding: 12px 12px 12px 16px;
+  border-radius: 10px;
+  background: var(--soft);
+  border: 1px dashed var(--line);
+  animation: fade-in 0.22s var(--ease);
+}
+.section-off > svg {
+  flex: none;
+  color: var(--muted);
+}
+.section-off p {
+  flex: 1;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.section-off .button {
+  flex: none;
+  min-height: 0;
+  padding: 8px 14px;
+  font-size: 13px;
+}
+.section-fields {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+  transition: opacity 0.2s var(--ease);
+}
+.section-fields:disabled {
+  opacity: 0.45;
+}
+
+/* Chips: one look for guidance, suggestions and levels */
+.chip {
+  cursor: pointer;
+  transition:
+    border-color 0.16s var(--ease),
+    background-color 0.16s var(--ease),
+    color 0.16s var(--ease);
+}
+.chip:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.chip[aria-pressed='true'],
+.chip[aria-pressed='true']:hover:not(:disabled) {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+}
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.guide-chip {
+  gap: 7px;
+  margin: 0 0 22px;
+  padding: 7px 13px;
+  font-weight: 700;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+  border-color: color-mix(in srgb, var(--accent) 28%, var(--line));
+}
+dialog .writing-guide {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: none;
+  max-height: min(70vh, 640px);
+  overflow: auto;
+}
+dialog .writing-guide ul {
+  margin-top: 0;
+}
+.guide-heading {
+  margin: 20px 0 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+dialog .guide-example + .guide-example {
+  margin-top: 10px;
+}
+dialog .guide-example p {
+  line-height: 1.6;
+}
+
+/* Skills as chips */
+.skills-label,
+.field-label {
+  font-size: 13px;
+  font-weight: 700;
+}
+.skills-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.skills-box {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-height: 46px;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  transition:
+    border-color 0.16s var(--ease),
+    box-shadow 0.16s var(--ease);
+}
+.skills-box:hover {
+  border-color: #9aa99a;
+}
+.skills-box:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+.skill-tags {
+  display: contents;
+  list-style: none;
+}
+.skill-tags li {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 4px 4px 10px;
+  border-radius: 99px;
+  background: var(--soft);
+  font-size: 13px;
+  animation: fade-in 0.18s var(--ease);
+}
+.skill-tags button {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border-radius: 99px;
+  background: none;
+  color: var(--muted);
+}
+.skill-tags button:hover {
+  background: var(--surface);
+  color: #c0503a;
+}
+.skills-box input {
+  flex: 1;
+  min-width: 140px;
+  border: 0;
+  background: none;
+  color: var(--text);
+  padding: 6px;
+  font-size: 13px;
+  outline: none;
+}
+.skills-field .field-hint {
+  margin: 4px 0 18px;
+}
+.skill-suggest > p {
+  margin: 0 0 9px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.role-chips {
+  margin-bottom: 14px;
+}
+.role-chips .chip {
+  font-size: 12px;
+  padding: 4px 10px;
+}
+.skill-options .chip-add {
+  border-style: dashed;
+}
+.chip-done {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* Languages */
+.level-chips .chip {
+  min-width: 44px;
+  justify-content: center;
+  font-weight: 700;
+}
+
+/* Review: settings moved from the template step */
+.review-settings {
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 14px 16px;
+  margin: 18px 0 0;
+  background: var(--surface);
+}
+.review-settings > .disclosure-summary {
+  font-weight: 700;
+  font-size: 14px;
+}
+.review-settings .disclosure-body > * {
+  margin-top: 0;
+}
+.review-settings .section-order {
+  margin-top: 12px;
+}
+
+/* Template step: the preview shows example text until the resume has some */
+.preview-panel:has(> .preview-example) {
+  position: relative;
+}
+.preview-example {
+  position: absolute;
+  z-index: 2;
+  top: 64px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 6px 12px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  color: var(--on-accent);
+  background: var(--accent);
+  box-shadow: 0 6px 20px #0003;
+  animation: fade-in 0.22s var(--ease);
+  pointer-events: none;
+}
+
+/* Zoomed preview: the page grows into the whole panel and can be dragged around. */
+.preview-scroll.is-zoomed {
+  max-width: none;
+  cursor: grab;
+}
+.preview-scroll.is-zoomed.is-panning {
+  cursor: grabbing;
+  user-select: none;
+}
+.preview-scroll.is-zoomed .pdf-pages {
+  width: calc(min(680px, 100%) * var(--zoom, 1));
+  max-width: none;
+  margin: 0 auto;
+}
+@media (min-width: 1050px) {
+  .is-editing .preview-scroll.is-zoomed {
+    width: 100%;
+    max-width: none;
+  }
 }

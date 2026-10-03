@@ -131,7 +131,6 @@ const messages: Record<string, string> = {
   'Delete this entry': 'Изтрий този запис',
   Description: 'Описание',
   Design: 'Дизайн',
-  'Design settings': 'Настройки на дизайна',
   'Dismiss notification': 'Затвори известието',
   'Dismiss tip': 'Скрий подсказката',
   'Document title': 'Заглавие на документа',
@@ -164,7 +163,6 @@ const messages: Record<string, string> = {
   'File name': 'Име на файла',
   'Fill in the sections at your own pace. Your changes save automatically.':
     'Попълвайте разделите със свое темпо. Промените се запазват автоматично.',
-  Filled: 'Попълнено',
   'Fit page': 'Цяла страница',
   'Fit to width': 'По ширина',
   'For automated resume screening, choose any template except the two-column Editorial: the others read top to bottom.':
@@ -295,8 +293,6 @@ const messages: Record<string, string> = {
   'PDF downloaded for sharing. It contains only the selected language. Your resume remains in the editor.':
     'PDF за изпращане е изтеглен. Съдържа само избрания език. Автобиографията Ви остава в редактора.',
   'PDF pages': 'Страници на PDF',
-  'PDF pages — scroll to explore':
-    'Страници на PDF — превъртете, за да ги видите',
   'PDF preview could not load. Retry or switch to text.':
     'Прегледът на PDF не можа да се зареди. Опитайте отново или превключете към текста.',
   'PDF properties': 'Свойства на PDF',
@@ -310,8 +306,6 @@ const messages: Record<string, string> = {
   'Photo (optional)': 'Снимка (по избор)',
   'Pick 2–4 projects that match the role. Link to the live version or code.':
     'Изберете 2–4 проекта, подходящи за позицията. Дайте линк към работещата версия или кода.',
-  'Pick a template, then tune the style, sections, and PDF file. Your content stays the same.':
-    'Изберете шаблон, после настройте стила, разделите и PDF файла. Съдържанието остава същото.',
   Plum: 'Сливово',
   'Points for your latest role': 'Точки за последната позиция',
   'Points start with actions, not duties.':
@@ -382,11 +376,7 @@ const messages: Record<string, string> = {
   'Save backup': 'Запази копие',
   'Saved in this browser': 'Запазено в този браузър',
   'Saving…': 'Запазва се…',
-  'Section order': 'Ред на разделите',
   Sections: 'Раздели',
-  'Sections filled': 'Попълнени раздели',
-  'Separate with commas. Use the job posting’s terms for skills you actually have, and show your key skills in your experience.':
-    'Разделяйте със запетаи. Използвайте термините от обявата за умения, които наистина имате, и покажете ключовите в опита си.',
   Serif: 'Със серифи',
   'Show dismissed tips': 'Покажи скритите подсказки',
   'Show form · Ctrl/⌘ \\': 'Покажи формуляра · Ctrl/⌘ \\',
@@ -411,7 +401,6 @@ const messages: Record<string, string> = {
   'Start with your most recent role. Focus on what you achieved.':
     'Започнете с последната си позиция. Наблегнете на постигнатото.',
   'Strong action verbs': 'Силни глаголи за действие',
-  Style: 'Стил',
   Subject: 'Тема',
   'Take the next step': 'Направете следващата стъпка',
   'Target job title': 'Целева длъжност',
@@ -525,5 +514,85 @@ const messages: Record<string, string> = {
     '„{text}“ не доказва нищо — покажете го с факт.',
   ' — home': ' — начало',
   'Made by': 'Създадено от',
+  'Action verbs': 'Глаголи за действие',
+  'Add a certificate when you have one: IELTS, TOEFL, Goethe, TestDaF, DELE.':
+    'Ако имате сертификат, посочете го: IELTS, TOEFL, Goethe, TestDaF, DELE.',
+  'Added skills': 'Добавени умения',
+  'All suggestions added.': 'Всички предложения са добавени.',
+  'Another skill…': 'Още умение…',
+  'BSc Computer Science · TU Berlin · 2016–2020 · Thesis on real-time collaborative editing':
+    'Бакалавър, информатика · Софийски университет · 2016–2020 · Дипломна работа за съвместно редактиране в реално време',
+  'Choose a language': 'Изберете език',
+  'Choose how your resume looks. You can switch at any time — your text stays.':
+    'Изберете как да изглежда автобиографията. Може да го смените по всяко време — текстът остава.',
+  'Color and type': 'Цвят и шрифт',
+  'Communication, teamwork, MS Office, hard-working':
+    'Комуникативност, работа в екип, MS Office, трудолюбие',
+  'Computer science graduate who built three web apps used by 2,000 students. Looking for a junior frontend role in a product team.':
+    'Завършил информатика, създал три уеб приложения, които използват 2000 студенти. Търся junior позиция във фронтенда в продуктов екип.',
+  Data: 'Данни',
+  Development: 'Разработка',
+  'English — C1 (IELTS 7.5)': 'Английски — C1 (IELTS 7,5)',
+  'English — good': 'Английски — добър',
+  'Enter or a comma adds a skill. Use the vacancy’s wording, and only skills you really have.':
+    'Enter или запетая добавят умение. Пишете като в обявата и само умения, които наистина имате.',
+  'Example text — your own text will replace it':
+    'Примерен текст — вашият текст ще го замени',
+  Examples: 'Примери',
+  Field: 'Сфера',
+  Finance: 'Финанси',
+  HR: 'HR',
+  'Helped with recruiting.': 'Помагах с подбора на персонал.',
+  'Hide from resume': 'Скрий от автобиографията',
+  'Hired 14 engineers in six months and cut time to hire from 52 to 31 days.':
+    'Наех 14 инженери за шест месеца и съкратих срока за наемане от 52 на 31 дни.',
+  'How to write: {section}': 'Как да попълните: {section}',
+  'In resume': 'В автобиографията',
+  'Language name': 'Име на езика',
+  'Level in your own words': 'Ниво със свои думи',
+  'Managed 25 key accounts worth €1.2M a year and kept 96% of them at renewal.':
+    'Управлявах 25 ключови клиента с оборот 1,2 млн. € годишно, 96% подновиха договора.',
+  Marketing: 'Маркетинг',
+  'Meal planner (React, Supabase): 1,200 monthly users plan a week of meals in three clicks instead of twelve. Live demo and code linked.':
+    'Планер за меню (React, Supabase): 1200 потребители месечно планират седмицата с три клика вместо дванадесет. Връзки към демо и код.',
+  Office: 'Офис',
+  'Often listed in {field}:': 'Често в сферата „{field}“:',
+  Operations: 'Операции',
+  'Other…': 'Друг…',
+  'PDF file properties': 'Свойства на PDF файла',
+  'PDF pages — drag or scroll to explore':
+    'PDF страници — плъзнете или превъртете',
+  'Personal website.': 'Личен сайт.',
+  Product: 'Продукт',
+  'React, TypeScript, Node.js, PostgreSQL, Figma, Accessibility (WCAG 2.2), Jest, CI/CD':
+    'React, TypeScript, Node.js, PostgreSQL, Figma, достъпност (WCAG 2.2), Jest, CI/CD',
+  'Recent graduate looking for any job in IT.':
+    'Завършил, търся каквато и да е работа в IT.',
+  'Remove “{skill}”': 'Премахни „{skill}“',
+  Sales: 'Продажби',
+  'Section order and visibility': 'Ред и видимост на разделите',
+  'Senior Frontend Developer (React, TypeScript)':
+    'Senior фронтенд разработчик (React, TypeScript)',
+  'Show in resume': 'Покажи в автобиографията',
+  'Show it': 'Покажи',
+  Specialist: 'Специалист',
+  'Steps done; hidden sections are not counted':
+    'Готови стъпки; скритите раздели не се броят',
+  Structure: 'Структура',
+  'Suggested skills': 'Предложени умения',
+  'Suggestions by field:': 'Предложения по сфера:',
+  Support: 'Поддръжка',
+  'This section is hidden and won’t appear in your PDF. What you entered is kept.':
+    'Разделът е скрит и няма да се появи в PDF. Въведеното се запазва.',
+  'University, 2016–2020': 'Университет, 2016–2020',
+  'Worked with clients.': 'Работех с клиенти.',
+  'You can add a certificate: “C1 (IELTS 7.5)”.':
+    'Може да добавите сертификат: „C1 (IELTS 7,5)“.',
+  'e.g. Figma, then Enter': 'напр. Figma, после Enter',
+  'ivan.petrov.1990@mail.com · Berlin, Hauptstraße 5, flat 12':
+    'ivan.petrov.1990@mail.bg · София, ул. Витоша 5, ап. 12',
+  'ivan.petrov@mail.com · Berlin, Germany · linkedin.com/in/ivanpetrov':
+    'ivan.petrov@mail.bg · София, България · linkedin.com/in/ivanpetrov',
+  '{section} in resume': '„{section}“ в автобиографията',
 }
 export default messages

@@ -15,6 +15,8 @@ export interface Guide {
   before?: Text
   after?: Text
   pattern?: Text
+  /** More before → after pairs shown under the main one. */
+  examples?: { before: Text; after: Text }[]
 }
 
 // Writing guidance per section, condensed from recruiter guides and the
@@ -33,6 +35,23 @@ export const guides: Partial<Record<Section, Guide>> = {
       {
         en: 'City and country are enough. A full street address is not needed.',
         ru: 'Достаточно города и страны. Полный адрес не нужен.',
+      },
+    ],
+    before: { en: 'Specialist', ru: 'Специалист' },
+    after: {
+      en: 'Senior Frontend Developer (React, TypeScript)',
+      ru: 'Senior фронтенд-разработчик (React, TypeScript)',
+    },
+    examples: [
+      {
+        before: {
+          en: 'ivan.petrov.1990@mail.com · Berlin, Hauptstraße 5, flat 12',
+          ru: 'ivan.petrov.1990@mail.ru · Москва, ул. Ленина, д. 5, кв. 12',
+        },
+        after: {
+          en: 'ivan.petrov@mail.com · Berlin, Germany · linkedin.com/in/ivanpetrov',
+          ru: 'ivan.petrov@mail.ru · Москва, Россия · linkedin.com/in/ivanpetrov',
+        },
       },
     ],
   },
@@ -63,6 +82,18 @@ export const guides: Partial<Record<Section, Guide>> = {
       en: '[Job title] with [N] years of experience in [field]. [Strongest result with a number]. Looking for [the role or team you want].',
       ru: '[Должность], [N] лет опыта в [область]. [Главный результат с цифрой]. Ищу [какую роль или команду].',
     },
+    examples: [
+      {
+        before: {
+          en: 'Recent graduate looking for any job in IT.',
+          ru: 'Выпускник, ищу любую работу в IT.',
+        },
+        after: {
+          en: 'Computer science graduate who built three web apps used by 2,000 students. Looking for a junior frontend role in a product team.',
+          ru: 'Выпускник по информатике, сделал три веб-приложения, которыми пользуются 2000 студентов. Ищу junior-позицию во фронтенде в продуктовой команде.',
+        },
+      },
+    ],
   },
   work: {
     rules: [
@@ -95,6 +126,25 @@ export const guides: Partial<Record<Section, Guide>> = {
       en: '[Action verb] [what you did], [result with a number] by [how].',
       ru: '[Глагол] [что сделали], [результат в цифрах] за счёт [как].',
     },
+    examples: [
+      {
+        before: { en: 'Worked with clients.', ru: 'Работал с клиентами.' },
+        after: {
+          en: 'Managed 25 key accounts worth €1.2M a year and kept 96% of them at renewal.',
+          ru: 'Вёл 25 ключевых клиентов с оборотом 1,2 млн € в год, продлили договор 96% из них.',
+        },
+      },
+      {
+        before: {
+          en: 'Helped with recruiting.',
+          ru: 'Помогал с наймом.',
+        },
+        after: {
+          en: 'Hired 14 engineers in six months and cut time to hire from 52 to 31 days.',
+          ru: 'Нанял 14 инженеров за полгода и сократил срок найма с 52 до 31 дня.',
+        },
+      },
+    ],
   },
   education: {
     rules: [
@@ -107,6 +157,11 @@ export const guides: Partial<Record<Section, Guide>> = {
         ru: 'Сертификаты, которые упоминает вакансия, тоже указывайте здесь.',
       },
     ],
+    before: { en: 'University, 2016–2020', ru: 'Университет, 2016–2020' },
+    after: {
+      en: 'BSc Computer Science · TU Berlin · 2016–2020 · Thesis on real-time collaborative editing',
+      ru: 'Бакалавр, информатика · ВШЭ · 2016–2020 · Диплом о совместном редактировании в реальном времени',
+    },
   },
   skills: {
     rules: [
@@ -123,6 +178,14 @@ export const guides: Partial<Record<Section, Guide>> = {
         ru: 'Подтвердите главные навыки пунктом в опыте — этому верят больше всего.',
       },
     ],
+    before: {
+      en: 'Communication, teamwork, MS Office, hard-working',
+      ru: 'Коммуникабельность, работа в команде, MS Office, ответственность',
+    },
+    after: {
+      en: 'React, TypeScript, Node.js, PostgreSQL, Figma, Accessibility (WCAG 2.2), Jest, CI/CD',
+      ru: 'React, TypeScript, Node.js, PostgreSQL, Figma, доступность (WCAG 2.2), Jest, CI/CD',
+    },
   },
   projects: {
     rules: [
@@ -135,6 +198,11 @@ export const guides: Partial<Record<Section, Guide>> = {
         ru: 'Строка о задаче, строка о решении, строка о результате.',
       },
     ],
+    before: { en: 'Personal website.', ru: 'Личный сайт.' },
+    after: {
+      en: 'Meal planner (React, Supabase): 1,200 monthly users plan a week of meals in three clicks instead of twelve. Live demo and code linked.',
+      ru: 'Планировщик меню (React, Supabase): 1200 пользователей в месяц составляют меню на неделю в три клика вместо двенадцати. Ссылки на демо и код.',
+    },
   },
   languages: {
     rules: [
@@ -142,7 +210,16 @@ export const guides: Partial<Record<Section, Guide>> = {
         en: 'Use CEFR levels (A1–C2) or “Native”. Recruiters in Europe filter by them.',
         ru: 'Указывайте уровни CEFR (A1–C2) или «Родной» — по ним фильтруют в Европе.',
       },
+      {
+        en: 'Add a certificate when you have one: IELTS, TOEFL, Goethe, TestDaF, DELE.',
+        ru: 'Есть сертификат — укажите его: IELTS, TOEFL, Goethe, TestDaF, DELE.',
+      },
     ],
+    before: { en: 'English — good', ru: 'Английский — хороший' },
+    after: {
+      en: 'English — C1 (IELTS 7.5)',
+      ru: 'Английский — C1 (IELTS 7.5)',
+    },
   },
 }
 

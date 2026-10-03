@@ -7,23 +7,27 @@ import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs'
 export async function openBlankEditor(page: Page) {
   await page.goto('./')
   await page.getByRole('button', { name: 'Create your resume' }).click()
-  await expect(page.getByRole('heading', { name: 'Design' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Template' })).toBeVisible()
 }
 
 export async function openExample(page: Page) {
   await page.goto('./')
   await page.getByRole('button', { name: 'Try an example' }).click()
-  await expect(page.getByRole('heading', { name: 'Design' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Template' })).toBeVisible()
 }
 
 export function step(page: Page, name: string | RegExp) {
   return page
     .getByRole('navigation', { name: 'Resume steps' })
     .getByRole('button', { name })
+    .first()
     .click()
 }
 
 export async function waitForSave(page: Page) {
+  // Edits are saved after a short delay; the label from the previous save
+  // is still on screen until then.
+  await page.waitForTimeout(400)
   await expect(page.getByText('Saved in this browser')).toBeVisible()
 }
 

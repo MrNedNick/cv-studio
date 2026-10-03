@@ -1,5 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Check, ChevronRight, CircleAlert, Plus, Target } from 'lucide-react'
+import {
+  Check,
+  ChevronRight,
+  CircleAlert,
+  Lightbulb,
+  Plus,
+  Target,
+} from 'lucide-react'
 import {
   actionVerbs,
   verbGroups,
@@ -8,7 +15,8 @@ import {
   reviewResume,
   type Check as ReviewCheck,
 } from './writing'
-import { Disclosure } from './motion'
+import { Disclosure, useLingering } from './motion'
+import { Dialog } from './components'
 import { sectionLabels, type Locale, type Resume, type Section } from './model'
 import { translate, translator } from './i18n'
 
@@ -33,88 +41,133 @@ export function WritingGuide({
     pattern =
       guide?.pattern && translate(lang, guide.pattern.ru, guide.pattern.en),
     [verbGroup, setVerbGroup] = useState(0),
-    // Closed until asked for, in every section; nothing is remembered.
-    [open, setOpen] = useState(false)
+    [open, setOpen] = useState(false),
+    view = useLingering(open, open)
   if (!guide) return null
+  const examples = [
+    ...(guide.before && guide.after
+      ? [{ before: guide.before, after: guide.after }]
+      : []),
+    ...(guide.examples ?? []),
+  ]
   return (
-    <Disclosure
-      className="writing-guide"
-      open={open}
-      onToggle={setOpen}
-      summary={t('Как заполнить этот раздел', 'How to write this section')}
-    >
-      <ul>
-        {guide.rules.map((rule) => (
-          <li key={rule.en}>{t(rule.ru, rule.en)}</li>
-        ))}
-      </ul>
-      {guide.before && guide.after && (
-        <div className="guide-example">
-          <p>
-            <span className="guide-weak">{t('Было', 'Before')}</span>
-            {t(guide.before.ru, guide.before.en)}
-          </p>
-          <p>
-            <span className="guide-strong">{t('Стало', 'After')}</span>
-            {t(guide.after.ru, guide.after.en)}
-          </p>
-        </div>
-      )}
-      {pattern && (
-        <div className="guide-pattern">
-          <code lang={lang}>{pattern}</code>
-          {onPattern && (
-            <button className="text-button" onClick={() => onPattern(pattern)}>
-              <Plus size={14} />
-              {t('Вставить структуру', 'Insert this structure')}
-            </button>
-          )}
-        </div>
-      )}
-      {onVerb && (
-        <div className="verb-library">
-          <p>
-            {verbTarget
-              ? t(
-                  'Начните новый пункт в «{entry}»:',
-                  'Start a new point in “{entry}”:',
-                  { entry: verbTarget },
-                )
-              : t(
-                  'Добавьте запись, чтобы вставлять глаголы:',
-                  'Add an entry to insert verbs:',
-                )}
-          </p>
-          <div
-            className="verb-tabs"
-            role="group"
-            aria-label={t('Группы глаголов', 'Verb groups')}
-          >
-            {verbGroups.map((group, i) => (
-              <button
-                key={group.en}
-                aria-pressed={verbGroup === i}
-                onClick={() => setVerbGroup(i)}
-              >
-                {t(group.ru, group.en)}
-              </button>
-            ))}
+    <>
+      <button
+        type="button"
+        className="chip guide-chip"
+        aria-haspopup="dialog"
+        onClick={() => setOpen(true)}
+      >
+        <Lightbulb size={15} aria-hidden="true" />
+        {t('Как заполнить этот раздел', 'How to write this section')}
+      </button>
+      {view.shown && (
+        <Dialog
+          title={t('Как заполнить: {section}', 'How to write: {section}', {
+            section: sectionLabels[locale][section],
+          })}
+          close={() => setOpen(false)}
+          closeLabel={t('Закрыть', 'Close')}
+          closing={view.closing}
+        >
+          <div className="writing-guide">
+            <ul>
+              {guide.rules.map((rule) => (
+                <li key={rule.en}>{t(rule.ru, rule.en)}</li>
+              ))}
+            </ul>
+            {examples.length > 0 && (
+              <>
+                <h3 className="guide-heading">{t('Примеры', 'Examples')}</h3>
+                {examples.map((example) => (
+                  <div className="guide-example" key={example.after.en}>
+                    <p>
+                      <span className="guide-weak">{t('Было', 'Before')}</span>
+                      {t(example.before.ru, example.before.en)}
+                    </p>
+                    <p>
+                      <span className="guide-strong">
+                        {t('Стало', 'After')}
+                      </span>
+                      {t(example.after.ru, example.after.en)}
+                    </p>
+                  </div>
+                ))}
+              </>
+            )}
+            {pattern && (
+              <>
+                <h3 className="guide-heading">{t('Структура', 'Structure')}</h3>
+                <div className="guide-pattern">
+                  <code lang={lang}>{pattern}</code>
+                  {onPattern && (
+                    <button
+                      className="text-button"
+                      onClick={() => {
+                        onPattern(pattern)
+                        setOpen(false)
+                      }}
+                    >
+                      <Plus size={14} />
+                      {t('Вставить структуру', 'Insert this structure')}
+                    </button>
+                  )}
+                </div>
+              </>
+            )}
+            {onVerb && (
+              <div className="verb-library">
+                <h3 className="guide-heading">
+                  {t('Глаголы действия', 'Action verbs')}
+                </h3>
+                <p>
+                  {verbTarget
+                    ? t(
+                        'Начните новый пункт в «{entry}»:',
+                        'Start a new point in “{entry}”:',
+                        { entry: verbTarget },
+                      )
+                    : t(
+                        'Добавьте запись, чтобы вставлять глаголы:',
+                        'Add an entry to insert verbs:',
+                      )}
+                </p>
+                <div
+                  className="verb-tabs"
+                  role="group"
+                  aria-label={t('Группы глаголов', 'Verb groups')}
+                >
+                  {verbGroups.map((group, i) => (
+                    <button
+                      key={group.en}
+                      aria-pressed={verbGroup === i}
+                      onClick={() => setVerbGroup(i)}
+                    >
+                      {t(group.ru, group.en)}
+                    </button>
+                  ))}
+                </div>
+                <div className="verb-group" lang={lang}>
+                  {actionVerbs[lang][verbGroup].map((verb) => (
+                    <button
+                      key={verb}
+                      disabled={!verbTarget}
+                      onClick={() => {
+                        onVerb(verb)
+                        setOpen(false)
+                      }}
+                    >
+                      <Plus size={12} />
+                      {verb}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
-          <div className="verb-group" lang={lang}>
-            {actionVerbs[lang][verbGroup].map((verb) => (
-              <button
-                key={verb}
-                disabled={!verbTarget}
-                onClick={() => onVerb(verb)}
-              >
-                <Plus size={12} />
-                {verb}
-              </button>
-            ))}
-          </div>
-        </div>
+        </Dialog>
       )}
-    </Disclosure>
+    </>
   )
 }
 

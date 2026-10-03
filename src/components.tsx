@@ -1,6 +1,13 @@
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, X } from 'lucide-react'
 import { Field } from './ui/components/field/field'
-import { createContext, useContext, useState } from 'react'
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react'
 import { Textarea } from './ui/components/textarea/textarea'
 import {
   createDocument,
@@ -254,5 +261,59 @@ export function TemplateCards({
         </button>
       ))}
     </div>
+  )
+}
+/** A modal dialog that returns focus to its opener and closes on Escape or a backdrop click. */
+export function Dialog({
+  title,
+  children,
+  close,
+  closeLabel,
+  closing = false,
+}: {
+  title: string
+  children: ReactNode
+  close: () => void
+  closeLabel: string
+  closing?: boolean
+}) {
+  const ref = useRef<HTMLDialogElement>(null)
+  useEffect(() => {
+    const dialog = ref.current!,
+      opener = document.activeElement as HTMLElement | null
+    dialog.showModal()
+    return () => {
+      dialog.close()
+      // The closing animation makes the dialog inert, which drops focus;
+      // hand it back to whatever opened the dialog.
+      if (
+        opener?.isConnected &&
+        (!document.activeElement || document.activeElement === document.body)
+      )
+        opener.focus()
+    }
+  }, [])
+  return (
+    <dialog
+      ref={ref}
+      className={closing ? 'is-closing' : undefined}
+      inert={closing}
+      onCancel={(e) => {
+        e.preventDefault()
+        if (!closing) close()
+      }}
+      onClick={(e) => {
+        if (e.target === ref.current) close()
+      }}
+      aria-labelledby="dialog-title"
+    >
+      <div className="dialog-head">
+        <h2 id="dialog-title">{title}</h2>
+        <button className="icon-button" onClick={close} aria-label={closeLabel}>
+          <X size={20} />
+        </button>
+      </div>
+      {children}
+    </dialog>
   )
 }

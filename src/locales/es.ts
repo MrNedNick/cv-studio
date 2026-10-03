@@ -132,7 +132,6 @@ const messages: Record<string, string> = {
   'Delete this entry': 'Eliminar esta entrada',
   Description: 'Descripción',
   Design: 'Diseño',
-  'Design settings': 'Ajustes de diseño',
   'Dismiss notification': 'Cerrar notificación',
   'Dismiss tip': 'Ocultar sugerencia',
   'Document title': 'Título del documento',
@@ -166,7 +165,6 @@ const messages: Record<string, string> = {
   'File name': 'Nombre del archivo',
   'Fill in the sections at your own pace. Your changes save automatically.':
     'Rellena las secciones a tu ritmo. Los cambios se guardan automáticamente.',
-  Filled: 'Completada',
   'Fit page': 'Página completa',
   'Fit to width': 'Ajustar al ancho',
   'For automated resume screening, choose any template except the two-column Editorial: the others read top to bottom.':
@@ -298,7 +296,6 @@ const messages: Record<string, string> = {
   'PDF downloaded for sharing. It contains only the selected language. Your resume remains in the editor.':
     'PDF para enviar descargado. Contiene solo el idioma elegido. Tu currículum sigue en el editor.',
   'PDF pages': 'Páginas del PDF',
-  'PDF pages — scroll to explore': 'Páginas del PDF: desplázate para verlas',
   'PDF preview could not load. Retry or switch to text.':
     'No se pudo cargar la vista previa del PDF. Reinténtalo o cambia al texto.',
   'PDF properties': 'Propiedades del PDF',
@@ -312,8 +309,6 @@ const messages: Record<string, string> = {
   'Photo (optional)': 'Foto (opcional)',
   'Pick 2–4 projects that match the role. Link to the live version or code.':
     'Elige 2–4 proyectos acordes al puesto. Enlaza la versión publicada o el código.',
-  'Pick a template, then tune the style, sections, and PDF file. Your content stays the same.':
-    'Elige una plantilla y luego ajusta el estilo, las secciones y el PDF. Tu contenido no cambia.',
   Plum: 'Ciruela',
   'Points for your latest role': 'Puntos del puesto más reciente',
   'Points start with actions, not duties.':
@@ -384,11 +379,7 @@ const messages: Record<string, string> = {
   'Save backup': 'Guardar copia',
   'Saved in this browser': 'Guardado en este navegador',
   'Saving…': 'Guardando…',
-  'Section order': 'Orden de las secciones',
   Sections: 'Secciones',
-  'Sections filled': 'Secciones completadas',
-  'Separate with commas. Use the job posting’s terms for skills you actually have, and show your key skills in your experience.':
-    'Sepáralas con comas. Usa los términos de la oferta para las habilidades que realmente tienes y demuestra las clave en tu experiencia.',
   Serif: 'Con serifa',
   'Show dismissed tips': 'Mostrar sugerencias ocultas',
   'Show form · Ctrl/⌘ \\': 'Mostrar formulario · Ctrl/⌘ \\',
@@ -414,7 +405,6 @@ const messages: Record<string, string> = {
   'Start with your most recent role. Focus on what you achieved.':
     'Empieza por tu puesto más reciente. Céntrate en lo que lograste.',
   'Strong action verbs': 'Verbos de acción',
-  Style: 'Estilo',
   Subject: 'Asunto',
   'Take the next step': 'Da el siguiente paso',
   'Target job title': 'Puesto objetivo',
@@ -528,5 +518,84 @@ const messages: Record<string, string> = {
     '«{text}» no demuestra nada: muéstralo con un hecho.',
   ' — home': ' — inicio',
   'Made by': 'Hecho por',
+  'Action verbs': 'Verbos de acción',
+  'Add a certificate when you have one: IELTS, TOEFL, Goethe, TestDaF, DELE.':
+    'Si tienes un certificado, indícalo: IELTS, TOEFL, Goethe, TestDaF, DELE.',
+  'Added skills': 'Habilidades añadidas',
+  'All suggestions added.': 'Has añadido todas las sugerencias.',
+  'Another skill…': 'Otra habilidad…',
+  'BSc Computer Science · TU Berlin · 2016–2020 · Thesis on real-time collaborative editing':
+    'Grado en Informática · Universidad Politécnica de Madrid · 2016–2020 · TFG sobre edición colaborativa en tiempo real',
+  'Choose a language': 'Elige un idioma',
+  'Choose how your resume looks. You can switch at any time — your text stays.':
+    'Elige el aspecto de tu CV. Puedes cambiarlo en cualquier momento: tu texto se mantiene.',
+  'Color and type': 'Color y tipografía',
+  'Communication, teamwork, MS Office, hard-working':
+    'Comunicación, trabajo en equipo, MS Office, trabajador',
+  'Computer science graduate who built three web apps used by 2,000 students. Looking for a junior frontend role in a product team.':
+    'Graduado en Informática que creó tres aplicaciones web usadas por 2000 estudiantes. Busco un puesto junior de frontend en un equipo de producto.',
+  Data: 'Datos',
+  Development: 'Desarrollo',
+  'English — C1 (IELTS 7.5)': 'Inglés — C1 (IELTS 7,5)',
+  'English — good': 'Inglés — bueno',
+  'Enter or a comma adds a skill. Use the vacancy’s wording, and only skills you really have.':
+    'Enter o una coma añaden una habilidad. Usa los términos de la oferta y solo las habilidades que de verdad tienes.',
+  'Example text — your own text will replace it':
+    'Texto de ejemplo: tu texto lo sustituirá',
+  Examples: 'Ejemplos',
+  Field: 'Área',
+  Finance: 'Finanzas',
+  HR: 'RR. HH.',
+  'Helped with recruiting.': 'Ayudé con la selección de personal.',
+  'Hide from resume': 'Ocultar del CV',
+  'Hired 14 engineers in six months and cut time to hire from 52 to 31 days.':
+    'Contraté a 14 ingenieros en seis meses y reduje el tiempo de contratación de 52 a 31 días.',
+  'How to write: {section}': 'Cómo escribir: {section}',
+  'In resume': 'En el CV',
+  'Language name': 'Nombre del idioma',
+  'Level in your own words': 'Nivel con tus palabras',
+  'Managed 25 key accounts worth €1.2M a year and kept 96% of them at renewal.':
+    'Gestioné 25 cuentas clave por valor de 1,2 M€ al año y renovaron el 96 %.',
+  Marketing: 'Marketing',
+  'Meal planner (React, Supabase): 1,200 monthly users plan a week of meals in three clicks instead of twelve. Live demo and code linked.':
+    'Planificador de menús (React, Supabase): 1200 usuarios al mes planifican la semana en tres clics en lugar de doce. Demo y código enlazados.',
+  Office: 'Oficina',
+  'Often listed in {field}:': 'Habituales en {field}:',
+  Operations: 'Operaciones',
+  'Other…': 'Otro…',
+  'PDF file properties': 'Propiedades del archivo PDF',
+  'PDF pages — drag or scroll to explore': 'Páginas PDF: arrastra o desplázate',
+  'Personal website.': 'Web personal.',
+  Product: 'Producto',
+  'React, TypeScript, Node.js, PostgreSQL, Figma, Accessibility (WCAG 2.2), Jest, CI/CD':
+    'React, TypeScript, Node.js, PostgreSQL, Figma, accesibilidad (WCAG 2.2), Jest, CI/CD',
+  'Recent graduate looking for any job in IT.':
+    'Recién graduado, busco cualquier trabajo en IT.',
+  'Remove “{skill}”': 'Quitar «{skill}»',
+  Sales: 'Ventas',
+  'Section order and visibility': 'Orden y visibilidad de las secciones',
+  'Senior Frontend Developer (React, TypeScript)':
+    'Desarrollador frontend sénior (React, TypeScript)',
+  'Show in resume': 'Mostrar en el CV',
+  'Show it': 'Mostrar',
+  Specialist: 'Especialista',
+  'Steps done; hidden sections are not counted':
+    'Pasos completados; las secciones ocultas no cuentan',
+  Structure: 'Estructura',
+  'Suggested skills': 'Habilidades sugeridas',
+  'Suggestions by field:': 'Sugerencias por área:',
+  Support: 'Soporte',
+  'This section is hidden and won’t appear in your PDF. What you entered is kept.':
+    'Esta sección está oculta y no aparecerá en el PDF. Lo que escribiste se conserva.',
+  'University, 2016–2020': 'Universidad, 2016–2020',
+  'Worked with clients.': 'Trabajé con clientes.',
+  'You can add a certificate: “C1 (IELTS 7.5)”.':
+    'Puedes añadir un certificado: «C1 (IELTS 7,5)».',
+  'e.g. Figma, then Enter': 'p. ej., Figma y Enter',
+  'ivan.petrov.1990@mail.com · Berlin, Hauptstraße 5, flat 12':
+    'ivan.petrov.1990@mail.com · Madrid, calle Mayor 5, 3.º B',
+  'ivan.petrov@mail.com · Berlin, Germany · linkedin.com/in/ivanpetrov':
+    'ivan.petrov@mail.com · Madrid, España · linkedin.com/in/ivanpetrov',
+  '{section} in resume': '{section} en el CV',
 }
 export default messages

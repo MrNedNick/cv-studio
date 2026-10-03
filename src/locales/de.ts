@@ -133,7 +133,6 @@ const messages: Record<string, string> = {
   'Delete this entry': 'Diesen Eintrag löschen',
   Description: 'Beschreibung',
   Design: 'Design',
-  'Design settings': 'Designeinstellungen',
   'Dismiss notification': 'Benachrichtigung schließen',
   'Dismiss tip': 'Hinweis ausblenden',
   'Document title': 'Dokumenttitel',
@@ -167,7 +166,6 @@ const messages: Record<string, string> = {
   'File name': 'Dateiname',
   'Fill in the sections at your own pace. Your changes save automatically.':
     'Füllen Sie die Abschnitte in Ihrem Tempo aus. Änderungen werden automatisch gespeichert.',
-  Filled: 'Ausgefüllt',
   'Fit page': 'Ganze Seite',
   'Fit to width': 'An Breite anpassen',
   'For automated resume screening, choose any template except the two-column Editorial: the others read top to bottom.':
@@ -300,7 +298,6 @@ const messages: Record<string, string> = {
   'PDF downloaded for sharing. It contains only the selected language. Your resume remains in the editor.':
     'PDF zum Versenden heruntergeladen. Es enthält nur die ausgewählte Sprache. Ihr Lebenslauf bleibt im Editor.',
   'PDF pages': 'PDF-Seiten',
-  'PDF pages — scroll to explore': 'PDF-Seiten – zum Ansehen scrollen',
   'PDF preview could not load. Retry or switch to text.':
     'Die PDF-Vorschau konnte nicht geladen werden. Versuchen Sie es erneut oder wechseln Sie zum Text.',
   'PDF properties': 'PDF-Eigenschaften',
@@ -314,8 +311,6 @@ const messages: Record<string, string> = {
   'Photo (optional)': 'Foto (optional)',
   'Pick 2–4 projects that match the role. Link to the live version or code.':
     'Wählen Sie 2–4 Projekte, die zur Stelle passen. Verlinken Sie die Live-Version oder den Code.',
-  'Pick a template, then tune the style, sections, and PDF file. Your content stays the same.':
-    'Wählen Sie eine Vorlage und passen Sie dann Stil, Abschnitte und PDF-Datei an. Ihr Inhalt bleibt gleich.',
   Plum: 'Pflaume',
   'Points for your latest role': 'Punkte zur aktuellen Stelle',
   'Points start with actions, not duties.':
@@ -388,11 +383,7 @@ const messages: Record<string, string> = {
   'Save backup': 'Sicherung speichern',
   'Saved in this browser': 'In diesem Browser gespeichert',
   'Saving…': 'Wird gespeichert…',
-  'Section order': 'Reihenfolge der Abschnitte',
   Sections: 'Abschnitte',
-  'Sections filled': 'Ausgefüllte Abschnitte',
-  'Separate with commas. Use the job posting’s terms for skills you actually have, and show your key skills in your experience.':
-    'Durch Kommas trennen. Verwenden Sie die Begriffe der Stellenanzeige für Kenntnisse, die Sie wirklich haben, und zeigen Sie die wichtigsten in Ihrer Erfahrung.',
   Serif: 'Mit Serifen',
   'Show dismissed tips': 'Ausgeblendete Hinweise anzeigen',
   'Show form · Ctrl/⌘ \\': 'Formular einblenden · Strg/⌘ \\',
@@ -418,7 +409,6 @@ const messages: Record<string, string> = {
   'Start with your most recent role. Focus on what you achieved.':
     'Beginnen Sie mit Ihrer letzten Stelle. Konzentrieren Sie sich auf Ihre Erfolge.',
   'Strong action verbs': 'Starke Handlungsverben',
-  Style: 'Stil',
   Subject: 'Betreff',
   'Take the next step': 'Den nächsten Schritt gehen',
   'Target job title': 'Zielposition',
@@ -533,5 +523,84 @@ const messages: Record<string, string> = {
     '„{text}“ beweist nichts – zeigen Sie es mit einem Fakt.',
   ' — home': ' — Startseite',
   'Made by': 'Erstellt von',
+  'Action verbs': 'Aktionsverben',
+  'Add a certificate when you have one: IELTS, TOEFL, Goethe, TestDaF, DELE.':
+    'Wenn Sie ein Zertifikat haben, nennen Sie es: IELTS, TOEFL, Goethe, TestDaF, DELE.',
+  'Added skills': 'Hinzugefügte Kenntnisse',
+  'All suggestions added.': 'Alle Vorschläge hinzugefügt.',
+  'Another skill…': 'Weitere Kenntnis…',
+  'BSc Computer Science · TU Berlin · 2016–2020 · Thesis on real-time collaborative editing':
+    'B.Sc. Informatik · TU Berlin · 2016–2020 · Abschlussarbeit zur gemeinsamen Bearbeitung in Echtzeit',
+  'Choose a language': 'Sprache wählen',
+  'Choose how your resume looks. You can switch at any time — your text stays.':
+    'Wählen Sie das Aussehen Ihres Lebenslaufs. Sie können es jederzeit ändern – Ihr Text bleibt erhalten.',
+  'Color and type': 'Farbe und Schrift',
+  'Communication, teamwork, MS Office, hard-working':
+    'Kommunikationsfähigkeit, Teamfähigkeit, MS Office, fleißig',
+  'Computer science graduate who built three web apps used by 2,000 students. Looking for a junior frontend role in a product team.':
+    'Informatik-Absolvent, der drei Web-Apps für 2.000 Studierende gebaut hat. Sucht eine Junior-Stelle im Frontend in einem Produktteam.',
+  Data: 'Daten',
+  Development: 'Entwicklung',
+  'English — C1 (IELTS 7.5)': 'Englisch — C1 (IELTS 7,5)',
+  'English — good': 'Englisch — gut',
+  'Enter or a comma adds a skill. Use the vacancy’s wording, and only skills you really have.':
+    'Enter oder Komma fügt eine Kenntnis hinzu. Verwenden Sie die Begriffe aus der Stellenanzeige – und nur, was Sie wirklich können.',
+  'Example text — your own text will replace it':
+    'Beispieltext – Ihr eigener Text ersetzt ihn',
+  Examples: 'Beispiele',
+  Field: 'Bereich',
+  Finance: 'Finanzen',
+  HR: 'HR',
+  'Helped with recruiting.': 'Beim Recruiting unterstützt.',
+  'Hide from resume': 'Aus dem Lebenslauf ausblenden',
+  'Hired 14 engineers in six months and cut time to hire from 52 to 31 days.':
+    '14 Ingenieure in sechs Monaten eingestellt und die Time-to-Hire von 52 auf 31 Tage gesenkt.',
+  'How to write: {section}': 'So schreiben Sie: {section}',
+  'In resume': 'Im Lebenslauf',
+  'Language name': 'Name der Sprache',
+  'Level in your own words': 'Niveau in eigenen Worten',
+  'Managed 25 key accounts worth €1.2M a year and kept 96% of them at renewal.':
+    '25 Schlüsselkunden mit 1,2 Mio. € Jahresumsatz betreut; 96 % davon haben verlängert.',
+  Marketing: 'Marketing',
+  'Meal planner (React, Supabase): 1,200 monthly users plan a week of meals in three clicks instead of twelve. Live demo and code linked.':
+    'Essensplaner (React, Supabase): 1.200 Nutzer im Monat planen eine Woche in drei statt zwölf Klicks. Demo und Code verlinkt.',
+  Office: 'Büro',
+  'Often listed in {field}:': 'Häufig im Bereich {field}:',
+  Operations: 'Betrieb',
+  'Other…': 'Andere…',
+  'PDF file properties': 'Eigenschaften der PDF-Datei',
+  'PDF pages — drag or scroll to explore': 'PDF-Seiten – ziehen oder scrollen',
+  'Personal website.': 'Persönliche Website.',
+  Product: 'Produkt',
+  'React, TypeScript, Node.js, PostgreSQL, Figma, Accessibility (WCAG 2.2), Jest, CI/CD':
+    'React, TypeScript, Node.js, PostgreSQL, Figma, Barrierefreiheit (WCAG 2.2), Jest, CI/CD',
+  'Recent graduate looking for any job in IT.':
+    'Absolvent, suche irgendeinen Job in der IT.',
+  'Remove “{skill}”': '„{skill}“ entfernen',
+  Sales: 'Vertrieb',
+  'Section order and visibility': 'Reihenfolge und Sichtbarkeit der Abschnitte',
+  'Senior Frontend Developer (React, TypeScript)':
+    'Senior Frontend-Entwickler (React, TypeScript)',
+  'Show in resume': 'Im Lebenslauf zeigen',
+  'Show it': 'Einblenden',
+  Specialist: 'Fachkraft',
+  'Steps done; hidden sections are not counted':
+    'Erledigte Schritte; ausgeblendete Abschnitte zählen nicht',
+  Structure: 'Aufbau',
+  'Suggested skills': 'Vorgeschlagene Kenntnisse',
+  'Suggestions by field:': 'Vorschläge nach Bereich:',
+  Support: 'Support',
+  'This section is hidden and won’t appear in your PDF. What you entered is kept.':
+    'Dieser Abschnitt ist ausgeblendet und erscheint nicht im PDF. Ihre Eingaben bleiben erhalten.',
+  'University, 2016–2020': 'Universität, 2016–2020',
+  'Worked with clients.': 'Mit Kunden gearbeitet.',
+  'You can add a certificate: “C1 (IELTS 7.5)”.':
+    'Sie können ein Zertifikat ergänzen: „C1 (IELTS 7,5)“.',
+  'e.g. Figma, then Enter': 'z. B. Figma, dann Enter',
+  'ivan.petrov.1990@mail.com · Berlin, Hauptstraße 5, flat 12':
+    'ivan.petrov.1990@mail.de · Berlin, Hauptstraße 5, Wohnung 12',
+  'ivan.petrov@mail.com · Berlin, Germany · linkedin.com/in/ivanpetrov':
+    'ivan.petrov@mail.de · Berlin, Deutschland · linkedin.com/in/ivanpetrov',
+  '{section} in resume': '{section} im Lebenslauf',
 }
 export default messages

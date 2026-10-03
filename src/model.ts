@@ -104,6 +104,8 @@ export interface ResumeDocument {
   hiddenSections: BodySection[]
   /** The built-in fictional example, until the person starts their own. */
   sample?: boolean
+  /** The person confirmed a template (picked one or moved past the first step). */
+  templateChosen?: boolean
   /** Optional portrait as a small JPEG or PNG data URL, shared by both languages. */
   photo: string
   versions: Record<Locale, Resume>
@@ -307,6 +309,7 @@ export function createDocument(
     hiddenSections: [],
     photo: '',
     sample,
+    templateChosen: sample,
     versions,
   }
 }
@@ -506,6 +509,7 @@ export function parseDocument(input: unknown): ResumeDocument {
     result.hiddenSections = known(source.hiddenSections)
     result.photo = validPhoto(source.photo)
     result.sample = source.sample === true
+    result.templateChosen = source.templateChosen === true
     return result
   }
   if (

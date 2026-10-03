@@ -1,11 +1,4 @@
-import {
-  Suspense,
-  lazy,
-  useEffect,
-  useRef,
-  useState,
-  type ReactNode,
-} from 'react'
+import { Suspense, lazy, useEffect, useRef, useState } from 'react'
 import {
   Link,
   Navigate,
@@ -45,7 +38,7 @@ import {
   type Template,
 } from './model'
 import { loadDocument, saveDocument } from './storage'
-import { MiniResume, TemplateCards, templates } from './components'
+import { Dialog, MiniResume, TemplateCards, templates } from './components'
 import { Disclosure, useLingering } from './motion'
 import { detectLocale, translator } from './i18n'
 import './App.css'
@@ -76,59 +69,6 @@ function download(blob: Blob, filename: string) {
   a.download = filename
   a.click()
   setTimeout(() => URL.revokeObjectURL(url), 30000)
-}
-function Dialog({
-  title,
-  children,
-  close,
-  closeLabel,
-  closing = false,
-}: {
-  title: string
-  children: ReactNode
-  close: () => void
-  closeLabel: string
-  closing?: boolean
-}) {
-  const ref = useRef<HTMLDialogElement>(null)
-  useEffect(() => {
-    const dialog = ref.current!,
-      opener = document.activeElement as HTMLElement | null
-    dialog.showModal()
-    return () => {
-      dialog.close()
-      // The closing animation makes the dialog inert, which drops focus;
-      // hand it back to whatever opened the dialog.
-      if (
-        opener?.isConnected &&
-        (!document.activeElement || document.activeElement === document.body)
-      )
-        opener.focus()
-    }
-  }, [])
-  return (
-    <dialog
-      ref={ref}
-      className={closing ? 'is-closing' : undefined}
-      inert={closing}
-      onCancel={(e) => {
-        e.preventDefault()
-        if (!closing) close()
-      }}
-      onClick={(e) => {
-        if (e.target === ref.current) close()
-      }}
-      aria-labelledby="dialog-title"
-    >
-      <div className="dialog-head">
-        <h2 id="dialog-title">{title}</h2>
-        <button className="icon-button" onClick={close} aria-label={closeLabel}>
-          <X size={20} />
-        </button>
-      </div>
-      {children}
-    </dialog>
-  )
 }
 export default function App() {
   const navigate = useNavigate(),
@@ -253,8 +193,22 @@ export default function App() {
     const beforeUnload = (event: BeforeUnloadEvent) => {
       if (doc && saveState !== 'saved') event.preventDefault()
     }
+    // Leaving or hiding the tab writes the latest edit at once instead of
+    // waiting for the short save delay.
+    const flush = () => {
+      if (doc && saveState === 'saving') void saveDocument(doc).catch(() => {})
+    }
+    const hidden = () => {
+      if (document.visibilityState === 'hidden') flush()
+    }
     window.addEventListener('beforeunload', beforeUnload)
-    return () => window.removeEventListener('beforeunload', beforeUnload)
+    window.addEventListener('pagehide', flush)
+    document.addEventListener('visibilitychange', hidden)
+    return () => {
+      window.removeEventListener('beforeunload', beforeUnload)
+      window.removeEventListener('pagehide', flush)
+      document.removeEventListener('visibilitychange', hidden)
+    }
   }, [doc, saveState])
   function update(next: ResumeDocument, group = '') {
     if (
