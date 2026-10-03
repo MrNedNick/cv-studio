@@ -551,6 +551,110 @@ it('shows a failed export inside the dialog and retries without changing the cho
   }
 })
 
+it('offers a backup after sharing and exports the latest edits from that action', async () => {
+  const click = vi
+    .spyOn(HTMLAnchorElement.prototype, 'click')
+    .mockImplementation(() => {})
+  try {
+    render(
+      <MemoryRouter initialEntries={['/edit']}>
+        <App />
+      </MemoryRouter>,
+    )
+    await startExample()
+    fireEvent.click(screen.getByRole('button', { name: 'Скачать PDF' }))
+    fireEvent.click(
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: 'Скачать',
+      }),
+    )
+    await waitFor(() =>
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument(),
+    )
+    const offer = screen.getByRole('button', {
+      name: 'Редактируемая копия',
+    })
+    await openStep(/Личные данные/)
+    fireEvent.change(screen.getByLabelText('Имя и фамилия'), {
+      target: { value: 'Latest edit' },
+    })
+    fireEvent.click(offer)
+    expect(
+      screen.getByRole('radio', { name: /Редактируемая копия/ }),
+    ).toBeChecked()
+    expect(
+      screen.getByRole('button', { name: 'Сохранить JSON-копию' }),
+    ).toBeEnabled()
+    fireEvent.click(
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: 'Скачать',
+      }),
+    )
+    await waitFor(() =>
+      expect(exportPdf).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          versions: expect.objectContaining({
+            ru: expect.objectContaining({
+              basics: expect.objectContaining({ name: 'Latest edit' }),
+            }),
+          }),
+        }),
+        { editable: true },
+      ),
+    )
+    await waitFor(() =>
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument(),
+    )
+    expect(
+      screen.queryByRole('button', {
+        name: 'Редактируемая копия',
+      }),
+    ).not.toBeInTheDocument()
+    expect(screen.getByLabelText('Имя и фамилия')).toHaveValue('Latest edit')
+  } finally {
+    click.mockRestore()
+  }
+})
+
+it('keeps the backup dialog and data when a JSON download fails, then retries', async () => {
+  const create = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:test')
+  const click = vi
+    .spyOn(HTMLAnchorElement.prototype, 'click')
+    .mockImplementation(() => {})
+  try {
+    render(
+      <MemoryRouter initialEntries={['/edit']}>
+        <App />
+      </MemoryRouter>,
+    )
+    await startExample()
+    fireEvent.click(screen.getByRole('button', { name: 'Скачать PDF' }))
+    fireEvent.click(screen.getByRole('radio', { name: /Редактируемая копия/ }))
+    create.mockImplementationOnce(() => {
+      throw new Error('Download unavailable')
+    })
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Сохранить JSON-копию' }),
+    )
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+    expect(screen.getByText(/Не удалось скачать копию/)).toBeInTheDocument()
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Сохранить JSON-копию' }),
+    )
+    await waitFor(() =>
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument(),
+    )
+    expect(screen.getByText(/JSON-копия скачана/)).toBeInTheDocument()
+    await openStep(/Личные данные/)
+    expect(screen.getByLabelText('Имя и фамилия')).toHaveValue(
+      'Александра Морозова',
+    )
+  } finally {
+    create.mockRestore()
+    click.mockRestore()
+  }
+})
+
 it('opens in English for a new visitor and remembers a deliberate language choice', async () => {
   localStorage.removeItem('neatcv-locale')
   vi.mocked(loadDocument).mockResolvedValueOnce(null)
