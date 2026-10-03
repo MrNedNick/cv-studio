@@ -526,5 +526,6 @@ const messages: Record<string, string> = {
   '{title}: {position} of {total}': '{title}: {position} de {total}',
   '“{text}” proves nothing — show it with a fact instead.':
     '«{text}» no demuestra nada: muéstralo con un hecho.',
+  ' — home': ' — inicio',
 }
 export default messages

@@ -1,4 +1,11 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import {
+  Suspense,
+  lazy,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react'
 import {
   Link,
   Navigate,
@@ -39,10 +46,13 @@ import {
 } from './model'
 import { loadDocument, saveDocument } from './storage'
 import { MiniResume, TemplateCards, templates } from './components'
-import Editor from './Editor'
 import { Disclosure, useLingering } from './motion'
 import { translator } from './i18n'
 import './App.css'
+// The editor is a separate chunk so the home page paints first; it is fetched
+// in the background right after the first render.
+const loadEditor = () => import('./Editor')
+const Editor = lazy(loadEditor)
 function download(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob),
     a = document.createElement('a')
@@ -178,6 +188,11 @@ export default function App() {
       active = false
     }
   }, [loadAttempt])
+  useEffect(() => {
+    const idle =
+      window.requestIdleCallback ?? ((fn: () => void) => setTimeout(fn, 1500))
+    idle(() => void loadEditor())
+  }, [])
   useEffect(() => {
     document.documentElement.dataset.theme = theme
   }, [theme])
@@ -630,12 +645,15 @@ export default function App() {
         {t('К содержимому', 'Skip to content')}
       </a>
       <header className="site-header">
-        <Link className="brand" to="/" aria-label="CV Studio — home">
+        <Link className="brand" to="/">
           <span className="brand-symbol">
-            <FileText size={20} />
+            <FileText size={20} aria-hidden="true" />
           </span>
           cv<span className="brand-light">studio</span>
           <span className="free-badge">FREE</span>
+          <span className="visually-hidden">
+            {t(' — на главную', ' — home')}
+          </span>
         </Link>
         <nav aria-label={t('Главное меню', 'Main navigation')}>
           <Link to="/edit">{t('Редактор', 'Editor')}</Link>
@@ -813,27 +831,36 @@ export default function App() {
                   </p>
                 </div>
               ) : (
-                <Editor
-                  key={documentRevision}
-                  doc={doc}
-                  locale={locale}
-                  update={update}
-                  undo={undo}
-                  redo={redo}
-                  canUndo={!!history.length}
-                  canRedo={!!future.length}
-                  saveState={saveState}
-                  exporting={exporting}
-                  exportFile={() => {
-                    setEditableExport(false)
-                    setExportError(false)
-                    setExportDocument(doc)
-                  }}
-                  openFile={openFile}
-                  start={() => start(false)}
-                  startOwn={() => start(false, true)}
-                  backup={backup}
-                />
+                <Suspense
+                  fallback={
+                    <div className="editor-loading" role="status">
+                      <LoaderCircle className="spin" size={22} />
+                      {t('Открываем редактор…', 'Opening the editor…')}
+                    </div>
+                  }
+                >
+                  <Editor
+                    key={documentRevision}
+                    doc={doc}
+                    locale={locale}
+                    update={update}
+                    undo={undo}
+                    redo={redo}
+                    canUndo={!!history.length}
+                    canRedo={!!future.length}
+                    saveState={saveState}
+                    exporting={exporting}
+                    exportFile={() => {
+                      setEditableExport(false)
+                      setExportError(false)
+                      setExportDocument(doc)
+                    }}
+                    openFile={openFile}
+                    start={() => start(false)}
+                    startOwn={() => start(false, true)}
+                    backup={backup}
+                  />
+                </Suspense>
               )
             }
           />

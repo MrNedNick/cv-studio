@@ -4,7 +4,10 @@ A free resume editor with thoughtful templates, a live PDF preview, and no accou
 
 **[Open CV Studio](https://mrnednick.github.io/cv-studio/)** · [Open the editor](https://mrnednick.github.io/cv-studio/#/edit)
 
-![CV Studio interface](docs/preview.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/editor-dark.png" />
+  <img src="docs/editor-light.png" alt="CV Studio editor: resume steps on the left, the experience form in the middle, and the live A4 PDF preview on the right" />
+</picture>
 
 ## Why
 
@@ -52,7 +55,7 @@ All templates and downloads are free. There are no watermarks, accounts, analyti
 
 React 19, TypeScript, and Vite. The renderer uses `@react-pdf/renderer` for layout, `pdf-lib` to attach editable source, and PDF.js to display the same PDF in the live preview. Fonts are hosted with the app and licensed under OFL (see `public/fonts/LICENSE`). The accessible form-field primitive comes from a shared component library. Hash routes support direct editor links on GitHub Pages.
 
-PDF code loads only when needed. The interface uses compressed WOFF2 fonts; PDF exports keep the original embedded fonts. Failed storage reads preserve the existing data and offer a retry; failed writes offer retry and JSON backup. The document supports multiple pages; empty sections stay out of the export. Single-column templates are recommended for automated screening. Editorial offers a two-column alternative. Mobile layouts switch between editing and preview; both light and dark themes keep the exported paper white.
+The home page loads first; the editor and the PDF code are separate chunks fetched when needed (the editor in the background right after the first paint). Interface fonts are WOFF2 files split into Latin, Latin Extended, and Cyrillic subsets, so a page downloads only the scripts it shows; PDF exports embed the complete TTF fonts. Failed storage reads preserve the existing data and offer a retry; failed writes offer retry and JSON backup. The document supports multiple pages; empty sections stay out of the export. Single-column templates are recommended for automated screening. Editorial offers a two-column alternative. Mobile layouts switch between editing and preview; both light and dark themes keep the exported paper white.
 
 ## Readability for applications
 

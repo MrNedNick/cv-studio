@@ -230,7 +230,7 @@
   position: absolute;
   top: 20px;
   left: 24px;
-  color: #6f7f60;
+  color: #5a6851;
   font-size: 11px;
   letter-spacing: 1.7px;
 }
@@ -259,7 +259,7 @@
   font-size: 4.5px;
   letter-spacing: 1px;
   margin-bottom: 13px;
-  color: #7d8d82;
+  color: #626f67;
 }
 .mini-monogram {
   display: inline-flex;
@@ -287,7 +287,7 @@
 .mini-contact {
   font-size: 4.6px;
   margin-top: 8px;
-  color: #718077;
+  color: #626f67;
 }
 .mini-rule {
   height: 1.5px;
@@ -315,7 +315,7 @@
 }
 .mini-job > span {
   font-size: 5.2px;
-  color: #718077;
+  color: #626f67;
 }
 .mini-job > p {
   margin-top: 4px;
@@ -445,7 +445,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #67785d;
+  color: #5a6851;
   font-size: 11px;
 }
 .art-caption > span:last-child {
@@ -3602,7 +3602,7 @@ dialog p {
   color: #1d2724;
 }
 .mini-minimal h4 {
-  color: #7a837e;
+  color: #626f67;
   letter-spacing: 1.6px;
 }
 .mini-bold h3 {
@@ -4644,4 +4644,12 @@ dialog[open] {
     grid-column: 3;
     grid-row: 1;
   }
+}
+.editor-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 50vh;
+  color: var(--muted);
 }

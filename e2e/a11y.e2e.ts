@@ -3,6 +3,10 @@ import { expect, test, type Page } from '@playwright/test'
 import { openExample, step } from './helpers.ts'
 
 async function violations(page: Page) {
+  // Fades change the measured colours, so check once everything has settled.
+  await page.waitForFunction(() =>
+    document.getAnimations().every((a) => a.playState !== 'running'),
+  )
   const result = await new AxeBuilder({ page })
     // Template thumbnails are hidden pictures of a page, and PDF pages are
     // labelled canvases; their text is available in the text view.
@@ -31,7 +35,6 @@ for (const scheme of ['light', 'dark'] as const) {
       expect(await violations(page)).toEqual([])
       for (const name of ['Experience', 'Skills', 'Review']) {
         await step(page, name)
-        await page.waitForTimeout(400)
         expect(await violations(page), name).toEqual([])
       }
     })
