@@ -6,6 +6,18 @@ A free resume editor with thoughtful templates, a live PDF preview, and no accou
 
 ![CV Studio interface](docs/preview.png)
 
+## Why
+
+Most online resume builders let you type for free and ask for a subscription when you download: Resume.io and Zety keep the PDF behind a paid plan, Novorésumé limits the free plan to one page and preset layouts ([pricing notes and sources](docs/research.md)). CV Studio keeps every template and every download free, needs no account, and stores the resume only in your browser.
+
+The second problem is coming back later. A PDF is usually a dead end: to change one line six months from now you need the original account or the original file. CV Studio can put the source inside the PDF itself, so the file you send yourself is also the file you edit next time.
+
+## How the editable PDF works
+
+1. The page is laid out with `@react-pdf/renderer`, so the PDF has a real text layer: it can be selected, searched and read by applicant tracking systems, and links stay clickable. The live preview renders that same PDF with PDF.js, so what you see is what you download.
+2. For an editable copy, `pdf-lib` attaches `cv-studio.json` to the PDF as an embedded file. It holds every language version and the design settings.
+3. Opening that PDF in CV Studio reads the attachment back and restores the resume for editing. A sharing copy has no attachment and only the selected language.
+
 ## What you can do
 
 - Start with a blank resume or a fictional example (a Berlin-based designer, in all six languages).
@@ -64,9 +76,11 @@ npm run dev
 npm test
 npm run lint
 npm run build
+npx playwright install chromium   # once
+npm run e2e                       # runs against the production build
 ```
 
-The development URL is `http://localhost:5173/cv-studio/`. Tests cover entry collapse/reordering/focus, duplicate imported IDs, sidebar PDF text positioning, import confirmation/cancellation and edits during file reads, storage recovery, keyboard navigation, targeted guidance, model validation, IndexedDB persistence, JSON round trips, shared contacts, undo/redo, export mode selection and retry, and PDF text, links, attachment inclusion/omission, templates, long-document pagination, typography compatibility, preview recovery, and text-view access. GitHub Actions runs lint, tests, and a production build before publishing `main` to Pages.
+The development URL is `http://localhost:5173/cv-studio/`. Tests cover entry collapse/reordering/focus, duplicate imported IDs, sidebar PDF text positioning, import confirmation/cancellation and edits during file reads, storage recovery, keyboard navigation, targeted guidance, model validation, IndexedDB persistence, JSON round trips, shared contacts, undo/redo, export mode selection and retry, and PDF text, links, attachment inclusion/omission, templates, long-document pagination, typography compatibility, preview recovery, and text-view access. Playwright end-to-end tests fill a resume from scratch and reload it, run the full download → clear → reopen the PDF → edit loop (including a renamed file without the `.pdf` extension), check that the PDF text follows the selected language, switch through all twelve templates, check the 360 px phone layout, and run axe accessibility checks on the home page and editor steps in light and dark themes. A unit test keeps every PDF text colour and accent at a contrast ratio of at least 4.5:1. GitHub Actions runs lint, unit tests, a production build, and the end-to-end suite before publishing `main` to Pages.
 
 ## Boundaries
 
