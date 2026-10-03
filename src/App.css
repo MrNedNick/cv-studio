@@ -857,13 +857,6 @@
   display: flex;
   flex-direction: column;
 }
-.sidebar-title {
-  font-size: 11px;
-  letter-spacing: 1.7px;
-  font-weight: 700;
-  color: var(--muted);
-  padding: 0 10px;
-}
 .editor-mode {
   display: flex;
   background: var(--soft);
@@ -950,14 +943,6 @@
   font-size: 12px;
   line-height: 1.7;
   color: var(--muted);
-}
-.local-badge {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--accent);
-  font-size: 11px;
-  padding-top: 25px;
 }
 .editor-form {
   padding: 36px 32px 28px;
@@ -1076,14 +1061,6 @@
   padding: 9px 12px;
   min-height: 35px;
 }
-.translation-note {
-  display: flex;
-  gap: 6px;
-  font-size: 11px;
-  line-height: 1.8;
-  color: var(--muted);
-  margin-top: 22px;
-}
 .entry-card {
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -1198,19 +1175,6 @@
   padding: 25px 34px 35px;
   min-width: 0;
 }
-.preview-heading {
-  display: flex;
-  justify-content: space-between;
-  gap: 15px;
-  color: var(--muted);
-  font-size: 12px;
-  margin-bottom: 14px;
-}
-.preview-heading > span {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-}
 .preview-tag {
   font-size: 7px;
   padding: 3px 5px;
@@ -1245,15 +1209,6 @@
   height: auto;
   background: #fff;
   box-shadow: 0 5px 20px #20322612;
-}
-.preview-footnote {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  font-size: 11px;
-  color: var(--muted);
-  margin: 23px 0 0;
 }
 .page-tip {
   color: var(--muted);
@@ -1583,10 +1538,6 @@ dialog p {
   .sidebar-bottom {
     padding: 40px 6px 0;
   }
-  .local-badge {
-    font-size: 7px;
-    gap: 3px;
-  }
   .editor-form {
     padding: 30px 23px;
   }
@@ -1709,9 +1660,6 @@ dialog p {
   }
   .pdf-pages {
     max-width: 520px;
-  }
-  .editor-toolbar .open-file {
-    display: none;
   }
   .site-footer > span {
     max-width: 200px;
@@ -2162,7 +2110,6 @@ dialog p {
     border-right: 0;
     border-bottom: 1px solid var(--line);
   }
-  .sidebar-title,
   .sidebar-bottom {
     display: none;
   }
@@ -2229,9 +2176,6 @@ dialog p {
   .form-bottom .button {
     font-size: 13px;
   }
-  .translation-note {
-    font-size: 12px;
-  }
   .tips p {
     font-size: 13px;
   }
@@ -2253,13 +2197,6 @@ dialog p {
   .preview-status {
     font-size: 11px;
     line-height: 1.6;
-  }
-  .preview-footnote {
-    font-size: 11px;
-  }
-  .preview-heading {
-    font-size: 13px;
-    margin-bottom: 20px;
   }
   .document-menu {
     top: 63px;
@@ -2408,17 +2345,10 @@ dialog p {
   .editor-mode button {
     font-size: 13px;
   }
-  .form-bottom > span,
-  .translation-note {
+  .form-bottom > span {
     font-size: 13px;
   }
   .preview-status {
-    font-size: 13px;
-  }
-  .preview-heading {
-    font-size: 13px;
-  }
-  .preview-footnote {
     font-size: 13px;
   }
   .document-title span {
@@ -2432,7 +2362,6 @@ dialog p {
     font-size: 14px;
   }
   .completion,
-  .local-badge,
   .sidebar-bottom p {
     font-size: 13px;
   }
@@ -2832,35 +2761,6 @@ dialog p {
   opacity: 1;
   display: flex;
 }
-.sidebar-export {
-  width: 100%;
-  margin-top: 14px;
-  gap: 8px;
-  font-size: 14px;
-}
-.screening-guide {
-  border: 1px solid var(--line);
-  border-radius: 9px;
-  padding: 14px;
-  margin: 24px 0;
-  font-size: 15px;
-  color: var(--muted);
-  line-height: 1.7;
-}
-.screening-guide .disclosure-summary {
-  cursor: pointer;
-  color: var(--text);
-  font-weight: 600;
-}
-.screening-guide p {
-  margin: 12px 0;
-}
-.screening-guide a {
-  display: block;
-  color: var(--accent);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
 .fit-page-button {
   display: flex;
   align-items: center;
@@ -2985,9 +2885,6 @@ dialog p {
     padding: 18px 12px;
     overscroll-behavior: contain;
   }
-  .is-editing .sidebar-title {
-    font-size: 13px;
-  }
   .is-editing .editor-mode {
     margin: 12px 0;
   }
@@ -3022,10 +2919,6 @@ dialog p {
   .is-editing .sidebar-bottom p {
     font-size: 13px;
   }
-  .is-editing .local-badge {
-    font-size: 13px;
-    padding-top: 16px;
-  }
   .is-editing .editor-form {
     overflow-y: auto;
     min-height: 0;
@@ -3051,7 +2944,6 @@ dialog p {
     font-size: 15px;
   }
   .is-editing .field-hint,
-  .is-editing .translation-note,
   .is-editing .tips p {
     font-size: 14px;
   }
@@ -3061,9 +2953,6 @@ dialog p {
     flex-direction: column;
     min-height: 0;
     overflow: hidden;
-  }
-  .is-editing .preview-heading {
-    display: none;
   }
   .is-editing .preview-controls {
     margin-bottom: 4px;
@@ -3104,11 +2993,6 @@ dialog p {
     margin: 0;
     min-height: 0;
   }
-  .is-editing .preview-footnote {
-    margin: 8px 0 0;
-    font-size: 13px;
-    flex-shrink: 0;
-  }
   .is-editing .page-tip {
     font-size: 13px;
     padding: 4px 0 0;
@@ -3136,9 +3020,6 @@ dialog p {
   }
   .is-editing .sidebar-bottom {
     padding-top: 14px;
-  }
-  .is-editing .local-badge {
-    display: none;
   }
 }
 .export-metadata {
@@ -3537,31 +3418,12 @@ dialog p {
   border-radius: 0 0 6px 6px;
   padding-top: 13px;
 }
-
-/* Collapsible sidebar and resizable form */
-.sidebar-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 6px;
-}
 .rail-toggle,
-.form-width-toggle,
 .panel-resizer {
   display: none;
 }
-.form-step-tools {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.form-width-toggle[aria-pressed='true'] {
-  color: var(--accent);
-  background: var(--soft);
-}
 @media (min-width: 1050px) {
-  .is-editing .rail-toggle,
-  .is-editing .form-width-toggle {
+  .is-editing .rail-toggle {
     display: grid;
   }
   .is-editing .preview-panel {
@@ -3596,16 +3458,11 @@ dialog p {
     padding-left: 8px;
     padding-right: 8px;
   }
-  .is-editing .railed .sidebar-head {
-    justify-content: center;
-  }
-  .is-editing .railed .sidebar-title,
   .is-editing .railed .rail-hide,
   .is-editing .railed .section-nav button > span,
   .is-editing .railed .sidebar-bottom p,
   .is-editing .railed .completion span,
-  .is-editing .railed .progress-track,
-  .is-editing .railed .local-badge {
+  .is-editing .railed .progress-track {
     display: none;
   }
   .is-editing .railed .editor-mode {
@@ -3636,9 +3493,6 @@ dialog p {
   }
   .is-editing .railed .completion strong {
     font-size: 14px;
-  }
-  .is-editing .railed .sidebar-export {
-    padding: 10px 0;
   }
 }
 .verb-tabs {
@@ -3869,7 +3723,7 @@ dialog p {
 @keyframes rise-in {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(6px);
   }
 }
 @keyframes pop-in {
@@ -3974,11 +3828,6 @@ dialog.is-closing::backdrop {
 .entry-toggle > svg {
   transition: transform 0.22s cubic-bezier(0.2, 0.75, 0.25, 1);
 }
-
-/* Hidden form and animated columns */
-.show-form {
-  display: none;
-}
 @media (min-width: 1050px) {
   .is-editing .editor-body {
     transition: grid-template-columns 0.3s cubic-bezier(0.2, 0.75, 0.25, 1);
@@ -3997,27 +3846,8 @@ dialog.is-closing::backdrop {
     padding-right: 0;
     overflow: hidden;
   }
-  .is-editing .form-hidden .panel-resizer {
-    display: none;
-  }
-  .is-editing .form-hidden .show-form {
-    display: inline-flex;
-    position: absolute;
-    left: 20px;
-    top: 12px;
-    z-index: 4;
-    gap: 6px;
-    min-height: 0;
-    padding: 8px 12px;
-    font-size: 13px;
-    animation: fade-in 0.25s ease-out 0.1s both;
-  }
-  .is-editing .form-hidden .preview-controls {
-    padding-left: 150px;
-  }
   .is-editing .editor-sidebar .section-nav button > span,
-  .is-editing .editor-sidebar .rail-hide,
-  .is-editing .editor-sidebar .sidebar-title {
+  .is-editing .editor-sidebar .rail-hide {
     animation: fade-in 0.25s ease-out;
   }
 }
@@ -4032,8 +3862,7 @@ dialog.is-closing::backdrop {
   .step-enter,
   .document-menu,
   dialog[open],
-  .copy-toast,
-  .is-editing .form-hidden .show-form {
+  .copy-toast {
     animation-name: fade-in;
     animation-duration: 0.16s;
   }
@@ -4073,29 +3902,6 @@ dialog.is-closing::backdrop {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
   border-radius: 6px;
-}
-.resume-language {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 0 4px 0 9px;
-  border: 1px solid var(--line);
-  border-radius: 7px;
-  color: var(--muted);
-  background: var(--surface);
-}
-.resume-language select {
-  border: 0;
-  background: transparent;
-  color: var(--text);
-  font-size: 13px;
-  font-weight: 600;
-  padding: 7px 2px;
-  max-width: 150px;
-  cursor: pointer;
-}
-.resume-language:focus-within {
-  border-color: var(--accent);
 }
 .version-start {
   display: flex;
@@ -4140,4 +3946,209 @@ dialog.is-closing::backdrop {
   min-height: 0;
   padding: 8px 12px;
   font-size: 13px;
+}
+
+/* ---- Simplified workspace chrome ---- */
+:root {
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.form-toggle {
+  display: none;
+}
+.version-select {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--muted);
+  border-radius: 5px;
+}
+.version-select select {
+  field-sizing: content;
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  padding: 0 14px 0 2px;
+  cursor: pointer;
+}
+.version-select svg {
+  position: absolute;
+  right: 0;
+  pointer-events: none;
+}
+.version-select:hover,
+.version-select:focus-within {
+  color: var(--text);
+}
+.version-select:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.document-title span {
+  flex-wrap: wrap;
+}
+.form-bottom {
+  justify-content: flex-end;
+}
+.sidebar-bottom {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 8px 10px;
+}
+.sidebar-bottom .completion {
+  grid-column: 1;
+}
+.sidebar-bottom .progress-track {
+  grid-column: 1;
+  margin: 0;
+}
+.sidebar-bottom .rail-toggle {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+}
+.photo-field {
+  border: 0;
+  padding: 0;
+  align-items: center;
+  gap: 14px;
+}
+.photo-preview {
+  width: 48px;
+  height: 60px;
+  border-radius: 8px;
+}
+.photo-field strong {
+  font-size: 14px;
+}
+.photo-field p {
+  margin: 2px 0 6px;
+  font-size: 12px;
+}
+.photo-actions .button {
+  padding: 5px 10px;
+  font-size: 12px;
+}
+.passed-checks > .disclosure-summary {
+  font-size: 15px;
+  font-weight: 700;
+  padding: 4px 0;
+}
+.passed-checks .disclosure-body ul {
+  margin-top: 10px;
+}
+@media (min-width: 1050px) {
+  .is-editing .form-toggle {
+    display: grid;
+    margin-right: 4px;
+  }
+  .is-editing .form-toggle[aria-expanded='false'] {
+    color: var(--accent);
+    background: var(--soft);
+  }
+  .is-editing .editor-toolbar {
+    justify-content: flex-start;
+  }
+  .is-editing .editor-actions {
+    margin-left: auto;
+  }
+  .is-editing .editor-sidebar {
+    padding-top: 16px;
+  }
+  .is-editing .editor-mode {
+    margin-top: 0;
+  }
+  .is-editing .sidebar-bottom {
+    padding: 16px 4px 0;
+  }
+  .is-editing .railed .sidebar-bottom {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+  .is-editing .railed .sidebar-bottom .rail-toggle {
+    grid-column: 1;
+    grid-row: auto;
+  }
+  /* macOS-style divider: a hairline that brightens under the pointer. */
+  .is-editing .panel-resizer {
+    left: -6px;
+    width: 12px;
+    cursor: col-resize;
+  }
+  .is-editing .panel-resizer::after {
+    left: 5px;
+    width: 2px;
+    border-radius: 2px;
+    transition:
+      background-color 0.18s var(--ease),
+      transform 0.18s var(--ease);
+  }
+  .is-editing .panel-resizer:hover::after,
+  .is-editing .is-resizing .panel-resizer::after {
+    background: var(--accent);
+  }
+  .is-editing .form-hidden .panel-resizer {
+    left: 0;
+    cursor: e-resize;
+  }
+  .is-editing .is-resizing,
+  .is-editing .is-resizing * {
+    cursor: col-resize !important;
+    user-select: none;
+  }
+  .is-editing .editor-body {
+    transition: grid-template-columns 0.28s var(--ease);
+  }
+  .is-editing .editor-form {
+    transition:
+      opacity 0.2s var(--ease),
+      padding 0.28s var(--ease);
+  }
+}
+.step-enter {
+  animation-duration: 0.22s;
+  animation-timing-function: var(--ease);
+}
+.document-menu {
+  animation-duration: 0.16s;
+  animation-timing-function: var(--ease);
+}
+dialog[open] {
+  animation-duration: 0.22s;
+  animation-timing-function: var(--ease);
+}
+.disclosure-summary > svg,
+.entry-toggle > svg {
+  transition: transform 0.2s var(--ease);
+}
+@media (prefers-reduced-motion: reduce) {
+  .is-editing .editor-body,
+  .is-editing .panel-resizer::after,
+  .disclosure-summary > svg,
+  .entry-toggle > svg {
+    transition: none;
+  }
+}
+@media (max-width: 1049px) {
+  .sidebar-bottom {
+    display: none;
+  }
+}
+.export-label-short {
+  display: none;
+}
+@media (max-width: 600px) {
+  .export-button .export-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .export-button .export-label-short {
+    display: inline;
+  }
 }

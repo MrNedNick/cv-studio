@@ -44,8 +44,6 @@ const messages: Record<string, string> = {
   'Add your name so your resume is easy to identify.':
     'Добавете името си, за да се разпознава лесно автобиографията.',
   After: 'След',
-  'After downloading, check the PDF text: your name, contacts, dates, and section order. Follow the employer’s requested file format. There is no universal ATS score.':
-    'След изтегляне проверете текста в PDF: име, контакти, дати и ред на разделите. Използвайте файловия формат, който иска работодателят. Универсален ATS резултат не съществува.',
   'Aim for 2–4 specific sentences. Skip generic buzzwords.':
     '2–4 конкретни изречения. Без празни модни думи.',
   'Aim for numbers in at least half of the points: %, money, time, users, team size.':
@@ -81,10 +79,6 @@ const messages: Record<string, string> = {
   'Check your website link. Use an http or https address.':
     'Проверете линка към сайта. Използвайте адрес с http или https.',
   'Choose a design': 'Изберете дизайн',
-  'Choose a single column for application systems. Include relevant skills from the job posting in visible text, backed by examples of your work. Hidden keywords do not replace experience.':
-    'Изберете една колона за системите за кандидатстване. Включете във видимия текст подходящите умения от обявата и ги подкрепете с примери от работата си. Скритите ключови думи не заменят опита.',
-  'Choose the resume language at the top of the form. Contacts, dates, and links are shared; you translate the text.':
-    'Изберете езика на автобиографията горе във формуляра. Контактите, датите и линковете са общи; текста превеждате Вие.',
   'Choose what feels like you. Switch templates any time without losing a word.':
     'Изберете това, което Ви подхожда. Сменяйте шаблона по всяко време, без да губите и дума.',
   'Choose your template and color. See every change in the live preview.':
@@ -159,14 +153,11 @@ const messages: Record<string, string> = {
     'Редактируемото копие е изтеглено. Отворете го тук, за да възстановите всички езикови версии и оформлението.',
   Editor: 'Редактор',
   Email: 'Имейл',
-  'Empty sections stay out of your PDF': 'Празните раздели не влизат в PDF',
   'End date': 'Крайна дата',
   English: 'Английски',
   Entries: 'Записи',
   'Every option supports Latin and Cyrillic text.':
     'Всички варианти поддържат латиница и кирилица.',
-  'Every section is optional. Keep what matters for your next role.':
-    'Всички раздели са по избор. Оставете важното за следващата си работа.',
   'Every template and feature is free': 'Всички шаблони и функции са безплатни',
   'Expand all': 'Разгъни всички',
   'Expand panel': 'Разгъни панела',
@@ -175,7 +166,6 @@ const messages: Record<string, string> = {
   'Fill in the sections at your own pace. Your changes save automatically.':
     'Попълвайте разделите със свое темпо. Промените се запазват автоматично.',
   Filled: 'Попълнено',
-  'Finish & export': 'Завърши и изтегли',
   'Fit page': 'Цяла страница',
   'Fit to width': 'По ширина',
   'For automated resume screening, choose any template except the two-column Editorial: the others read top to bottom.':
@@ -184,6 +174,7 @@ const messages: Record<string, string> = {
     'За четене и копиране. Оформлението на документа е в раздела PDF.',
   'For sharing': 'За изпращане',
   Forest: 'Горско зелено',
+  'Form panel': 'Панел с формуляра',
   'Form width': 'Ширина на формуляра',
   'Formula: action verb + what you did + measurable result (Google’s X‑Y‑Z).':
     'Формула: глагол за действие + какво направихте + измерим резултат (X‑Y‑Z на Google).',
@@ -205,8 +196,7 @@ const messages: Record<string, string> = {
   Grow: 'Растеж',
   'Hard-working team player looking for new challenges.':
     'Трудолюбив екипен играч търси нови предизвикателства.',
-  'Hide form': 'Скрий формуляра',
-  'Hide the form and enlarge the preview': 'Скрий формуляра и увеличи прегледа',
+  'Hide form · Ctrl/⌘ \\': 'Скрий формуляра · Ctrl/⌘ \\',
   'How it works': 'Как работи',
   'How to write this section': 'Как да попълните този раздел',
   Improve: 'Подобряване',
@@ -242,11 +232,9 @@ const messages: Record<string, string> = {
     'Посочете 8–25 конкретни умения: инструменти, езици, методи. Без „комуникативност“.',
   'List the languages you speak and your proficiency.':
     'Посочете езиците, които говорите, и нивото си.',
-  'Live preview': 'Преглед на живо',
-  'Looking good': 'Всичко е наред',
+  'Looking good · {count}': 'Всичко е наред · {count}',
   'MAKE IT YOURS': 'НАПРАВЕТЕ Я СВОЯ',
   'Main navigation': 'Основна навигация',
-  'Make it easy to read & parse': 'Лесно за четене и обработка',
   'Make it yours': 'Направете я своя',
   'Margin headings and generous whitespace': 'Заглавия в полето и много въздух',
   'Match a job posting': 'Сравнение с обява',
@@ -267,7 +255,6 @@ const messages: Record<string, string> = {
   'Move up': 'Нагоре',
   'My resume': 'Моята автобиография',
   'Name and contact': 'Име и контакт',
-  'Narrow form': 'Тесен формуляр',
   Navy: 'Тъмносин',
   'New resume': 'Нова автобиография',
   Next: 'Напред',
@@ -280,8 +267,6 @@ const messages: Record<string, string> = {
   'No sign-up. Your resume is never sent to a server.':
     'Без регистрация. Автобиографията Ви никога не се изпраща към сървър.',
   'No watermarks': 'Без водни знаци',
-  'No watermarks. No paywall at download.':
-    'Без водни знаци. Без плащане при изтегляне.',
   'No “I” or “my”': 'Без „аз“ и „мой“',
   'Not saved': 'Не е запазено',
   'Nothing but text and whitespace': 'Само текст и въздух',
@@ -296,13 +281,11 @@ const messages: Record<string, string> = {
     'Ред за проблема, ред за решението, ред за резултата.',
   'One point, one or two lines — under about 35 words.':
     'Една точка — един-два реда, до около 35 думи.',
-  'Only on your device': 'Само на Вашето устройство',
   'Only the selected language, without an editable attachment. Ready for a job application.':
     'Само избраният език, без редактируем прикачен файл. Готово за кандидатстване.',
   'Open PDF / JSON': 'Отвори PDF / JSON',
   'Open a resume from PDF or JSON': 'Отворете автобиография от PDF или JSON',
   'Open backup': 'Отвори резервното копие',
-  'Open file': 'Отвори файл',
   'Open resume': 'Отвори автобиографията',
   'Open resume file': 'Отвори файл с автобиография',
   'Open this resume?': 'Да се отвори ли тази автобиография?',
@@ -319,8 +302,7 @@ const messages: Record<string, string> = {
     'Прегледът на PDF не можа да се зареди. Опитайте отново или превключете към текста.',
   'PDF properties': 'Свойства на PDF',
   Page: 'Страница',
-  'Pages: {pages} · A4 · Exactly as in your PDF':
-    'Страници: {pages} · A4 · Точно както в PDF',
+  'Pages: {pages} · A4': 'Страници: {pages} · A4',
   'Paste a job posting to see which of its skills and terms your resume already covers. Everything runs in your browser.':
     'Поставете обява, за да видите кои умения и термини от нея вече има в автобиографията Ви. Всичко се обработва в браузъра.',
   'Paste the job description…': 'Поставете описанието на позицията…',
@@ -402,13 +384,12 @@ const messages: Record<string, string> = {
   'Separate with commas. Use the job posting’s terms for skills you actually have, and show your key skills in your experience.':
     'Разделяйте със запетаи. Използвайте термините от обявата за умения, които наистина имате, и покажете ключовите в опита си.',
   'Show dismissed tips': 'Покажи скритите подсказки',
-  'Show form': 'Покажи формуляра',
+  'Show form · Ctrl/⌘ \\': 'Покажи формуляра · Ctrl/⌘ \\',
   'Show work you’re proud of.': 'Покажете работа, с която се гордеете.',
   'Skills first · a clear single column': 'Първо уменията · ясна една колона',
   'Skip to content': 'Към съдържанието',
   'Skip “I” and clichés like “team player” or “hard-working”.':
     'Без „аз“ и клишета като „екипен играч“ или „трудолюбив“.',
-  'Standard form width': 'Стандартна ширина на формуляра',
   'Start a new point in “{entry}”:': 'Започнете нова точка в „{entry}“:',
   'Start a new resume?': 'Да започне ли нова автобиография?',
   'Start date': 'Начална дата',
@@ -473,7 +454,6 @@ const messages: Record<string, string> = {
     'В какво сте добри и каква стойност носите?',
   'Which copy do you need?': 'Какво копие Ви трябва?',
   'YOUR NEXT CHAPTER': 'ВАШАТА СЛЕДВАЩА ГЛАВА',
-  'YOUR RESUME': 'ВАШАТА АВТОБИОГРАФИЯ',
   'Your data stays in your browser': 'Данните Ви остават в браузъра',
   'Your data stays with you.': 'Данните Ви остават при Вас.',
   'Your experience.': 'Вашият опит.',
@@ -501,6 +481,7 @@ const messages: Record<string, string> = {
   'best.': 'си вид.',
   'e.g. Prague, Czechia': 'напр. Прага, Чехия',
   'e.g. Product designer': 'напр. Продуктов дизайнер',
+  empty: 'празна',
   'great presentation.': 'добро представяне.',
   'key skills from the posting appear in your resume.':
     'ключови умения от обявата има в автобиографията Ви.',

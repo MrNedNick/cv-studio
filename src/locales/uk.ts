@@ -44,8 +44,6 @@ const messages: Record<string, string> = {
   'Add your name so your resume is easy to identify.':
     'Додайте ім’я, щоб резюме було легко впізнати.',
   After: 'Стало',
-  'After downloading, check the PDF text: your name, contacts, dates, and section order. Follow the employer’s requested file format. There is no universal ATS score.':
-    'Після завантаження перевірте текст PDF: ім’я, контакти, дати та порядок розділів. Використовуйте формат файлу, який просить роботодавець. Універсального балу ATS не існує.',
   'Aim for 2–4 specific sentences. Skip generic buzzwords.':
     '2–4 конкретні речення. Без порожніх модних слів.',
   'Aim for numbers in at least half of the points: %, money, time, users, team size.':
@@ -81,10 +79,6 @@ const messages: Record<string, string> = {
   'Check your website link. Use an http or https address.':
     'Перевірте посилання на сайт. Використовуйте адресу http або https.',
   'Choose a design': 'Обрати дизайн',
-  'Choose a single column for application systems. Include relevant skills from the job posting in visible text, backed by examples of your work. Hidden keywords do not replace experience.':
-    'Для систем відбору обирайте одну колонку. Додавайте у видимий текст доречні навички з вакансії та підкріплюйте їх прикладами з роботи. Приховані ключові слова не замінюють досвіду.',
-  'Choose the resume language at the top of the form. Contacts, dates, and links are shared; you translate the text.':
-    'Мову резюме обирають угорі форми. Контакти, дати й посилання спільні, текст перекладаєте ви.',
   'Choose what feels like you. Switch templates any time without losing a word.':
     'Оберіть те, що вам до вподоби. Змінюйте шаблон будь-коли, не втрачаючи жодного слова.',
   'Choose your template and color. See every change in the live preview.':
@@ -158,14 +152,11 @@ const messages: Record<string, string> = {
     'Редаговану копію завантажено. Відкрийте її тут, щоб відновити всі мовні версії та оформлення.',
   Editor: 'Редактор',
   Email: 'Електронна пошта',
-  'Empty sections stay out of your PDF': 'Порожні розділи не потраплять у PDF',
   'End date': 'Закінчення',
   English: 'Англійська',
   Entries: 'Записів',
   'Every option supports Latin and Cyrillic text.':
     'Усі варіанти підтримують латиницю й кирилицю.',
-  'Every section is optional. Keep what matters for your next role.':
-    'Усі розділи необов’язкові. Залиште важливе для наступної роботи.',
   'Every template and feature is free': 'Усі шаблони й функції безкоштовні',
   'Expand all': 'Розгорнути всі',
   'Expand panel': 'Розгорнути панель',
@@ -174,7 +165,6 @@ const messages: Record<string, string> = {
   'Fill in the sections at your own pace. Your changes save automatically.':
     'Заповнюйте розділи у своєму темпі. Зміни зберігаються автоматично.',
   Filled: 'Заповнено',
-  'Finish & export': 'Завершити й завантажити',
   'Fit page': 'Уся сторінка',
   'Fit to width': 'За шириною сторінки',
   'For automated resume screening, choose any template except the two-column Editorial: the others read top to bottom.':
@@ -183,6 +173,7 @@ const messages: Record<string, string> = {
     'Для читання й копіювання. Макет документа — на вкладці PDF.',
   'For sharing': 'Для надсилання',
   Forest: 'Лісовий',
+  'Form panel': 'Панель форми',
   'Form width': 'Ширина форми',
   'Formula: action verb + what you did + measurable result (Google’s X‑Y‑Z).':
     'Формула: дієслово дії + що зробили + вимірюваний результат (X‑Y‑Z від Google).',
@@ -204,9 +195,7 @@ const messages: Record<string, string> = {
   Grow: 'Зростання',
   'Hard-working team player looking for new challenges.':
     'Відповідальний командний гравець, шукаю нові виклики.',
-  'Hide form': 'Приховати форму',
-  'Hide the form and enlarge the preview':
-    'Приховати форму й збільшити перегляд',
+  'Hide form · Ctrl/⌘ \\': 'Приховати форму · Ctrl/⌘ \\',
   'How it works': 'Як це працює',
   'How to write this section': 'Як заповнити цей розділ',
   Improve: 'Покращення',
@@ -242,11 +231,9 @@ const messages: Record<string, string> = {
     'Вкажіть 8–25 конкретних навичок: інструменти, мови, методи. Без «комунікабельності».',
   'List the languages you speak and your proficiency.':
     'Вкажіть мови та рівень володіння.',
-  'Live preview': 'Живий перегляд',
-  'Looking good': 'Уже добре',
+  'Looking good · {count}': 'Уже добре · {count}',
   'MAKE IT YOURS': 'ЗРОБІТЬ ЙОГО СВОЇМ',
   'Main navigation': 'Головне меню',
-  'Make it easy to read & parse': 'Резюме для людей і систем відбору',
   'Make it yours': 'Зробіть його своїм',
   'Margin headings and generous whitespace':
     'Заголовки на полях і багато простору',
@@ -268,7 +255,6 @@ const messages: Record<string, string> = {
   'Move up': 'Підняти',
   'My resume': 'Моє резюме',
   'Name and contact': 'Ім’я та контакт',
-  'Narrow form': 'Вузька форма',
   Navy: 'Темно-синій',
   'New resume': 'Нове резюме',
   Next: 'Далі',
@@ -281,8 +267,6 @@ const messages: Record<string, string> = {
   'No sign-up. Your resume is never sent to a server.':
     'Без реєстрації. Резюме ніколи не надсилається на сервер.',
   'No watermarks': 'Без водяних знаків',
-  'No watermarks. No paywall at download.':
-    'Без водяних знаків. Без оплати за завантаження.',
   'No “I” or “my”': 'Без «я» та «мій»',
   'Not saved': 'Не збережено',
   'Nothing but text and whitespace': 'Лише текст і простір',
@@ -297,13 +281,11 @@ const messages: Record<string, string> = {
     'Рядок про задачу, рядок про рішення, рядок про результат.',
   'One point, one or two lines — under about 35 words.':
     'Один пункт — один-два рядки, до 35 слів.',
-  'Only on your device': 'Лише на вашому пристрої',
   'Only the selected language, without an editable attachment. Ready for a job application.':
     'Лише обрана мова, без редагованого вкладення. Готово для відгуку на вакансію.',
   'Open PDF / JSON': 'Відкрити PDF / JSON',
   'Open a resume from PDF or JSON': 'Відкрити резюме з PDF або JSON',
   'Open backup': 'Відкрити копію',
-  'Open file': 'Відкрити файл',
   'Open resume': 'Відкрити резюме',
   'Open resume file': 'Відкрити файл резюме',
   'Open this resume?': 'Відкрити це резюме?',
@@ -319,8 +301,7 @@ const messages: Record<string, string> = {
     'Не вдалося завантажити перегляд PDF. Спробуйте ще раз або відкрийте текст.',
   'PDF properties': 'Властивості PDF',
   Page: 'Сторінка',
-  'Pages: {pages} · A4 · Exactly as in your PDF':
-    'Сторінок: {pages} · A4 · Саме так виглядатиме ваш PDF',
+  'Pages: {pages} · A4': 'Сторінок: {pages} · A4',
   'Paste a job posting to see which of its skills and terms your resume already covers. Everything runs in your browser.':
     'Вставте текст вакансії — покажемо, які навички й терміни з неї вже є в резюме, а яких немає. Усе рахується в браузері.',
   'Paste the job description…': 'Вставте опис вакансії…',
@@ -403,14 +384,13 @@ const messages: Record<string, string> = {
   'Separate with commas. Use the job posting’s terms for skills you actually have, and show your key skills in your experience.':
     'Розділяйте комами. Використовуйте назви з вакансії лише для навичок, якими володієте, і підтверджуйте ключові з них досвідом.',
   'Show dismissed tips': 'Показати приховані підказки',
-  'Show form': 'Показати форму',
+  'Show form · Ctrl/⌘ \\': 'Показати форму · Ctrl/⌘ \\',
   'Show work you’re proud of.': 'Покажіть роботу, якою пишаєтеся.',
   'Skills first · a clear single column':
     'Навички на першому плані · одна колонка',
   'Skip to content': 'До вмісту',
   'Skip “I” and clichés like “team player” or “hard-working”.':
     'Без «я» і штампів на кшталт «командний гравець» чи «відповідальний».',
-  'Standard form width': 'Звичайна ширина форми',
   'Start a new point in “{entry}”:': 'Почніть новий пункт у «{entry}»:',
   'Start a new resume?': 'Почати нове резюме?',
   'Start date': 'Початок',
@@ -475,7 +455,6 @@ const messages: Record<string, string> = {
     'Що ви вмієте й яку користь приносите?',
   'Which copy do you need?': 'Яка копія вам потрібна?',
   'YOUR NEXT CHAPTER': 'ВАШ НАСТУПНИЙ РОЗДІЛ',
-  'YOUR RESUME': 'ВАШЕ РЕЗЮМЕ',
   'Your data stays in your browser': 'Ваші дані залишаються в браузері',
   'Your data stays with you.': 'Ваші дані залишаються у вас.',
   'Your experience.': 'Ваш досвід.',
@@ -504,6 +483,7 @@ const messages: Record<string, string> = {
   'best.': 'вигляді.',
   'e.g. Prague, Czechia': 'Наприклад, Прага, Чехія',
   'e.g. Product designer': 'Наприклад, продуктова дизайнерка',
+  empty: 'порожня',
   'great presentation.': 'гарного оформлення.',
   'key skills from the posting appear in your resume.':
     'ключових навичок з вакансії є в резюме.',

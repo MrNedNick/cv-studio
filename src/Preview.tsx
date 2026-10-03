@@ -190,11 +190,7 @@ export default function Preview({
               'PDF preview could not load. Retry or switch to text.',
             )
           ) : (
-            t(
-              'Страниц: {pages} · A4 · Так будет выглядеть ваш PDF',
-              'Pages: {pages} · A4 · Exactly as in your PDF',
-              { pages },
-            )
+            t('Страниц: {pages} · A4', 'Pages: {pages} · A4', { pages })
           )}
         </div>
         {error && (

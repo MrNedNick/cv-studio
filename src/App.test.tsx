@@ -251,6 +251,13 @@ it('opens the relevant section from a tip and restores dismissed guidance', asyn
   )
   fireEvent.click(await screen.findByRole('button', { name: /Новое резюме/ }))
   fireEvent.click(screen.getByRole('button', { name: /Навыки/ }))
+  // Tips belong to their section; Skills shows none about the name.
+  expect(
+    screen.queryByRole('button', {
+      name: 'Добавьте имя, чтобы резюме было легко найти.',
+    }),
+  ).not.toBeInTheDocument()
+  fireEvent.click(screen.getByRole('button', { name: /Личные данные/ }))
   fireEvent.click(
     screen.getByRole('button', {
       name: 'Добавьте имя, чтобы резюме было легко найти.',
@@ -558,6 +565,9 @@ it('reviews content, adds a missing vacancy skill, and inserts an action verb', 
     await screen.findByRole('button', { name: /Начать с примера/ }),
   )
   fireEvent.click(screen.getByRole('button', { name: /Опыт работы/ }))
+  fireEvent.click(
+    screen.getByRole('button', { name: 'Как заполнить этот раздел' }),
+  )
   fireEvent.click(screen.getByRole('button', { name: 'Улучшение' }))
   fireEvent.click(screen.getByRole('button', { name: 'Оптимизировал' }))
   expect(screen.getAllByLabelText('Результаты и достижения')[0]).toHaveFocus()
@@ -586,9 +596,9 @@ it('reviews content, adds a missing vacancy skill, and inserts an action verb', 
     (screen.getByLabelText('Ваши навыки') as HTMLTextAreaElement).value,
   ).toMatch(/, Amplitude$/)
 })
-it('collapses the section panel and remembers a narrow form', async () => {
+it('collapses the section panel and remembers the panel layout', async () => {
   localStorage.removeItem('cv-sidebar')
-  localStorage.removeItem('cv-form-width')
+  localStorage.removeItem('cv-form-hidden')
   const view = render(
     <MemoryRouter initialEntries={['/edit']}>
       <App />
@@ -600,8 +610,8 @@ it('collapses the section panel and remembers a narrow form', async () => {
   )
   expect(localStorage.getItem('cv-sidebar')).toBe('rail')
   expect(screen.getByRole('button', { name: 'Опыт работы' })).toBeVisible()
-  fireEvent.click(screen.getByRole('button', { name: 'Узкая форма' }))
-  expect(localStorage.getItem('cv-form-width')).toBe('360')
+  fireEvent.click(screen.getByRole('button', { name: 'Панель формы' }))
+  expect(localStorage.getItem('cv-form-hidden')).toBe('hidden')
   view.unmount()
   vi.mocked(loadDocument).mockResolvedValueOnce(createDocument(false, 'ru'))
   render(
@@ -609,16 +619,15 @@ it('collapses the section panel and remembers a narrow form', async () => {
       <App />
     </MemoryRouter>,
   )
-  await screen.findByLabelText('Имя и фамилия')
   expect(
     await screen.findByRole('button', { name: 'Развернуть панель разделов' }),
   ).toHaveAttribute('aria-expanded', 'false')
-  expect(screen.getByRole('button', { name: 'Узкая форма' })).toHaveAttribute(
-    'aria-pressed',
-    'true',
+  expect(screen.getByRole('button', { name: 'Панель формы' })).toHaveAttribute(
+    'aria-expanded',
+    'false',
   )
 })
-it('hides the form from any tab and brings it back from the preview or a section', async () => {
+it('toggles the form with one button, a shortcut, or by choosing a section', async () => {
   localStorage.removeItem('cv-form-hidden')
   render(
     <MemoryRouter initialEntries={['/edit']}>
@@ -626,30 +635,35 @@ it('hides the form from any tab and brings it back from the preview or a section
     </MemoryRouter>,
   )
   fireEvent.click(await screen.findByRole('button', { name: /Новое резюме/ }))
-  fireEvent.click(screen.getByRole('button', { name: 'Скрыть форму' }))
-  expect(localStorage.getItem('cv-form-hidden')).toBe('hidden')
-  fireEvent.click(screen.getByRole('button', { name: 'Показать форму' }))
-  expect(localStorage.getItem('cv-form-hidden')).toBeNull()
-  expect(
-    screen.queryByRole('button', { name: 'Показать форму' }),
-  ).not.toBeInTheDocument()
+  const toggle = screen.getByRole('button', { name: 'Панель формы' })
+  expect(toggle).toHaveAttribute('aria-expanded', 'true')
+  fireEvent.click(toggle)
+  expect(toggle).toHaveAttribute('aria-expanded', 'false')
+  fireEvent.keyDown(window, { key: '\\', ctrlKey: true })
+  expect(toggle).toHaveAttribute('aria-expanded', 'true')
   fireEvent.click(screen.getByRole('button', { name: /Дизайн/ }))
-  fireEvent.click(screen.getByRole('button', { name: 'Скрыть форму' }))
-  expect(
-    screen.getByRole('button', { name: 'Показать форму' }),
-  ).toBeInTheDocument()
+  fireEvent.click(toggle)
+  expect(localStorage.getItem('cv-form-hidden')).toBe('hidden')
   fireEvent.click(
     within(document.querySelector<HTMLElement>('.section-nav')!).getByRole(
       'button',
       { name: /Опыт работы/ },
     ),
   )
-  expect(localStorage.getItem('cv-form-hidden')).toBeNull()
+  expect(toggle).toHaveAttribute('aria-expanded', 'true')
   expect(
     screen.getByRole('heading', { name: 'Опыт работы' }),
   ).toBeInTheDocument()
+  // The divider adjusts the width from the keyboard and closes the form below its minimum.
+  const divider = screen.getByRole('separator', { name: 'Ширина формы' })
+  fireEvent.keyDown(divider, { key: 'Home' })
+  expect(Number(localStorage.getItem('cv-form-width'))).toBe(340)
+  fireEvent.keyDown(divider, { key: 'ArrowLeft' })
+  expect(toggle).toHaveAttribute('aria-expanded', 'false')
+  fireEvent.keyDown(divider, { key: 'Enter' })
+  expect(toggle).toHaveAttribute('aria-expanded', 'true')
 })
-it('toggles writing guidance as an expandable region', async () => {
+it('keeps writing guidance tucked away until it is opened', async () => {
   localStorage.removeItem('cv-guide')
   render(
     <MemoryRouter initialEntries={['/edit']}>
@@ -660,12 +674,12 @@ it('toggles writing guidance as an expandable region', async () => {
   const toggle = screen.getByRole('button', {
     name: 'Как заполнить этот раздел',
   })
-  expect(toggle).toHaveAttribute('aria-expanded', 'true')
-  expect(screen.getByText(/Укажите должность/)).toBeVisible()
-  fireEvent.click(toggle)
   expect(toggle).toHaveAttribute('aria-expanded', 'false')
   expect(screen.queryByText(/Укажите должность/)).not.toBeInTheDocument()
-  expect(localStorage.getItem('cv-guide')).toBe('closed')
+  fireEvent.click(toggle)
+  expect(toggle).toHaveAttribute('aria-expanded', 'true')
+  expect(screen.getByText(/Укажите должность/)).toBeVisible()
+  expect(localStorage.getItem('cv-guide')).toBe('open')
 })
 it('offers to start an empty language version from a filled one', async () => {
   render(

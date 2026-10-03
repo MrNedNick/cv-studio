@@ -102,7 +102,7 @@ export function Collapse({
           ],
       {
         duration: open ? 240 : EXIT_MS,
-        easing: open ? 'cubic-bezier(.2,.75,.25,1)' : 'ease-in',
+        easing: open ? 'cubic-bezier(.2,.8,.2,1)' : 'ease-in',
       },
     )
     animation.onfinish = () => {

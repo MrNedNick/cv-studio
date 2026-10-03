@@ -46,8 +46,6 @@ const messages: Record<string, string> = {
   'Add your name so your resume is easy to identify.':
     'Fügen Sie Ihren Namen hinzu, damit Ihr Lebenslauf leicht zuzuordnen ist.',
   After: 'Nachher',
-  'After downloading, check the PDF text: your name, contacts, dates, and section order. Follow the employer’s requested file format. There is no universal ATS score.':
-    'Prüfen Sie nach dem Herunterladen den PDF-Text: Name, Kontaktdaten, Daten und Reihenfolge der Abschnitte. Halten Sie sich an das vom Arbeitgeber gewünschte Dateiformat. Einen universellen ATS-Score gibt es nicht.',
   'Aim for 2–4 specific sentences. Skip generic buzzwords.':
     'Zwei bis vier konkrete Sätze. Verzichten Sie auf leere Schlagwörter.',
   'Aim for numbers in at least half of the points: %, money, time, users, team size.':
@@ -83,10 +81,6 @@ const messages: Record<string, string> = {
   'Check your website link. Use an http or https address.':
     'Prüfen Sie den Link zu Ihrer Website. Verwenden Sie eine http- oder https-Adresse.',
   'Choose a design': 'Design wählen',
-  'Choose a single column for application systems. Include relevant skills from the job posting in visible text, backed by examples of your work. Hidden keywords do not replace experience.':
-    'Wählen Sie für Bewerbungssysteme eine einspaltige Vorlage. Nennen Sie relevante Kenntnisse aus der Stellenanzeige im sichtbaren Text und belegen Sie sie mit Beispielen aus Ihrer Arbeit. Versteckte Schlüsselwörter ersetzen keine Erfahrung.',
-  'Choose the resume language at the top of the form. Contacts, dates, and links are shared; you translate the text.':
-    'Wählen Sie die Sprache des Lebenslaufs oben im Formular. Kontaktdaten, Daten und Links sind gemeinsam; den Text übersetzen Sie selbst.',
   'Choose what feels like you. Switch templates any time without losing a word.':
     'Wählen Sie, was zu Ihnen passt. Die Vorlage lässt sich jederzeit wechseln, ohne ein Wort zu verlieren.',
   'Choose your template and color. See every change in the live preview.':
@@ -161,15 +155,11 @@ const messages: Record<string, string> = {
     'Bearbeitbare Kopie heruntergeladen. Öffnen Sie sie hier, um alle Sprachversionen und Designeinstellungen wiederherzustellen.',
   Editor: 'Editor',
   Email: 'E-Mail',
-  'Empty sections stay out of your PDF':
-    'Leere Abschnitte erscheinen nicht im PDF',
   'End date': 'Enddatum',
   English: 'Englisch',
   Entries: 'Einträge',
   'Every option supports Latin and Cyrillic text.':
     'Jede Variante unterstützt lateinische und kyrillische Schrift.',
-  'Every section is optional. Keep what matters for your next role.':
-    'Jeder Abschnitt ist optional. Behalten Sie, was für Ihre nächste Stelle zählt.',
   'Every template and feature is free':
     'Jede Vorlage und jede Funktion ist kostenlos',
   'Expand all': 'Alle ausklappen',
@@ -179,7 +169,6 @@ const messages: Record<string, string> = {
   'Fill in the sections at your own pace. Your changes save automatically.':
     'Füllen Sie die Abschnitte in Ihrem Tempo aus. Änderungen werden automatisch gespeichert.',
   Filled: 'Ausgefüllt',
-  'Finish & export': 'Fertigstellen & exportieren',
   'Fit page': 'Ganze Seite',
   'Fit to width': 'An Breite anpassen',
   'For automated resume screening, choose any template except the two-column Editorial: the others read top to bottom.':
@@ -188,6 +177,7 @@ const messages: Record<string, string> = {
     'Zum Lesen und Kopieren. Das Layout des Dokuments sehen Sie im Tab PDF.',
   'For sharing': 'Zum Versenden',
   Forest: 'Waldgrün',
+  'Form panel': 'Formularbereich',
   'Form width': 'Formularbreite',
   'Formula: action verb + what you did + measurable result (Google’s X‑Y‑Z).':
     'Formel: Handlungsverb + was Sie getan haben + messbares Ergebnis (X‑Y‑Z von Google).',
@@ -209,9 +199,7 @@ const messages: Record<string, string> = {
   Grow: 'Wachsen',
   'Hard-working team player looking for new challenges.':
     'Fleißiger Teamplayer sucht neue Herausforderungen.',
-  'Hide form': 'Formular ausblenden',
-  'Hide the form and enlarge the preview':
-    'Formular ausblenden und Vorschau vergrößern',
+  'Hide form · Ctrl/⌘ \\': 'Formular ausblenden · Strg/⌘ \\',
   'How it works': 'So funktioniert’s',
   'How to write this section': 'So füllen Sie diesen Abschnitt aus',
   Improve: 'Verbessern',
@@ -248,11 +236,9 @@ const messages: Record<string, string> = {
     'Nennen Sie 8–25 konkrete Kenntnisse: Tools, Sprachen, Methoden. Ohne „Kommunikationsfähigkeit“.',
   'List the languages you speak and your proficiency.':
     'Nennen Sie Ihre Sprachen und Ihr Niveau.',
-  'Live preview': 'Live-Vorschau',
-  'Looking good': 'Schon gut',
+  'Looking good · {count}': 'Schon gut · {count}',
   'MAKE IT YOURS': 'MACHEN SIE ES ZU IHREM',
   'Main navigation': 'Hauptnavigation',
-  'Make it easy to read & parse': 'Gut lesbar für Menschen und Systeme',
   'Make it yours': 'Persönlich gestalten',
   'Margin headings and generous whitespace':
     'Überschriften am Rand und viel Weißraum',
@@ -274,7 +260,6 @@ const messages: Record<string, string> = {
   'Move up': 'Nach oben',
   'My resume': 'Mein Lebenslauf',
   'Name and contact': 'Name und Kontakt',
-  'Narrow form': 'Schmales Formular',
   Navy: 'Marineblau',
   'New resume': 'Neuer Lebenslauf',
   Next: 'Weiter',
@@ -287,8 +272,6 @@ const messages: Record<string, string> = {
   'No sign-up. Your resume is never sent to a server.':
     'Ohne Registrierung. Ihr Lebenslauf wird nie an einen Server gesendet.',
   'No watermarks': 'Ohne Wasserzeichen',
-  'No watermarks. No paywall at download.':
-    'Ohne Wasserzeichen. Ohne Bezahlschranke beim Download.',
   'No “I” or “my”': 'Kein „ich“ oder „mein“',
   'Not saved': 'Nicht gespeichert',
   'Nothing but text and whitespace': 'Nur Text und Weißraum',
@@ -304,13 +287,11 @@ const messages: Record<string, string> = {
     'Eine Zeile zum Problem, eine zur Lösung, eine zum Ergebnis.',
   'One point, one or two lines — under about 35 words.':
     'Ein Punkt, ein bis zwei Zeilen – unter etwa 35 Wörtern.',
-  'Only on your device': 'Nur auf Ihrem Gerät',
   'Only the selected language, without an editable attachment. Ready for a job application.':
     'Nur die ausgewählte Sprache, ohne bearbeitbaren Anhang. Bereit für die Bewerbung.',
   'Open PDF / JSON': 'PDF / JSON öffnen',
   'Open a resume from PDF or JSON': 'Lebenslauf aus PDF oder JSON öffnen',
   'Open backup': 'Sicherung öffnen',
-  'Open file': 'Datei öffnen',
   'Open resume': 'Lebenslauf öffnen',
   'Open resume file': 'Lebenslaufdatei öffnen',
   'Open this resume?': 'Diesen Lebenslauf öffnen?',
@@ -326,8 +307,7 @@ const messages: Record<string, string> = {
     'Die PDF-Vorschau konnte nicht geladen werden. Versuchen Sie es erneut oder wechseln Sie zum Text.',
   'PDF properties': 'PDF-Eigenschaften',
   Page: 'Seite',
-  'Pages: {pages} · A4 · Exactly as in your PDF':
-    'Seiten: {pages} · A4 · Genau wie in Ihrem PDF',
+  'Pages: {pages} · A4': 'Seiten: {pages} · A4',
   'Paste a job posting to see which of its skills and terms your resume already covers. Everything runs in your browser.':
     'Fügen Sie eine Stellenanzeige ein, um zu sehen, welche Kenntnisse und Begriffe Ihr Lebenslauf bereits abdeckt. Alles läuft in Ihrem Browser.',
   'Paste the job description…': 'Stellenbeschreibung einfügen…',
@@ -411,14 +391,13 @@ const messages: Record<string, string> = {
   'Separate with commas. Use the job posting’s terms for skills you actually have, and show your key skills in your experience.':
     'Durch Kommas trennen. Verwenden Sie die Begriffe der Stellenanzeige für Kenntnisse, die Sie wirklich haben, und zeigen Sie die wichtigsten in Ihrer Erfahrung.',
   'Show dismissed tips': 'Ausgeblendete Hinweise anzeigen',
-  'Show form': 'Formular anzeigen',
+  'Show form · Ctrl/⌘ \\': 'Formular einblenden · Strg/⌘ \\',
   'Show work you’re proud of.': 'Zeigen Sie Arbeiten, auf die Sie stolz sind.',
   'Skills first · a clear single column':
     'Kenntnisse zuerst · klare einzelne Spalte',
   'Skip to content': 'Zum Inhalt springen',
   'Skip “I” and clichés like “team player” or “hard-working”.':
     'Kein „ich“ und keine Floskeln wie „Teamplayer“ oder „fleißig“.',
-  'Standard form width': 'Normale Formularbreite',
   'Start a new point in “{entry}”:': 'Neuen Punkt in „{entry}“ beginnen:',
   'Start a new resume?': 'Neuen Lebenslauf beginnen?',
   'Start date': 'Startdatum',
@@ -483,7 +462,6 @@ const messages: Record<string, string> = {
     'Was können Sie gut, und welchen Mehrwert bringen Sie?',
   'Which copy do you need?': 'Welche Kopie brauchen Sie?',
   'YOUR NEXT CHAPTER': 'IHR NÄCHSTES KAPITEL',
-  'YOUR RESUME': 'IHR LEBENSLAUF',
   'Your data stays in your browser': 'Ihre Daten bleiben in Ihrem Browser',
   'Your data stays with you.': 'Ihre Daten bleiben bei Ihnen.',
   'Your experience.': 'Ihre Erfahrung.',
@@ -512,6 +490,7 @@ const messages: Record<string, string> = {
   'best.': 'besten Seite.',
   'e.g. Prague, Czechia': 'z. B. Prag, Tschechien',
   'e.g. Product designer': 'z. B. Produktdesignerin',
+  empty: 'leer',
   'great presentation.': 'eine gute Präsentation.',
   'key skills from the posting appear in your resume.':
     'Schlüsselkenntnisse aus der Anzeige stehen in Ihrem Lebenslauf.',

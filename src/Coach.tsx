@@ -43,9 +43,9 @@ export function WritingGuide({
     [verbGroup, setVerbGroup] = useState(0),
     [open, setOpen] = useState(() => {
       try {
-        return localStorage.getItem('cv-guide') !== 'closed'
+        return localStorage.getItem('cv-guide') === 'open'
       } catch {
-        return true
+        return false
       }
     })
   if (!guide) return null
@@ -179,10 +179,33 @@ export function ReviewStep({
     }
   }, [posting])
   const failing = checks.filter((c) => !c.ok),
-    groups: [string, ReviewCheck[]][] = [
-      [t('Что улучшить', 'To improve'), failing],
-      [t('Уже хорошо', 'Looking good'), checks.filter((c) => c.ok)],
-    ]
+    passedChecks = checks.filter((c) => c.ok)
+  const list = (items: ReviewCheck[]) => (
+    <ul>
+      {items.map((check) => (
+        <li key={check.id} className={check.ok ? 'ok' : 'todo'}>
+          {check.ok ? (
+            <Check size={16} aria-label={t('Готово', 'Done')} />
+          ) : (
+            <CircleAlert size={16} aria-label={t('Улучшить', 'Improve')} />
+          )}
+          <div>
+            <strong>{check.title}</strong>
+            <span>{check.detail}</span>
+          </div>
+          {!check.ok && (
+            <button
+              className="text-button"
+              onClick={() => goSection(check.section)}
+            >
+              {sectionLabels[locale][check.section]}
+              <ChevronRight size={14} />
+            </button>
+          )}
+        </li>
+      ))}
+    </ul>
+  )
   return (
     <div className="review-step">
       <div
@@ -209,40 +232,21 @@ export function ReviewStep({
           </p>
         </div>
       </div>
-      {groups.map(
-        ([title, items]) =>
-          items.length > 0 && (
-            <section key={title} className="check-group">
-              <h3>{title}</h3>
-              <ul>
-                {items.map((check) => (
-                  <li key={check.id} className={check.ok ? 'ok' : 'todo'}>
-                    {check.ok ? (
-                      <Check size={16} aria-label={t('Готово', 'Done')} />
-                    ) : (
-                      <CircleAlert
-                        size={16}
-                        aria-label={t('Улучшить', 'Improve')}
-                      />
-                    )}
-                    <div>
-                      <strong>{check.title}</strong>
-                      <span>{check.detail}</span>
-                    </div>
-                    {!check.ok && (
-                      <button
-                        className="text-button"
-                        onClick={() => goSection(check.section)}
-                      >
-                        {sectionLabels[locale][check.section]}
-                        <ChevronRight size={14} />
-                      </button>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ),
+      {failing.length > 0 && (
+        <section className="check-group">
+          <h3>{t('Что улучшить', 'To improve')}</h3>
+          {list(failing)}
+        </section>
+      )}
+      {passedChecks.length > 0 && (
+        <Disclosure
+          className="check-group passed-checks"
+          summary={t('Уже хорошо · {count}', 'Looking good · {count}', {
+            count: passedChecks.length,
+          })}
+        >
+          {list(passedChecks)}
+        </Disclosure>
       )}
       <section className="job-match">
         <h3>

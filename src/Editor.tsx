@@ -20,11 +20,9 @@ import {
   LayoutTemplate,
   Lightbulb,
   ListChecks,
-  LockKeyhole,
   Menu,
   Plus,
   Redo2,
-  ShieldCheck,
   Undo2,
   Upload,
   UserRound,
@@ -40,10 +38,9 @@ import {
   Copy,
   PanelLeftClose,
   PanelLeftOpen,
-  Columns2,
-  ChevronsLeft,
-  ChevronsRight,
   Languages,
+  PanelLeft,
+  ChevronDown,
 } from 'lucide-react'
 import { Field } from './ui/components/field/field'
 import {
@@ -69,7 +66,7 @@ import { ContentLang, MiniResume, FormField, templates } from './components'
 import EntryCard from './EntryCard'
 import { translator } from './i18n'
 import { preparePhoto } from './photo'
-import { canAnimate, Disclosure, useLingering, useMediaQuery } from './motion'
+import { canAnimate, useLingering, useMediaQuery } from './motion'
 import { ReviewStep, WritingGuide } from './Coach'
 const Preview = lazy(() => import('./Preview'))
 const icons = {
@@ -83,7 +80,6 @@ const icons = {
 }
 type Step = Section | 'review'
 const steps: Step[] = [...sections, 'review']
-const NARROW_FORM = 360
 const colorNames = [
   { ru: 'Лесной', en: 'Forest' },
   { ru: 'Синий', en: 'Blue' },
@@ -176,9 +172,11 @@ export default function Editor({
     lang = doc.language,
     resume = doc.versions[lang],
     labels = sectionLabels[locale],
-    tips = getTips(resume, locale, lang).filter(
+    allTips = getTips(resume, locale, lang).filter(
       (tip) => !hiddenTips.includes(tip.id),
     ),
+    // Only the open section's tips; the Review step lists everything.
+    tips = allTips.filter((tip) => tip.section === section),
     completedSections = sections.filter((s) =>
       s === 'basics'
         ? resume.basics.name.trim()
@@ -241,6 +239,9 @@ export default function Editor({
       } else if (key === 's') {
         event.preventDefault()
         backup()
+      } else if (event.key === '\\') {
+        event.preventDefault()
+        toggleFormRef.current()
       }
     }
     window.addEventListener('keydown', keydown)
@@ -531,6 +532,8 @@ export default function Editor({
     writeSetting('cv-form-width', next ? String(Math.round(next)) : null)
     setFormWidth(next)
   }
+  const toggleFormRef = useRef(() => {})
+  toggleFormRef.current = () => toggleForm()
   function toggleForm(hidden = !formHidden) {
     if (hidden === formHidden) return
     animateForm(hidden ? 0 : (formWidth ?? standardWidth()))
@@ -539,26 +542,49 @@ export default function Editor({
   }
   function widthLimits() {
     const total = body.current?.getBoundingClientRect().width || 1400
-    return { min: 320, max: Math.max(320, total - (railed ? 64 : 212) - 380) }
+    return { min: 340, max: Math.max(340, total - (railed ? 64 : 212) - 420) }
   }
+  // Behaves like a macOS split view: the form stops at its minimum width,
+  // snaps shut when dragged well past it, and opens again from the edge.
   function startResize(event: ReactPointerEvent<HTMLDivElement>) {
     const start = form.current?.getBoundingClientRect().left
-    if (start === undefined) return
+    if (start === undefined || event.button !== 0) return
     event.preventDefault()
     const handle = event.currentTarget
     handle.setPointerCapture?.(event.pointerId)
-    const { min, max } = widthLimits()
-    let width = formWidth
+    const { min, max } = widthLimits(),
+      collapseAt = min * 0.55
+    let width = formHidden
+        ? (formWidth ?? standardWidth())
+        : (form.current?.getBoundingClientRect().width ?? min),
+      hidden = formHidden,
+      dragging = true,
+      snapTimer: ReturnType<typeof setTimeout> | undefined
     setResizing(true)
     const move = (e: PointerEvent) => {
-      width = Math.min(max, Math.max(min, e.clientX - start))
-      setFormWidth(width)
+      const raw = e.clientX - start,
+        nextHidden = raw < collapseAt
+      if (nextHidden !== hidden) {
+        hidden = nextHidden
+        // Let the snap itself animate, then go back to direct tracking.
+        setResizing(false)
+        clearTimeout(snapTimer)
+        snapTimer = setTimeout(() => dragging && setResizing(true), 280)
+        setFormHidden(hidden)
+      }
+      if (!hidden) {
+        width = Math.min(max, Math.max(min, raw))
+        setFormWidth(width)
+      }
     }
     const stop = () => {
+      dragging = false
+      clearTimeout(snapTimer)
       handle.removeEventListener('pointermove', move)
       handle.removeEventListener('pointerup', stop)
       handle.removeEventListener('pointercancel', stop)
       setResizing(false)
+      writeSetting('cv-form-hidden', hidden ? 'hidden' : null)
       changeFormWidth(width, false)
     }
     handle.addEventListener('pointermove', move)
@@ -566,14 +592,21 @@ export default function Editor({
     handle.addEventListener('pointercancel', stop)
   }
   function resizeWithKeys(event: ReactKeyboardEvent<HTMLDivElement>) {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      toggleForm()
+      return
+    }
     const { min, max } = widthLimits(),
-      current = formWidth || form.current?.getBoundingClientRect().width || 480,
+      current = formHidden
+        ? 0
+        : formWidth || form.current?.getBoundingClientRect().width || min,
       step = event.shiftKey ? 80 : 20
     const next =
       event.key === 'ArrowLeft'
         ? current - step
         : event.key === 'ArrowRight'
-          ? current + step
+          ? Math.max(min, current + step)
           : event.key === 'Home'
             ? min
             : event.key === 'End'
@@ -581,7 +614,12 @@ export default function Editor({
               : null
     if (next === null) return
     event.preventDefault()
-    changeFormWidth(Math.min(max, Math.max(min, next)), false)
+    if (next < min) {
+      toggleForm(true)
+      return
+    }
+    if (formHidden) toggleForm(false)
+    changeFormWidth(Math.min(max, next), false)
   }
   const emptyVersion = isEmptyVersion(resume),
     sources = locales.filter(
@@ -590,63 +628,6 @@ export default function Editor({
     copySource = sources.includes(preferredSource)
       ? preferredSource
       : sources[0]
-  const narrow = formWidth === NARROW_FORM
-  const formTools = (
-    <div className="form-step-tools">
-      <button
-        className="icon-button form-width-toggle"
-        aria-pressed={narrow}
-        onClick={() => changeFormWidth(narrow ? null : NARROW_FORM)}
-        title={
-          narrow
-            ? t('Обычная ширина формы', 'Standard form width')
-            : t('Узкая форма', 'Narrow form')
-        }
-        aria-label={t('Узкая форма', 'Narrow form')}
-      >
-        <Columns2 size={16} />
-      </button>
-      <button
-        className="icon-button form-width-toggle"
-        onClick={() => toggleForm(true)}
-        title={t(
-          'Скрыть форму и увеличить просмотр',
-          'Hide the form and enlarge the preview',
-        )}
-        aria-label={t('Скрыть форму', 'Hide form')}
-      >
-        <ChevronsLeft size={17} />
-      </button>
-      <label className="resume-language">
-        <span className="visually-hidden">
-          {t('Язык резюме', 'Resume language')}
-        </span>
-        <Languages size={15} aria-hidden="true" />
-        <select
-          value={lang}
-          title={t('Язык резюме', 'Resume language')}
-          onChange={(event) => {
-            const next = event.target.value as Locale
-            update({ ...doc, language: next })
-            setLanguageNotice(
-              t(
-                'Редактируется версия: {language}',
-                'Now editing the {language} version',
-                { language: localeNames[next] },
-              ),
-            )
-          }}
-        >
-          {locales.map((l) => (
-            <option key={l} value={l}>
-              {l.toUpperCase()} · {localeNames[l]}
-              {isEmptyVersion(doc.versions[l]) ? '' : ' ✓'}
-            </option>
-          ))}
-        </select>
-      </label>
-    </div>
-  )
   const subtitles: Record<Section, string> = {
     basics: t(
       'Начните с главного: как вас зовут и чем вы занимаетесь.',
@@ -698,8 +679,22 @@ export default function Editor({
         </p>
       )}
       <div className="editor-toolbar">
+        <button
+          className="icon-button form-toggle"
+          onClick={() => toggleForm()}
+          aria-expanded={!formHidden}
+          aria-controls="editor-form"
+          aria-label={t('Панель формы', 'Form panel')}
+          title={
+            formHidden
+              ? t('Показать форму · Ctrl/⌘ \\', 'Show form · Ctrl/⌘ \\')
+              : t('Скрыть форму · Ctrl/⌘ \\', 'Hide form · Ctrl/⌘ \\')
+          }
+          aria-keyshortcuts="Control+Backslash Meta+Backslash"
+        >
+          <PanelLeft size={18} />
+        </button>
         <div className="document-title">
-          <FileText size={20} />
           <div>
             <strong>
               {resume.basics.name || t('Моё резюме', 'My resume')}
@@ -711,6 +706,37 @@ export default function Editor({
                 : saveState === 'saving'
                   ? t('Сохраняем…', 'Saving…')
                   : t('Не сохранено', 'Not saved')}
+              <span aria-hidden="true">·</span>
+              <label className="version-select">
+                <span className="visually-hidden">
+                  {t('Язык резюме', 'Resume language')}
+                </span>
+                <select
+                  value={lang}
+                  title={t('Язык резюме', 'Resume language')}
+                  onChange={(event) => {
+                    const next = event.target.value as Locale
+                    update({ ...doc, language: next })
+                    setLanguageNotice(
+                      t(
+                        'Редактируется версия: {language}',
+                        'Now editing the {language} version',
+                        { language: localeNames[next] },
+                      ),
+                    )
+                  }}
+                >
+                  {locales.map((l) => (
+                    <option key={l} value={l}>
+                      {localeNames[l]}
+                      {l !== lang && isEmptyVersion(doc.versions[l])
+                        ? ` — ${t('пусто', 'empty')}`
+                        : ''}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown size={13} aria-hidden="true" />
+              </label>
             </span>
           </div>
         </div>
@@ -737,10 +763,6 @@ export default function Editor({
               <Redo2 size={18} />
             </button>
           </div>
-          <button className="button secondary open-file" onClick={openFile}>
-            <Upload size={16} />
-            {t('Открыть файл', 'Open file')}
-          </button>
           <button
             className="button primary export-button"
             onClick={exportFile}
@@ -751,9 +773,14 @@ export default function Editor({
             ) : (
               <Download size={17} />
             )}
-            {exporting
-              ? t('Готовим PDF…', 'Preparing…')
-              : t('Скачать PDF', 'Download PDF')}
+            <span className="export-label">
+              {exporting
+                ? t('Готовим PDF…', 'Preparing…')
+                : t('Скачать PDF', 'Download PDF')}
+            </span>
+            <span className="export-label-short" aria-hidden="true">
+              PDF
+            </span>
           </button>
           <button
             className="icon-button"
@@ -856,32 +883,6 @@ export default function Editor({
         }
       >
         <aside className="editor-sidebar">
-          <div className="sidebar-head">
-            <div className="sidebar-title">
-              {t('ВАШЕ РЕЗЮМЕ', 'YOUR RESUME')}
-            </div>
-            <button
-              className="icon-button rail-toggle"
-              onClick={toggleRail}
-              aria-expanded={!railed}
-              aria-label={
-                railed
-                  ? t('Развернуть панель разделов', 'Expand section panel')
-                  : t('Свернуть панель разделов', 'Collapse section panel')
-              }
-              title={
-                railed
-                  ? t('Развернуть панель', 'Expand panel')
-                  : t('Свернуть панель', 'Collapse panel')
-              }
-            >
-              {railed ? (
-                <PanelLeftOpen size={17} />
-              ) : (
-                <PanelLeftClose size={17} />
-              )}
-            </button>
-          </div>
           <div className="editor-mode">
             <button
               aria-pressed={tab === 'content'}
@@ -933,36 +934,41 @@ export default function Editor({
             })}
           </div>
           <div className="sidebar-bottom">
-            <div className="completion">
-              <span>{t('Заполнено разделов', 'Sections filled')}</span>
+            <div
+              className="completion"
+              title={t('Заполнено разделов', 'Sections filled')}
+            >
+              <span>{t('Заполнено', 'Filled')}</span>
               <strong>{completed} / 7</strong>
             </div>
-            <div className="progress-track">
+            <div className="progress-track" aria-hidden="true">
               <span style={{ width: `${(completed / 7) * 100}%` }} />
             </div>
-            <p>
-              {t(
-                'Все разделы необязательны. Оставьте важное для вашей работы.',
-                'Every section is optional. Keep what matters for your next role.',
-              )}
-            </p>
             <button
-              className="button primary sidebar-export"
-              onClick={exportFile}
-              disabled={exporting}
+              className="icon-button rail-toggle"
+              onClick={toggleRail}
+              aria-expanded={!railed}
+              aria-label={
+                railed
+                  ? t('Развернуть панель разделов', 'Expand section panel')
+                  : t('Свернуть панель разделов', 'Collapse section panel')
+              }
+              title={
+                railed
+                  ? t('Развернуть панель', 'Expand panel')
+                  : t('Свернуть панель', 'Collapse panel')
+              }
             >
-              <Download size={16} />
-              <span className="rail-hide">
-                {t('Получить PDF', 'Finish & export')}
-              </span>
+              {railed ? (
+                <PanelLeftOpen size={17} />
+              ) : (
+                <PanelLeftClose size={17} />
+              )}
             </button>
-            <div className="local-badge">
-              <ShieldCheck size={16} />
-              {t('Только на вашем устройстве', 'Only on your device')}
-            </div>
           </div>
         </aside>
         <section
+          id="editor-form"
           className="editor-form"
           ref={form}
           lang={locale}
@@ -978,7 +984,6 @@ export default function Editor({
                     <div className="eyebrow">
                       {t('ВАШ СТИЛЬ', 'MAKE IT YOURS')}
                     </div>
-                    {formTools}
                   </div>
                   <h1 tabIndex={-1}>{t('Оформление', 'Design')}</h1>
                   <p className="form-description">
@@ -1169,7 +1174,6 @@ export default function Editor({
                       {t('ШАГ', 'STEP')} 0{steps.indexOf(section) + 1} / 0
                       {steps.length}
                     </div>
-                    {formTools}
                   </div>
                   {section === 'review' ? (
                     <>
@@ -1655,44 +1659,6 @@ export default function Editor({
                           </p>
                         </>
                       )}
-                      <Disclosure
-                        className="screening-guide"
-                        summary={
-                          <>
-                            {t(
-                              'Резюме для людей и систем отбора',
-                              'Make it easy to read & parse',
-                            )}
-                          </>
-                        }
-                      >
-                        <p>
-                          {t(
-                            'Выбирайте одну колонку для систем отбора. Добавляйте реальные навыки из вакансии в видимый текст и показывайте, как применяли их в работе. Скрытые ключевые слова не заменяют опыт.',
-                            'Choose a single column for application systems. Include relevant skills from the job posting in visible text, backed by examples of your work. Hidden keywords do not replace experience.',
-                          )}
-                        </p>
-                        <p>
-                          {t(
-                            'Проверьте текст PDF после скачивания: имя, контакты, даты, порядок разделов. Если работодатель просит другой формат, следуйте его инструкции. Универсального балла ATS нет.',
-                            'After downloading, check the PDF text: your name, contacts, dates, and section order. Follow the employer’s requested file format. There is no universal ATS score.',
-                          )}
-                        </p>
-                        <a
-                          href="https://support.greenhouse.io/hc/en-us/articles/200989175-Unsuccessful-resume-parse"
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          Greenhouse: resume parsing ↗
-                        </a>
-                        <a
-                          href="https://cloudfront.careeronestop.org/JobSearch/Resumes/ResumeGuide/formatting.aspx"
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          CareerOneStop: formatting ↗
-                        </a>
-                      </Disclosure>
                       {tips.length > 0 && (
                         <div className="tips">
                           <div>
@@ -1734,12 +1700,6 @@ export default function Editor({
                         </button>
                       )}
                       <div className="form-bottom">
-                        <span>
-                          {t(
-                            'Пустые разделы не попадут в PDF',
-                            'Empty sections stay out of your PDF',
-                          )}
-                        </span>
                         <button
                           className="button secondary"
                           onClick={() =>
@@ -1755,13 +1715,6 @@ export default function Editor({
                           <ChevronRight size={16} />
                         </button>
                       </div>
-                      <p className="translation-note">
-                        <Globe2 size={14} />
-                        {t(
-                          'Язык резюме выбирается вверху формы. Контакты, даты и ссылки общие, текст переводится вручную.',
-                          'Choose the resume language at the top of the form. Contacts, dates, and links are shared; you translate the text.',
-                        )}
-                      </p>
                     </>
                   )}
                 </>
@@ -1778,10 +1731,17 @@ export default function Editor({
             role="separator"
             aria-orientation="vertical"
             aria-label={t('Ширина формы', 'Form width')}
-            aria-valuenow={Math.round(
-              formWidth || form.current?.getBoundingClientRect().width || 0,
-            )}
-            aria-valuemin={320}
+            aria-valuenow={
+              formHidden
+                ? 0
+                : Math.round(
+                    formWidth ||
+                      form.current?.getBoundingClientRect().width ||
+                      0,
+                  )
+            }
+            aria-valuemin={0}
+            aria-valuemax={Math.round(widthLimits().max)}
             tabIndex={0}
             title={t(
               'Потяните, чтобы изменить ширину. Двойной клик — сброс.',
@@ -1789,30 +1749,11 @@ export default function Editor({
             )}
             onPointerDown={startResize}
             onKeyDown={resizeWithKeys}
-            onDoubleClick={() => changeFormWidth(null)}
+            onDoubleClick={() => {
+              if (formHidden) toggleForm(false)
+              changeFormWidth(null)
+            }}
           />
-          {formHidden && (
-            <button
-              className="button secondary show-form"
-              onClick={() => {
-                toggleForm(false)
-                setTimeout(focusForm, 60)
-              }}
-            >
-              <ChevronsRight size={16} />
-              {t('Показать форму', 'Show form')}
-            </button>
-          )}
-          <div className="preview-heading">
-            <span>
-              <Eye size={16} />
-              {t('Живой просмотр', 'Live preview')}
-            </span>
-            <span>
-              {templates.find((v) => v.id === doc.template)?.name}
-              <span className="preview-tag">PDF</span>
-            </span>
-          </div>
           <Suspense
             fallback={
               <div className="loading">
@@ -1823,13 +1764,6 @@ export default function Editor({
           >
             <Preview doc={doc} locale={locale} />
           </Suspense>
-          <div className="preview-footnote">
-            <LockKeyhole size={13} />
-            {t(
-              'Без водяных знаков. Без оплаты за скачивание.',
-              'No watermarks. No paywall at download.',
-            )}
-          </div>
         </section>
       </div>
     </div>
