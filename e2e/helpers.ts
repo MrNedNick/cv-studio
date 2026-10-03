@@ -16,8 +16,10 @@ export async function openExample(page: Page) {
   await expect(page.getByRole('heading', { name: 'Template' })).toBeVisible()
 }
 
-export function step(page: Page, name: string | RegExp) {
-  return page
+export async function step(page: Page, name: string | RegExp) {
+  const picker = page.getByRole('button', { name: 'Resume steps', exact: true })
+  if (await picker.isVisible()) await picker.click()
+  await page
     .getByRole('navigation', { name: 'Resume steps' })
     .getByRole('button', { name })
     .first()

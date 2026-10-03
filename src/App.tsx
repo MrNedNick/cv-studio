@@ -153,6 +153,33 @@ export default function App() {
   useEffect(() => {
     document.documentElement.dataset.theme = theme
   }, [theme])
+  useEffect(() => {
+    const viewport = window.visualViewport
+    if (!viewport) return
+    // iOS resizes the visual viewport for its keyboard, while 100dvh can stay
+    // unchanged. Preserve native pinch zoom by updating only at scale 1.
+    const resize = () => {
+      if (viewport.scale !== 1) return
+      document.documentElement.style.setProperty(
+        '--workspace-height',
+        `${viewport.height}px`,
+      )
+      const focused = document.activeElement
+      if (
+        focused instanceof HTMLInputElement ||
+        focused instanceof HTMLTextAreaElement
+      )
+        requestAnimationFrame(() =>
+          focused.scrollIntoView({ block: 'nearest' }),
+        )
+    }
+    resize()
+    viewport.addEventListener('resize', resize)
+    return () => {
+      viewport.removeEventListener('resize', resize)
+      document.documentElement.style.removeProperty('--workspace-height')
+    }
+  }, [])
   // Only an explicit choice is remembered; otherwise the device theme applies.
   function toggleTheme() {
     const next = theme === 'dark' ? 'light' : 'dark'

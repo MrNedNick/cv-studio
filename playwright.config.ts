@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test'
 
-const port = 4173
+const port = 4279
 // BASE_URL runs the suite against a deployed copy instead of a local preview.
 const remote = process.env.BASE_URL
 
@@ -19,10 +19,21 @@ export default defineConfig({
   projects: [
     {
       name: 'desktop',
+      testIgnore: 'mobile.e2e.ts',
       use: {
         ...devices['Desktop Chrome'],
         viewport: { width: 1440, height: 900 },
       },
+    },
+    {
+      name: 'iphone-safari',
+      testMatch: ['mobile.e2e.ts', 'a11y.e2e.ts', 'locales.e2e.ts'],
+      use: { ...devices['iPhone 15 Pro Max'], browserName: 'webkit' },
+    },
+    {
+      name: 'phone-chromium',
+      testMatch: ['mobile.e2e.ts', 'a11y.e2e.ts', 'locales.e2e.ts'],
+      use: { ...devices['iPhone 15 Pro Max'], browserName: 'chromium' },
     },
   ],
   webServer: remote
@@ -30,6 +41,6 @@ export default defineConfig({
     : {
         command: `npx vite preview --host 127.0.0.1 --port ${port} --strictPort`,
         url: `http://127.0.0.1:${port}/`,
-        reuseExistingServer: !process.env.CI,
+        reuseExistingServer: false,
       },
 })

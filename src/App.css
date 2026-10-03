@@ -5074,3 +5074,351 @@ dialog .guide-example p {
 .form-footer.no-back {
   grid-template-columns: auto minmax(0, 1fr);
 }
+
+/* Mobile workspace: one task at a time, with all steps a tap away. */
+.mobile-menu-history {
+  display: none;
+}
+@media (max-width: 1049px) {
+  .app-shell.is-editing {
+    height: var(--workspace-height, 100dvh);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .is-editing .site-header {
+    height: auto;
+    min-height: 56px;
+    flex: none;
+    padding: env(safe-area-inset-top, 0px) max(16px, env(safe-area-inset-right))
+      0 max(16px, env(safe-area-inset-left));
+    gap: 12px;
+  }
+  .is-editing .site-header nav,
+  .is-editing .free-badge,
+  .is-editing .site-footer,
+  .is-editing .editor-sidebar,
+  .is-editing .history-actions,
+  .is-editing .panel-toggles,
+  .is-editing .panel-resizer {
+    display: none;
+  }
+  .is-editing .brand {
+    font-size: 23px;
+  }
+  .is-editing .header-tools {
+    gap: 2px;
+  }
+  .is-editing .language-button,
+  .is-editing .header-tools .icon-button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .is-editing main,
+  .is-editing .editor {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+  }
+  .is-editing .editor-toolbar {
+    position: relative;
+    height: 64px;
+    min-height: 64px;
+    flex: none;
+    flex-wrap: nowrap;
+    padding: 8px max(16px, env(safe-area-inset-right)) 8px
+      max(16px, env(safe-area-inset-left));
+    gap: 8px;
+  }
+  .is-editing .document-title {
+    min-width: 0;
+    flex: 1;
+  }
+  .is-editing .document-title strong {
+    font-size: 14px;
+    max-width: none;
+  }
+  .is-editing .document-title span {
+    font-size: 11px;
+    gap: 5px;
+  }
+  .is-editing .editor-actions {
+    margin: 0;
+    gap: 4px;
+  }
+  .is-editing .editor-actions .export-button {
+    min-height: 44px;
+    font-size: 13px;
+    padding: 10px 14px;
+  }
+  .is-editing .editor-actions > .icon-button {
+    width: 44px;
+    height: 44px;
+  }
+  .is-editing .document-menu {
+    top: 58px;
+    right: 16px;
+    max-width: calc(100% - 32px);
+  }
+  .mobile-menu-history {
+    display: flex;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 6px;
+    margin-bottom: 6px;
+  }
+  .mobile-menu-history > button {
+    flex: 1;
+  }
+  .is-editing .document-menu button,
+  .is-editing .document-menu a {
+    min-height: 44px;
+  }
+  .mobile-view-switch {
+    display: flex;
+    flex: none;
+    align-items: center;
+    height: 56px;
+    padding: 6px max(12px, env(safe-area-inset-right)) 6px
+      max(12px, env(safe-area-inset-left));
+    gap: 6px;
+    border-bottom: 1px solid var(--line);
+    background: var(--surface);
+  }
+  .mobile-view-switch > button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    gap: 6px;
+    min-height: 44px;
+    border-radius: 8px;
+    background: none;
+    font-size: 13px;
+    color: var(--muted);
+    padding: 8px;
+  }
+  .mobile-view-switch > button.active {
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+  .mobile-view-switch > .mobile-step-picker {
+    flex: none;
+    padding: 8px 12px;
+    background: var(--soft);
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+  .is-editing .editor-body {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .is-editing .editor-form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 20px max(20px, env(safe-area-inset-right)) 0
+      max(20px, env(safe-area-inset-left));
+    --form-pad-x: 20px;
+    overscroll-behavior-y: contain;
+    scroll-padding: 20px 0 96px;
+  }
+  .is-editing .editor-form > .step-enter {
+    flex: none;
+    padding-bottom: 20px;
+  }
+  .is-editing .editor-form h1 {
+    font-size: 27px;
+  }
+  .is-editing .form-footer {
+    flex: none;
+    margin-top: auto;
+    padding: 10px 20px calc(10px + env(safe-area-inset-bottom, 0px));
+  }
+  .is-editing .form-footer .button {
+    min-height: 44px;
+    font-size: 14px;
+  }
+  .is-editing .form-footer .step-long {
+    display: none;
+  }
+  .is-editing .form-footer .step-short {
+    display: inline;
+  }
+  .is-editing .field input,
+  .is-editing .field textarea,
+  .is-editing .field select,
+  .is-editing .skill-input {
+    font-size: 16px;
+    min-height: 48px;
+  }
+  .is-editing .field-row input {
+    font-size: 16px;
+  }
+  .is-editing .color-options button {
+    width: 44px;
+    height: 44px;
+  }
+  .is-editing .segmented button,
+  .is-editing .proficiency-options button,
+  .is-editing .entry-actions .icon-button {
+    min-height: 44px;
+  }
+  .is-editing .section-head {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .is-editing .preview-panel {
+    display: none;
+  }
+  .is-editing .show-preview .editor-form {
+    display: none;
+  }
+  .is-editing .show-preview .preview-panel {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    width: 100%;
+    padding: 12px max(12px, env(safe-area-inset-right))
+      calc(12px + env(safe-area-inset-bottom, 0px))
+      max(12px, env(safe-area-inset-left));
+    overflow: hidden;
+  }
+  .is-editing .preview-controls {
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  .is-editing .preview-modes button {
+    min-height: 44px;
+    padding: 8px 12px;
+  }
+  .is-editing .zoom-controls .icon-button {
+    width: 44px;
+    height: 44px;
+  }
+  .is-editing .zoom-reset {
+    min-height: 44px;
+  }
+  .is-editing .pdf-preview-content {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    flex-direction: column;
+  }
+  .is-editing .pdf-preview-content[hidden] {
+    display: none;
+  }
+  .is-editing .preview-scroll {
+    flex: 1;
+    min-height: 0;
+    max-height: none;
+    max-width: none;
+  }
+  .is-editing .preview-scroll.is-fit {
+    display: grid;
+    place-items: start center;
+    container-type: size;
+  }
+  .is-editing .is-fit .pdf-pages {
+    width: min(100cqw, calc(100cqh * 210 / 297));
+    margin: 0;
+    min-height: 0;
+  }
+  .is-editing .resume-text {
+    overflow-y: auto;
+    min-height: 0;
+  }
+  .mobile-steps-dialog {
+    max-height: calc(100dvh - 32px);
+    overflow-y: auto;
+    padding: 20px;
+  }
+  .mobile-steps-dialog .dialog-head .icon-button {
+    width: 44px;
+    height: 44px;
+  }
+  .mobile-steps-dialog .mobile-completion {
+    margin-bottom: 12px;
+    font-size: 14px;
+  }
+  .mobile-steps-dialog .section-nav {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    gap: 6px;
+    overflow: visible;
+  }
+  .mobile-steps-dialog .section-nav .section-row > button:first-child {
+    min-height: 48px;
+    padding: 12px;
+    font-size: 15px;
+    border-radius: 8px;
+  }
+  .mobile-steps-dialog .section-nav button > span {
+    flex: 1;
+    text-align: left;
+  }
+  .mobile-steps-dialog .section-nav button.active {
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+  .mobile-steps-dialog .section-nav button.active small {
+    color: var(--on-accent);
+  }
+  .mobile-steps-dialog .clear-all {
+    min-height: 44px;
+    margin-top: 16px;
+  }
+  dialog {
+    max-height: calc(100dvh - 32px);
+    overflow-y: auto;
+  }
+}
+@media (max-width: 370px) {
+  .is-editing .document-title strong {
+    font-size: 13px;
+  }
+  .is-editing .document-title span {
+    font-size: 10px;
+  }
+  .is-editing .editor-toolbar {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  .is-editing .editor-actions .export-button {
+    padding: 10px;
+  }
+  .mobile-view-switch > button {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 1049px) {
+  .is-editing .chip {
+    min-height: 44px;
+  }
+  .is-editing .skill-tags button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .is-editing .skills-box input {
+    min-height: 44px;
+    font-size: 16px;
+  }
+}
+@media (max-width: 600px) {
+  .is-editing .field-row {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 1049px) {
+  .is-editing .entry-actions .icon-button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}

@@ -104,6 +104,8 @@ test('a resume filled from scratch survives a reload', async ({ page }) => {
   ).toHaveValue('C1 — advanced')
 
   // The text view is built from the same document as the PDF.
+  const preview = page.getByRole('button', { name: 'Preview', exact: true })
+  if (await preview.isVisible()) await preview.click()
   await page.getByRole('button', { name: 'Text', exact: true }).click()
   await expect(page.getByText('Senior frontend engineer').last()).toBeVisible()
 })
@@ -146,6 +148,8 @@ test('one resume switches between every template without losing data', async ({
     await expect(options.nth(i)).toHaveAttribute('aria-pressed', 'true')
   }
   await expect(page.getByRole('img', { name: 'Resume, page 1' })).toBeVisible()
+  const preview = page.getByRole('button', { name: 'Preview', exact: true })
+  if (await preview.isVisible()) await preview.click()
   await page.getByRole('button', { name: 'Text', exact: true }).click()
   await expect(page.getByText('Template Tester').last()).toBeVisible()
   await page.reload()

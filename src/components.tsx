@@ -5,6 +5,7 @@ import {
   useContext,
   useEffect,
   useRef,
+  useId,
   useState,
   type ReactNode,
 } from 'react'
@@ -270,14 +271,17 @@ export function Dialog({
   close,
   closeLabel,
   closing = false,
+  className,
 }: {
   title: string
   children: ReactNode
   close: () => void
   closeLabel: string
   closing?: boolean
+  className?: string
 }) {
-  const ref = useRef<HTMLDialogElement>(null)
+  const titleId = useId(),
+    ref = useRef<HTMLDialogElement>(null)
   useEffect(() => {
     const dialog = ref.current!,
       opener = document.activeElement as HTMLElement | null
@@ -296,7 +300,10 @@ export function Dialog({
   return (
     <dialog
       ref={ref}
-      className={closing ? 'is-closing' : undefined}
+      className={
+        [className, closing && 'is-closing'].filter(Boolean).join(' ') ||
+        undefined
+      }
       inert={closing}
       onCancel={(e) => {
         e.preventDefault()
@@ -305,10 +312,10 @@ export function Dialog({
       onClick={(e) => {
         if (e.target === ref.current) close()
       }}
-      aria-labelledby="dialog-title"
+      aria-labelledby={titleId}
     >
       <div className="dialog-head">
-        <h2 id="dialog-title">{title}</h2>
+        <h2 id={titleId}>{title}</h2>
         <button className="icon-button" onClick={close} aria-label={closeLabel}>
           <X size={20} />
         </button>

@@ -72,7 +72,13 @@ import {
   type Section,
   type ResumeDocument,
 } from './model'
-import { ContentLang, MiniResume, FormField, templates } from './components'
+import {
+  ContentLang,
+  MiniResume,
+  FormField,
+  templates,
+  Dialog,
+} from './components'
 import { Select } from './ui/components/select/select'
 import { Switch } from './ui/components/switch/switch'
 import EntryCard from './EntryCard'
@@ -175,6 +181,7 @@ export default function Editor({
     ),
     [widthOverride, setWidthOverride] = useState<string | null>(null),
     desktop = useMediaQuery('(min-width: 1050px)'),
+    mobile = useMediaQuery('(max-width: 1049px)'),
     [resizing, setResizing] = useState(false),
     [formWidth, setFormWidth] = useState<number | null>(
       () => Number(readSetting('neatcv-form-width')) || null,
@@ -182,6 +189,7 @@ export default function Editor({
     [activeEntry, setActiveEntry] = useState<string | null>(null),
     [freshEntry, setFreshEntry] = useState<string | null>(null),
     [mobilePreview, setMobilePreview] = useState(false),
+    [mobileSteps, setMobileSteps] = useState(false),
     [menu, setMenu] = useState(false),
     [hiddenTips, setHiddenTips] = useState<string[]>([]),
     [entryAnnouncement, setEntryAnnouncement] = useState(''),
@@ -243,6 +251,8 @@ export default function Editor({
     focusSection = useRef(false),
     pendingEntry = useRef<{ id: string; field: boolean } | null>(null)
   function goSection(next: Step, reveal = false) {
+    setMobileSteps(false)
+    setMobilePreview(false)
     if (
       reveal &&
       next !== 'basics' &&
@@ -299,7 +309,9 @@ export default function Editor({
   }, [undo, redo, backup])
   useEffect(() => {
     if (!menu) return
-    menuPanel.current?.querySelector('button')?.focus()
+    menuPanel.current
+      ?.querySelector<HTMLButtonElement>('button:not(:disabled)')
+      ?.focus()
     function dismiss(event: PointerEvent) {
       if (
         !menuPanel.current?.contains(event.target as Node) &&
@@ -950,6 +962,62 @@ export default function Editor({
       )}
     </>
   )
+  const stepNavigation = (
+    <nav className="section-nav" aria-label={t('Шаги резюме', 'Resume steps')}>
+      {steps.map((s, i) => {
+        const Icon =
+            s === 'review'
+              ? ClipboardCheck
+              : s === 'design'
+                ? Palette
+                : icons[s],
+          label = stepLabel(s),
+          hidden = isHidden(s),
+          done = !hidden && stepDone(s)
+        return (
+          <div
+            key={s}
+            className={`section-row ${hidden ? 'is-off' : ''} ${s === 'review' ? 'review-row' : ''} ${s === 'design' ? 'design-row' : ''}`}
+          >
+            <button
+              aria-pressed={section === s}
+              className={`${section === s ? 'active' : ''} ${s === 'review' ? 'review-link' : ''} ${s === 'design' ? 'design-link' : ''}`}
+              onClick={() => {
+                goSection(s)
+              }}
+            >
+              <Icon size={17} />
+              <span title={label}>{label}</span>
+              <small className={done ? 'section-complete' : ''}>
+                {done ? (
+                  <Check size={15} aria-label={t('Готово', 'Done')} />
+                ) : (
+                  `0${i + 1}`
+                )}
+              </small>
+            </button>
+            {hideable(s) && (
+              <button
+                className="section-eye"
+                aria-pressed={!hidden}
+                aria-label={t('«{section}» в резюме', '{section} in resume', {
+                  section: label,
+                })}
+                title={
+                  hidden
+                    ? t('Показать в резюме', 'Show in resume')
+                    : t('Скрыть из резюме', 'Hide from resume')
+                }
+                onClick={() => toggleHidden(s)}
+              >
+                {hidden ? <EyeOff size={15} /> : <Eye size={15} />}
+              </button>
+            )}
+          </div>
+        )
+      })}
+    </nav>
+  )
   return (
     <div className="editor">
       <p className="visually-hidden" role="status">
@@ -1078,6 +1146,30 @@ export default function Editor({
           ref={menuPanel}
           inert={menuView.closing}
         >
+          {mobile && (
+            <div className="mobile-menu-history">
+              <button
+                onClick={() => {
+                  undo()
+                  setMenu(false)
+                }}
+                disabled={!canUndo}
+              >
+                <Undo2 size={18} />
+                {t('Отменить', 'Undo')}
+              </button>
+              <button
+                onClick={() => {
+                  redo()
+                  setMenu(false)
+                }}
+                disabled={!canRedo}
+              >
+                <Redo2 size={18} />
+                {t('Повторить', 'Redo')}
+              </button>
+            </div>
+          )}
           <button
             onClick={() => {
               backup()
@@ -1125,6 +1217,29 @@ export default function Editor({
           </a>
         </div>
       )}
+      {mobileSteps && !desktop && (
+        <Dialog
+          title={t('Шаги резюме', 'Resume steps')}
+          closeLabel={t('Закрыть', 'Close')}
+          close={() => setMobileSteps(false)}
+          className="mobile-steps-dialog"
+        >
+          <p className="mobile-completion">
+            {t('Готово', 'Done')}: {completed} / {totalSteps}
+          </p>
+          {stepNavigation}
+          <button
+            className="text-button clear-all"
+            onClick={() => {
+              setMobileSteps(false)
+              start()
+            }}
+          >
+            <RotateCcw size={16} />
+            {t('Очистить всё', 'Clear everything')}
+          </button>
+        </Dialog>
+      )}
       <div className="mobile-view-switch">
         <button
           aria-pressed={!mobilePreview}
@@ -1141,6 +1256,23 @@ export default function Editor({
         >
           <Eye size={16} />
           {t('Просмотр', 'Preview')}
+        </button>
+        <button
+          className="mobile-step-picker"
+          aria-label={t('Шаги резюме', 'Resume steps')}
+          aria-haspopup="dialog"
+          aria-expanded={mobileSteps}
+          onClick={(event) => {
+            // Safari does not focus buttons on a tap; remember the dialog opener.
+            event.currentTarget.focus()
+            setMobileSteps(true)
+          }}
+          title={stepLabel(section)}
+        >
+          <ListChecks size={18} />
+          <span>
+            {stepIndex + 1} / {steps.length}
+          </span>
         </button>
       </div>
       <div
@@ -1164,67 +1296,7 @@ export default function Editor({
           inert={sidebarHidden && desktop}
           aria-hidden={(sidebarHidden && desktop) || undefined}
         >
-          <nav
-            className="section-nav"
-            aria-label={t('Шаги резюме', 'Resume steps')}
-          >
-            {steps.map((s, i) => {
-              const Icon =
-                  s === 'review'
-                    ? ClipboardCheck
-                    : s === 'design'
-                      ? Palette
-                      : icons[s],
-                label = stepLabel(s),
-                hidden = isHidden(s),
-                done = !hidden && stepDone(s)
-              return (
-                <div
-                  key={s}
-                  className={`section-row ${hidden ? 'is-off' : ''} ${s === 'review' ? 'review-row' : ''} ${s === 'design' ? 'design-row' : ''}`}
-                >
-                  <button
-                    aria-pressed={section === s}
-                    className={`${section === s ? 'active' : ''} ${s === 'review' ? 'review-link' : ''} ${s === 'design' ? 'design-link' : ''}`}
-                    onClick={() => {
-                      goSection(s)
-                    }}
-                  >
-                    <Icon size={17} />
-                    <span title={label}>{label}</span>
-                    <small className={done ? 'section-complete' : ''}>
-                      {done ? (
-                        <Check size={15} aria-label={t('Готово', 'Done')} />
-                      ) : (
-                        `0${i + 1}`
-                      )}
-                    </small>
-                  </button>
-                  {hideable(s) && (
-                    <button
-                      className="section-eye"
-                      aria-pressed={!hidden}
-                      aria-label={t(
-                        '«{section}» в резюме',
-                        '{section} in resume',
-                        {
-                          section: label,
-                        },
-                      )}
-                      title={
-                        hidden
-                          ? t('Показать в резюме', 'Show in resume')
-                          : t('Скрыть из резюме', 'Hide from resume')
-                      }
-                      onClick={() => toggleHidden(s)}
-                    >
-                      {hidden ? <EyeOff size={15} /> : <Eye size={15} />}
-                    </button>
-                  )}
-                </div>
-              )
-            })}
-          </nav>
+          {stepNavigation}
           <div className="sidebar-bottom">
             <div
               className="completion"
@@ -2160,7 +2232,7 @@ export default function Editor({
               </div>
             }
           >
-            {showExample && (
+            {showExample && (!mobile || mobilePreview) && (
               <p className="preview-example" role="note">
                 <Sparkles size={14} aria-hidden="true" />
                 {t(
@@ -2169,7 +2241,9 @@ export default function Editor({
                 )}
               </p>
             )}
-            <Preview doc={previewDoc} locale={locale} />
+            {(!mobile || mobilePreview) && (
+              <Preview doc={previewDoc} locale={locale} />
+            )}
           </Suspense>
         </section>
       </div>
