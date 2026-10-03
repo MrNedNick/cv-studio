@@ -44,6 +44,7 @@ import {
   RotateCcw,
   Sparkles,
   SquarePen,
+  MessageSquareWarning,
 } from 'lucide-react'
 import {
   accents,
@@ -1113,6 +1114,15 @@ export default function Editor({
             <FileText size={16} />
             {t('Скачать .txt для анкет', 'Download .txt for forms')}
           </button>
+          <a
+            href="https://github.com/MrNedNick/cv-studio/issues/new/choose"
+            target="_blank"
+            rel="noreferrer"
+            onClick={() => setMenu(false)}
+          >
+            <MessageSquareWarning size={16} />
+            {t('Сообщить о проблеме', 'Report a problem')}
+          </a>
         </div>
       )}
       <div className="mobile-view-switch">
@@ -2064,25 +2074,21 @@ export default function Editor({
               )}
             </div>
           </ContentLang.Provider>
-          <footer className="form-footer">
+          <footer className={`form-footer ${prevStep ? '' : 'no-back'}`}>
             {
               <>
-                <button
-                  className="button secondary"
-                  disabled={!prevStep}
-                  onClick={() => prevStep && goSection(prevStep)}
-                  aria-label={
-                    prevStep
-                      ? `${t('Назад', 'Back')}: ${stepLabel(prevStep)}`
-                      : t('Назад', 'Back')
-                  }
-                >
-                  <ChevronLeft size={16} />
-                  <span className="step-long">
-                    {prevStep ? stepLabel(prevStep) : t('Назад', 'Back')}
-                  </span>
-                  <span className="step-short">{t('Назад', 'Back')}</span>
-                </button>
+                {/* The first step has nowhere to go back to; Next gets the room. */}
+                {prevStep && (
+                  <button
+                    className="button secondary"
+                    onClick={() => goSection(prevStep)}
+                    aria-label={`${t('Назад', 'Back')}: ${stepLabel(prevStep)}`}
+                  >
+                    <ChevronLeft size={16} />
+                    <span className="step-long">{stepLabel(prevStep)}</span>
+                    <span className="step-short">{t('Назад', 'Back')}</span>
+                  </button>
+                )}
                 <span className="form-footer-step" aria-hidden="true">
                   {stepIndex + 1} / {steps.length}
                 </span>

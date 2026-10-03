@@ -12,7 +12,7 @@ import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeAll, beforeEach, expect, it, vi } from 'vitest'
 import App from './App'
 import { exportPdf } from './pdf'
-import { loadDocument, saveDocument } from './storage'
+import { keepStorage, loadDocument, saveDocument } from './storage'
 import { createDocument, emptyEntry } from './model'
 vi.mock('./pdf', () => ({
   exportPdf: vi.fn(async () => new Blob(['PDF'], { type: 'application/pdf' })),
@@ -21,6 +21,7 @@ vi.mock('./Preview', () => ({ default: () => <div>PDF preview</div> }))
 vi.mock('./storage', () => ({
   loadDocument: vi.fn(async () => null),
   saveDocument: vi.fn(async () => undefined),
+  keepStorage: vi.fn(async () => undefined),
 }))
 beforeAll(() => {
   URL.createObjectURL = vi.fn(() => 'blob:test')
@@ -823,7 +824,10 @@ it('moves between steps with a fixed Back and Next footer', async () => {
     </MemoryRouter>,
   )
   fireEvent.click(await screen.findByRole('button', { name: /Новое резюме/ }))
-  expect(screen.getByRole('button', { name: /^Назад/ })).toBeDisabled()
+  // The first step has no Back button: Next gets the whole footer.
+  expect(
+    screen.queryByRole('button', { name: /^Назад/ }),
+  ).not.toBeInTheDocument()
   fireEvent.click(screen.getByRole('button', { name: 'Далее: Личные данные' }))
   fireEvent.click(screen.getByRole('button', { name: 'Далее: О себе' }))
   expect(screen.getByRole('heading', { name: 'О себе' })).toBeInTheDocument()
@@ -969,4 +973,19 @@ it('hides a section from the resume and skips it with Next', async () => {
   fireEvent.click(screen.getByRole('button', { name: 'Показать' }))
   expect(screen.queryByText(/Раздел скрыт/)).not.toBeInTheDocument()
   expect(screen.getByLabelText('Специальность / степень')).toBeEnabled()
+})
+
+it('asks the browser to keep the resume only after real content is saved', async () => {
+  render(
+    <MemoryRouter initialEntries={['/edit']}>
+      <App />
+    </MemoryRouter>,
+  )
+  await newResume()
+  await new Promise((resolve) => setTimeout(resolve, 400))
+  expect(keepStorage).not.toHaveBeenCalled()
+  fireEvent.change(screen.getByLabelText('Имя и фамилия'), {
+    target: { value: 'Мария' },
+  })
+  await waitFor(() => expect(keepStorage).toHaveBeenCalled())
 })
