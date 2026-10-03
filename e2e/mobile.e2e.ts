@@ -123,6 +123,8 @@ for (const theme of ['light', 'dark'] as const) {
 test('all steps stay reachable at narrow, tablet and landscape sizes', async ({
   page,
 }) => {
+  // Forty step changes and five PDF renders need a larger budget on CI WebKit.
+  test.setTimeout(90_000)
   await openExample(page)
   for (const [width, height] of [
     [320, 640],
