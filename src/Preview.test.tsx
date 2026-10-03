@@ -63,8 +63,12 @@ it('lets readers enlarge the PDF and return to fit width without changing the do
   expect(
     screen.getByRole('button', { name: 'По ширине страницы' }),
   ).toHaveTextContent('125%')
-  for (let i = 0; i < 3; i++)
+  // Up to 300%, so small type can be read closely.
+  for (let i = 0; i < 7; i++)
     fireEvent.click(screen.getByRole('button', { name: 'Увеличить' }))
+  expect(
+    screen.getByRole('button', { name: 'По ширине страницы' }),
+  ).toHaveTextContent('300%')
   expect(screen.getByRole('button', { name: 'Увеличить' })).toBeDisabled()
   fireEvent.click(screen.getByRole('button', { name: 'По ширине страницы' }))
   expect(
