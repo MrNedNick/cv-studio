@@ -72,8 +72,8 @@ const messages: Record<string, string> = {
     'Centrada y sobria para puestos sénior',
   'Certificates that a vacancy names belong here too.':
     'Los certificados que menciona una oferta también van aquí.',
-  'Change the interface language at the top of the page and the resume language at the top of the form. A resume can have up to six language versions: you translate the text; contacts, dates, and links are shared. The PDF shows the selected version.':
-    'Cambia el idioma de la interfaz arriba en la página y el del currículum arriba en el formulario. Un currículum puede tener hasta seis versiones de idioma: tú traduces el texto; los contactos, fechas y enlaces se comparten. El PDF muestra la versión elegida.',
+  'Change the interface language at the top of the page and the resume language next to the document name. A resume can have up to six language versions: you translate the text; contacts, dates, and links are shared. The PDF shows the selected version.':
+    'Cambia el idioma de la interfaz arriba en la página y el del currículum junto al nombre del documento. Un currículum puede tener hasta seis versiones de idioma: tú traduces el texto; los contactos, fechas y enlaces se comparten. El PDF muestra la versión elegida.',
   'Check the name and file, then continue editing.':
     'Revisa el nombre y el archivo y sigue editando.',
   'Check your email: include @ and a domain.':

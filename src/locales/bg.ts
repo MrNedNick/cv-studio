@@ -70,8 +70,8 @@ const messages: Record<string, string> = {
     'Центриран и сдържан за старши позиции',
   'Certificates that a vacancy names belong here too.':
     'Тук са и сертификатите, които обявата споменава.',
-  'Change the interface language at the top of the page and the resume language at the top of the form. A resume can have up to six language versions: you translate the text; contacts, dates, and links are shared. The PDF shows the selected version.':
-    'Езикът на интерфейса се сменя горе на страницата, а езикът на автобиографията — горе във формуляра. Една автобиография може да има до шест езикови версии: текста превеждате Вие, а контактите, датите и линковете са общи. PDF показва избраната версия.',
+  'Change the interface language at the top of the page and the resume language next to the document name. A resume can have up to six language versions: you translate the text; contacts, dates, and links are shared. The PDF shows the selected version.':
+    'Езикът на интерфейса се сменя горе на страницата, а езикът на автобиографията — до името на документа. Една автобиография може да има до шест езикови версии: текста превеждате Вие, а контактите, датите и линковете са общи. PDF показва избраната версия.',
   'Check the name and file, then continue editing.':
     'Проверете името и файла и продължете с редакцията.',
   'Check your email: include @ and a domain.':

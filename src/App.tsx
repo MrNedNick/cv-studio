@@ -1129,8 +1129,8 @@ export default function App() {
             <p>
               <strong>EN · RU · DE · ES · BG · UK.</strong>{' '}
               {t(
-                'Язык интерфейса меняется вверху страницы, язык резюме — вверху формы. У резюме может быть до шести языковых версий: текст переводите вы, контакты, даты и ссылки общие. В PDF попадает выбранная версия.',
-                'Change the interface language at the top of the page and the resume language at the top of the form. A resume can have up to six language versions: you translate the text; contacts, dates, and links are shared. The PDF shows the selected version.',
+                'Язык интерфейса меняется вверху страницы, язык резюме — рядом с названием документа. У резюме может быть до шести языковых версий: текст переводите вы, контакты, даты и ссылки общие. В PDF попадает выбранная версия.',
+                'Change the interface language at the top of the page and the resume language next to the document name. A resume can have up to six language versions: you translate the text; contacts, dates, and links are shared. The PDF shows the selected version.',
               )}
             </p>
           </div>
