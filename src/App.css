@@ -743,6 +743,16 @@
   margin-top: 30px;
   font-size: 13px !important;
 }
+/* The footer waits until the page is known; appearing at the end of the page
+   does not move anything, while a footer pushed down by the editor would. */
+.app-shell:has(.loading, .editor-loading) .site-footer {
+  display: none;
+}
+/* Same height as the page that replaces it, so the footer does not jump. */
+.loading,
+.editor-loading {
+  min-height: calc(100vh - 183px);
+}
 .loading {
   padding: 60px 20px;
   display: flex;
@@ -4650,6 +4660,5 @@ dialog[open] {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  min-height: 50vh;
   color: var(--muted);
 }

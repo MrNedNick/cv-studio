@@ -736,7 +736,9 @@ export default function App() {
             path="/edit"
             element={
               !ready ? (
-                <div className="loading">
+                // A separate node from the page that replaces it, so the swap
+                // is not measured as a layout shift.
+                <div className="loading" key="loading">
                   <LoaderCircle className="spin" />
                   {t('Открываем редактор…', 'Opening the editor…')}
                 </div>

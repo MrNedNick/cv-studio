@@ -62,8 +62,18 @@
   font-display: swap;
   unicode-range: U+0400-052F, U+1C80-1C8F, U+2DE0-2DFF, U+A640-A69F, U+2116;
 }
+/* Arial adjusted to Noto Sans metrics: text keeps its size and line breaks
+   while the web font loads, so nothing shifts when it arrives. */
+@font-face {
+  font-family: 'Noto fallback';
+  src: local('Arial'), local('ArialMT'), local('Liberation Sans');
+  size-adjust: 107.15%;
+  ascent-override: 99.77%;
+  descent-override: 27.35%;
+  line-gap-override: 0%;
+}
 :root {
-  font-family: Noto, Arial, sans-serif;
+  font-family: Noto, 'Noto fallback', Arial, sans-serif;
   color: #263a32;
   background: #fcfcf8;
   font-synthesis: none;
