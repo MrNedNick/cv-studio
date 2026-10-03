@@ -433,7 +433,7 @@
 }
 .floating-note small {
   font-size: 12px;
-  color: #758171;
+  color: #5b6656;
   display: block;
   margin-top: 4px;
 }
@@ -545,7 +545,7 @@
   position: absolute;
   left: 13px;
   top: 12px;
-  color: #75816d;
+  color: #5b6656;
   font-size: 12px;
 }
 .template-use {
@@ -911,7 +911,6 @@
   margin-left: auto;
   color: var(--muted);
   font-size: 11px;
-  opacity: 0.7;
 }
 .sidebar-bottom {
   margin-top: auto;
@@ -946,6 +945,7 @@
 }
 .editor-form {
   padding: 36px 32px 28px;
+  --form-pad-x: 32px;
   background: var(--surface);
   min-width: 0;
 }
@@ -1420,6 +1420,7 @@ dialog p {
   }
   .editor-form {
     padding: 40px;
+    --form-pad-x: 40px;
   }
   .editor-sidebar {
     padding: 35px 20px;
@@ -1540,6 +1541,7 @@ dialog p {
   }
   .editor-form {
     padding: 30px 23px;
+    --form-pad-x: 23px;
   }
   .editor-form h1 {
     font-size: 24px;
@@ -2139,6 +2141,7 @@ dialog p {
   }
   .editor-form {
     padding: 27px 22px;
+    --form-pad-x: 22px;
   }
   .editor-form h1 {
     font-size: 27px;
@@ -2923,6 +2926,7 @@ dialog p {
     overflow-y: auto;
     min-height: 0;
     padding: 24px;
+    --form-pad-x: 24px;
     overscroll-behavior: contain;
     scroll-padding: 24px;
   }
@@ -4387,8 +4391,9 @@ dialog[open] {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin: 28px -24px 0;
-  padding: 12px 24px;
+  /* Bleeds to the form edges, whatever padding the breakpoint uses. */
+  margin: 28px calc(-1 * var(--form-pad-x, 24px)) 0;
+  padding: 12px var(--form-pad-x, 24px);
   background: color-mix(in srgb, var(--surface) 88%, transparent);
   backdrop-filter: blur(10px);
   border-top: 1px solid var(--line);
@@ -4474,7 +4479,8 @@ dialog[open] {
 /* Footer: Back and Next at the edges, the step counter fixed in the middle. */
 .form-footer {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  /* minmax(0, …) lets long step names shorten with an ellipsis on small phones. */
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
 }
 .form-footer > :first-child {
   justify-self: start;
@@ -4485,6 +4491,7 @@ dialog[open] {
 }
 .form-footer .button {
   max-width: 100%;
+  min-width: 0;
 }
 .form-footer-step {
   min-width: 52px;
@@ -4602,5 +4609,39 @@ dialog[open] {
   }
   .is-editing .panel-resizer::after {
     left: 5px;
+  }
+}
+
+/* Phones: the footer says Back / Next (the step name stays in the accessible
+   name), and the example banner puts its button under the text. */
+.form-footer .step-short {
+  display: none;
+}
+@media (max-width: 559px) {
+  .form-footer .step-long {
+    display: none;
+  }
+  .form-footer .step-short {
+    display: inline;
+  }
+  .sample-banner {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: start;
+    row-gap: 10px;
+  }
+  .sample-banner > svg {
+    margin-top: 2px;
+  }
+  .sample-banner p {
+    grid-column: 2;
+  }
+  .sample-banner .button {
+    grid-column: 2;
+    justify-self: start;
+  }
+  .sample-banner .icon-button {
+    grid-column: 3;
+    grid-row: 1;
   }
 }

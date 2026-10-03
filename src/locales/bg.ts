@@ -472,7 +472,7 @@ const messages: Record<string, string> = {
   'Which copy do you need?': 'Какво копие Ви трябва?',
   'Without “.pdf” — it is added for you.':
     'Без „.pdf“ — разширението се добавя само.',
-  'YOUR NEXT CHAPTER': 'ВАШАТА СЛЕДВАЩА ГЛАВА',
+  'FREE RESUME BUILDER': 'БЕЗПЛАТЕН КОНСТРУКТОР НА CV',
   'Your data stays in your browser': 'Данните Ви остават в браузъра',
   'Your data stays with you.': 'Данните Ви остават при Вас.',
   'Your experience.': 'Вашият опит.',

@@ -474,7 +474,7 @@ const messages: Record<string, string> = {
     '¿Qué haces bien y qué valor aportas?',
   'Which copy do you need?': '¿Qué copia necesitas?',
   'Without “.pdf” — it is added for you.': 'Sin «.pdf»: se añade solo.',
-  'YOUR NEXT CHAPTER': 'TU PRÓXIMO CAPÍTULO',
+  'FREE RESUME BUILDER': 'CREADOR DE CURRÍCULUMS GRATIS',
   'Your data stays in your browser': 'Tus datos se quedan en tu navegador',
   'Your data stays with you.': 'Tus datos se quedan contigo.',
   'Your experience.': 'Tu experiencia.',

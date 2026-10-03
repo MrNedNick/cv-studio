@@ -479,7 +479,7 @@ const messages: Record<string, string> = {
   'Which copy do you need?': 'Welche Kopie brauchen Sie?',
   'Without “.pdf” — it is added for you.':
     'Ohne „.pdf“ – die Endung wird ergänzt.',
-  'YOUR NEXT CHAPTER': 'IHR NÄCHSTES KAPITEL',
+  'FREE RESUME BUILDER': 'KOSTENLOSER LEBENSLAUF-EDITOR',
   'Your data stays in your browser': 'Ihre Daten bleiben in Ihrem Browser',
   'Your data stays with you.': 'Ihre Daten bleiben bei Ihnen.',
   'Your experience.': 'Ihre Erfahrung.',

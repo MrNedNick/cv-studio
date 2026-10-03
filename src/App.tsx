@@ -273,7 +273,14 @@ export default function App() {
         )
         return
       }
-      const next = file.name.toLowerCase().endsWith('.pdf')
+      // Recognise PDFs by their signature too: a renamed or extensionless
+      // download is still the same file.
+      const name = file.name.toLowerCase(),
+        isPdf =
+          name.endsWith('.pdf') ||
+          (!name.endsWith('.json') &&
+            (await file.slice(0, 5).text()) === '%PDF-')
+      const next = isPdf
         ? await (
             await import('./pdf-reader')
           ).importPdf(await file.arrayBuffer())
@@ -417,7 +424,7 @@ export default function App() {
         <div className="hero-copy">
           <div className="eyebrow">
             <span />
-            {t('ВАША СЛЕДУЮЩАЯ ГЛАВА', 'YOUR NEXT CHAPTER')}
+            {t('БЕСПЛАТНЫЙ КОНСТРУКТОР РЕЗЮМЕ', 'FREE RESUME BUILDER')}
           </div>
           <h1>
             {t('Ваш опыт.', 'Your experience.')}
@@ -662,16 +669,16 @@ export default function App() {
           </button>
         </div>
       </header>
-      <input
-        className="visually-hidden"
-        type="file"
-        ref={input}
-        accept=".json,.pdf,application/json,application/pdf"
-        onChange={(e) => void importFile(e.target.files?.[0])}
-        tabIndex={-1}
-        aria-label={t('Открыть файл резюме', 'Open resume file')}
-      />
       <main id="main" tabIndex={-1}>
+        <input
+          className="visually-hidden"
+          type="file"
+          ref={input}
+          accept=".json,.pdf,application/json,application/pdf"
+          onChange={(e) => void importFile(e.target.files?.[0])}
+          tabIndex={-1}
+          aria-label={t('Открыть файл резюме', 'Open resume file')}
+        />
         <Routes>
           <Route path="/" element={landing} />
           <Route

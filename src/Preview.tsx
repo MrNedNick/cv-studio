@@ -86,7 +86,7 @@ export default function Preview({
           setError(true)
         }
       }
-    }, 300)
+    }, 120)
     return () => {
       clearTimeout(timer)
       generation.current++

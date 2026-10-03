@@ -24,6 +24,16 @@ import {
   type StudioDocument,
 } from './model'
 let fontBase = import.meta.env.BASE_URL
+/** Text colours on white paper or on the accent band; a test keeps them ≥ 4.5:1. */
+export const pdfColors = {
+  text: '#25332e',
+  ink: '#18201d',
+  muted: '#59635f',
+  quiet: '#5e6863',
+  pageNumber: '#68736e',
+  onAccent: '#ffffff',
+  onAccentMuted: '#e4ece8',
+}
 let renderQueue: Promise<unknown> = Promise.resolve()
 export function configurePdfFonts(base: string) {
   fontBase = base
@@ -87,10 +97,14 @@ export function ResumePDF({ doc }: { doc: StudioDocument }) {
       borderBottomColor: '#cfd6d2',
       paddingBottom: 3,
     }),
-    ...(minimal && { color: '#5e6863', fontSize: 8.5, letterSpacing: 2.2 }),
+    ...(minimal && {
+      color: pdfColors.quiet,
+      fontSize: 8.5,
+      letterSpacing: 2.2,
+    }),
     ...(bold && {
       backgroundColor: accent,
-      color: '#ffffff',
+      color: pdfColors.onAccent,
       paddingHorizontal: 7,
       paddingVertical: 2.5,
       alignSelf: 'flex-start' as const,
@@ -186,7 +200,7 @@ export function ResumePDF({ doc }: { doc: StudioDocument }) {
                   {key !== 'languages' && !timeline && (
                     <Text
                       style={{
-                        color: '#59635f',
+                        color: pdfColors.muted,
                         fontSize: 8 * scale,
                         maxWidth: 165,
                       }}
@@ -196,7 +210,7 @@ export function ResumePDF({ doc }: { doc: StudioDocument }) {
                   )}
                 </View>
                 {e.subtitle && (
-                  <Text style={{ color: '#59635f', marginTop: 2 }}>
+                  <Text style={{ color: pdfColors.muted, marginTop: 2 }}>
                     {e.subtitle}
                   </Text>
                 )}
@@ -239,7 +253,7 @@ export function ResumePDF({ doc }: { doc: StudioDocument }) {
                   style={{
                     width: 78,
                     paddingTop: 1.5,
-                    color: '#59635f',
+                    color: pdfColors.muted,
                     fontSize: 8,
                   }}
                 >
@@ -293,7 +307,7 @@ export function ResumePDF({ doc }: { doc: StudioDocument }) {
         }}
       />
     )
-  const muted = spotlight ? '#e4ece8' : '#59635f',
+  const muted = spotlight ? pdfColors.onAccentMuted : pdfColors.muted,
     order = visibleSections(doc),
     mainColumn: BodySection[] = ['summary', 'work', 'projects'],
     // Empty sections render nothing; an empty string would break the PDF tree.
@@ -315,7 +329,7 @@ export function ResumePDF({ doc }: { doc: StudioDocument }) {
         size="A4"
         style={{
           fontFamily: bodyFont,
-          color: '#25332e',
+          color: pdfColors.text,
           fontSize: base,
           lineHeight: 1.5,
           paddingTop: 40,
@@ -370,9 +384,9 @@ export function ResumePDF({ doc }: { doc: StudioDocument }) {
                           : 29,
                 fontWeight: minimal ? 400 : 700,
                 color: spotlight
-                  ? '#ffffff'
+                  ? pdfColors.onAccent
                   : bold || minimal
-                    ? '#18201d'
+                    ? pdfColors.ink
                     : accent,
                 lineHeight: 1.2,
                 // Wide tracking on a name breaks text extraction into letters.
@@ -395,7 +409,11 @@ export function ResumePDF({ doc }: { doc: StudioDocument }) {
                 style={{
                   fontSize: executive || ivy ? 10 : bold ? 13 : 12,
                   marginTop: 7,
-                  color: spotlight ? '#ffffff' : bold ? accent : undefined,
+                  color: spotlight
+                    ? pdfColors.onAccent
+                    : bold
+                      ? accent
+                      : undefined,
                   fontWeight: bold ? 700 : 400,
                   letterSpacing: executive || ivy ? track(10, 1.8) : 0,
                 }}
@@ -462,7 +480,7 @@ export function ResumePDF({ doc }: { doc: StudioDocument }) {
             position: 'absolute',
             bottom: 22,
             right: 42,
-            color: '#68736e',
+            color: pdfColors.pageNumber,
             fontSize: 8,
           }}
           render={({ pageNumber, totalPages }) =>

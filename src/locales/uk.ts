@@ -473,7 +473,7 @@ const messages: Record<string, string> = {
   'Which copy do you need?': 'Яка копія вам потрібна?',
   'Without “.pdf” — it is added for you.':
     'Без «.pdf» — розширення додасться само.',
-  'YOUR NEXT CHAPTER': 'ВАШ НАСТУПНИЙ РОЗДІЛ',
+  'FREE RESUME BUILDER': 'БЕЗКОШТОВНИЙ КОНСТРУКТОР РЕЗЮМЕ',
   'Your data stays in your browser': 'Ваші дані залишаються в браузері',
   'Your data stays with you.': 'Ваші дані залишаються у вас.',
   'Your experience.': 'Ваш досвід.',

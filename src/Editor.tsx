@@ -1058,7 +1058,6 @@ export default function Editor({
                         key={pane}
                         role="tab"
                         aria-selected={designPane === pane}
-                        aria-pressed={designPane === pane}
                         onClick={() => setDesignPane(pane)}
                       >
                         {label}
@@ -1941,11 +1940,12 @@ export default function Editor({
                   }
                 >
                   <ChevronLeft size={16} />
-                  <span>
+                  <span className="step-long">
                     {stepIndex > 0
                       ? stepLabel(steps[stepIndex - 1])
                       : t('Назад', 'Back')}
                   </span>
+                  <span className="step-short">{t('Назад', 'Back')}</span>
                 </button>
                 <span className="form-footer-step" aria-hidden="true">
                   {stepIndex + 1} / {steps.length}
@@ -1965,7 +1965,10 @@ export default function Editor({
                     onClick={() => goSection(steps[stepIndex + 1])}
                     aria-label={`${t('Далее', 'Next')}: ${stepLabel(steps[stepIndex + 1])}`}
                   >
-                    <span>{stepLabel(steps[stepIndex + 1])}</span>
+                    <span className="step-long">
+                      {stepLabel(steps[stepIndex + 1])}
+                    </span>
+                    <span className="step-short">{t('Далее', 'Next')}</span>
                     <ChevronRight size={16} />
                   </button>
                 )}
