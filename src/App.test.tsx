@@ -37,6 +37,24 @@ beforeEach(() => {
   localStorage.setItem('cv-locale', 'ru')
 })
 afterEach(cleanup)
+
+/** New documents open on the Design step; most tests continue in Personal details. */
+async function openStep(name: RegExp | string) {
+  const nav = await screen.findByRole('navigation', {
+    name: /Шаги резюме|Resume steps|Schritte|Pasos|Стъпки|Кроки/,
+  })
+  fireEvent.click(within(nav).getByRole('button', { name }))
+}
+async function newResume() {
+  fireEvent.click(await screen.findByRole('button', { name: /Новое резюме/ }))
+  await openStep(/Личные данные/)
+}
+async function startExample() {
+  fireEvent.click(
+    await screen.findByRole('button', { name: /Начать с примера/ }),
+  )
+  await openStep(/Личные данные/)
+}
 it('offers clear starting choices on the editor route', async () => {
   render(
     <MemoryRouter initialEntries={['/edit']}>
@@ -47,6 +65,11 @@ it('offers clear starting choices on the editor route', async () => {
     await screen.findByRole('heading', { name: 'Первый шаг — простой.' }),
   ).toBeInTheDocument()
   fireEvent.click(screen.getByRole('button', { name: /Новое резюме/ }))
+  // A new resume starts with choosing a design.
+  expect(
+    await screen.findByRole('heading', { name: 'Оформление' }),
+  ).toBeInTheDocument()
+  await openStep(/Личные данные/)
   expect(await screen.findByLabelText('Имя и фамилия')).toHaveValue('')
   fireEvent.change(screen.getByLabelText('Имя и фамилия'), {
     target: { value: 'Тестовый Пользователь' },
@@ -67,9 +90,7 @@ it('preserves shared contacts while keeping translated names separate', async ()
       <App />
     </MemoryRouter>,
   )
-  fireEvent.click(
-    await screen.findByRole('button', { name: /Начать с примера/ }),
-  )
+  await startExample()
   fireEvent.change(screen.getByLabelText('Электронная почта'), {
     target: { value: 'test@example.com' },
   })
@@ -105,7 +126,7 @@ it('adds, edits, deletes, and restores an experience entry', async () => {
       <App />
     </MemoryRouter>,
   )
-  fireEvent.click(await screen.findByRole('button', { name: /Новое резюме/ }))
+  await newResume()
   fireEvent.click(screen.getByRole('button', { name: /Опыт работы/ }))
   fireEvent.click(screen.getByRole('button', { name: 'Добавить запись' }))
   fireEvent.change(screen.getByLabelText('Должность'), {
@@ -139,12 +160,14 @@ it('announces selected design controls and restores typography with undo', async
       <App />
     </MemoryRouter>,
   )
-  fireEvent.click(await screen.findByRole('button', { name: /Новое резюме/ }))
-  fireEvent.click(screen.getByRole('button', { name: 'Дизайн' }))
-  expect(screen.getByRole('button', { name: 'Дизайн' })).toHaveAttribute(
-    'aria-pressed',
-    'true',
-  )
+  await newResume()
+  await openStep(/Дизайн/)
+  expect(
+    within(screen.getByRole('navigation', { name: 'Шаги резюме' })).getByRole(
+      'button',
+      { name: /Дизайн/ },
+    ),
+  ).toHaveAttribute('aria-pressed', 'true')
   fireEvent.click(screen.getByRole('tab', { name: 'Стиль' }))
   const typography = screen.getByRole('group', { name: 'Шрифт резюме' })
   fireEvent.click(
@@ -170,7 +193,7 @@ it('keeps fast edits in separate fields as separate undo steps and supports shor
       <App />
     </MemoryRouter>,
   )
-  fireEvent.click(await screen.findByRole('button', { name: /Новое резюме/ }))
+  await newResume()
   fireEvent.change(screen.getByLabelText('Имя и фамилия'), {
     target: { value: 'Jane' },
   })
@@ -189,7 +212,7 @@ it('previews an import, allows cancel, then restores the previous document with 
       <App />
     </MemoryRouter>,
   )
-  fireEvent.click(await screen.findByRole('button', { name: /Новое резюме/ }))
+  await newResume()
   fireEvent.change(screen.getByLabelText('Имя и фамилия'), {
     target: { value: 'Original' },
   })
@@ -221,7 +244,7 @@ it('keeps the latest edits made while an import is being read', async () => {
       <App />
     </MemoryRouter>,
   )
-  fireEvent.click(await screen.findByRole('button', { name: /Новое резюме/ }))
+  await newResume()
   let finish!: (value: string) => void
   const file = {
     name: 'test.json',
@@ -248,7 +271,7 @@ it('rejects oversized imports without changing the current resume', async () => 
       <App />
     </MemoryRouter>,
   )
-  fireEvent.click(await screen.findByRole('button', { name: /Новое резюме/ }))
+  await newResume()
   const read = vi.fn()
   fireEvent.change(screen.getByLabelText('Открыть файл резюме'), {
     target: { files: [{ name: 'large.json', size: 10_000_001, text: read }] },
@@ -263,7 +286,7 @@ it('opens the relevant section from a tip and restores dismissed guidance', asyn
       <App />
     </MemoryRouter>,
   )
-  fireEvent.click(await screen.findByRole('button', { name: /Новое резюме/ }))
+  await newResume()
   fireEvent.click(screen.getByRole('button', { name: /Навыки/ }))
   // Tips belong to their section; Skills shows none about the name.
   expect(
@@ -303,7 +326,7 @@ it('closes document actions with Escape and returns focus to its trigger', async
       <App />
     </MemoryRouter>,
   )
-  fireEvent.click(await screen.findByRole('button', { name: /Новое резюме/ }))
+  await newResume()
   const trigger = screen.getByRole('button', { name: 'Действия с резюме' })
   fireEvent.click(trigger)
   expect(
@@ -332,6 +355,7 @@ it('protects unreadable saved data and retries loading without creating an empty
     screen.queryByRole('button', { name: /Новое резюме/ }),
   ).not.toBeInTheDocument()
   fireEvent.click(screen.getByRole('button', { name: 'Повторить загрузку' }))
+  await openStep(/Личные данные/)
   expect(await screen.findByLabelText('Имя и фамилия')).toHaveValue(
     'Александра Морозова',
   )
@@ -343,7 +367,7 @@ it('retries a failed save without losing form content', async () => {
       <App />
     </MemoryRouter>,
   )
-  fireEvent.click(await screen.findByRole('button', { name: /Новое резюме/ }))
+  await newResume()
   fireEvent.change(screen.getByLabelText('Имя и фамилия'), {
     target: { value: 'Unsaved name' },
   })
@@ -364,9 +388,7 @@ it('collapses entries without losing edits and keeps their state while reorderin
       <App />
     </MemoryRouter>,
   )
-  fireEvent.click(
-    await screen.findByRole('button', { name: /Начать с примера/ }),
-  )
+  await startExample()
   fireEvent.click(screen.getByRole('button', { name: /Опыт работы/ }))
   fireEvent.change(screen.getAllByLabelText('Должность')[0], {
     target: { value: 'Senior designer' },
@@ -401,7 +423,7 @@ it('focuses a new entry and keeps keyboard focus after deleting it', async () =>
       <App />
     </MemoryRouter>,
   )
-  fireEvent.click(await screen.findByRole('button', { name: /Новое резюме/ }))
+  await newResume()
   fireEvent.click(screen.getByRole('button', { name: /Опыт работы/ }))
   fireEvent.click(screen.getByRole('button', { name: 'Добавить запись' }))
   expect(screen.getByLabelText('Должность')).toHaveFocus()
@@ -440,9 +462,7 @@ it('lets users choose a sharing PDF or editable backup with distinct filenames',
         <App />
       </MemoryRouter>,
     )
-    fireEvent.click(
-      await screen.findByRole('button', { name: /Начать с примера/ }),
-    )
+    await startExample()
     fireEvent.click(screen.getByRole('button', { name: 'Скачать PDF' }))
     expect(screen.getByRole('radio', { name: /Для отправки/ })).toBeChecked()
     fireEvent.click(screen.getByRole('button', { name: 'Назад к правкам' }))
@@ -494,9 +514,7 @@ it('shows a failed export inside the dialog and retries without changing the cho
         <App />
       </MemoryRouter>,
     )
-    fireEvent.click(
-      await screen.findByRole('button', { name: /Начать с примера/ }),
-    )
+    await startExample()
     fireEvent.click(screen.getByRole('button', { name: 'Скачать PDF' }))
     fireEvent.click(screen.getByRole('radio', { name: /Редактируемая копия/ }))
     fireEvent.click(
@@ -575,9 +593,7 @@ it('reviews content, adds a missing vacancy skill, and inserts an action verb', 
       <App />
     </MemoryRouter>,
   )
-  fireEvent.click(
-    await screen.findByRole('button', { name: /Начать с примера/ }),
-  )
+  await startExample()
   fireEvent.click(screen.getByRole('button', { name: /Опыт работы/ }))
   fireEvent.click(
     screen.getByRole('button', { name: 'Как заполнить этот раздел' }),
@@ -618,7 +634,7 @@ it('hides both panels with their own toolbar buttons and remembers them', async 
       <App />
     </MemoryRouter>,
   )
-  fireEvent.click(await screen.findByRole('button', { name: /Новое резюме/ }))
+  await newResume()
   const panels = screen.getByRole('group', { name: 'Панели' })
   const sections = within(panels).getByRole('button', { name: 'Разделы' })
   const formToggle = within(panels).getByRole('button', { name: 'Форма' })
@@ -651,7 +667,7 @@ it('validates contact fields once they are left', async () => {
       <App />
     </MemoryRouter>,
   )
-  fireEvent.click(await screen.findByRole('button', { name: /Новое резюме/ }))
+  await newResume()
   const email = screen.getByLabelText('Электронная почта')
   fireEvent.change(email, { target: { value: 'name.mail.com' } })
   expect(email).not.toHaveAttribute('aria-invalid')
@@ -672,14 +688,14 @@ it('toggles the form with one button, a shortcut, or by choosing a section', asy
       <App />
     </MemoryRouter>,
   )
-  fireEvent.click(await screen.findByRole('button', { name: /Новое резюме/ }))
+  await newResume()
   const toggle = screen.getByRole('button', { name: 'Форма' })
   expect(toggle).toHaveAttribute('aria-pressed', 'true')
   fireEvent.click(toggle)
   expect(toggle).toHaveAttribute('aria-pressed', 'false')
   fireEvent.keyDown(window, { key: '\\', ctrlKey: true })
   expect(toggle).toHaveAttribute('aria-pressed', 'true')
-  fireEvent.click(screen.getByRole('button', { name: /Дизайн/ }))
+  await openStep(/Дизайн/)
   fireEvent.click(toggle)
   expect(localStorage.getItem('cv-form-hidden')).toBe('hidden')
   fireEvent.click(
@@ -708,7 +724,7 @@ it('keeps writing guidance tucked away until it is opened', async () => {
       <App />
     </MemoryRouter>,
   )
-  fireEvent.click(await screen.findByRole('button', { name: /Новое резюме/ }))
+  await newResume()
   const toggle = screen.getByRole('button', {
     name: 'Как заполнить этот раздел',
   })
@@ -729,7 +745,7 @@ it('offers to start an empty language version from a filled one', async () => {
       <App />
     </MemoryRouter>,
   )
-  fireEvent.click(await screen.findByRole('button', { name: /Новое резюме/ }))
+  await newResume()
   fireEvent.change(screen.getByLabelText('Имя и фамилия'), {
     target: { value: 'Никита' },
   })
@@ -765,6 +781,7 @@ it('shows the interface and the resume in German together', async () => {
   fireEvent.click(
     await screen.findByRole('button', { name: /Mit einem Beispiel beginnen/ }),
   )
+  await openStep(/Persönliche Daten/)
   expect(screen.getByLabelText('Vollständiger Name')).toHaveValue('Alex Morgan')
   expect(screen.getByLabelText('Position oder Fachgebiet')).toHaveValue(
     'Produktdesignerin',
@@ -781,6 +798,7 @@ it('opens the resume version that matches the site language', async () => {
     </MemoryRouter>,
   )
   // Stored as German, shown in the site language (Russian here).
+  await openStep(/Личные данные/)
   expect(await screen.findByLabelText('Имя и фамилия')).toHaveValue(
     'Александра Морозова',
   )
@@ -800,6 +818,7 @@ it('moves between steps with a fixed Back and Next footer', async () => {
   )
   fireEvent.click(await screen.findByRole('button', { name: /Новое резюме/ }))
   expect(screen.getByRole('button', { name: /^Назад/ })).toBeDisabled()
+  fireEvent.click(screen.getByRole('button', { name: 'Далее: Личные данные' }))
   fireEvent.click(screen.getByRole('button', { name: 'Далее: О себе' }))
   expect(screen.getByRole('heading', { name: 'О себе' })).toBeInTheDocument()
   fireEvent.click(screen.getByRole('button', { name: 'Назад: Личные данные' }))
@@ -813,7 +832,7 @@ it('deletes an entry from the button under its fields', async () => {
       <App />
     </MemoryRouter>,
   )
-  fireEvent.click(await screen.findByRole('button', { name: /Новое резюме/ }))
+  await newResume()
   fireEvent.click(screen.getByRole('button', { name: /Опыт работы/ }))
   fireEvent.click(screen.getByRole('button', { name: 'Добавить запись' }))
   fireEvent.change(screen.getByLabelText('Должность'), {
@@ -830,10 +849,8 @@ it('edits PDF properties in Design and falls back to the resume', async () => {
       <App />
     </MemoryRouter>,
   )
-  fireEvent.click(
-    await screen.findByRole('button', { name: /Начать с примера/ }),
-  )
-  fireEvent.click(screen.getByRole('button', { name: 'Дизайн' }))
+  await startExample()
+  await openStep(/Дизайн/)
   fireEvent.click(screen.getByRole('tab', { name: 'PDF' }))
   const author = screen.getByLabelText('Автор')
   expect(author).toHaveAttribute('placeholder', 'Александра Морозова')
@@ -842,4 +859,25 @@ it('edits PDF properties in Design and falls back to the resume', async () => {
     screen.getByRole('button', { name: 'Вернуть автоматические значения' }),
   )
   expect(screen.getByLabelText('Автор')).toHaveValue('')
+})
+it('leaves the example for an own resume from the banner or the sidebar', async () => {
+  render(
+    <MemoryRouter initialEntries={['/edit']}>
+      <App />
+    </MemoryRouter>,
+  )
+  fireEvent.click(
+    await screen.findByRole('button', { name: /Начать с примера/ }),
+  )
+  expect(screen.getByText('Это пример')).toBeVisible()
+  fireEvent.click(screen.getByRole('button', { name: 'Начать своё' }))
+  expect(screen.queryByText('Это пример')).not.toBeInTheDocument()
+  await openStep(/Личные данные/)
+  expect(screen.getByLabelText('Имя и фамилия')).toHaveValue('')
+  fireEvent.change(screen.getByLabelText('Имя и фамилия'), {
+    target: { value: 'Мой' },
+  })
+  fireEvent.click(screen.getByRole('button', { name: 'Очистить всё' }))
+  // Clearing real work asks first.
+  expect(await screen.findByRole('dialog')).toBeInTheDocument()
 })

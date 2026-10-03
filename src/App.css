@@ -4470,3 +4470,137 @@ dialog[open] {
     padding-bottom: 0;
   }
 }
+
+/* Footer: Back and Next at the edges, the step counter fixed in the middle. */
+.form-footer {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+}
+.form-footer > :first-child {
+  justify-self: start;
+}
+.form-footer > :last-child {
+  justify-self: end;
+  margin-left: 0;
+}
+.form-footer .button {
+  max-width: 100%;
+}
+.form-footer-step {
+  min-width: 52px;
+}
+/* A visible grip tells people the divider can be dragged. */
+.resizer-grip {
+  display: none;
+}
+@media (min-width: 1050px) {
+  .is-editing .resizer-grip {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    width: 18px;
+    height: 44px;
+    transform: translate(-50%, -50%);
+    border-radius: 9px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--muted);
+    box-shadow: 0 1px 4px #0000001a;
+    transition:
+      color 0.18s var(--ease),
+      border-color 0.18s var(--ease),
+      transform 0.18s var(--ease);
+  }
+  .is-editing .resizer-grip svg {
+    flex: none;
+    margin: 0 -2px;
+  }
+  .is-editing .panel-resizer:hover .resizer-grip,
+  .is-editing .panel-resizer:focus-visible .resizer-grip,
+  .is-editing .is-resizing .resizer-grip {
+    color: var(--accent);
+    border-color: var(--accent);
+    transform: translate(-50%, -50%) scale(1.08);
+  }
+  .is-editing .form-hidden .resizer-grip {
+    left: 9px;
+  }
+}
+/* Example banner: one clear way to start your own resume. */
+.sample-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 20px;
+  padding: 12px 12px 12px 16px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--line));
+  animation: fade-in 0.22s var(--ease);
+}
+.sample-banner > svg {
+  flex: none;
+  color: var(--accent);
+}
+.sample-banner p {
+  flex: 1;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.sample-banner strong {
+  display: block;
+  color: var(--text);
+  font-size: 14px;
+}
+.sample-banner .button {
+  flex: none;
+  min-height: 0;
+  padding: 8px 14px;
+  font-size: 13px;
+}
+.sample-banner .icon-button {
+  flex: none;
+}
+.clear-all {
+  grid-column: 1 / -1;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  justify-self: start;
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.clear-all:hover {
+  color: #b4583f;
+}
+.section-nav .design-link {
+  margin-bottom: 6px;
+  border-bottom: 1px dashed var(--line);
+  border-radius: 6px 6px 0 0;
+}
+@media (min-width: 1050px) {
+  /* The preview clips overflow, so the grip sits fully inside its left edge. */
+  .is-editing .resizer-grip {
+    left: 15px;
+    width: 18px;
+    height: 52px;
+    border-radius: 10px;
+  }
+  .is-editing .form-hidden .resizer-grip {
+    left: 15px;
+  }
+  .is-editing .panel-resizer {
+    width: 24px;
+    left: -6px;
+  }
+  .is-editing .panel-resizer::after {
+    left: 5px;
+  }
+}

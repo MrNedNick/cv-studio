@@ -56,7 +56,6 @@ const messages: Record<string, string> = {
     'Щонайменше 3 досягнення для останнього місця роботи.',
   Author: 'Автор',
   Back: 'Назад',
-  'Back to content': 'До змісту',
   'Back to editing': 'Повернутися до редагування',
   Before: 'Було',
   Blue: 'Синій',
@@ -104,7 +103,6 @@ const messages: Record<string, string> = {
   Compact: 'Компактніше',
   Company: 'Компанія',
   'Concise points': 'Стислі пункти',
-  Content: 'Текст',
   'Continue your resume': 'Продовжити резюме',
   'Copy as plain text': 'Копіювати як текст',
   'Copy from': 'Копіювати з',
@@ -214,6 +212,7 @@ const messages: Record<string, string> = {
   'Job title or speciality': 'Посада або спеціалізація',
   'Keep an editable PDF copy for future changes':
     'Зберігайте редаговану PDF-копію для майбутніх змін',
+  'Keep the example': 'Залишити приклад',
   'Keep your profile to 2–4 focused sentences.':
     'Скоротіть розділ «Про себе» до 2–4 речень.',
   'Keyboard shortcuts.': 'Гарячі клавіші.',
@@ -233,8 +232,9 @@ const messages: Record<string, string> = {
     'Вкажіть 8–25 конкретних навичок: інструменти, мови, методи. Без «комунікабельності».',
   'List the languages you speak and your proficiency.':
     'Вкажіть мови та рівень володіння.',
+  'Look around, then start your own resume whenever you are ready.':
+    'Роздивіться, а потім почніть своє резюме, коли будете готові.',
   'Looking good · {count}': 'Уже добре · {count}',
-  'MAKE IT YOURS': 'ЗРОБІТЬ ЙОГО СВОЇМ',
   'Main navigation': 'Головне меню',
   'Make it yours': 'Зробіть його своїм',
   'Margin headings and generous whitespace':
@@ -355,6 +355,7 @@ const messages: Record<string, string> = {
   'Resume opened. Undo restores the previous document.':
     'Резюме відкрито. Скасування поверне попередній документ.',
   'Resume preview': 'Перегляд резюме',
+  'Resume steps': 'Кроки резюме',
   'Resume text': 'Текст резюме',
   'Resume text copied — paste it into the application form.':
     'Текст резюме скопійовано — вставте його в анкету.',
@@ -399,6 +400,7 @@ const messages: Record<string, string> = {
   'Start a new point in “{entry}”:': 'Почніть новий пункт у «{entry}»:',
   'Start a new resume?': 'Почати нове резюме?',
   'Start date': 'Початок',
+  'Start my own': 'Почати своє',
   'Start new': 'Почати заново',
   'Start with a blank page or explore the editor with a filled-in example.':
     'Почніть з чистого аркуша або спробуйте редактор на заповненому прикладі.',
@@ -432,6 +434,7 @@ const messages: Record<string, string> = {
     'Браузер не зміг зберегти дані. Завантажте JSON-копію, перш ніж піти.',
   'This file exceeds 10 MB. Choose a smaller PDF or JSON file.':
     'Файл більший за 10 МБ. Оберіть менший PDF або JSON.',
+  'This is an example': 'Це приклад',
   'This is before the start date.': 'Це раніше за дату початку.',
   'This looks mistyped: use digits, spaces and +.':
     'Схоже на помилку: лише цифри, пробіли та +.',

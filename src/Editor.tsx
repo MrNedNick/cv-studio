@@ -38,6 +38,10 @@ import {
   Copy,
   Languages,
   PanelLeft,
+  GripVertical,
+  Palette,
+  RotateCcw,
+  Sparkles,
   SquarePen,
 } from 'lucide-react'
 import {
@@ -82,8 +86,9 @@ const icons = {
   projects: FolderOpen,
   languages: Globe2,
 }
-type Step = Section | 'review'
-const steps: Step[] = [...sections, 'review']
+type Step = 'design' | Section | 'review'
+// Design comes first: people pick a look, then fill in the content.
+const steps: Step[] = ['design', ...sections, 'review']
 const colorNames = [
   { ru: 'Лесной', en: 'Forest' },
   { ru: 'Синий', en: 'Blue' },
@@ -124,6 +129,7 @@ interface EditorProps {
   exportFile: () => void
   openFile: () => void
   start: () => void
+  startOwn: () => void
   backup: () => void
 }
 export default function Editor({
@@ -139,9 +145,14 @@ export default function Editor({
   exportFile,
   openFile,
   start,
+  startOwn,
   backup,
 }: EditorProps) {
-  const [section, setSection] = useState<Step>('basics'),
+  const [section, setSection] = useState<Step>(() =>
+      doc.sample || isEmptyVersion(doc.versions[doc.language])
+        ? 'design'
+        : 'basics',
+    ),
     [sidebarHidden, setSidebarHidden] = useState(
       () => readSetting('cv-sidebar') === 'hidden',
     ),
@@ -156,7 +167,6 @@ export default function Editor({
     ),
     [activeEntry, setActiveEntry] = useState<string | null>(null),
     [freshEntry, setFreshEntry] = useState<string | null>(null),
-    [tab, setTab] = useState<'content' | 'design'>('content'),
     [designPane, setDesignPane] = useState<
       'template' | 'style' | 'sections' | 'pdf'
     >('template'),
@@ -210,7 +220,8 @@ export default function Editor({
       next !== 'basics' &&
       next !== 'summary' &&
       next !== 'skills' &&
-      next !== 'review'
+      next !== 'review' &&
+      next !== 'design'
     ) {
       setCollapsed((current) => {
         const expanded = new Set(current)
@@ -221,9 +232,9 @@ export default function Editor({
     focusSection.current = true
     toggleForm(false)
     setSection(next)
-    setTab('content')
-    if (section === next && tab === 'content') focusForm()
+    if (section === next) focusForm()
   }
+  const tab = section === 'design' ? 'design' : 'content'
   function focusForm() {
     const heading = form.current?.querySelector('h1')
     heading?.focus({ preventScroll: true })
@@ -680,7 +691,11 @@ export default function Editor({
           )
   const stepIndex = steps.indexOf(section),
     stepLabel = (step: Step) =>
-      step === 'review' ? t('Проверка', 'Review') : labels[step]
+      step === 'review'
+        ? t('Проверка', 'Review')
+        : step === 'design'
+          ? t('Дизайн', 'Design')
+          : labels[step]
   const meta = pdfMetadata(doc),
     designPanes = [
       ['template', t('Шаблон', 'Template')],
@@ -873,15 +888,6 @@ export default function Editor({
           </button>
           <button
             onClick={() => {
-              start()
-              setMenu(false)
-            }}
-          >
-            <Plus size={16} />
-            {t('Очистить всё', 'Clear everything')}
-          </button>
-          <button
-            onClick={() => {
               void copyText()
               setMenu(false)
             }}
@@ -939,35 +945,27 @@ export default function Editor({
           inert={sidebarHidden && desktop}
           aria-hidden={(sidebarHidden && desktop) || undefined}
         >
-          <div className="editor-mode">
-            <button
-              aria-pressed={tab === 'content'}
-              className={tab === 'content' ? 'active' : ''}
-              onClick={() => setTab('content')}
-            >
-              <span>{t('Содержание', 'Content')}</span>
-            </button>
-            <button
-              aria-pressed={tab === 'design'}
-              className={tab === 'design' ? 'active' : ''}
-              onClick={() => {
-                focusSection.current = true
-                setTab('design')
-              }}
-            >
-              <span>{t('Дизайн', 'Design')}</span>
-            </button>
-          </div>
-          <div className="section-nav">
+          <nav
+            className="section-nav"
+            aria-label={t('Шаги резюме', 'Resume steps')}
+          >
             {steps.map((s, i) => {
-              const Icon = s === 'review' ? ClipboardCheck : icons[s],
-                label = s === 'review' ? t('Проверка', 'Review') : labels[s],
-                done = s !== 'review' && completedSections.includes(s)
+              const Icon =
+                  s === 'review'
+                    ? ClipboardCheck
+                    : s === 'design'
+                      ? Palette
+                      : icons[s],
+                label = stepLabel(s),
+                done =
+                  s !== 'review' &&
+                  s !== 'design' &&
+                  completedSections.includes(s)
               return (
                 <button
                   key={s}
-                  aria-pressed={section === s && tab === 'content'}
-                  className={`${section === s && tab === 'content' ? 'active' : ''} ${s === 'review' ? 'review-link' : ''}`}
+                  aria-pressed={section === s}
+                  className={`${section === s ? 'active' : ''} ${s === 'review' ? 'review-link' : ''} ${s === 'design' ? 'design-link' : ''}`}
                   onClick={() => {
                     goSection(s)
                   }}
@@ -984,7 +982,7 @@ export default function Editor({
                 </button>
               )
             })}
-          </div>
+          </nav>
           <div className="sidebar-bottom">
             <div
               className="completion"
@@ -996,6 +994,10 @@ export default function Editor({
             <div className="progress-track" aria-hidden="true">
               <span style={{ width: `${(completed / 7) * 100}%` }} />
             </div>
+            <button className="text-button clear-all" onClick={start}>
+              <RotateCcw size={14} />
+              {t('Очистить всё', 'Clear everything')}
+            </button>
           </div>
         </aside>
         <section
@@ -1007,13 +1009,36 @@ export default function Editor({
           inert={formHidden && desktop}
           aria-hidden={(formHidden && desktop) || undefined}
         >
+          {doc.sample && (
+            <div className="sample-banner" role="note">
+              <Sparkles size={17} aria-hidden="true" />
+              <p>
+                <strong>{t('Это пример', 'This is an example')}</strong>
+                {t(
+                  'Посмотрите, как всё устроено, и начните своё резюме, когда будете готовы.',
+                  'Look around, then start your own resume whenever you are ready.',
+                )}
+              </p>
+              <button className="button primary" onClick={startOwn}>
+                {t('Начать своё', 'Start my own')}
+              </button>
+              <button
+                className="icon-button"
+                aria-label={t('Оставить пример', 'Keep the example')}
+                title={t('Оставить пример', 'Keep the example')}
+                onClick={() => update({ ...doc, sample: false })}
+              >
+                <X size={16} />
+              </button>
+            </div>
+          )}
           <ContentLang.Provider value={lang}>
             <div key={`${tab}:${section}`} className="step-enter">
-              {tab === 'design' ? (
+              {section === 'design' ? (
                 <>
                   <div className="form-step">
                     <div className="eyebrow">
-                      {t('ВАШ СТИЛЬ', 'MAKE IT YOURS')}
+                      {t('ШАГ', 'STEP')} 01 / 0{steps.length}
                     </div>
                   </div>
                   <h1 tabIndex={-1}>{t('Оформление', 'Design')}</h1>
@@ -1903,28 +1928,7 @@ export default function Editor({
             </div>
           </ContentLang.Provider>
           <footer className="form-footer">
-            {tab === 'design' ? (
-              <>
-                <button
-                  className="button secondary"
-                  onClick={() => {
-                    focusSection.current = true
-                    setTab('content')
-                  }}
-                >
-                  <ChevronLeft size={16} />
-                  {t('К содержанию', 'Back to content')}
-                </button>
-                <button
-                  className="button primary"
-                  onClick={exportFile}
-                  disabled={exporting}
-                >
-                  <Download size={16} />
-                  {t('Скачать PDF', 'Download PDF')}
-                </button>
-              </>
-            ) : (
+            {
               <>
                 <button
                   className="button secondary"
@@ -1966,7 +1970,7 @@ export default function Editor({
                   </button>
                 )}
               </>
-            )}
+            }
           </footer>
         </section>
         <section
@@ -2000,7 +2004,11 @@ export default function Editor({
               if (formHidden) toggleForm(false)
               changeFormWidth(null)
             }}
-          />
+          >
+            <span className="resizer-grip" aria-hidden="true">
+              <GripVertical size={14} />
+            </span>
+          </div>
           <Suspense
             fallback={
               <div className="loading">

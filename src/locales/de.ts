@@ -58,7 +58,6 @@ const messages: Record<string, string> = {
     'Mindestens 3 Erfolgspunkte für Ihre aktuelle Stelle.',
   Author: 'Autor',
   Back: 'Zurück',
-  'Back to content': 'Zurück zum Inhalt',
   'Back to editing': 'Zurück zur Bearbeitung',
   Before: 'Vorher',
   Blue: 'Blau',
@@ -106,7 +105,6 @@ const messages: Record<string, string> = {
   Compact: 'Kompakt',
   Company: 'Unternehmen',
   'Concise points': 'Knappe Punkte',
-  Content: 'Inhalt',
   'Continue your resume': 'Lebenslauf fortsetzen',
   'Copy as plain text': 'Als reinen Text kopieren',
   'Copy from': 'Kopieren aus',
@@ -219,6 +217,7 @@ const messages: Record<string, string> = {
   'Job title or speciality': 'Position oder Fachgebiet',
   'Keep an editable PDF copy for future changes':
     'Bewahren Sie eine bearbeitbare PDF-Kopie für spätere Änderungen auf',
+  'Keep the example': 'Beispiel behalten',
   'Keep your profile to 2–4 focused sentences.':
     'Halten Sie Ihr Profil bei 2–4 prägnanten Sätzen.',
   'Keyboard shortcuts.': 'Tastenkürzel.',
@@ -238,8 +237,9 @@ const messages: Record<string, string> = {
     'Nennen Sie 8–25 konkrete Kenntnisse: Tools, Sprachen, Methoden. Ohne „Kommunikationsfähigkeit“.',
   'List the languages you speak and your proficiency.':
     'Nennen Sie Ihre Sprachen und Ihr Niveau.',
+  'Look around, then start your own resume whenever you are ready.':
+    'Sehen Sie sich alles an und beginnen Sie Ihren eigenen Lebenslauf, wann immer Sie bereit sind.',
   'Looking good · {count}': 'Schon gut · {count}',
-  'MAKE IT YOURS': 'MACHEN SIE ES ZU IHREM',
   'Main navigation': 'Hauptnavigation',
   'Make it yours': 'Persönlich gestalten',
   'Margin headings and generous whitespace':
@@ -361,6 +361,7 @@ const messages: Record<string, string> = {
   'Resume opened. Undo restores the previous document.':
     'Lebenslauf geöffnet. Rückgängig stellt das vorherige Dokument wieder her.',
   'Resume preview': 'Vorschau des Lebenslaufs',
+  'Resume steps': 'Schritte des Lebenslaufs',
   'Resume text': 'Text des Lebenslaufs',
   'Resume text copied — paste it into the application form.':
     'Lebenslauftext kopiert – fügen Sie ihn in das Bewerbungsformular ein.',
@@ -405,6 +406,7 @@ const messages: Record<string, string> = {
   'Start a new point in “{entry}”:': 'Neuen Punkt in „{entry}“ beginnen:',
   'Start a new resume?': 'Neuen Lebenslauf beginnen?',
   'Start date': 'Startdatum',
+  'Start my own': 'Eigenen beginnen',
   'Start new': 'Neu beginnen',
   'Start with a blank page or explore the editor with a filled-in example.':
     'Beginnen Sie mit einer leeren Seite oder erkunden Sie den Editor mit einem ausgefüllten Beispiel.',
@@ -438,6 +440,7 @@ const messages: Record<string, string> = {
     'Dieser Browser konnte Ihre Daten nicht speichern. Laden Sie vor dem Verlassen eine JSON-Sicherung herunter.',
   'This file exceeds 10 MB. Choose a smaller PDF or JSON file.':
     'Diese Datei ist größer als 10 MB. Wählen Sie eine kleinere PDF- oder JSON-Datei.',
+  'This is an example': 'Das ist ein Beispiel',
   'This is before the start date.': 'Das liegt vor dem Startdatum.',
   'This looks mistyped: use digits, spaces and +.':
     'Sieht nach einem Tippfehler aus: nur Ziffern, Leerzeichen und +.',

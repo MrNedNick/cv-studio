@@ -58,7 +58,6 @@ const messages: Record<string, string> = {
     'Al menos 3 logros para tu empleo más reciente.',
   Author: 'Autor',
   Back: 'Atrás',
-  'Back to content': 'Volver al contenido',
   'Back to editing': 'Volver a editar',
   Before: 'Antes',
   Blue: 'Azul',
@@ -106,7 +105,6 @@ const messages: Record<string, string> = {
   Compact: 'Compacta',
   Company: 'Empresa',
   'Concise points': 'Puntos concisos',
-  Content: 'Contenido',
   'Continue your resume': 'Continuar tu currículum',
   'Copy as plain text': 'Copiar como texto plano',
   'Copy from': 'Copiar de',
@@ -217,6 +215,7 @@ const messages: Record<string, string> = {
   'Job title or speciality': 'Puesto o especialidad',
   'Keep an editable PDF copy for future changes':
     'Guarda una copia PDF editable para futuros cambios',
+  'Keep the example': 'Mantener el ejemplo',
   'Keep your profile to 2–4 focused sentences.':
     'Deja tu perfil en 2–4 frases concretas.',
   'Keyboard shortcuts.': 'Atajos de teclado.',
@@ -236,8 +235,9 @@ const messages: Record<string, string> = {
     'Enumera 8–25 habilidades concretas: herramientas, lenguajes, métodos. Sin «comunicación».',
   'List the languages you speak and your proficiency.':
     'Indica los idiomas que hablas y tu nivel.',
+  'Look around, then start your own resume whenever you are ready.':
+    'Échale un vistazo y empieza tu propio currículum cuando quieras.',
   'Looking good · {count}': 'Bien resuelto · {count}',
-  'MAKE IT YOURS': 'HAZLO TUYO',
   'Main navigation': 'Navegación principal',
   'Make it yours': 'Hazlo tuyo',
   'Margin headings and generous whitespace':
@@ -357,6 +357,7 @@ const messages: Record<string, string> = {
   'Resume opened. Undo restores the previous document.':
     'Currículum abierto. Deshacer recupera el documento anterior.',
   'Resume preview': 'Vista previa del currículum',
+  'Resume steps': 'Pasos del currículum',
   'Resume text': 'Texto del currículum',
   'Resume text copied — paste it into the application form.':
     'Texto del currículum copiado: pégalo en el formulario de la candidatura.',
@@ -401,6 +402,7 @@ const messages: Record<string, string> = {
   'Start a new point in “{entry}”:': 'Empieza un nuevo punto en «{entry}»:',
   'Start a new resume?': '¿Empezar un currículum nuevo?',
   'Start date': 'Fecha de inicio',
+  'Start my own': 'Empezar el mío',
   'Start new': 'Empezar de nuevo',
   'Start with a blank page or explore the editor with a filled-in example.':
     'Empieza con una página en blanco o explora el editor con un ejemplo ya relleno.',
@@ -434,6 +436,7 @@ const messages: Record<string, string> = {
     'Este navegador no pudo guardar tus datos. Descarga una copia JSON antes de salir.',
   'This file exceeds 10 MB. Choose a smaller PDF or JSON file.':
     'Este archivo supera los 10 MB. Elige un PDF o JSON más pequeño.',
+  'This is an example': 'Esto es un ejemplo',
   'This is before the start date.': 'Es anterior a la fecha de inicio.',
   'This looks mistyped: use digits, spaces and +.':
     'Parece una errata: usa dígitos, espacios y +.',

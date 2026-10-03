@@ -824,6 +824,7 @@ export default function App() {
                   }}
                   openFile={openFile}
                   start={() => start(false)}
+                  startOwn={() => start(false, true)}
                   backup={backup}
                 />
               )

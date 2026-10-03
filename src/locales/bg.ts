@@ -56,7 +56,6 @@ const messages: Record<string, string> = {
     'Поне 3 постижения за последната Ви работа.',
   Author: 'Автор',
   Back: 'Назад',
-  'Back to content': 'Към съдържанието',
   'Back to editing': 'Обратно към редакцията',
   Before: 'Преди',
   Blue: 'Син',
@@ -104,7 +103,6 @@ const messages: Record<string, string> = {
   Compact: 'Компактно',
   Company: 'Компания',
   'Concise points': 'Кратки точки',
-  Content: 'Съдържание',
   'Continue your resume': 'Продължете автобиографията',
   'Copy as plain text': 'Копирай като обикновен текст',
   'Copy from': 'Копирай от',
@@ -215,6 +213,7 @@ const messages: Record<string, string> = {
   'Job title or speciality': 'Длъжност или специалност',
   'Keep an editable PDF copy for future changes':
     'Пазете редактируемо PDF копие за бъдещи промени',
+  'Keep the example': 'Запази примера',
   'Keep your profile to 2–4 focused sentences.':
     'Ограничете профила до 2–4 точни изречения.',
   'Keyboard shortcuts.': 'Клавишни комбинации.',
@@ -234,8 +233,9 @@ const messages: Record<string, string> = {
     'Посочете 8–25 конкретни умения: инструменти, езици, методи. Без „комуникативност“.',
   'List the languages you speak and your proficiency.':
     'Посочете езиците, които говорите, и нивото си.',
+  'Look around, then start your own resume whenever you are ready.':
+    'Разгледайте и започнете своята автобиография, когато сте готови.',
   'Looking good · {count}': 'Всичко е наред · {count}',
-  'MAKE IT YOURS': 'НАПРАВЕТЕ Я СВОЯ',
   'Main navigation': 'Основна навигация',
   'Make it yours': 'Направете я своя',
   'Margin headings and generous whitespace': 'Заглавия в полето и много въздух',
@@ -355,6 +355,7 @@ const messages: Record<string, string> = {
   'Resume opened. Undo restores the previous document.':
     'Автобиографията е отворена. „Отмени“ връща предишния документ.',
   'Resume preview': 'Преглед на автобиографията',
+  'Resume steps': 'Стъпки на автобиографията',
   'Resume text': 'Текст на автобиографията',
   'Resume text copied — paste it into the application form.':
     'Текстът на автобиографията е копиран — поставете го във формуляра за кандидатстване.',
@@ -398,6 +399,7 @@ const messages: Record<string, string> = {
   'Start a new point in “{entry}”:': 'Започнете нова точка в „{entry}“:',
   'Start a new resume?': 'Да започне ли нова автобиография?',
   'Start date': 'Начална дата',
+  'Start my own': 'Започни своя',
   'Start new': 'Започни отначало',
   'Start with a blank page or explore the editor with a filled-in example.':
     'Започнете с празна страница или разгледайте редактора с попълнен пример.',
@@ -431,6 +433,7 @@ const messages: Record<string, string> = {
     'Браузърът не успя да запази данните. Изтеглете JSON копие, преди да напуснете.',
   'This file exceeds 10 MB. Choose a smaller PDF or JSON file.':
     'Файлът е по-голям от 10 MB. Изберете по-малък PDF или JSON файл.',
+  'This is an example': 'Това е пример',
   'This is before the start date.': 'Това е преди началната дата.',
   'This looks mistyped: use digits, spaces and +.':
     'Изглежда като грешка: само цифри, интервали и +.',

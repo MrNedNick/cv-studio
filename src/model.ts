@@ -102,6 +102,8 @@ export interface StudioDocument {
   /** Custom section order; empty means the template's own order. */
   sectionOrder: BodySection[]
   hiddenSections: BodySection[]
+  /** The built-in fictional example, until the person starts their own. */
+  sample?: boolean
   /** Optional portrait as a small JPEG or PNG data URL, shared by both languages. */
   photo: string
   versions: Record<Locale, Resume>
@@ -304,6 +306,7 @@ export function createDocument(
     sectionOrder: [],
     hiddenSections: [],
     photo: '',
+    sample,
     versions,
   }
 }
@@ -502,6 +505,7 @@ export function parseDocument(input: unknown): StudioDocument {
       : []
     result.hiddenSections = known(source.hiddenSections)
     result.photo = validPhoto(source.photo)
+    result.sample = source.sample === true
     return result
   }
   if (
