@@ -12,7 +12,7 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? 'github' : 'list',
   use: {
-    baseURL: remote ?? `http://127.0.0.1:${port}/cv-studio/`,
+    baseURL: remote ?? `http://127.0.0.1:${port}/`,
     acceptDownloads: true,
     trace: 'retain-on-failure',
   },
@@ -29,7 +29,7 @@ export default defineConfig({
     ? undefined
     : {
         command: `npx vite preview --host 127.0.0.1 --port ${port} --strictPort`,
-        url: `http://127.0.0.1:${port}/cv-studio/`,
+        url: `http://127.0.0.1:${port}/`,
         reuseExistingServer: !process.env.CI,
       },
 })

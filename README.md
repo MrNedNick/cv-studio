@@ -2,7 +2,7 @@
 
 A free resume editor with thoughtful templates, a live PDF preview, and no account or download paywall.
 
-**[Open NeatCV](https://mrnednick.github.io/cv-studio/)** · [Open the editor](https://mrnednick.github.io/cv-studio/#/edit)
+**[Open NeatCV](https://neatcv.cc/)** · [Open the editor](https://neatcv.cc/#/edit)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/editor-dark.png" />
@@ -81,10 +81,10 @@ npm run lint
 npm run build
 npx playwright install chromium   # once
 npm run e2e                       # runs against the production build
-BASE_URL=https://mrnednick.github.io/cv-studio/ npm run e2e   # or against the live site
+BASE_URL=https://neatcv.cc/ npm run e2e   # or against the live site
 ```
 
-The development URL is `http://localhost:5173/cv-studio/`. Tests cover entry collapse/reordering/focus, duplicate imported IDs, sidebar PDF text positioning, import confirmation/cancellation and edits during file reads, storage recovery, keyboard navigation, targeted guidance, model validation, IndexedDB persistence, JSON round trips, shared contacts, undo/redo, export mode selection and retry, and PDF text, links, attachment inclusion/omission, templates, long-document pagination, typography compatibility, preview recovery, and text-view access. Playwright end-to-end tests fill a resume from scratch and reload it, run the full download → clear → reopen the PDF → edit loop (including a renamed file without the `.pdf` extension), check that the PDF text follows the selected language, switch through all twelve templates, check the 360 px phone layout, and run axe accessibility checks on the home page and editor steps in light and dark themes. A unit test keeps every PDF text colour and accent at a contrast ratio of at least 4.5:1. GitHub Actions runs lint, unit tests, a production build, and the end-to-end suite before publishing `main` to Pages.
+The development URL is `http://localhost:5173/`. Tests cover entry collapse/reordering/focus, duplicate imported IDs, sidebar PDF text positioning, import confirmation/cancellation and edits during file reads, storage recovery, keyboard navigation, targeted guidance, model validation, IndexedDB persistence, JSON round trips, shared contacts, undo/redo, export mode selection and retry, and PDF text, links, attachment inclusion/omission, templates, long-document pagination, typography compatibility, preview recovery, and text-view access. Playwright end-to-end tests fill a resume from scratch and reload it, run the full download → clear → reopen the PDF → edit loop (including a renamed file without the `.pdf` extension), check that the PDF text follows the selected language, switch through all twelve templates, check the 360 px phone layout, and run axe accessibility checks on the home page and editor steps in light and dark themes. A unit test keeps every PDF text colour and accent at a contrast ratio of at least 4.5:1. GitHub Actions runs lint, unit tests, a production build, and the end-to-end suite before publishing `main` to Pages.
 
 ## Boundaries
 
