@@ -115,8 +115,8 @@ const messages: Record<string, string> = {
     'Не вдалося створити PDF. Спробуйте ще раз або збережіть JSON-копію.',
   'Could not open that image. Choose a JPG, PNG or WebP up to 15 MB.':
     'Не вдалося відкрити зображення. Оберіть JPG, PNG або WebP до 15 МБ.',
-  'Could not open this file. Choose JSON Resume or an editable PDF copy from CV Studio (up to 10 MB). Sharing copies and other PDFs do not include editable source.':
-    'Не вдалося відкрити цей файл. Оберіть JSON Resume або редаговану PDF-копію з CV Studio (до 10 МБ). Копії для надсилання та інші PDF не містять редагованого джерела.',
+  'Could not open this file. Choose JSON Resume or an editable PDF copy from NeatCV (up to 10 MB). Sharing copies and other PDFs do not include editable source.':
+    'Не вдалося відкрити цей файл. Оберіть JSON Resume або редаговану PDF-копію з NeatCV (до 10 МБ). Копії для надсилання та інші PDF не містять редагованого джерела.',
   'Could not open your saved resume': 'Не вдалося відкрити збережене резюме',
   'Create your resume': 'Створіть резюме',
   'Ctrl / ⌘ Z to undo; Ctrl / ⌘ Shift Z to redo; Ctrl / ⌘ S to save a JSON backup. Guidance below the form takes you to the section to review.':

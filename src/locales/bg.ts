@@ -115,8 +115,8 @@ const messages: Record<string, string> = {
     'PDF файлът не можа да бъде създаден. Опитайте отново или запазете JSON копие.',
   'Could not open that image. Choose a JPG, PNG or WebP up to 15 MB.':
     'Изображението не можа да бъде отворено. Изберете JPG, PNG или WebP до 15 MB.',
-  'Could not open this file. Choose JSON Resume or an editable PDF copy from CV Studio (up to 10 MB). Sharing copies and other PDFs do not include editable source.':
-    'Файлът не можа да бъде отворен. Изберете JSON Resume или редактируемо PDF копие от CV Studio (до 10 MB). Копията за изпращане и другите PDF файлове не съдържат редактируем източник.',
+  'Could not open this file. Choose JSON Resume or an editable PDF copy from NeatCV (up to 10 MB). Sharing copies and other PDFs do not include editable source.':
+    'Файлът не можа да бъде отворен. Изберете JSON Resume или редактируемо PDF копие от NeatCV (до 10 MB). Копията за изпращане и другите PDF файлове не съдържат редактируем източник.',
   'Could not open your saved resume':
     'Запазената автобиография не можа да бъде отворена',
   'Create your resume': 'Създайте автобиография',

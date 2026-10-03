@@ -304,8 +304,8 @@ export default function App() {
     } catch {
       setNotice(
         t(
-          'Не удалось открыть файл. Выберите JSON Resume или редактируемую PDF-копию из CV Studio (до 10 МБ). PDF для отправки и сторонние PDF не содержат исходных данных.',
-          'Could not open this file. Choose JSON Resume or an editable PDF copy from CV Studio (up to 10 MB). Sharing copies and other PDFs do not include editable source.',
+          'Не удалось открыть файл. Выберите JSON Resume или редактируемую PDF-копию из NeatCV (до 10 МБ). PDF для отправки и сторонние PDF не содержат исходных данных.',
+          'Could not open this file. Choose JSON Resume or an editable PDF copy from NeatCV (up to 10 MB). Sharing copies and other PDFs do not include editable source.',
         ),
       )
     } finally {
@@ -649,7 +649,7 @@ export default function App() {
           <span className="brand-symbol">
             <FileText size={20} aria-hidden="true" />
           </span>
-          cv<span className="brand-light">studio</span>
+          neat<span className="brand-light">cv</span>
           <span className="free-badge">FREE</span>
           <span className="visually-hidden">
             {t(' — на главную', ' — home')}
@@ -871,7 +871,7 @@ export default function App() {
       </main>
       <footer className="site-footer">
         <Link className="brand" to="/">
-          cv<span className="brand-light">studio</span>
+          neat<span className="brand-light">cv</span>
           <span className="footer-dot">✳</span>
         </Link>
         <span>

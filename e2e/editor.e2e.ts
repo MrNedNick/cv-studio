@@ -56,7 +56,7 @@ test('a resume filled from scratch survives a reload', async ({ page }) => {
   await page.getByRole('button', { name: 'Add entry' }).click()
   await page
     .getByRole('textbox', { name: 'Project name', exact: true })
-    .fill('CV Studio')
+    .fill('NeatCV')
 
   await step(page, 'Languages')
   await page.getByRole('button', { name: 'Add entry' }).click()
@@ -100,7 +100,7 @@ test('a resume filled from scratch survives a reload', async ({ page }) => {
   await step(page, 'Projects')
   await expect(
     page.getByRole('textbox', { name: 'Project name', exact: true }),
-  ).toHaveValue('CV Studio')
+  ).toHaveValue('NeatCV')
   await step(page, 'Languages')
   await expect(
     page.getByRole('textbox', { name: 'Proficiency', exact: true }),

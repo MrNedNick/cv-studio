@@ -512,7 +512,7 @@ export async function exportPdf(
     'cv-studio.json',
     {
       mimeType: 'application/json',
-      description: 'Editable resume source for CV Studio',
+      description: 'Editable resume source for NeatCV',
     },
   )
   return new Blob([new Uint8Array(await result.save())], {

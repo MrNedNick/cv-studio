@@ -1,6 +1,6 @@
 # Market review and writing guidance
 
-A review of popular resume builders and recruiter guidance, made to decide what CV Studio should offer. Reviewed in October 2026.
+A review of popular resume builders and recruiter guidance, made to decide what NeatCV should offer. Reviewed in October 2026.
 
 ## What the leading builders do well
 
@@ -17,7 +17,7 @@ A review of popular resume builders and recruiter guidance, made to decide what 
 | FlowCV | Free unlimited PDFs, section ordering, colors and spacing | Fonts and themes partly paid |
 | Reactive Resume | Open source; drag-and-drop section order, custom sections | Self-hosting or account needed |
 
-What CV Studio adopted, all free and without an account:
+What NeatCV adopted, all free and without an account:
 
 - a final review with concrete, fixable checks (Enhancv, Novorésumé, Kickresume)
 - vacancy matching with covered and missing skills (Teal, Jobscan, Rezi) — computed in the browser

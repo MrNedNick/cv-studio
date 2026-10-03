@@ -1,25 +1,25 @@
-# CV Studio
+# NeatCV
 
 A free resume editor with thoughtful templates, a live PDF preview, and no account or download paywall.
 
-**[Open CV Studio](https://mrnednick.github.io/cv-studio/)** · [Open the editor](https://mrnednick.github.io/cv-studio/#/edit)
+**[Open NeatCV](https://mrnednick.github.io/cv-studio/)** · [Open the editor](https://mrnednick.github.io/cv-studio/#/edit)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/editor-dark.png" />
-  <img src="docs/editor-light.png" alt="CV Studio editor: resume steps on the left, the experience form in the middle, and the live A4 PDF preview on the right" />
+  <img src="docs/editor-light.png" alt="NeatCV editor: resume steps on the left, the experience form in the middle, and the live A4 PDF preview on the right" />
 </picture>
 
 ## Why
 
-Most online resume builders let you type for free and ask for a subscription when you download: Resume.io and Zety keep the PDF behind a paid plan, Novorésumé limits the free plan to one page and preset layouts ([pricing notes and sources](docs/research.md)). CV Studio keeps every template and every download free, needs no account, and stores the resume only in your browser.
+Most online resume builders let you type for free and ask for a subscription when you download: Resume.io and Zety keep the PDF behind a paid plan, Novorésumé limits the free plan to one page and preset layouts ([pricing notes and sources](docs/research.md)). NeatCV keeps every template and every download free, needs no account, and stores the resume only in your browser.
 
-The second problem is coming back later. A PDF is usually a dead end: to change one line six months from now you need the original account or the original file. CV Studio can put the source inside the PDF itself, so the file you send yourself is also the file you edit next time.
+The second problem is coming back later. A PDF is usually a dead end: to change one line six months from now you need the original account or the original file. NeatCV can put the source inside the PDF itself, so the file you send yourself is also the file you edit next time.
 
 ## How the editable PDF works
 
 1. The page is laid out with `@react-pdf/renderer`, so the PDF has a real text layer: it can be selected, searched and read by applicant tracking systems, and links stay clickable. The live preview renders that same PDF with PDF.js, so what you see is what you download.
 2. For an editable copy, `pdf-lib` attaches `cv-studio.json` to the PDF as an embedded file. It holds every language version and the design settings.
-3. Opening that PDF in CV Studio reads the attachment back and restores the resume for editing. A sharing copy has no attachment and only the selected language.
+3. Opening that PDF in NeatCV reads the attachment back and restores the resume for editing. A sharing copy has no attachment and only the selected language.
 
 ## What you can do
 
@@ -88,7 +88,7 @@ The development URL is `http://localhost:5173/cv-studio/`. Tests cover entry col
 
 ## Boundaries
 
-PDF import supports editable copies exported by CV Studio (including older exports). Sharing copies, arbitrary PDFs, and scanned documents cannot be reopened for editing. JSON Resume imports use the supported sections listed above; unsupported fields are not imported. Files are limited to 10 MB, entries to 100 per section, and individual imported text values to 30,000 characters. Each browser stores one active resume; use backups for multiple documents. Vacancy matching uses a built-in skills dictionary and repeated words, not a language model, so it can miss unusual terms. There is no automatic translation or cloud sync.
+PDF import supports editable copies exported by NeatCV (including older exports). Sharing copies, arbitrary PDFs, and scanned documents cannot be reopened for editing. JSON Resume imports use the supported sections listed above; unsupported fields are not imported. Files are limited to 10 MB, entries to 100 per section, and individual imported text values to 30,000 characters. Each browser stores one active resume; use backups for multiple documents. Vacancy matching uses a built-in skills dictionary and repeated words, not a language model, so it can miss unusual terms. There is no automatic translation or cloud sync.
 
 ## Translations
 
