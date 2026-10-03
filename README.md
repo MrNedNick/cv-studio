@@ -36,12 +36,16 @@ The second problem is coming back later. A PDF is usually a dead end: to change 
 - Add, remove, and reorder entries, with undo and redo. Fast edits in different fields remain separate undo steps.
 - Fields check themselves when you leave them: email, phone, links, and end dates show a short, specific message and a red outline (shared Field, Select, Switch, and auto-growing Textarea components).
 - Follow dismissible guidance for contact details, dates, empty entries, long paragraphs, and concrete achievements. Each tip opens its relevant section.
-- Design is the first step and has four panes: Template, Style (accent, five text sizes, typography, density), Sections (order and visibility), and PDF (file name, title, author, subject, keywords — empty fields come from the resume).
+- The first step is the template: twelve designs with accent, five text sizes, typography and density below them. While the resume is empty, the preview shows the chosen template with example text.
+- Entry sections open with an empty entry ready to fill. Any section except personal details can be left out with one switch; Next skips it and the content is kept.
+- Skills are chips (Enter or a comma adds one) with suggestions for eleven fields, picked from the job title. Languages come from a list named in the resume language, with CEFR level chips.
+- “How to write this section” opens rules, several before → after examples, a structure to insert and action verbs.
+- Review also holds section order and visibility and the PDF properties (file name, title, author, subject, keywords — empty fields come from the resume).
 - Move through the steps with a fixed Back / Next footer; Review ends with the download. Delete an entry from its card, or use Clear everything under the step list — both can be undone. The example shows a banner with Start my own.
 - Choose from twelve templates — Modern, Classic, Compact, Technical, Executive, Spotlight, Swiss, Timeline, Minimal, Bold, Ivy, and the two-column Editorial — plus ten accent colors, text density, and Sans, Serif, or mixed typography.
 - Reorder sections or hide the ones you don’t need; hidden content is kept.
 - PDF headings, dates (“Present”, “heute”, “actualidad”…), writing tips, action verbs, and the content checks follow the language of the version you edit. The built-in example exists in all six languages.
-- Fit the actual A4 page to the desktop workspace and step through pages, zoom from 25% to 200%, or switch to an accessible text view for reading and copying. Retry a failed preview without reloading.
+- Fit the actual A4 page to the desktop workspace and step through pages, zoom from 25% to 300% (the page fills the panel and can be dragged; Ctrl/⌘ + wheel or pinch zooms around the cursor), or switch to an accessible text view for reading and copying. Retry a failed preview without reloading.
 - Choose a PDF for sharing (the default, selected language only) or an editable backup. Both have selectable text, embedded Cyrillic/Latin fonts, and clickable links.
 - Reopen an editable PDF copy made here and continue editing. Editable copies include a `neatcv.json` attachment containing every language version and the design settings.
 - Inspect PDF properties before downloading: author, subject, and keywords come from the selected version’s visible name, role, and skills.
