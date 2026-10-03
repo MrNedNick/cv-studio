@@ -1438,6 +1438,31 @@ dialog p {
 .toast .icon-button:hover {
   background: #ffffff20;
 }
+.toast-content {
+  min-width: 0;
+  flex: 1;
+}
+.backup-toast {
+  align-items: flex-start;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+}
+.toast-actions {
+  margin-top: 10px;
+}
+.backup-toast .button {
+  min-height: 44px;
+  color: var(--bg);
+  background: transparent;
+  border-color: currentColor;
+}
+.backup-toast .button:hover {
+  background: color-mix(in srgb, var(--bg) 12%, transparent);
+}
+.backup-toast .icon-button {
+  flex-shrink: 0;
+  min-width: 44px;
+  min-height: 44px;
+}
 .storage-warning {
   position: fixed;
   bottom: 0;

@@ -607,4 +607,9 @@ const messages: Record<string, string> = {
   'Report the problem': 'Повідомити про проблему',
   'Report a problem': 'Повідомити про проблему',
 }
+messages['JSON backup downloaded. Open it here to restore your resume.'] =
+  'JSON-копію завантажено. Відкрий її тут, щоб відновити резюме.'
+messages[
+  'Could not download the backup. Try again; your resume is still here.'
+] = 'Не вдалося завантажити копію. Спробуй знову — резюме залишається тут.'
 export default messages

@@ -607,4 +607,10 @@ const messages: Record<string, string> = {
   'Report the problem': 'Informar del problema',
   'Report a problem': 'Informar de un problema',
 }
+messages['JSON backup downloaded. Open it here to restore your resume.'] =
+  'Copia JSON descargada. Ábrela aquí para restaurar tu currículum.'
+messages[
+  'Could not download the backup. Try again; your resume is still here.'
+] =
+  'No se pudo descargar la copia. Inténtalo de nuevo; tu currículum sigue aquí.'
 export default messages

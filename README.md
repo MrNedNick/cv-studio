@@ -49,6 +49,7 @@ The second problem is coming back later. A PDF is usually a dead end: to change 
 - PDF headings, dates (“Present”, “heute”, “actualidad”…), writing tips, action verbs, and the content checks follow the language of the version you edit. The built-in example exists in all six languages.
 - Fit the actual A4 page to the desktop workspace and step through pages, zoom from 25% to 300% (the page fills the panel and can be dragged; Ctrl/⌘ + wheel or pinch zooms around the cursor), or switch to an accessible text view for reading and copying. Retry a failed preview without reloading.
 - Choose a PDF for sharing (the default, selected language only) or an editable backup. Both have selectable text, embedded Cyrillic/Latin fonts, and clickable links.
+- After a sharing download, a dismissible reminder offers an editable PDF or JSON backup of your latest edits. A backup failure keeps the form available for retry.
 - Reopen an editable PDF copy made here and continue editing. Editable copies include a `neatcv.json` attachment containing every language version and the design settings.
 - Inspect PDF properties before downloading: author, subject, and keywords come from the selected version’s visible name, role, and skills.
 - Review the name and file before importing; save a backup or cancel before replacing the current resume. Undo can restore the previous document.

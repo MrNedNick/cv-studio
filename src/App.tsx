@@ -67,8 +67,11 @@ function download(blob: Blob, filename: string) {
     a = document.createElement('a')
   a.href = url
   a.download = filename
-  a.click()
-  setTimeout(() => URL.revokeObjectURL(url), 30000)
+  try {
+    a.click()
+  } finally {
+    setTimeout(() => URL.revokeObjectURL(url), 30000)
+  }
 }
 export default function App() {
   const navigate = useNavigate(),
@@ -103,7 +106,7 @@ export default function App() {
       }
     }),
     [saveState, setSaveState] = useState<'saved' | 'saving' | 'error'>('saved'),
-    [notice, setNotice] = useState(''),
+    [notice, setNotice] = useState({ message: '', offerBackup: false }),
     [localeError, setLocaleError] = useState(''),
     [pendingImport, setPendingImport] = useState<{
       doc: ResumeDocument
@@ -129,6 +132,9 @@ export default function App() {
     lastHistory = useRef({ time: 0, key: '' }),
     localeRequest = useRef(0),
     t = translator(locale)
+  function notify(message: string, offerBackup = false) {
+    setNotice({ message, offerBackup })
+  }
   useEffect(() => {
     if (localeReady) return
     let active = true
@@ -238,8 +244,8 @@ export default function App() {
     }
   }, [doc, ready, saveAttempt])
   useEffect(() => {
-    if (!notice) return
-    const timer = setTimeout(() => setNotice(''), 7000)
+    if (!notice.message || notice.offerBackup) return
+    const timer = setTimeout(() => notify(''), 7000)
     return () => clearTimeout(timer)
   }, [notice])
   useEffect(() => {
@@ -286,6 +292,7 @@ export default function App() {
       return
     }
     update(createDocument(sample, locale))
+    notify('')
     setPendingStart(null)
     setDocumentRevision((value) => value + 1)
     navigate('/edit')
@@ -304,7 +311,7 @@ export default function App() {
     setImporting(true)
     try {
       if (file.size > 10_000_000) {
-        setNotice(
+        notify(
           t(
             'Файл больше 10 МБ. Выберите PDF или JSON меньшего размера.',
             'This file exceeds 10 MB. Choose a smaller PDF or JSON file.',
@@ -326,7 +333,7 @@ export default function App() {
         : parseDocument(JSON.parse(await file.text()))
       setPendingImport({ doc: next, filename: file.name })
     } catch {
-      setNotice(
+      notify(
         t(
           'Не удалось открыть файл. Выберите JSON Resume или редактируемую PDF-копию из NeatCV (до 10 МБ). PDF для отправки и сторонние PDF не содержат исходных данных.',
           'Could not open this file. Choose JSON Resume or an editable PDF copy from NeatCV (up to 10 MB). Sharing copies and other PDFs do not include editable source.',
@@ -359,7 +366,7 @@ export default function App() {
     setPendingImport(null)
     setDocumentRevision((value) => value + 1)
     navigate('/edit')
-    setNotice(
+    notify(
       t(
         'Резюме открыто. Предыдущие данные можно вернуть кнопкой отмены.',
         'Resume opened. Undo restores the previous document.',
@@ -367,13 +374,30 @@ export default function App() {
     )
   }
   function backup() {
-    if (!doc) return
-    download(
-      new Blob([JSON.stringify(toJsonResume(doc), null, 2)], {
-        type: 'application/json',
-      }),
-      'resume.json',
-    )
+    if (!doc) return false
+    try {
+      download(
+        new Blob([JSON.stringify(toJsonResume(doc), null, 2)], {
+          type: 'application/json',
+        }),
+        'resume.json',
+      )
+      notify(
+        t(
+          'JSON-копия скачана. Откройте её здесь, чтобы восстановить резюме.',
+          'JSON backup downloaded. Open it here to restore your resume.',
+        ),
+      )
+      return true
+    } catch {
+      notify(
+        t(
+          'Не удалось скачать копию. Попробуйте снова — резюме остаётся здесь.',
+          'Could not download the backup. Try again; your resume is still here.',
+        ),
+      )
+      return false
+    }
   }
   async function exportFile() {
     if (!exportDocument || exporting) return
@@ -395,7 +419,7 @@ export default function App() {
                 .replace(/\s+/g, '-') || 'Resume'
             }-${snapshot.language.toUpperCase()}${editable ? '-editable' : ''}-CV.pdf`,
       )
-      setNotice(
+      notify(
         editable
           ? t(
               'Редактируемая копия скачана. Откройте её здесь, чтобы восстановить все языковые версии и оформление.',
@@ -405,12 +429,13 @@ export default function App() {
               'PDF для отправки скачан. В нём только выбранная языковая версия. Ваше резюме остаётся в редакторе.',
               'PDF downloaded for sharing. It contains only the selected language. Your resume remains in the editor.',
             ),
+        !editable,
       )
       setExportDocument(null)
     } catch (error) {
       setExportError(true)
       console.error(error)
-      setNotice(
+      notify(
         t(
           'Не удалось создать PDF. Попробуйте снова или сохраните JSON-копию.',
           'Could not create the PDF. Try again or save a JSON backup.',
@@ -915,6 +940,7 @@ export default function App() {
                     saveState={saveState}
                     exporting={exporting}
                     exportFile={() => {
+                      notify('')
                       setEditableExport(false)
                       setExportError(false)
                       setExportDocument(doc)
@@ -979,9 +1005,29 @@ export default function App() {
           <ArrowUpRight />
         </button>
       </footer>
-      {(localeError || notice) && (
-        <div className="toast" role={localeError ? 'alert' : 'status'}>
-          <span>{localeError || notice}</span>
+      {(localeError || notice.message) && (
+        <div
+          className={`toast ${notice.offerBackup && !localeError ? 'backup-toast' : ''}`}
+          role={localeError ? 'alert' : 'status'}
+        >
+          <div className="toast-content">
+            <span>{localeError || notice.message}</span>
+            {notice.offerBackup && !localeError && doc && (
+              <div className="toast-actions">
+                <button
+                  className="button secondary"
+                  onClick={() => {
+                    setEditableExport(true)
+                    setExportError(false)
+                    setExportDocument(doc)
+                    notify('')
+                  }}
+                >
+                  {t('Редактируемая копия', 'Editable copy')}
+                </button>
+              </div>
+            )}
+          </div>
           {localeError && (
             <button
               className="button secondary"
@@ -995,7 +1041,7 @@ export default function App() {
             className="icon-button"
             aria-label={t('Закрыть уведомление', 'Dismiss notification')}
             onClick={() => {
-              setNotice('')
+              notify('')
               setLocaleError('')
             }}
           >
@@ -1130,6 +1176,17 @@ export default function App() {
             >
               {t('Назад к правкам', 'Back to editing')}
             </button>
+            {editableExport && (
+              <button
+                className="button secondary"
+                disabled={exporting}
+                onClick={() => {
+                  if (backup()) setExportDocument(null)
+                }}
+              >
+                {t('Сохранить JSON-копию', 'Save JSON backup')}
+              </button>
+            )}
             <button
               className="button primary"
               disabled={exporting}

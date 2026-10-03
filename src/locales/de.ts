@@ -612,4 +612,10 @@ const messages: Record<string, string> = {
   'Report the problem': 'Problem melden',
   'Report a problem': 'Problem melden',
 }
+messages['JSON backup downloaded. Open it here to restore your resume.'] =
+  'JSON-Kopie heruntergeladen. Öffnen Sie sie hier, um Ihren Lebenslauf wiederherzustellen.'
+messages[
+  'Could not download the backup. Try again; your resume is still here.'
+] =
+  'Die Kopie konnte nicht heruntergeladen werden. Versuchen Sie es erneut; Ihr Lebenslauf bleibt hier.'
 export default messages
