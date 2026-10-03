@@ -434,8 +434,8 @@ const messages: Record<string, string> = {
     'Diese Datei ist größer als 10 MB. Wählen Sie eine kleinere PDF- oder JSON-Datei.',
   'This is an example': 'Das ist ein Beispiel',
   'This is before the start date.': 'Das liegt vor dem Startdatum.',
-  'This looks mistyped: use digits, spaces and +.':
-    'Sieht nach einem Tippfehler aus: nur Ziffern, Leerzeichen und +.',
+  'Use a phone number with at least six digits.':
+    'Geben Sie eine Telefonnummer mit mindestens sechs Ziffern ein.',
   'This section has 100 entries. Edit or remove an entry before adding another.':
     'Dieser Abschnitt hat 100 Einträge. Bearbeiten oder entfernen Sie einen, bevor Sie einen neuen hinzufügen.',
   'This will replace your current resume. Save a backup first if you want to return to it later.':

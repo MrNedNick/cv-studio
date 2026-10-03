@@ -430,8 +430,8 @@ const messages: Record<string, string> = {
     'Este archivo supera los 10 MB. Elige un PDF o JSON más pequeño.',
   'This is an example': 'Esto es un ejemplo',
   'This is before the start date.': 'Es anterior a la fecha de inicio.',
-  'This looks mistyped: use digits, spaces and +.':
-    'Parece una errata: usa dígitos, espacios y +.',
+  'Use a phone number with at least six digits.':
+    'Introduce un número de teléfono con al menos seis dígitos.',
   'This section has 100 entries. Edit or remove an entry before adding another.':
     'Esta sección tiene 100 entradas. Edita o elimina una antes de añadir otra.',
   'This will replace your current resume. Save a backup first if you want to return to it later.':

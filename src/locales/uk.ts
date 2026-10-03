@@ -428,8 +428,8 @@ const messages: Record<string, string> = {
     'Файл більший за 10 МБ. Оберіть менший PDF або JSON.',
   'This is an example': 'Це приклад',
   'This is before the start date.': 'Це раніше за дату початку.',
-  'This looks mistyped: use digits, spaces and +.':
-    'Схоже на помилку: лише цифри, пробіли та +.',
+  'Use a phone number with at least six digits.':
+    'Вкажи номер телефону щонайменше із шести цифр.',
   'This section has 100 entries. Edit or remove an entry before adding another.':
     'У розділі вже 100 записів. Відредагуйте або видаліть один, щоб додати новий.',
   'This will replace your current resume. Save a backup first if you want to return to it later.':

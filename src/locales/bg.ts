@@ -426,8 +426,8 @@ const messages: Record<string, string> = {
     'Файлът е по-голям от 10 MB. Изберете по-малък PDF или JSON файл.',
   'This is an example': 'Това е пример',
   'This is before the start date.': 'Това е преди началната дата.',
-  'This looks mistyped: use digits, spaces and +.':
-    'Изглежда като грешка: само цифри, интервали и +.',
+  'Use a phone number with at least six digits.':
+    'Въведи телефонен номер с поне шест цифри.',
   'This section has 100 entries. Edit or remove an entry before adding another.':
     'В раздела има 100 записа. Редактирайте или премахнете един, преди да добавите нов.',
   'This will replace your current resume. Save a backup first if you want to return to it later.':

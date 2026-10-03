@@ -8,6 +8,7 @@ import {
   useId,
   useState,
   type ReactNode,
+  type InputHTMLAttributes,
 } from 'react'
 import { Textarea } from './ui/components/textarea/textarea'
 import {
@@ -182,6 +183,7 @@ export function FormField({
   placeholder,
   onFocus,
   validate,
+  ...inputProps
 }: {
   label: string
   value: string
@@ -193,7 +195,16 @@ export function FormField({
   placeholder?: string
   /** Returns a message when the value needs fixing; shown once the field was left. */
   validate?: (value: string) => string | undefined
-}) {
+} & Pick<
+  InputHTMLAttributes<HTMLInputElement>,
+  | 'name'
+  | 'autoComplete'
+  | 'inputMode'
+  | 'autoCapitalize'
+  | 'spellCheck'
+  | 'enterKeyHint'
+  | 'onKeyDown'
+>) {
   const lang = useContext(ContentLang),
     [touched, setTouched] = useState(false),
     error = touched && value.trim() ? validate?.(value) : undefined
@@ -214,9 +225,11 @@ export function FormField({
         />
       ) : (
         <input
+          {...inputProps}
           type={type}
           value={value}
           onChange={(e) => onChange(e.target.value)}
+          onFocus={onFocus}
           onBlur={() => setTouched(true)}
           placeholder={placeholder}
           maxLength={1000}

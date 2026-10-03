@@ -767,11 +767,11 @@ export default function Editor({
             'Use @ and a domain, like name@mail.com.',
           ),
     checkPhone = (v: string) =>
-      /^[+\d\s().-]{6,}$/.test(v.trim())
+      /^[+\d\s().-]+$/.test(v.trim()) && (v.match(/\d/g)?.length ?? 0) >= 6
         ? undefined
         : t(
-            'Похоже на опечатку: только цифры, пробелы и +.',
-            'This looks mistyped: use digits, spaces and +.',
+            'Укажите номер телефона минимум из шести цифр.',
+            'Use a phone number with at least six digits.',
           ),
     checkUrl = (v: string) =>
       safeUrl(v)
@@ -780,6 +780,33 @@ export default function Editor({
             'Нужна веб-ссылка, например linkedin.com/in/name.',
             'Use a web address, like linkedin.com/in/name.',
           )
+  const contactKeyboard = {
+    enterKeyHint: 'next' as const,
+    autoCapitalize: 'none',
+    spellCheck: false,
+    onKeyDown(event: ReactKeyboardEvent<HTMLInputElement>) {
+      if (
+        event.key !== 'Enter' ||
+        event.nativeEvent.isComposing ||
+        event.altKey ||
+        event.ctrlKey ||
+        event.metaKey ||
+        event.shiftKey
+      )
+        return
+      event.preventDefault()
+      const inputs = Array.from(
+        event.currentTarget
+          .closest('.editor-form')!
+          .querySelectorAll<HTMLInputElement>(
+            'input[name^="resume-"]:not(:disabled)',
+          ),
+      )
+      const next = inputs[inputs.indexOf(event.currentTarget) + 1]
+      if (next) next.focus()
+      else event.currentTarget.blur()
+    },
+  }
   const stepIndex = steps.indexOf(section),
     // Back and Next skip the sections the person left out of the resume.
     prevStep = steps
@@ -1730,6 +1757,10 @@ export default function Editor({
                               </div>
                             </div>
                             <FormField
+                              {...contactKeyboard}
+                              name="resume-name"
+                              autoComplete="name"
+                              autoCapitalize="words"
                               label={t('Имя и фамилия', 'Full name')}
                               value={resume.basics.name}
                               onChange={(v) => basic('name', v)}
@@ -1739,6 +1770,11 @@ export default function Editor({
                               )}
                             />
                             <FormField
+                              {...contactKeyboard}
+                              name="resume-job-title"
+                              autoComplete="organization-title"
+                              autoCapitalize="words"
+                              spellCheck
                               label={t(
                                 'Должность или специализация',
                                 'Job title or speciality',
@@ -1755,6 +1791,10 @@ export default function Editor({
                             </div>
                             <div className="field-row">
                               <FormField
+                                {...contactKeyboard}
+                                name="resume-email"
+                                autoComplete="email"
+                                inputMode="email"
                                 label={t('Электронная почта', 'Email')}
                                 value={resume.basics.email}
                                 onChange={(v) => basic('email', v)}
@@ -1763,6 +1803,10 @@ export default function Editor({
                                 validate={checkEmail}
                               />
                               <FormField
+                                {...contactKeyboard}
+                                name="resume-phone"
+                                autoComplete="tel"
+                                inputMode="tel"
                                 label={t('Телефон', 'Phone')}
                                 value={resume.basics.phone}
                                 onChange={(v) => basic('phone', v)}
@@ -1772,6 +1816,10 @@ export default function Editor({
                               />
                             </div>
                             <FormField
+                              {...contactKeyboard}
+                              name="resume-location"
+                              autoComplete="off"
+                              autoCapitalize="words"
                               label={t('Город и страна', 'City and country')}
                               value={resume.basics.location}
                               onChange={(v) => basic('location', v)}
@@ -1781,6 +1829,10 @@ export default function Editor({
                               )}
                             />
                             <FormField
+                              {...contactKeyboard}
+                              name="resume-website"
+                              autoComplete="url"
+                              inputMode="url"
                               label={t(
                                 'Сайт или портфолио',
                                 'Website or portfolio',
@@ -1795,6 +1847,10 @@ export default function Editor({
                               )}
                             />
                             <FormField
+                              {...contactKeyboard}
+                              name="resume-linkedin"
+                              autoComplete="off"
+                              inputMode="url"
                               label="LinkedIn"
                               value={resume.basics.linkedin}
                               onChange={(v) => basic('linkedin', v)}
@@ -1802,6 +1858,11 @@ export default function Editor({
                               validate={checkUrl}
                             />
                             <FormField
+                              {...contactKeyboard}
+                              name="resume-github"
+                              autoComplete="off"
+                              inputMode="url"
+                              enterKeyHint="done"
                               label="GitHub"
                               value={resume.basics.github}
                               onChange={(v) => basic('github', v)}
