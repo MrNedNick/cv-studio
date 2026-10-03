@@ -5,8 +5,8 @@ A free resume editor with thoughtful templates, a live PDF preview, and no accou
 **[Open NeatCV](https://neatcv.cc/)** · [Open the editor](https://neatcv.cc/#/edit)
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/editor-dark.png" />
-  <img src="docs/editor-light.png" alt="NeatCV editor: resume steps on the left, the experience form in the middle, and the live A4 PDF preview on the right" />
+  <source media="(prefers-color-scheme: dark)" srcset="docs/editor-dark.jpg" />
+  <img src="docs/editor-light.jpg" alt="NeatCV editor: resume steps on the left, the experience form in the middle, and the live A4 PDF preview on the right" />
 </picture>
 
 ## Why
@@ -30,6 +30,7 @@ The second problem is coming back later. A PDF is usually a dead end: to change 
 - Paste a job posting to see which of its skills your resume already covers and which are missing. Synonyms and plurals count as one skill; missing ones can be added to your skills in one click. Nothing leaves the browser.
 - Use the interface in English, German, Spanish, Bulgarian, Ukrainian, or Russian. The theme follows your device until you choose light or dark.
 - Each site language has its own version of the resume: switch the language at the top and the editor, preview, and PDF follow. Contacts, dates, and links are shared; an empty version can start as a copy of another one for translation.
+- On phones and tablets, edit one step at a time, open the complete step list in a dialog, and switch to the PDF or accessible text preview. Touch controls are enlarged, the footer respects safe areas, and the workspace follows the visual viewport when the keyboard opens. The hidden PDF is not generated while typing. Undo and redo are available in the actions menu.
 - Work in a desktop layout with a compact header, independently scrolling form, visible section progress, and a full-page PDF preview. Two toolbar buttons show or hide the section list and the form; panels slide without re-wrapping their content. Drag the divider (it has a visible grip) to resize the form, as in a macOS split view: it stops at the minimum, snaps closed past it, and opens again from the edge. Double-click the divider for the default width; Ctrl/⌘ \\ toggles the form.
 - Panels, entries, guidance, menus, and dialogs open and close with short animations. With the system’s reduced-motion setting, only gentle fades remain.
 - Collapse experience, education, projects, and language entries into compact summaries, or expand them all. New entries receive keyboard focus; collapsed text remains in your PDF.
@@ -41,7 +42,7 @@ The second problem is coming back later. A PDF is usually a dead end: to change 
 - Skills are chips (Enter or a comma adds one) with suggestions for eleven fields, picked from the job title. Languages come from a list named in the resume language, with CEFR level chips.
 - “How to write this section” opens rules, several before → after examples, a structure to insert and action verbs.
 - Review also holds section order and visibility and the PDF properties (file name, title, author, subject, keywords — empty fields come from the resume).
-- Move through the steps with a fixed Back / Next footer; Review ends with the download. Delete an entry from its card, or use Clear everything under the step list — both can be undone. The example shows a banner with Start my own.
+- Move through the steps with a fixed Back / Next footer; Review ends with the download. Delete an entry from its card, or use Clear everything under the step list (inside Resume steps on a phone) — both can be undone. The example shows a banner with Start my own.
 - Choose from twelve templates — Modern, Classic, Compact, Technical, Executive, Spotlight, Swiss, Timeline, Minimal, Bold, Ivy, and the two-column Editorial — plus ten accent colors, text density, and Sans, Serif, or mixed typography.
 - Reorder sections or hide the ones you don’t need; hidden content is kept.
 - PDF headings, dates (“Present”, “heute”, “actualidad”…), writing tips, action verbs, and the content checks follow the language of the version you edit. The built-in example exists in all six languages.
@@ -58,6 +59,8 @@ All templates and downloads are free. There are no watermarks, accounts, analyti
 ## Design and implementation
 
 React 19, TypeScript, and Vite. The renderer uses `@react-pdf/renderer` for layout, `pdf-lib` to attach editable source, and PDF.js to display the same PDF in the live preview. Fonts are hosted with the app and licensed under OFL (see `public/fonts/LICENSE`). The accessible form-field primitive comes from a shared component library. Hash routes support direct editor links on GitHub Pages.
+
+German, Spanish, Bulgarian and Ukrainian interface dictionaries load individually when selected; an unsuccessful language switch preserves the current form.
 
 The home page loads first; the editor and the PDF code are separate chunks fetched when needed (the editor in the background right after the first paint). Interface fonts are WOFF2 files split into Latin, Latin Extended, and Cyrillic subsets, so a page downloads only the scripts it shows; PDF exports embed the complete TTF fonts. Failed storage reads preserve the existing data and offer a retry; failed writes offer retry and JSON backup. The document supports multiple pages; empty sections stay out of the export. Single-column templates are recommended for automated screening. Editorial offers a two-column alternative. Mobile layouts switch between editing and preview; both light and dark themes keep the exported paper white.
 
@@ -83,12 +86,14 @@ npm run dev
 npm test
 npm run lint
 npm run build
-npx playwright install chromium   # once
+npx playwright install chromium webkit   # once
 npm run e2e                       # runs against the production build
 BASE_URL=https://neatcv.cc/ npm run e2e   # or against the live site
 ```
 
-The development URL is `http://localhost:5173/`. Tests cover entry collapse/reordering/focus, duplicate imported IDs, sidebar PDF text positioning, import confirmation/cancellation and edits during file reads, storage recovery, keyboard navigation, targeted guidance, model validation, IndexedDB persistence, JSON round trips, shared contacts, undo/redo, export mode selection and retry, and PDF text, links, attachment inclusion/omission, templates, long-document pagination, typography compatibility, preview recovery, and text-view access. Playwright end-to-end tests fill a resume from scratch and reload it, run the full download → clear → reopen the PDF → edit loop (including a renamed file without the `.pdf` extension), check that the PDF text follows the selected language, switch through all twelve templates, check the 360 px phone layout, and run axe accessibility checks on the home page and editor steps in light and dark themes. A unit test keeps every PDF text colour and accent at a contrast ratio of at least 4.5:1. GitHub Actions runs lint, unit tests, a production build, and the end-to-end suite before publishing `main` to Pages.
+The development URL is `http://localhost:5173/`. Tests cover entry collapse/reordering/focus, duplicate imported IDs, sidebar PDF text positioning, import confirmation/cancellation and edits during file reads, storage recovery, keyboard navigation, targeted guidance, model validation, IndexedDB persistence, JSON round trips, shared contacts, undo/redo, export mode selection and retry, and PDF text, links, attachment inclusion/omission, templates, long-document pagination, typography compatibility, preview recovery, and text-view access. Playwright end-to-end tests fill a resume from scratch and reload it, run the full download → clear → reopen the PDF → edit loop (including a renamed file without the `.pdf` extension), check that the PDF text follows the selected language, switch through all twelve templates, check iPhone 15 Pro Max profiles in WebKit and Chromium, 320/360/430 px, tablet and landscape layouts, simulated keyboard viewport changes, language-loading failures and rapid language switches, and run axe accessibility checks on the home page and editor steps in light and dark themes. A unit test keeps every PDF text colour and accent at a contrast ratio of at least 4.5:1. GitHub Actions runs lint, unit tests, a production build, and the end-to-end suite before publishing `main` to Pages.
+
+The identity uses one SVG source for the UI, favicons, app icons and link preview; rebuild its derivatives with `npm run brand`. See [brand notes](docs/brand.md), [the component quality plan](docs/components.md) and [the roadmap](docs/roadmap.md), including optional paid services that preserve the free editor and downloads.
 
 ## Boundaries
 

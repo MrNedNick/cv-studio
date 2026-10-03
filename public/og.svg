@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+<rect width="1200" height="630" fill="#151f1b"/>
+<circle cx="1110" cy="620" r="440" fill="#1d2a24"/>
+<g transform="translate(72 60) scale(1.125)">
+  <rect width="64" height="64" rx="16" fill="#24594b"/>
+  <path d="M21 10h18l10 10v28a6 6 0 0 1-6 6H21a6 6 0 0 1-6-6V16a6 6 0 0 1 6-6Z" fill="#d8ef98"/>
+  <path d="M39 10v8a2 2 0 0 0 2 2h8" fill="#24594b" opacity=".4"/>
+  <path d="M23 43V27h6v2c1.7-1.9 3.7-2.8 6-2.8 4 0 6 2.7 6 7V43h-6v-9c0-1.8-.8-2.7-2.5-2.7S29 32.6 29 34.5V43Z" fill="#24594b"/>
+
+</g>
+<g fill="#edf2e9" font-family="Arial, sans-serif">
+<text x="166" y="109" font-size="48" font-weight="700" letter-spacing="-2">neat<tspan font-weight="400">cv</tspan></text>
+<text x="72" y="247" font-size="66" font-weight="700" letter-spacing="-3">Your experience.</text>
+<text x="72" y="325" font-size="66" font-weight="700" letter-spacing="-3" fill="#d8ef98">At its best.</text>
+<text x="74" y="399" font-size="26" fill="#b1bdb3">A beautiful resume. A free PDF.</text>
+<text x="74" y="439" font-size="26" fill="#b1bdb3">No sign-up. No watermarks.</text>
+<rect x="72" y="500" width="218" height="58" rx="29" fill="#d8ef98"/>
+<text x="107" y="538" font-size="28" font-weight="700" fill="#24594b">neatcv.cc</text>
+</g>
+<g transform="translate(794 55) rotate(5 155 250)">
+<rect x="6" y="12" width="322" height="496" rx="12" fill="#0d1511"/>
+<rect width="322" height="496" rx="12" fill="#fcfcf8"/>
+<g transform="translate(26 28) scale(.46)">
+  <rect width="64" height="64" rx="16" fill="#24594b"/>
+  <path d="M21 10h18l10 10v28a6 6 0 0 1-6 6H21a6 6 0 0 1-6-6V16a6 6 0 0 1 6-6Z" fill="#d8ef98"/>
+  <path d="M39 10v8a2 2 0 0 0 2 2h8" fill="#24594b" opacity=".4"/>
+  <path d="M23 43V27h6v2c1.7-1.9 3.7-2.8 6-2.8 4 0 6 2.7 6 7V43h-6v-9c0-1.8-.8-2.7-2.5-2.7S29 32.6 29 34.5V43Z" fill="#24594b"/>
+
+</g>
+<g font-family="Arial, sans-serif" fill="#263a32">
+<text x="26" y="96" font-size="27" font-weight="700">Alex Morgan</text>
+<text x="26" y="120" font-size="13">Product designer</text>
+<path d="M26 140h270" stroke="#24594b" stroke-width="2"/>
+<text x="26" y="172" font-size="10" font-weight="700" letter-spacing="2" fill="#24594b">PROFILE</text>
+<text x="26" y="195" font-size="12">Thoughtful products. Clear experiences.</text>
+<text x="26" y="215" font-size="12">A story worth sharing.</text>
+<text x="26" y="257" font-size="10" font-weight="700" letter-spacing="2" fill="#24594b">EXPERIENCE</text>
+<text x="26" y="282" font-size="14" font-weight="700">Senior product designer</text>
+<text x="26" y="305" font-size="12">Example Studio · 2022 – Present</text>
+<text x="26" y="368" font-size="10" font-weight="700" letter-spacing="2" fill="#24594b">SKILLS</text>
+<text x="26" y="392" font-size="12">Design systems · Research · Accessibility</text>
+</g>
+<path d="M26 323h262M26 338h212M26 419h262M26 436h222" stroke="#b1bdb3" stroke-width="3"/>
+</g></svg>

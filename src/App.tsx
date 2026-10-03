@@ -704,7 +704,7 @@ export default function App() {
       <header className="site-header">
         <Link className="brand" to="/">
           <span className="brand-symbol">
-            <FileText size={20} aria-hidden="true" />
+            <img src="/brand.svg" width="34" height="34" alt="" />
           </span>
           neat<span className="brand-light">cv</span>
           <span className="free-badge">FREE</span>
@@ -933,8 +933,10 @@ export default function App() {
       </main>
       <footer className="site-footer">
         <Link className="brand" to="/">
+          <span className="brand-symbol">
+            <img src="/brand.svg" width="34" height="34" alt="" />
+          </span>
           neat<span className="brand-light">cv</span>
-          <span className="footer-dot">✳</span>
         </Link>
         <span>
           {t(
