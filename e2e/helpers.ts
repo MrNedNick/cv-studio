@@ -45,7 +45,7 @@ export async function downloadPdf(
 export async function readPdf(download: Download) {
   // Keep the real file name: imports and viewers see what a user would.
   const path = join(
-    await mkdtemp(join(tmpdir(), 'cv-studio-')),
+    await mkdtemp(join(tmpdir(), 'neatcv-')),
     download.suggestedFilename(),
   )
   await download.saveAs(path)

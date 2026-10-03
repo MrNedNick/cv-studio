@@ -1,12 +1,12 @@
 import { openDB } from 'idb'
-import { parseDocument, type StudioDocument } from './model'
+import { parseDocument, type ResumeDocument } from './model'
 const db = () =>
-  openDB('cv-studio', 1, {
+  openDB('neatcv', 1, {
     upgrade(database) {
       database.createObjectStore('documents')
     },
   })
-export async function loadDocument(): Promise<StudioDocument | null> {
+export async function loadDocument(): Promise<ResumeDocument | null> {
   const database = await db()
   try {
     const value = await database.get('documents', 'current')
@@ -15,7 +15,7 @@ export async function loadDocument(): Promise<StudioDocument | null> {
     database.close()
   }
 }
-export async function saveDocument(value: StudioDocument) {
+export async function saveDocument(value: ResumeDocument) {
   const database = await db()
   try {
     await database.put('documents', value, 'current')

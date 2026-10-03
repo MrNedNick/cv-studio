@@ -88,7 +88,7 @@ export interface Resume {
   languages: Entry[]
   skills: string
 }
-export interface StudioDocument {
+export interface ResumeDocument {
   schemaVersion: 1
   language: Locale
   template: Template
@@ -133,7 +133,7 @@ export const emptyPdfMeta = (): PdfMeta => ({
   keywords: '',
 })
 /** Metadata written into the PDF: overrides first, then the visible resume. */
-export function pdfMetadata(doc: StudioDocument) {
+export function pdfMetadata(doc: ResumeDocument) {
   const r = doc.versions[doc.language],
     o = doc.pdf
   const name = r.basics.name.trim()
@@ -287,7 +287,7 @@ export function emptyResume(): Resume {
 export function createDocument(
   sample = false,
   language: Locale = 'en',
-): StudioDocument {
+): ResumeDocument {
   const versions = Object.fromEntries(
     locales.map((locale) => [
       locale,
@@ -450,7 +450,7 @@ function cleanResume(value: unknown, others: unknown[] = []): Resume {
   }
   return result
 }
-export function parseDocument(input: unknown): StudioDocument {
+export function parseDocument(input: unknown): ResumeDocument {
   const wrapper = obj(input)
   const source = wrapper.cvStudio ? obj(wrapper.cvStudio) : wrapper
   if (source.cvStudio) throw new Error('Nested resume source')
@@ -581,7 +581,7 @@ export function parseDocument(input: unknown): StudioDocument {
     result.versions[locale] = locale === 'en' ? resume : skeletonOf(resume)
   return result
 }
-export function toJsonResume(doc: StudioDocument) {
+export function toJsonResume(doc: ResumeDocument) {
   const r = doc.versions[doc.language]
   return {
     $schema:
@@ -816,12 +816,12 @@ export function templateOrder(template: Template): BodySection[] {
     : bodySections
 }
 /** Sections in reading order, without the ones the person chose to hide. */
-export function visibleSections(doc: StudioDocument): BodySection[] {
+export function visibleSections(doc: ResumeDocument): BodySection[] {
   return (
     doc.sectionOrder.length ? doc.sectionOrder : templateOrder(doc.template)
   ).filter((s) => !doc.hiddenSections.includes(s))
 }
-export function plainText(doc: StudioDocument): string {
+export function plainText(doc: ResumeDocument): string {
   const r = doc.versions[doc.language],
     labels = sectionLabels[doc.language],
     b = r.basics

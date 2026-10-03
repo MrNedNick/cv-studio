@@ -137,7 +137,7 @@ export function ReviewStep({
     score = Math.round((passed / checks.length) * 100),
     [posting, setPosting] = useState(() => {
       try {
-        return localStorage.getItem('cv-job-posting') || ''
+        return localStorage.getItem('neatcv-job-posting') || ''
       } catch {
         return ''
       }
@@ -149,7 +149,7 @@ export function ReviewStep({
     total = match ? match.matched.length + match.missing.length : 0
   useEffect(() => {
     try {
-      localStorage.setItem('cv-job-posting', posting)
+      localStorage.setItem('neatcv-job-posting', posting)
     } catch {
       /* The vacancy text stays for this visit. */
     }

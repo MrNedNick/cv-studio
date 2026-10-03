@@ -34,7 +34,7 @@ beforeAll(() => {
 })
 beforeEach(() => {
   vi.clearAllMocks()
-  localStorage.setItem('cv-locale', 'ru')
+  localStorage.setItem('neatcv-locale', 'ru')
 })
 afterEach(cleanup)
 
@@ -545,7 +545,7 @@ it('shows a failed export inside the dialog and retries without changing the cho
 })
 
 it('opens in English for a new visitor and remembers a deliberate language choice', async () => {
-  localStorage.removeItem('cv-locale')
+  localStorage.removeItem('neatcv-locale')
   vi.mocked(loadDocument).mockResolvedValueOnce(null)
   const view = render(
     <MemoryRouter initialEntries={['/edit']}>
@@ -559,7 +559,7 @@ it('opens in English for a new visitor and remembers a deliberate language choic
     screen.getByRole('combobox', { name: 'Interface language' }),
     { target: { value: 'ru' } },
   )
-  expect(localStorage.getItem('cv-locale')).toBe('ru')
+  expect(localStorage.getItem('neatcv-locale')).toBe('ru')
   view.unmount()
   render(
     <MemoryRouter initialEntries={['/edit']}>
@@ -571,23 +571,23 @@ it('opens in English for a new visitor and remembers a deliberate language choic
   ).toBeVisible()
 })
 it('follows the device theme until the visitor picks one', async () => {
-  localStorage.removeItem('cv-theme')
+  localStorage.removeItem('neatcv-theme')
   render(
     <MemoryRouter initialEntries={['/edit']}>
       <App />
     </MemoryRouter>,
   )
   await screen.findByRole('heading', { name: 'Первый шаг — простой.' })
-  expect(localStorage.getItem('cv-theme')).toBeNull()
+  expect(localStorage.getItem('neatcv-theme')).toBeNull()
   const before = document.documentElement.dataset.theme
   fireEvent.click(screen.getByRole('button', { name: 'Переключить тему' }))
   expect(document.documentElement.dataset.theme).not.toBe(before)
-  expect(localStorage.getItem('cv-theme')).toBe(
+  expect(localStorage.getItem('neatcv-theme')).toBe(
     document.documentElement.dataset.theme,
   )
 })
 it('reviews content, adds a missing vacancy skill, and inserts an action verb', async () => {
-  localStorage.removeItem('cv-job-posting')
+  localStorage.removeItem('neatcv-job-posting')
   render(
     <MemoryRouter initialEntries={['/edit']}>
       <App />
@@ -627,8 +627,8 @@ it('reviews content, adds a missing vacancy skill, and inserts an action verb', 
   ).toMatch(/, Amplitude$/)
 })
 it('hides both panels with their own toolbar buttons and remembers them', async () => {
-  localStorage.removeItem('cv-sidebar')
-  localStorage.removeItem('cv-form-hidden')
+  localStorage.removeItem('neatcv-sidebar')
+  localStorage.removeItem('neatcv-form-hidden')
   const view = render(
     <MemoryRouter initialEntries={['/edit']}>
       <App />
@@ -641,9 +641,9 @@ it('hides both panels with their own toolbar buttons and remembers them', async 
   expect(sections).toHaveAttribute('aria-pressed', 'true')
   fireEvent.click(sections)
   expect(sections).toHaveAttribute('aria-pressed', 'false')
-  expect(localStorage.getItem('cv-sidebar')).toBe('hidden')
+  expect(localStorage.getItem('neatcv-sidebar')).toBe('hidden')
   fireEvent.click(formToggle)
-  expect(localStorage.getItem('cv-form-hidden')).toBe('hidden')
+  expect(localStorage.getItem('neatcv-form-hidden')).toBe('hidden')
   view.unmount()
   vi.mocked(loadDocument).mockResolvedValueOnce(createDocument(false, 'ru'))
   render(
@@ -682,7 +682,7 @@ it('validates contact fields once they are left', async () => {
   expect(github).toHaveAttribute('aria-invalid', 'true')
 })
 it('toggles the form with one button, a shortcut, or by choosing a section', async () => {
-  localStorage.removeItem('cv-form-hidden')
+  localStorage.removeItem('neatcv-form-hidden')
   render(
     <MemoryRouter initialEntries={['/edit']}>
       <App />
@@ -697,7 +697,7 @@ it('toggles the form with one button, a shortcut, or by choosing a section', asy
   expect(toggle).toHaveAttribute('aria-pressed', 'true')
   await openStep(/Дизайн/)
   fireEvent.click(toggle)
-  expect(localStorage.getItem('cv-form-hidden')).toBe('hidden')
+  expect(localStorage.getItem('neatcv-form-hidden')).toBe('hidden')
   fireEvent.click(
     within(document.querySelector<HTMLElement>('.section-nav')!).getByRole(
       'button',
@@ -711,14 +711,14 @@ it('toggles the form with one button, a shortcut, or by choosing a section', asy
   // The divider adjusts the width from the keyboard and closes the form below its minimum.
   const divider = screen.getByRole('separator', { name: 'Ширина формы' })
   fireEvent.keyDown(divider, { key: 'Home' })
-  expect(Number(localStorage.getItem('cv-form-width'))).toBe(340)
+  expect(Number(localStorage.getItem('neatcv-form-width'))).toBe(340)
   fireEvent.keyDown(divider, { key: 'ArrowLeft' })
   expect(toggle).toHaveAttribute('aria-pressed', 'false')
   fireEvent.keyDown(divider, { key: 'Enter' })
   expect(toggle).toHaveAttribute('aria-pressed', 'true')
 })
 it('keeps writing guidance tucked away until it is opened', async () => {
-  localStorage.removeItem('cv-guide')
+  localStorage.removeItem('neatcv-guide')
   render(
     <MemoryRouter initialEntries={['/edit']}>
       <App />
@@ -772,7 +772,7 @@ it('offers to start an empty language version from a filled one', async () => {
   )
 })
 it('shows the interface and the resume in German together', async () => {
-  localStorage.setItem('cv-locale', 'de')
+  localStorage.setItem('neatcv-locale', 'de')
   render(
     <MemoryRouter initialEntries={['/edit']}>
       <App />

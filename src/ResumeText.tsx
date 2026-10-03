@@ -6,7 +6,7 @@ import {
   visibleSections,
   type EntrySection,
   type Locale,
-  type StudioDocument,
+  type ResumeDocument,
 } from './model'
 import { translator } from './i18n'
 
@@ -14,7 +14,7 @@ export default function ResumeText({
   doc,
   locale = doc.language,
 }: {
-  doc: StudioDocument
+  doc: ResumeDocument
   locale?: Locale
 }) {
   const t = translator(locale),

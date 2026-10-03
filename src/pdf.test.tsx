@@ -40,14 +40,14 @@ it('exports selectable Cyrillic text, links, and editable source for every templ
     >
     expect(
       parseDocument(
-        JSON.parse(new TextDecoder().decode(files['cv-studio.json'].content)),
+        JSON.parse(new TextDecoder().decode(files['neatcv.json'].content)),
       ),
     ).toEqual(doc)
     const links = await (await pdf.getPage(1)).getAnnotations()
     expect(links.some((link) => link.url === 'https://example.com/')).toBe(true)
     await task.destroy()
     await writeFile(
-      `/tmp/cv-studio-${template}.pdf`,
+      `/tmp/neatcv-${template}.pdf`,
       new Uint8Array(await blob.arrayBuffer()),
     )
   }
@@ -130,7 +130,7 @@ it('keeps both alphabets readable in serif and mixed typography', async () => {
       >
       expect(
         parseDocument(
-          JSON.parse(new TextDecoder().decode(files['cv-studio.json'].content)),
+          JSON.parse(new TextDecoder().decode(files['neatcv.json'].content)),
         ).typography,
       ).toBe(typography)
       await task.destroy()
@@ -176,7 +176,7 @@ it('exports a sharing copy with only the selected language and no editable sourc
     const links = await (await pdf.getPage(1)).getAnnotations()
     expect(links.some((link) => link.url === 'https://example.com/')).toBe(true)
     await writeFile(
-      '/tmp/cv-studio-sharing.pdf',
+      '/tmp/neatcv-sharing.pdf',
       new Uint8Array(await blob.arrayBuffer()),
     )
   } finally {
@@ -290,7 +290,7 @@ it.each(['modern', 'executive', 'spotlight'] as const)(
     >
     expect(
       parseDocument(
-        JSON.parse(new TextDecoder().decode(files['cv-studio.json'].content)),
+        JSON.parse(new TextDecoder().decode(files['neatcv.json'].content)),
       ).photo,
     ).toBe(pixel)
     const text = (await (await pdf.getPage(1)).getTextContent()).items

@@ -41,7 +41,7 @@ import {
   pdfMetadata,
   locales,
   localeNames,
-  type StudioDocument,
+  type ResumeDocument,
   type Template,
 } from './model'
 import { loadDocument, saveDocument } from './storage'
@@ -117,7 +117,7 @@ function Dialog({
 export default function App() {
   const navigate = useNavigate(),
     location = useLocation(),
-    [doc, setDoc] = useState<StudioDocument | null>(null),
+    [doc, setDoc] = useState<ResumeDocument | null>(null),
     [ready, setReady] = useState(false),
     [loadError, setLoadError] = useState(false),
     [loadAttempt, setLoadAttempt] = useState(0),
@@ -125,7 +125,7 @@ export default function App() {
     [documentRevision, setDocumentRevision] = useState(0),
     [locale, setLocale] = useState<Locale>(() => {
       try {
-        const stored = localStorage.getItem('cv-locale')
+        const stored = localStorage.getItem('neatcv-locale')
         return isLocale(stored) ? stored : 'en'
       } catch {
         return 'en'
@@ -134,7 +134,7 @@ export default function App() {
     [theme, setTheme] = useState(() => {
       try {
         return (
-          localStorage.getItem('cv-theme') ||
+          localStorage.getItem('neatcv-theme') ||
           (window.matchMedia?.('(prefers-color-scheme: dark)').matches
             ? 'dark'
             : 'light')
@@ -146,18 +146,18 @@ export default function App() {
     [saveState, setSaveState] = useState<'saved' | 'saving' | 'error'>('saved'),
     [notice, setNotice] = useState(''),
     [pendingImport, setPendingImport] = useState<{
-      doc: StudioDocument
+      doc: ResumeDocument
       filename: string
     } | null>(null),
     [pendingStart, setPendingStart] = useState<boolean | null>(null),
     [help, setHelp] = useState(false),
     [exporting, setExporting] = useState(false),
-    [exportDocument, setExportDocument] = useState<StudioDocument | null>(null),
+    [exportDocument, setExportDocument] = useState<ResumeDocument | null>(null),
     [editableExport, setEditableExport] = useState(false),
     [exportError, setExportError] = useState(false),
     [importing, setImporting] = useState(false),
-    [history, setHistory] = useState<StudioDocument[]>([]),
-    [future, setFuture] = useState<StudioDocument[]>([])
+    [history, setHistory] = useState<ResumeDocument[]>([]),
+    [future, setFuture] = useState<ResumeDocument[]>([])
   // Dialogs stay mounted briefly after closing so they can animate out.
   const exportView = useLingering(exportDocument, exportDocument !== null),
     exportShown = exportView.value,
@@ -200,7 +200,7 @@ export default function App() {
   function toggleTheme() {
     const next = theme === 'dark' ? 'light' : 'dark'
     try {
-      localStorage.setItem('cv-theme', next)
+      localStorage.setItem('neatcv-theme', next)
     } catch {
       /* Theme remains available for this visit. */
     }
@@ -239,7 +239,7 @@ export default function App() {
     window.addEventListener('beforeunload', beforeUnload)
     return () => window.removeEventListener('beforeunload', beforeUnload)
   }, [doc, saveState])
-  function update(next: StudioDocument, group = '') {
+  function update(next: ResumeDocument, group = '') {
     if (
       doc &&
       (!group ||
@@ -401,7 +401,7 @@ export default function App() {
   }, [locale])
   function changeLocale(next: Locale) {
     try {
-      localStorage.setItem('cv-locale', next)
+      localStorage.setItem('neatcv-locale', next)
     } catch {
       /* The language still changes for this visit. */
     }

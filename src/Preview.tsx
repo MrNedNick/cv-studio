@@ -9,13 +9,13 @@ import {
   ChevronRight,
 } from 'lucide-react'
 import ResumeText from './ResumeText'
-import type { Locale, StudioDocument } from './model'
+import type { Locale, ResumeDocument } from './model'
 import { translator } from './i18n'
 export default function Preview({
   doc,
   locale = doc.language,
 }: {
-  doc: StudioDocument
+  doc: ResumeDocument
   locale?: Locale
 }) {
   const t = translator(locale),

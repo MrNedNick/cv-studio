@@ -21,7 +21,7 @@ import {
   textSizePoints,
   type BodySection,
   type Entry,
-  type StudioDocument,
+  type ResumeDocument,
 } from './model'
 let fontBase = import.meta.env.BASE_URL
 /** Text colours on white paper or on the accent band; a test keeps them ≥ 4.5:1. */
@@ -61,7 +61,7 @@ function registerFonts() {
 // which is what applicant tracking systems read. Keep it below that.
 const track = (fontSize: number, value: number) =>
   Math.min(value, fontSize * 0.08)
-export function ResumePDF({ doc }: { doc: StudioDocument }) {
+export function ResumePDF({ doc }: { doc: ResumeDocument }) {
   const r = doc.versions[doc.language],
     labels = sectionLabels[doc.language],
     compact = doc.template === 'compact' || doc.density === 'compact',
@@ -491,7 +491,7 @@ export function ResumePDF({ doc }: { doc: StudioDocument }) {
     </Document>
   )
 }
-export function renderResume(doc: StudioDocument): Promise<Blob> {
+export function renderResume(doc: ResumeDocument): Promise<Blob> {
   // Each render owns its font instances; shared glyph subsets corrupt later exports.
   const result = renderQueue.then(() => {
     registerFonts()
@@ -501,7 +501,7 @@ export function renderResume(doc: StudioDocument): Promise<Blob> {
   return result
 }
 export async function exportPdf(
-  doc: StudioDocument,
+  doc: ResumeDocument,
   { editable = true }: { editable?: boolean } = {},
 ) {
   const raw = await renderResume(doc)
@@ -509,7 +509,7 @@ export async function exportPdf(
   const result = await PDFDocument.load(await raw.arrayBuffer())
   await result.attach(
     new TextEncoder().encode(JSON.stringify(toJsonResume(doc))),
-    'cv-studio.json',
+    'neatcv.json',
     {
       mimeType: 'application/json',
       description: 'Editable resume source for NeatCV',

@@ -22,7 +22,7 @@ test('an editable PDF reopens for editing after everything is cleared', async ({
   expect(download.suggestedFilename()).toMatch(/\.pdf$/)
   const pdf = await readPdf(download)
   expect(pdf.text).toContain('Robin Roundtrip')
-  expect(pdf.attachments).toContain('cv-studio.json')
+  expect(pdf.attachments).toContain('neatcv.json')
   expect(pdf.info.Title).toBeTruthy()
   expect(pdf.info.Author).toBe('Robin Roundtrip')
 

@@ -18,7 +18,7 @@ The second problem is coming back later. A PDF is usually a dead end: to change 
 ## How the editable PDF works
 
 1. The page is laid out with `@react-pdf/renderer`, so the PDF has a real text layer: it can be selected, searched and read by applicant tracking systems, and links stay clickable. The live preview renders that same PDF with PDF.js, so what you see is what you download.
-2. For an editable copy, `pdf-lib` attaches `cv-studio.json` to the PDF as an embedded file. It holds every language version and the design settings.
+2. For an editable copy, `pdf-lib` attaches `neatcv.json` to the PDF as an embedded file. It holds every language version and the design settings.
 3. Opening that PDF in NeatCV reads the attachment back and restores the resume for editing. A sharing copy has no attachment and only the selected language.
 
 ## What you can do
@@ -43,7 +43,7 @@ The second problem is coming back later. A PDF is usually a dead end: to change 
 - PDF headings, dates (“Present”, “heute”, “actualidad”…), writing tips, action verbs, and the content checks follow the language of the version you edit. The built-in example exists in all six languages.
 - Fit the actual A4 page to the desktop workspace and step through pages, zoom from 25% to 200%, or switch to an accessible text view for reading and copying. Retry a failed preview without reloading.
 - Choose a PDF for sharing (the default, selected language only) or an editable backup. Both have selectable text, embedded Cyrillic/Latin fonts, and clickable links.
-- Reopen an editable PDF copy made here and continue editing. Editable copies include a `cv-studio.json` attachment containing every language version and the design settings.
+- Reopen an editable PDF copy made here and continue editing. Editable copies include a `neatcv.json` attachment containing every language version and the design settings.
 - Inspect PDF properties before downloading: author, subject, and keywords come from the selected version’s visible name, role, and skills.
 - Review the name and file before importing; save a backup or cancel before replacing the current resume. Undo can restore the previous document.
 - Copy the resume as plain text or download a `.txt` for online application forms.
@@ -88,7 +88,7 @@ The development URL is `http://localhost:5173/`. Tests cover entry collapse/reor
 
 ## Boundaries
 
-PDF import supports editable copies exported by NeatCV (including older exports). Sharing copies, arbitrary PDFs, and scanned documents cannot be reopened for editing. JSON Resume imports use the supported sections listed above; unsupported fields are not imported. Files are limited to 10 MB, entries to 100 per section, and individual imported text values to 30,000 characters. Each browser stores one active resume; use backups for multiple documents. Vacancy matching uses a built-in skills dictionary and repeated words, not a language model, so it can miss unusual terms. There is no automatic translation or cloud sync.
+PDF import supports editable copies exported by NeatCV. Sharing copies, arbitrary PDFs, and scanned documents cannot be reopened for editing. JSON Resume imports use the supported sections listed above; unsupported fields are not imported. Files are limited to 10 MB, entries to 100 per section, and individual imported text values to 30,000 characters. Each browser stores one active resume; use backups for multiple documents. Vacancy matching uses a built-in skills dictionary and repeated words, not a language model, so it can miss unusual terms. There is no automatic translation or cloud sync.
 
 ## Translations
 

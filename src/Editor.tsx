@@ -66,7 +66,7 @@ import {
   type Locale,
   type Resume,
   type Section,
-  type StudioDocument,
+  type ResumeDocument,
 } from './model'
 import { ContentLang, MiniResume, FormField, templates } from './components'
 import { Select } from './ui/components/select/select'
@@ -117,9 +117,9 @@ const writeSetting = (key: string, value: string | null) => {
   }
 }
 interface EditorProps {
-  doc: StudioDocument
+  doc: ResumeDocument
   locale: Locale
-  update: (doc: StudioDocument, group?: string) => void
+  update: (doc: ResumeDocument, group?: string) => void
   undo: () => void
   redo: () => void
   canUndo: boolean
@@ -154,16 +154,16 @@ export default function Editor({
         : 'basics',
     ),
     [sidebarHidden, setSidebarHidden] = useState(
-      () => readSetting('cv-sidebar') === 'hidden',
+      () => readSetting('neatcv-sidebar') === 'hidden',
     ),
     [formHidden, setFormHidden] = useState(
-      () => readSetting('cv-form-hidden') === 'hidden',
+      () => readSetting('neatcv-form-hidden') === 'hidden',
     ),
     [widthOverride, setWidthOverride] = useState<string | null>(null),
     desktop = useMediaQuery('(min-width: 1050px)'),
     [resizing, setResizing] = useState(false),
     [formWidth, setFormWidth] = useState<number | null>(
-      () => Number(readSetting('cv-form-width')) || null,
+      () => Number(readSetting('neatcv-form-width')) || null,
     ),
     [activeEntry, setActiveEntry] = useState<string | null>(null),
     [freshEntry, setFreshEntry] = useState<string | null>(null),
@@ -293,7 +293,7 @@ export default function Editor({
   function mapVersions(change: (version: Resume) => Resume) {
     return Object.fromEntries(
       locales.map((l) => [l, change(doc.versions[l])]),
-    ) as StudioDocument['versions']
+    ) as ResumeDocument['versions']
   }
   function basic(key: keyof Resume['basics'], value: string) {
     const shared = (sharedBasics as readonly string[]).includes(key),
@@ -307,7 +307,7 @@ export default function Editor({
               : version,
           ]
         }),
-      ) as StudioDocument['versions']
+      ) as ResumeDocument['versions']
     update({ ...doc, versions }, `${lang}:basics:${key}`)
   }
   function entry(
@@ -332,7 +332,7 @@ export default function Editor({
               : version,
           ]
         }),
-      ) as StudioDocument['versions']
+      ) as ResumeDocument['versions']
     update({ ...doc, versions }, `${lang}:${section}:${id}:${key}`)
   }
   useEffect(() => {
@@ -501,7 +501,7 @@ export default function Editor({
     field.scrollIntoView?.({ block: 'nearest' })
   }, [doc])
   function toggleSidebar() {
-    writeSetting('cv-sidebar', sidebarHidden ? null : 'hidden')
+    writeSetting('neatcv-sidebar', sidebarHidden ? null : 'hidden')
     setSidebarHidden(!sidebarHidden)
   }
   const body = useRef<HTMLDivElement>(null),
@@ -568,7 +568,7 @@ export default function Editor({
   }
   function changeFormWidth(next: number | null, animate = true) {
     if (animate) animateForm(formHidden ? 0 : (next ?? standardWidth()))
-    writeSetting('cv-form-width', next ? String(Math.round(next)) : null)
+    writeSetting('neatcv-form-width', next ? String(Math.round(next)) : null)
     setFormWidth(next)
   }
   const toggleFormRef = useRef(() => {})
@@ -576,7 +576,7 @@ export default function Editor({
   function toggleForm(hidden = !formHidden) {
     if (hidden === formHidden) return
     animateForm(hidden ? 0 : (formWidth ?? standardWidth()))
-    writeSetting('cv-form-hidden', hidden ? 'hidden' : null)
+    writeSetting('neatcv-form-hidden', hidden ? 'hidden' : null)
     setFormHidden(hidden)
   }
   function widthLimits() {
@@ -631,7 +631,7 @@ export default function Editor({
       handle.removeEventListener('pointerup', stop)
       handle.removeEventListener('pointercancel', stop)
       setResizing(false)
-      writeSetting('cv-form-hidden', hidden ? 'hidden' : null)
+      writeSetting('neatcv-form-hidden', hidden ? 'hidden' : null)
       changeFormWidth(width, false)
     }
     handle.addEventListener('pointermove', move)
