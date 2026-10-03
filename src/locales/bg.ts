@@ -92,11 +92,8 @@ const messages: Record<string, string> = {
     'Класическа типография със серифи, центрирана',
   'Classic uses a timeless monochrome palette.':
     'Classic използва безвремева монохромна палитра.',
-  'Classic — Noto Serif': 'Класически — Noto Serif',
   Close: 'Затвори',
   'Collapse all': 'Свий всички',
-  'Collapse panel': 'Свий панела',
-  'Collapse section panel': 'Свий панела с раздели',
   Comfortable: 'Просторно',
   'Common in Germany, Austria and Switzerland. Usually left out in the US, UK and Canada.':
     'Обичайно в Германия, Австрия и Швейцария. В САЩ, Великобритания и Канада обикновено се пропуска.',
@@ -156,12 +153,8 @@ const messages: Record<string, string> = {
   'End date': 'Крайна дата',
   English: 'Английски',
   Entries: 'Записи',
-  'Every option supports Latin and Cyrillic text.':
-    'Всички варианти поддържат латиница и кирилица.',
   'Every template and feature is free': 'Всички шаблони и функции са безплатни',
   'Expand all': 'Разгъни всички',
-  'Expand panel': 'Разгъни панела',
-  'Expand section panel': 'Разгъни панела с раздели',
   'Explore templates': 'Разгледайте шаблоните',
   'Fill in the sections at your own pace. Your changes save automatically.':
     'Попълвайте разделите със свое темпо. Промените се запазват автоматично.',
@@ -174,7 +167,7 @@ const messages: Record<string, string> = {
     'За четене и копиране. Оформлението на документа е в раздела PDF.',
   'For sharing': 'За изпращане',
   Forest: 'Горско зелено',
-  'Form panel': 'Панел с формуляра',
+  Form: 'Формуляр',
   'Form width': 'Ширина на формуляра',
   'Formula: action verb + what you did + measurable result (Google’s X‑Y‑Z).':
     'Формула: глагол за действие + какво направихте + измерим резултат (X‑Y‑Z на Google).',
@@ -197,6 +190,7 @@ const messages: Record<string, string> = {
   'Hard-working team player looking for new challenges.':
     'Трудолюбив екипен играч търси нови предизвикателства.',
   'Hide form · Ctrl/⌘ \\': 'Скрий формуляра · Ctrl/⌘ \\',
+  'Hide sections': 'Скрий разделите',
   'How it works': 'Как работи',
   'How to write this section': 'Как да попълните този раздел',
   Improve: 'Подобряване',
@@ -240,9 +234,8 @@ const messages: Record<string, string> = {
   'Match a job posting': 'Сравнение с обява',
   'Measurable results': 'Измерими резултати',
   'Missing from your resume': 'Липсва в автобиографията',
-  'Mixed — Serif + Sans': 'Смесен — Serif + Sans',
+  Mixed: 'Смесен',
   'Modern template': 'Шаблон Modern',
-  'Modern — Noto Sans': 'Модерен — Noto Sans',
   'More room for your experience': 'Повече място за опита Ви',
   'More than two pages. Try the compact template or shorten older experience.':
     'Повече от две страници. Опитайте компактния шаблон или съкратете по-стария опит.',
@@ -303,6 +296,7 @@ const messages: Record<string, string> = {
   'PDF properties': 'Свойства на PDF',
   Page: 'Страница',
   'Pages: {pages} · A4': 'Страници: {pages} · A4',
+  Panels: 'Панели',
   'Paste a job posting to see which of its skills and terms your resume already covers. Everything runs in your browser.':
     'Поставете обява, за да видите кои умения и термини от нея вече има в автобиографията Ви. Всичко се обработва в браузъра.',
   'Paste the job description…': 'Поставете описанието на позицията…',
@@ -374,17 +368,21 @@ const messages: Record<string, string> = {
   'Room to strengthen': 'Има какво да се подобри',
   'SIMPLER THAN YOU THINK': 'ПО-ЛЕСНО, ОТКОЛКОТО МИСЛИТЕ',
   STEP: 'СТЪПКА',
+  Sans: 'Без серифи',
   Save: 'Запази',
   'Save JSON backup': 'Запази JSON копие',
   'Save backup': 'Запази копие',
   'Saved in this browser': 'Запазено в този браузър',
   'Saving…': 'Запазва се…',
   'Section order': 'Ред на разделите',
+  Sections: 'Раздели',
   'Sections filled': 'Попълнени раздели',
   'Separate with commas. Use the job posting’s terms for skills you actually have, and show your key skills in your experience.':
     'Разделяйте със запетаи. Използвайте термините от обявата за умения, които наистина имате, и покажете ключовите в опита си.',
+  Serif: 'Със серифи',
   'Show dismissed tips': 'Покажи скритите подсказки',
   'Show form · Ctrl/⌘ \\': 'Покажи формуляра · Ctrl/⌘ \\',
+  'Show sections': 'Покажи разделите',
   'Show work you’re proud of.': 'Покажете работа, с която се гордеете.',
   'Skills first · a clear single column': 'Първо уменията · ясна една колона',
   'Skip to content': 'Към съдържанието',
@@ -423,6 +421,9 @@ const messages: Record<string, string> = {
     'Браузърът не успя да запази данните. Изтеглете JSON копие, преди да напуснете.',
   'This file exceeds 10 MB. Choose a smaller PDF or JSON file.':
     'Файлът е по-голям от 10 MB. Изберете по-малък PDF или JSON файл.',
+  'This is before the start date.': 'Това е преди началната дата.',
+  'This looks mistyped: use digits, spaces and +.':
+    'Изглежда като грешка: само цифри, интервали и +.',
   'This section has 100 entries. Edit or remove an entry before adding another.':
     'В раздела има 100 записа. Редактирайте или премахнете един, преди да добавите нов.',
   'This will replace your current resume. Save a backup first if you want to return to it later.':
@@ -439,10 +440,14 @@ const messages: Record<string, string> = {
   'Undo · Ctrl/⌘ Z': 'Отмени · Ctrl/⌘ Z',
   'Untitled resume': 'Автобиография без заглавие',
   'Updating preview…': 'Прегледът се обновява…',
+  'Use @ and a domain, like name@mail.com.':
+    'Нужни са @ и домейн, например name@mail.com.',
   'Use CEFR levels (A1–C2) or “Native”. Recruiters in Europe filter by them.':
     'Използвайте нивата по CEFR (A1–C2) или „Майчин“. Рекрутърите в Европа филтрират по тях.',
   'Use Undo above to restore removed entries or changes.':
     'С „Отмени“ горе възстановявате премахнати записи или промени.',
+  'Use a web address, like linkedin.com/in/name.':
+    'Нужен е уеб адрес, например linkedin.com/in/name.',
   'Use template': 'Използвай шаблона',
   'Use the job title you are applying for, written the way vacancies write it.':
     'Посочете длъжността, за която кандидатствате, така, както е изписана в обявите.',

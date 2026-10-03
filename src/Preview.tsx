@@ -132,7 +132,7 @@ export default function Preview({
             </button>
             <button
               className="icon-button"
-              disabled={zoom <= 75}
+              disabled={zoom <= 25}
               aria-label={t('Уменьшить', 'Zoom out')}
               onClick={() => {
                 setFit(false)

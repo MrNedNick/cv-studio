@@ -142,12 +142,22 @@ it('announces selected design controls and restores typography with undo', async
     'aria-pressed',
     'true',
   )
-  fireEvent.change(screen.getByLabelText('Шрифт резюме'), {
-    target: { value: 'serif' },
-  })
-  expect(screen.getByLabelText('Шрифт резюме')).toHaveValue('serif')
+  const typography = screen.getByRole('group', { name: 'Шрифт резюме' })
+  fireEvent.click(
+    within(typography).getByRole('button', { name: 'С засечками' }),
+  )
+  expect(
+    within(typography).getByRole('button', { name: 'С засечками' }),
+  ).toHaveAttribute('aria-pressed', 'true')
   fireEvent.click(screen.getByRole('button', { name: 'Отменить' }))
-  expect(screen.getByLabelText('Шрифт резюме')).toHaveValue('sans')
+  expect(
+    within(typography).getByRole('button', { name: 'Без засечек' }),
+  ).toHaveAttribute('aria-pressed', 'true')
+  const density = screen.getByRole('group', { name: 'Плотность текста' })
+  fireEvent.click(within(density).getByRole('button', { name: 'Компактнее' }))
+  expect(
+    within(density).getByRole('button', { name: 'Компактнее' }),
+  ).toHaveAttribute('aria-pressed', 'true')
 })
 
 it('keeps fast edits in separate fields as separate undo steps and supports shortcuts', async () => {
@@ -596,7 +606,7 @@ it('reviews content, adds a missing vacancy skill, and inserts an action verb', 
     (screen.getByLabelText('Ваши навыки') as HTMLTextAreaElement).value,
   ).toMatch(/, Amplitude$/)
 })
-it('collapses the section panel and remembers the panel layout', async () => {
+it('hides both panels with their own toolbar buttons and remembers them', async () => {
   localStorage.removeItem('cv-sidebar')
   localStorage.removeItem('cv-form-hidden')
   const view = render(
@@ -605,12 +615,14 @@ it('collapses the section panel and remembers the panel layout', async () => {
     </MemoryRouter>,
   )
   fireEvent.click(await screen.findByRole('button', { name: /Новое резюме/ }))
-  fireEvent.click(
-    screen.getByRole('button', { name: 'Свернуть панель разделов' }),
-  )
-  expect(localStorage.getItem('cv-sidebar')).toBe('rail')
-  expect(screen.getByRole('button', { name: 'Опыт работы' })).toBeVisible()
-  fireEvent.click(screen.getByRole('button', { name: 'Панель формы' }))
+  const panels = screen.getByRole('group', { name: 'Панели' })
+  const sections = within(panels).getByRole('button', { name: 'Разделы' })
+  const formToggle = within(panels).getByRole('button', { name: 'Форма' })
+  expect(sections).toHaveAttribute('aria-pressed', 'true')
+  fireEvent.click(sections)
+  expect(sections).toHaveAttribute('aria-pressed', 'false')
+  expect(localStorage.getItem('cv-sidebar')).toBe('hidden')
+  fireEvent.click(formToggle)
   expect(localStorage.getItem('cv-form-hidden')).toBe('hidden')
   view.unmount()
   vi.mocked(loadDocument).mockResolvedValueOnce(createDocument(false, 'ru'))
@@ -619,13 +631,35 @@ it('collapses the section panel and remembers the panel layout', async () => {
       <App />
     </MemoryRouter>,
   )
-  expect(
-    await screen.findByRole('button', { name: 'Развернуть панель разделов' }),
-  ).toHaveAttribute('aria-expanded', 'false')
-  expect(screen.getByRole('button', { name: 'Панель формы' })).toHaveAttribute(
-    'aria-expanded',
+  const again = within(await screen.findByRole('group', { name: 'Панели' }))
+  expect(again.getByRole('button', { name: 'Разделы' })).toHaveAttribute(
+    'aria-pressed',
     'false',
   )
+  expect(again.getByRole('button', { name: 'Форма' })).toHaveAttribute(
+    'aria-pressed',
+    'false',
+  )
+})
+it('validates contact fields once they are left', async () => {
+  render(
+    <MemoryRouter initialEntries={['/edit']}>
+      <App />
+    </MemoryRouter>,
+  )
+  fireEvent.click(await screen.findByRole('button', { name: /Новое резюме/ }))
+  const email = screen.getByLabelText('Электронная почта')
+  fireEvent.change(email, { target: { value: 'name.mail.com' } })
+  expect(email).not.toHaveAttribute('aria-invalid')
+  fireEvent.blur(email)
+  expect(email).toHaveAttribute('aria-invalid', 'true')
+  expect(screen.getByRole('alert')).toHaveTextContent('Нужны @ и домен')
+  fireEvent.change(email, { target: { value: 'name@mail.com' } })
+  expect(email).not.toHaveAttribute('aria-invalid')
+  const github = screen.getByLabelText('GitHub')
+  fireEvent.change(github, { target: { value: 'ftp://example' } })
+  fireEvent.blur(github)
+  expect(github).toHaveAttribute('aria-invalid', 'true')
 })
 it('toggles the form with one button, a shortcut, or by choosing a section', async () => {
   localStorage.removeItem('cv-form-hidden')
@@ -635,12 +669,12 @@ it('toggles the form with one button, a shortcut, or by choosing a section', asy
     </MemoryRouter>,
   )
   fireEvent.click(await screen.findByRole('button', { name: /Новое резюме/ }))
-  const toggle = screen.getByRole('button', { name: 'Панель формы' })
-  expect(toggle).toHaveAttribute('aria-expanded', 'true')
+  const toggle = screen.getByRole('button', { name: 'Форма' })
+  expect(toggle).toHaveAttribute('aria-pressed', 'true')
   fireEvent.click(toggle)
-  expect(toggle).toHaveAttribute('aria-expanded', 'false')
+  expect(toggle).toHaveAttribute('aria-pressed', 'false')
   fireEvent.keyDown(window, { key: '\\', ctrlKey: true })
-  expect(toggle).toHaveAttribute('aria-expanded', 'true')
+  expect(toggle).toHaveAttribute('aria-pressed', 'true')
   fireEvent.click(screen.getByRole('button', { name: /Дизайн/ }))
   fireEvent.click(toggle)
   expect(localStorage.getItem('cv-form-hidden')).toBe('hidden')
@@ -650,7 +684,7 @@ it('toggles the form with one button, a shortcut, or by choosing a section', asy
       { name: /Опыт работы/ },
     ),
   )
-  expect(toggle).toHaveAttribute('aria-expanded', 'true')
+  expect(toggle).toHaveAttribute('aria-pressed', 'true')
   expect(
     screen.getByRole('heading', { name: 'Опыт работы' }),
   ).toBeInTheDocument()
@@ -659,9 +693,9 @@ it('toggles the form with one button, a shortcut, or by choosing a section', asy
   fireEvent.keyDown(divider, { key: 'Home' })
   expect(Number(localStorage.getItem('cv-form-width'))).toBe(340)
   fireEvent.keyDown(divider, { key: 'ArrowLeft' })
-  expect(toggle).toHaveAttribute('aria-expanded', 'false')
+  expect(toggle).toHaveAttribute('aria-pressed', 'false')
   fireEvent.keyDown(divider, { key: 'Enter' })
-  expect(toggle).toHaveAttribute('aria-expanded', 'true')
+  expect(toggle).toHaveAttribute('aria-pressed', 'true')
 })
 it('keeps writing guidance tucked away until it is opened', async () => {
   localStorage.removeItem('cv-guide')
@@ -727,4 +761,33 @@ it('translates the interface into German while editing another version', async (
   expect(
     screen.getByRole('combobox', { name: 'Sprache des Lebenslaufs' }),
   ).toHaveValue('de')
+})
+it('keeps the resume in the interface language unless another one was chosen', async () => {
+  vi.mocked(loadDocument).mockResolvedValueOnce(createDocument(true, 'ru'))
+  render(
+    <MemoryRouter initialEntries={['/edit']}>
+      <App />
+    </MemoryRouter>,
+  )
+  await screen.findByLabelText('Имя и фамилия')
+  const ui = screen.getByRole('combobox', { name: 'Язык интерфейса' })
+  fireEvent.change(ui, { target: { value: 'de' } })
+  // In sync: the German version (filled in the example) follows.
+  expect(
+    screen.getByRole('combobox', { name: 'Sprache des Lebenslaufs' }),
+  ).toHaveValue('de')
+  fireEvent.change(
+    screen.getByRole('combobox', { name: 'Sprache des Lebenslaufs' }),
+    { target: { value: 'uk' } },
+  )
+  fireEvent.change(
+    screen.getByRole('combobox', { name: 'Sprache der Oberfläche' }),
+    {
+      target: { value: 'en' },
+    },
+  )
+  // Chosen separately: Ukrainian stays.
+  expect(screen.getByRole('combobox', { name: 'Resume language' })).toHaveValue(
+    'uk',
+  )
 })

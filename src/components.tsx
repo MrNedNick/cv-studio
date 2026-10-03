@@ -1,6 +1,7 @@
 import { ArrowRight } from 'lucide-react'
 import { Field } from './ui/components/field/field'
-import { createContext, useContext } from 'react'
+import { createContext, useContext, useState } from 'react'
+import { Textarea } from './ui/components/textarea/textarea'
 import {
   createDocument,
   dateRange,
@@ -172,6 +173,7 @@ export function FormField({
   type = 'text',
   placeholder,
   onFocus,
+  validate,
 }: {
   label: string
   value: string
@@ -181,16 +183,23 @@ export function FormField({
   hint?: string
   type?: string
   placeholder?: string
+  /** Returns a message when the value needs fixing; shown once the field was left. */
+  validate?: (value: string) => string | undefined
 }) {
-  const lang = useContext(ContentLang)
+  const lang = useContext(ContentLang),
+    [touched, setTouched] = useState(false),
+    error = touched && value.trim() ? validate?.(value) : undefined
   return (
-    <Field label={label} hint={hint} className="field">
+    <Field label={label} hint={hint} error={error} className="field">
       {multiline ? (
-        <textarea
-          rows={5}
+        <Textarea
+          className="ui-textarea"
+          autoGrow
+          rows={4}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onFocus={onFocus}
+          onBlur={() => setTouched(true)}
           placeholder={placeholder}
           maxLength={30000}
           lang={lang}
@@ -200,6 +209,7 @@ export function FormField({
           type={type}
           value={value}
           onChange={(e) => onChange(e.target.value)}
+          onBlur={() => setTouched(true)}
           placeholder={placeholder}
           maxLength={1000}
           lang={lang}

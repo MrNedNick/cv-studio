@@ -17,7 +17,6 @@ import {
   FileText,
   Globe2,
   GraduationCap,
-  LayoutTemplate,
   Lightbulb,
   ListChecks,
   Menu,
@@ -36,11 +35,9 @@ import {
   ArrowDown,
   EyeOff,
   Copy,
-  PanelLeftClose,
-  PanelLeftOpen,
   Languages,
   PanelLeft,
-  ChevronDown,
+  SquarePen,
 } from 'lucide-react'
 import { Field } from './ui/components/field/field'
 import {
@@ -49,6 +46,7 @@ import {
   getTips,
   sectionLabels,
   sections,
+  safeUrl,
   plainText,
   locales,
   localeNames,
@@ -63,6 +61,8 @@ import {
   type StudioDocument,
 } from './model'
 import { ContentLang, MiniResume, FormField, templates } from './components'
+import { Select } from './ui/components/select/select'
+import { Switch } from './ui/components/switch/switch'
 import EntryCard from './EntryCard'
 import { translator } from './i18n'
 import { preparePhoto } from './photo'
@@ -138,7 +138,9 @@ export default function Editor({
   backup,
 }: EditorProps) {
   const [section, setSection] = useState<Step>('basics'),
-    [railed, setRailed] = useState(() => readSetting('cv-sidebar') === 'rail'),
+    [sidebarHidden, setSidebarHidden] = useState(
+      () => readSetting('cv-sidebar') === 'hidden',
+    ),
     [formHidden, setFormHidden] = useState(
       () => readSetting('cv-form-hidden') === 'hidden',
     ),
@@ -479,9 +481,9 @@ export default function Editor({
     field.setSelectionRange(field.value.length, field.value.length)
     field.scrollIntoView?.({ block: 'nearest' })
   }, [doc])
-  function toggleRail() {
-    writeSetting('cv-sidebar', railed ? null : 'rail')
-    setRailed(!railed)
+  function toggleSidebar() {
+    writeSetting('cv-sidebar', sidebarHidden ? null : 'hidden')
+    setSidebarHidden(!sidebarHidden)
   }
   const body = useRef<HTMLDivElement>(null),
     layoutTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
@@ -496,6 +498,23 @@ export default function Editor({
   }, [widthOverride])
   // Grid tracks only animate between plain lengths, so pin the current width,
   // move to the target width, then hand back to the flexible track.
+  const freezeTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
+  /**
+   * Keeps the form content at one width while its column animates, so the text
+   * slides under the edge instead of re-wrapping on every frame.
+   */
+  function freezeForm(width: number) {
+    const grid = body.current
+    if (!grid) return
+    clearTimeout(freezeTimer.current)
+    grid.style.setProperty('--form-freeze', `${Math.round(width)}px`)
+    grid.dataset.animating = 'form'
+    freezeTimer.current = setTimeout(() => {
+      delete grid.dataset.animating
+      grid.style.removeProperty('--form-freeze')
+    }, 360)
+  }
+  useEffect(() => () => clearTimeout(freezeTimer.current), [])
   function animateForm(target: number) {
     const grid = body.current,
       from = form.current?.getBoundingClientRect().width
@@ -507,6 +526,7 @@ export default function Editor({
     )
       return
     clearTimeout(layoutTimer.current)
+    freezeForm(Math.max(from, target))
     // Switch tracks without a transition: flexible ↔ fixed sizes cannot interpolate.
     grid.style.transition = 'none'
     grid.style.setProperty('--form-w', `${from}px`)
@@ -522,10 +542,10 @@ export default function Editor({
   function standardWidth() {
     const free =
       (body.current?.getBoundingClientRect().width || 1400) -
-      (railed ? 64 : 212)
-    let width = (free * 0.9) / 2.05
-    if (free - width < 370) width = free - 370
-    return Math.max(360, width)
+      (sidebarHidden ? 0 : 212)
+    let width = (free * 0.75) / 2
+    if (free - width < 420) width = free - 420
+    return Math.max(340, width)
   }
   function changeFormWidth(next: number | null, animate = true) {
     if (animate) animateForm(formHidden ? 0 : (next ?? standardWidth()))
@@ -542,7 +562,14 @@ export default function Editor({
   }
   function widthLimits() {
     const total = body.current?.getBoundingClientRect().width || 1400
-    return { min: 340, max: Math.max(340, total - (railed ? 64 : 212) - 420) }
+    return {
+      min: 340,
+      // Keep the preview the main thing: the form never takes over the screen.
+      max: Math.max(
+        340,
+        Math.min(720, total - (sidebarHidden ? 0 : 212) - 520),
+      ),
+    }
   }
   // Behaves like a macOS split view: the form stops at its minimum width,
   // snaps shut when dragged well past it, and opens again from the edge.
@@ -567,6 +594,7 @@ export default function Editor({
       if (nextHidden !== hidden) {
         hidden = nextHidden
         // Let the snap itself animate, then go back to direct tracking.
+        freezeForm(width)
         setResizing(false)
         clearTimeout(snapTimer)
         snapTimer = setTimeout(() => dragging && setResizing(true), 280)
@@ -621,6 +649,27 @@ export default function Editor({
     if (formHidden) toggleForm(false)
     changeFormWidth(Math.min(max, next), false)
   }
+  const checkEmail = (v: string) =>
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim())
+        ? undefined
+        : t(
+            'Нужны @ и домен, например name@mail.com.',
+            'Use @ and a domain, like name@mail.com.',
+          ),
+    checkPhone = (v: string) =>
+      /^[+\d\s().-]{6,}$/.test(v.trim())
+        ? undefined
+        : t(
+            'Похоже на опечатку: только цифры, пробелы и +.',
+            'This looks mistyped: use digits, spaces and +.',
+          ),
+    checkUrl = (v: string) =>
+      safeUrl(v)
+        ? undefined
+        : t(
+            'Нужна веб-ссылка, например linkedin.com/in/name.',
+            'Use a web address, like linkedin.com/in/name.',
+          )
   const emptyVersion = isEmptyVersion(resume),
     sources = locales.filter(
       (l) => l !== lang && !isEmptyVersion(doc.versions[l]),
@@ -679,21 +728,40 @@ export default function Editor({
         </p>
       )}
       <div className="editor-toolbar">
-        <button
-          className="icon-button form-toggle"
-          onClick={() => toggleForm()}
-          aria-expanded={!formHidden}
-          aria-controls="editor-form"
-          aria-label={t('Панель формы', 'Form panel')}
-          title={
-            formHidden
-              ? t('Показать форму · Ctrl/⌘ \\', 'Show form · Ctrl/⌘ \\')
-              : t('Скрыть форму · Ctrl/⌘ \\', 'Hide form · Ctrl/⌘ \\')
-          }
-          aria-keyshortcuts="Control+Backslash Meta+Backslash"
+        <div
+          className="panel-toggles"
+          role="group"
+          aria-label={t('Панели', 'Panels')}
         >
-          <PanelLeft size={18} />
-        </button>
+          <button
+            className="icon-button panel-toggle"
+            onClick={toggleSidebar}
+            aria-pressed={!sidebarHidden}
+            aria-label={t('Разделы', 'Sections')}
+            title={
+              sidebarHidden
+                ? t('Показать разделы', 'Show sections')
+                : t('Скрыть разделы', 'Hide sections')
+            }
+          >
+            <PanelLeft size={18} />
+          </button>
+          <button
+            className="icon-button panel-toggle"
+            onClick={() => toggleForm()}
+            aria-pressed={!formHidden}
+            aria-controls="editor-form"
+            aria-label={t('Форма', 'Form')}
+            title={
+              formHidden
+                ? t('Показать форму · Ctrl/⌘ \\', 'Show form · Ctrl/⌘ \\')
+                : t('Скрыть форму · Ctrl/⌘ \\', 'Hide form · Ctrl/⌘ \\')
+            }
+            aria-keyshortcuts="Control+Backslash Meta+Backslash"
+          >
+            <SquarePen size={17} />
+          </button>
+        </div>
         <div className="document-title">
           <div>
             <strong>
@@ -706,37 +774,6 @@ export default function Editor({
                 : saveState === 'saving'
                   ? t('Сохраняем…', 'Saving…')
                   : t('Не сохранено', 'Not saved')}
-              <span aria-hidden="true">·</span>
-              <label className="version-select">
-                <span className="visually-hidden">
-                  {t('Язык резюме', 'Resume language')}
-                </span>
-                <select
-                  value={lang}
-                  title={t('Язык резюме', 'Resume language')}
-                  onChange={(event) => {
-                    const next = event.target.value as Locale
-                    update({ ...doc, language: next })
-                    setLanguageNotice(
-                      t(
-                        'Редактируется версия: {language}',
-                        'Now editing the {language} version',
-                        { language: localeNames[next] },
-                      ),
-                    )
-                  }}
-                >
-                  {locales.map((l) => (
-                    <option key={l} value={l}>
-                      {localeNames[l]}
-                      {l !== lang && isEmptyVersion(doc.versions[l])
-                        ? ` — ${t('пусто', 'empty')}`
-                        : ''}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown size={13} aria-hidden="true" />
-              </label>
             </span>
           </div>
         </div>
@@ -868,29 +905,32 @@ export default function Editor({
       </div>
       <div
         ref={body}
-        className={`editor-body ${mobilePreview ? 'show-preview' : ''} ${railed ? 'railed' : ''} ${formHidden ? 'form-hidden' : ''} ${resizing ? 'is-resizing' : ''}`}
+        className={`editor-body ${mobilePreview ? 'show-preview' : ''} ${sidebarHidden ? 'sidebar-hidden' : ''} ${formHidden ? 'form-hidden' : ''} ${resizing ? 'is-resizing' : ''}`}
         style={
           {
-            '--sidebar-w': railed ? '64px' : '212px',
+            '--sidebar-w': sidebarHidden ? '0px' : '212px',
             '--form-w':
               widthOverride ??
               (formHidden
                 ? '0px'
                 : formWidth
                   ? `${formWidth}px`
-                  : 'minmax(360px, 0.9fr)'),
+                  : 'minmax(340px, 0.75fr)'),
           } as CSSProperties
         }
       >
-        <aside className="editor-sidebar">
+        <aside
+          className="editor-sidebar"
+          inert={sidebarHidden && desktop}
+          aria-hidden={(sidebarHidden && desktop) || undefined}
+        >
           <div className="editor-mode">
             <button
               aria-pressed={tab === 'content'}
               className={tab === 'content' ? 'active' : ''}
               onClick={() => setTab('content')}
             >
-              <PenLine size={15} />
-              <span className="rail-hide">{t('Текст', 'Content')}</span>
+              <span>{t('Содержание', 'Content')}</span>
             </button>
             <button
               aria-pressed={tab === 'design'}
@@ -900,10 +940,38 @@ export default function Editor({
                 setTab('design')
               }}
             >
-              <LayoutTemplate size={15} />
-              <span className="rail-hide">{t('Дизайн', 'Design')}</span>
+              <span>{t('Дизайн', 'Design')}</span>
             </button>
           </div>
+          <Field
+            className="field resume-language"
+            label={t('Язык резюме', 'Resume language')}
+          >
+            <Select
+              className="ui-select"
+              value={lang}
+              onChange={(event) => {
+                const next = event.target.value as Locale
+                update({ ...doc, language: next })
+                setLanguageNotice(
+                  t(
+                    'Редактируется версия: {language}',
+                    'Now editing the {language} version',
+                    { language: localeNames[next] },
+                  ),
+                )
+              }}
+            >
+              {locales.map((l) => (
+                <option key={l} value={l}>
+                  {localeNames[l]}
+                  {l !== lang && isEmptyVersion(doc.versions[l])
+                    ? ` — ${t('пусто', 'empty')}`
+                    : ''}
+                </option>
+              ))}
+            </Select>
+          </Field>
           <div className="section-nav">
             {steps.map((s, i) => {
               const Icon = s === 'review' ? ClipboardCheck : icons[s],
@@ -914,14 +982,12 @@ export default function Editor({
                   key={s}
                   aria-pressed={section === s && tab === 'content'}
                   className={`${section === s && tab === 'content' ? 'active' : ''} ${s === 'review' ? 'review-link' : ''}`}
-                  aria-label={railed ? label : undefined}
-                  title={railed ? label : undefined}
                   onClick={() => {
                     goSection(s)
                   }}
                 >
                   <Icon size={17} />
-                  <span>{label}</span>
+                  <span title={label}>{label}</span>
                   <small className={done ? 'section-complete' : ''}>
                     {done ? (
                       <Check size={15} aria-label={t('Заполнено', 'Filled')} />
@@ -944,27 +1010,6 @@ export default function Editor({
             <div className="progress-track" aria-hidden="true">
               <span style={{ width: `${(completed / 7) * 100}%` }} />
             </div>
-            <button
-              className="icon-button rail-toggle"
-              onClick={toggleRail}
-              aria-expanded={!railed}
-              aria-label={
-                railed
-                  ? t('Развернуть панель разделов', 'Expand section panel')
-                  : t('Свернуть панель разделов', 'Collapse section panel')
-              }
-              title={
-                railed
-                  ? t('Развернуть панель', 'Expand panel')
-                  : t('Свернуть панель', 'Collapse panel')
-              }
-            >
-              {railed ? (
-                <PanelLeftOpen size={17} />
-              ) : (
-                <PanelLeftClose size={17} />
-              )}
-            </button>
           </div>
         </aside>
         <section
@@ -1004,7 +1049,7 @@ export default function Editor({
                           update({ ...doc, template: template.id })
                         }
                       >
-                        <MiniResume template={template.id} locale={locale} />
+                        <MiniResume template={template.id} locale={lang} />
                         <div>
                           <strong>{template.name}</strong>
                           {doc.template === template.id && <Check size={16} />}
@@ -1116,56 +1161,57 @@ export default function Editor({
                       )}
                     </p>
                   )}
-                  <Field
-                    className="field"
-                    label={t('Шрифт резюме', 'Resume typography')}
-                    hint={t(
-                      'Все варианты поддерживают латиницу и кириллицу.',
-                      'Every option supports Latin and Cyrillic text.',
-                    )}
-                  >
-                    <select
-                      value={doc.typography}
-                      onChange={(event) =>
-                        update({
-                          ...doc,
-                          typography: event.target
-                            .value as StudioDocument['typography'],
-                        })
-                      }
+                  <div className="control-block">
+                    <h2 className="control-heading" id="typography-heading">
+                      {t('Шрифт резюме', 'Resume typography')}
+                    </h2>
+                    <div
+                      className="segmented"
+                      role="group"
+                      aria-labelledby="typography-heading"
                     >
-                      <option value="sans">
-                        {t('Современный — Noto Sans', 'Modern — Noto Sans')}
-                      </option>
-                      <option value="serif">
-                        {t('Классический — Noto Serif', 'Classic — Noto Serif')}
-                      </option>
-                      <option value="mixed">
-                        {t('Сочетание — Serif + Sans', 'Mixed — Serif + Sans')}
-                      </option>
-                    </select>
-                  </Field>
-                  <Field
-                    className="field"
-                    label={t('Плотность текста', 'Text density')}
-                  >
-                    <select
-                      value={doc.density}
-                      onChange={(e) =>
-                        update({
-                          ...doc,
-                          density: e.target.value as StudioDocument['density'],
-                        })
-                      }
+                      {(
+                        [
+                          ['sans', t('Без засечек', 'Sans')],
+                          ['serif', t('С засечками', 'Serif')],
+                          ['mixed', t('Смешанный', 'Mixed')],
+                        ] as const
+                      ).map(([value, label]) => (
+                        <button
+                          key={value}
+                          aria-pressed={doc.typography === value}
+                          onClick={() => update({ ...doc, typography: value })}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="control-block">
+                    <h2 className="control-heading" id="density-heading">
+                      {t('Плотность текста', 'Text density')}
+                    </h2>
+                    <div
+                      className="segmented"
+                      role="group"
+                      aria-labelledby="density-heading"
                     >
-                      <option value="comfortable">
-                        {t('Свободнее', 'Comfortable')}
-                      </option>
-                      <option value="compact">
-                        {t('Компактнее', 'Compact')}
-                      </option>
-                    </select>
-                  </Field>
+                      {(
+                        [
+                          ['comfortable', t('Свободнее', 'Comfortable')],
+                          ['compact', t('Компактнее', 'Compact')],
+                        ] as const
+                      ).map(([value, label]) => (
+                        <button
+                          key={value}
+                          aria-pressed={doc.density === value}
+                          onClick={() => update({ ...doc, density: value })}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </>
               ) : (
                 <>
@@ -1218,7 +1264,8 @@ export default function Editor({
                               )}
                             </p>
                             <div className="version-start-actions">
-                              <select
+                              <Select
+                                className="ui-select"
                                 aria-label={t('Скопировать из', 'Copy from')}
                                 value={copySource}
                                 onChange={(e) =>
@@ -1230,7 +1277,7 @@ export default function Editor({
                                     {localeNames[l]}
                                   </option>
                                 ))}
-                              </select>
+                              </Select>
                               <button
                                 className="button secondary"
                                 onClick={() =>
@@ -1366,6 +1413,7 @@ export default function Editor({
                               onChange={(v) => basic('email', v)}
                               type="email"
                               placeholder="you@example.com"
+                              validate={checkEmail}
                             />
                             <FormField
                               label={t('Телефон', 'Phone')}
@@ -1373,6 +1421,7 @@ export default function Editor({
                               onChange={(v) => basic('phone', v)}
                               type="tel"
                               placeholder="+420 …"
+                              validate={checkPhone}
                             />
                           </div>
                           <FormField
@@ -1392,6 +1441,7 @@ export default function Editor({
                             value={resume.basics.url}
                             onChange={(v) => basic('url', v)}
                             placeholder="https://…"
+                            validate={checkUrl}
                             hint={t(
                               'Необязательные поля можно оставить пустыми — они не попадут в PDF.',
                               'Leave optional fields blank — they won’t appear in your PDF.',
@@ -1402,12 +1452,14 @@ export default function Editor({
                             value={resume.basics.linkedin}
                             onChange={(v) => basic('linkedin', v)}
                             placeholder="linkedin.com/in/your-name"
+                            validate={checkUrl}
                           />
                           <FormField
                             label="GitHub"
                             value={resume.basics.github}
                             onChange={(v) => basic('github', v)}
                             placeholder="github.com/your-name"
+                            validate={checkUrl}
                           />
                         </>
                       ) : section === 'summary' ? (
@@ -1500,6 +1552,7 @@ export default function Editor({
                               entry={e}
                               title={e.title || `${labels[section]} ${i + 1}`}
                               locale={locale}
+                              contentLocale={lang}
                               expanded={!collapsed.has(`${section}:${e.id}`)}
                               toggle={() => toggleEntry(e.id)}
                               moveUp={
@@ -1567,12 +1620,20 @@ export default function Editor({
                                         onChange={(v) =>
                                           entry(section, e.id, 'endDate', v)
                                         }
+                                        validate={(v) =>
+                                          e.startDate && v < e.startDate
+                                            ? t(
+                                                'Окончание раньше начала.',
+                                                'This is before the start date.',
+                                              )
+                                            : undefined
+                                        }
                                       />
                                     )}
                                   </div>
-                                  <label className="checkbox">
-                                    <input
-                                      type="checkbox"
+                                  <div className="switch-row">
+                                    <Switch
+                                      className="ui-switch"
                                       checked={e.current}
                                       onChange={(event) =>
                                         entry(
@@ -1582,9 +1643,9 @@ export default function Editor({
                                           event.target.checked,
                                         )
                                       }
+                                      label={t('По настоящее время', 'Present')}
                                     />
-                                    {t('По настоящее время', 'Present')}
-                                  </label>
+                                  </div>
                                   <FormField
                                     label={
                                       section === 'work'
@@ -1619,6 +1680,7 @@ export default function Editor({
                                       onChange={(v) =>
                                         entry(section, e.id, 'url', v)
                                       }
+                                      validate={checkUrl}
                                       placeholder="https://…"
                                     />
                                   )}

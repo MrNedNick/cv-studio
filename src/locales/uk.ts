@@ -92,11 +92,8 @@ const messages: Record<string, string> = {
     'Класична типографіка із засічками, по центру',
   'Classic uses a timeless monochrome palette.':
     'Classic використовує позачасову монохромну палітру.',
-  'Classic — Noto Serif': 'Класичний — Noto Serif',
   Close: 'Закрити',
   'Collapse all': 'Згорнути всі',
-  'Collapse panel': 'Згорнути панель',
-  'Collapse section panel': 'Згорнути панель розділів',
   Comfortable: 'Вільніше',
   'Common in Germany, Austria and Switzerland. Usually left out in the US, UK and Canada.':
     'Прийнято в Німеччині, Австрії та Швейцарії. У США, Великій Британії та Канаді фото зазвичай не додають.',
@@ -155,12 +152,8 @@ const messages: Record<string, string> = {
   'End date': 'Закінчення',
   English: 'Англійська',
   Entries: 'Записів',
-  'Every option supports Latin and Cyrillic text.':
-    'Усі варіанти підтримують латиницю й кирилицю.',
   'Every template and feature is free': 'Усі шаблони й функції безкоштовні',
   'Expand all': 'Розгорнути всі',
-  'Expand panel': 'Розгорнути панель',
-  'Expand section panel': 'Розгорнути панель розділів',
   'Explore templates': 'Усі шаблони',
   'Fill in the sections at your own pace. Your changes save automatically.':
     'Заповнюйте розділи у своєму темпі. Зміни зберігаються автоматично.',
@@ -173,7 +166,7 @@ const messages: Record<string, string> = {
     'Для читання й копіювання. Макет документа — на вкладці PDF.',
   'For sharing': 'Для надсилання',
   Forest: 'Лісовий',
-  'Form panel': 'Панель форми',
+  Form: 'Форма',
   'Form width': 'Ширина форми',
   'Formula: action verb + what you did + measurable result (Google’s X‑Y‑Z).':
     'Формула: дієслово дії + що зробили + вимірюваний результат (X‑Y‑Z від Google).',
@@ -196,6 +189,7 @@ const messages: Record<string, string> = {
   'Hard-working team player looking for new challenges.':
     'Відповідальний командний гравець, шукаю нові виклики.',
   'Hide form · Ctrl/⌘ \\': 'Приховати форму · Ctrl/⌘ \\',
+  'Hide sections': 'Приховати розділи',
   'How it works': 'Як це працює',
   'How to write this section': 'Як заповнити цей розділ',
   Improve: 'Покращення',
@@ -240,9 +234,8 @@ const messages: Record<string, string> = {
   'Match a job posting': 'Звірка з вакансією',
   'Measurable results': 'Результати в цифрах',
   'Missing from your resume': 'Немає в резюме',
-  'Mixed — Serif + Sans': 'Поєднання — Serif + Sans',
+  Mixed: 'Змішаний',
   'Modern template': 'Шаблон Modern',
-  'Modern — Noto Sans': 'Сучасний — Noto Sans',
   'More room for your experience': 'Більше місця для досвіду',
   'More than two pages. Try the compact template or shorten older experience.':
     'Вийшло більше двох сторінок. Спробуйте компактний шаблон або скоротіть давній досвід.',
@@ -302,6 +295,7 @@ const messages: Record<string, string> = {
   'PDF properties': 'Властивості PDF',
   Page: 'Сторінка',
   'Pages: {pages} · A4': 'Сторінок: {pages} · A4',
+  Panels: 'Панелі',
   'Paste a job posting to see which of its skills and terms your resume already covers. Everything runs in your browser.':
     'Вставте текст вакансії — покажемо, які навички й терміни з неї вже є в резюме, а яких немає. Усе рахується в браузері.',
   'Paste the job description…': 'Вставте опис вакансії…',
@@ -374,17 +368,21 @@ const messages: Record<string, string> = {
   'Room to strengthen': 'Є що посилити',
   'SIMPLER THAN YOU THINK': 'ПРОСТІШЕ, НІЖ ЗДАЄТЬСЯ',
   STEP: 'КРОК',
+  Sans: 'Без засічок',
   Save: 'Зберегти',
   'Save JSON backup': 'Зберегти JSON-копію',
   'Save backup': 'Зберегти копію',
   'Saved in this browser': 'Збережено в браузері',
   'Saving…': 'Зберігаємо…',
   'Section order': 'Порядок розділів',
+  Sections: 'Розділи',
   'Sections filled': 'Заповнено розділів',
   'Separate with commas. Use the job posting’s terms for skills you actually have, and show your key skills in your experience.':
     'Розділяйте комами. Використовуйте назви з вакансії лише для навичок, якими володієте, і підтверджуйте ключові з них досвідом.',
+  Serif: 'Із засічками',
   'Show dismissed tips': 'Показати приховані підказки',
   'Show form · Ctrl/⌘ \\': 'Показати форму · Ctrl/⌘ \\',
+  'Show sections': 'Показати розділи',
   'Show work you’re proud of.': 'Покажіть роботу, якою пишаєтеся.',
   'Skills first · a clear single column':
     'Навички на першому плані · одна колонка',
@@ -424,6 +422,9 @@ const messages: Record<string, string> = {
     'Браузер не зміг зберегти дані. Завантажте JSON-копію, перш ніж піти.',
   'This file exceeds 10 MB. Choose a smaller PDF or JSON file.':
     'Файл більший за 10 МБ. Оберіть менший PDF або JSON.',
+  'This is before the start date.': 'Це раніше за дату початку.',
+  'This looks mistyped: use digits, spaces and +.':
+    'Схоже на помилку: лише цифри, пробіли та +.',
   'This section has 100 entries. Edit or remove an entry before adding another.':
     'У розділі вже 100 записів. Відредагуйте або видаліть один, щоб додати новий.',
   'This will replace your current resume. Save a backup first if you want to return to it later.':
@@ -440,10 +441,14 @@ const messages: Record<string, string> = {
   'Undo · Ctrl/⌘ Z': 'Скасувати · Ctrl/⌘ Z',
   'Untitled resume': 'Резюме без назви',
   'Updating preview…': 'Оновлюємо перегляд…',
+  'Use @ and a domain, like name@mail.com.':
+    'Потрібні @ і домен, наприклад name@mail.com.',
   'Use CEFR levels (A1–C2) or “Native”. Recruiters in Europe filter by them.':
     'Вказуйте рівні CEFR (A1–C2) або «Рідна». У Європі за ними фільтрують кандидатів.',
   'Use Undo above to restore removed entries or changes.':
     'Видалення та зміни можна скасувати стрілкою вгорі.',
+  'Use a web address, like linkedin.com/in/name.':
+    'Потрібна веб-адреса, наприклад linkedin.com/in/name.',
   'Use template': 'Обрати шаблон',
   'Use the job title you are applying for, written the way vacancies write it.':
     'Вкажіть посаду, на яку відгукуєтеся, — так, як її пишуть у вакансіях.',

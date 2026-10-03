@@ -2873,8 +2873,8 @@ dialog p {
   }
   .is-editing .editor-body {
     grid-template-columns:
-      var(--sidebar-w, 212px) var(--form-w, minmax(360px, 0.9fr))
-      minmax(370px, 1.15fr);
+      var(--sidebar-w, 212px) var(--form-w, minmax(340px, 0.75fr))
+      minmax(420px, 1.25fr);
     flex: 1;
     min-height: 0;
     overflow: hidden;
@@ -3418,14 +3418,10 @@ dialog p {
   border-radius: 0 0 6px 6px;
   padding-top: 13px;
 }
-.rail-toggle,
 .panel-resizer {
   display: none;
 }
 @media (min-width: 1050px) {
-  .is-editing .rail-toggle {
-    display: grid;
-  }
   .is-editing .preview-panel {
     position: relative;
   }
@@ -3453,46 +3449,6 @@ dialog p {
   .is-editing .panel-resizer:hover::after,
   .is-editing .panel-resizer:focus-visible::after {
     background: var(--accent);
-  }
-  .is-editing .railed .editor-sidebar {
-    padding-left: 8px;
-    padding-right: 8px;
-  }
-  .is-editing .railed .rail-hide,
-  .is-editing .railed .section-nav button > span,
-  .is-editing .railed .sidebar-bottom p,
-  .is-editing .railed .completion span,
-  .is-editing .railed .progress-track {
-    display: none;
-  }
-  .is-editing .railed .editor-mode {
-    flex-direction: column;
-  }
-  .is-editing .railed .section-nav button {
-    position: relative;
-    justify-content: center;
-    padding: 11px 0;
-  }
-  .is-editing .railed .section-nav small {
-    position: absolute;
-    right: 2px;
-    top: 3px;
-    margin: 0;
-    font-size: 9px;
-  }
-  .is-editing .railed .section-nav small svg {
-    width: 12px;
-    height: 12px;
-  }
-  .is-editing .railed .sidebar-bottom {
-    padding-left: 0;
-    padding-right: 0;
-  }
-  .is-editing .railed .completion {
-    justify-content: center;
-  }
-  .is-editing .railed .completion strong {
-    font-size: 14px;
   }
 }
 .verb-tabs {
@@ -3846,8 +3802,7 @@ dialog.is-closing::backdrop {
     padding-right: 0;
     overflow: hidden;
   }
-  .is-editing .editor-sidebar .section-nav button > span,
-  .is-editing .editor-sidebar .rail-hide {
+  .is-editing .editor-sidebar .section-nav button > span {
     animation: fade-in 0.25s ease-out;
   }
 }
@@ -3955,37 +3910,6 @@ dialog.is-closing::backdrop {
 .form-toggle {
   display: none;
 }
-.version-select {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  color: var(--muted);
-  border-radius: 5px;
-}
-.version-select select {
-  field-sizing: content;
-  appearance: none;
-  border: 0;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  padding: 0 14px 0 2px;
-  cursor: pointer;
-}
-.version-select svg {
-  position: absolute;
-  right: 0;
-  pointer-events: none;
-}
-.version-select:hover,
-.version-select:focus-within {
-  color: var(--text);
-}
-.version-select:focus-within {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
 .document-title span {
   flex-wrap: wrap;
 }
@@ -4004,10 +3928,6 @@ dialog.is-closing::backdrop {
 .sidebar-bottom .progress-track {
   grid-column: 1;
   margin: 0;
-}
-.sidebar-bottom .rail-toggle {
-  grid-column: 2;
-  grid-row: 1 / span 2;
 }
 .photo-field {
   border: 0;
@@ -4062,14 +3982,6 @@ dialog.is-closing::backdrop {
   }
   .is-editing .sidebar-bottom {
     padding: 16px 4px 0;
-  }
-  .is-editing .railed .sidebar-bottom {
-    grid-template-columns: 1fr;
-    justify-items: center;
-  }
-  .is-editing .railed .sidebar-bottom .rail-toggle {
-    grid-column: 1;
-    grid-row: auto;
   }
   /* macOS-style divider: a hairline that brightens under the pointer. */
   .is-editing .panel-resizer {
@@ -4150,5 +4062,271 @@ dialog[open] {
   }
   .export-button .export-label-short {
     display: inline;
+  }
+}
+
+/* ---- Components from the shared library, styled for CV Studio ---- */
+.field input,
+.field textarea,
+.field select,
+.ui-select {
+  transition:
+    border-color 0.16s var(--ease),
+    box-shadow 0.16s var(--ease),
+    background-color 0.16s var(--ease);
+}
+.field input:focus,
+.field textarea:focus,
+.field select:focus,
+.ui-select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+.field [aria-invalid='true'],
+.field [aria-invalid='true']:hover {
+  border-color: #c0503a;
+}
+.field [aria-invalid='true']:focus {
+  box-shadow: 0 0 0 3px color-mix(in srgb, #c0503a 22%, transparent);
+}
+.field > p[role='alert'] {
+  color: #c0503a;
+  animation: fade-in 0.18s var(--ease);
+}
+[data-theme='dark'] .field [aria-invalid='true'] {
+  border-color: #e0806b;
+}
+[data-theme='dark'] .field > p[role='alert'] {
+  color: #ef9a86;
+}
+.ui-textarea {
+  field-sizing: content;
+  min-height: 108px;
+  max-height: 420px;
+  resize: vertical;
+}
+/* Native select, custom face: the registry wrapper holds the chevron. */
+.relative:has(> .ui-select) {
+  position: relative;
+  width: 100%;
+}
+.ui-select {
+  appearance: none;
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  padding: 9px 34px 9px 12px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.ui-select:hover {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+}
+.relative:has(> .ui-select) > svg {
+  position: absolute;
+  right: 11px;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  transform: translateY(-50%);
+  color: var(--muted);
+  pointer-events: none;
+}
+/* Switch: a real checkbox with role="switch" under a track and thumb. */
+.switch-row {
+  margin: 2px 0 20px;
+}
+.switch-row label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.switch-row label > span {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 38px;
+  height: 22px;
+  flex: none;
+}
+.ui-switch {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.switch-row label > span > span:first-of-type {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: var(--line);
+  transition: background-color 0.2s var(--ease);
+}
+.switch-row label > span > span:last-of-type {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px #0003;
+  transform: translateX(2px);
+  transition: transform 0.22s var(--ease);
+}
+.switch-row .ui-switch:checked + span {
+  background: var(--accent);
+}
+.switch-row .ui-switch:checked + span + span {
+  transform: translateX(18px);
+}
+.switch-row .ui-switch:focus-visible + span {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+[data-theme='dark'] .switch-row .ui-switch:checked + span + span {
+  background: var(--on-accent);
+}
+/* Segmented control, as in macOS settings. */
+.control-block {
+  margin-bottom: 22px;
+}
+.segmented {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 9px;
+  background: var(--soft);
+}
+.segmented button {
+  flex: 1;
+  padding: 8px 10px;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  transition:
+    background-color 0.18s var(--ease),
+    color 0.18s var(--ease),
+    box-shadow 0.18s var(--ease);
+}
+.segmented button:hover {
+  color: var(--text);
+}
+.segmented button[aria-pressed='true'] {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 1px 3px #0000001f;
+}
+/* Resume language in the sidebar */
+.editor-sidebar .resume-language {
+  margin: 0 0 14px;
+  gap: 6px;
+}
+.editor-sidebar .resume-language label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.version-start-actions .relative:has(> .ui-select) {
+  width: auto;
+  min-width: 150px;
+}
+.version-start-actions .ui-select {
+  padding-top: 7px;
+  padding-bottom: 7px;
+  font-size: 13px;
+}
+/* Panel toggles sit together, like the sidebar buttons of a macOS toolbar. */
+.panel-toggles {
+  display: none;
+}
+@media (min-width: 1050px) {
+  .is-editing .panel-toggles {
+    display: flex;
+    gap: 2px;
+    padding: 3px;
+    margin-right: 10px;
+    border-radius: 9px;
+    background: var(--soft);
+  }
+  .is-editing .panel-toggle {
+    width: 34px;
+    height: 30px;
+    border-radius: 7px;
+    color: var(--muted);
+    transition:
+      background-color 0.18s var(--ease),
+      color 0.18s var(--ease),
+      box-shadow 0.18s var(--ease);
+  }
+  .is-editing .panel-toggle[aria-pressed='true'] {
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: 0 1px 3px #0000001f;
+  }
+  /* Panels keep their content width while they slide closed. */
+  .is-editing .editor-sidebar {
+    overflow: hidden;
+    transition: opacity 0.2s var(--ease);
+  }
+  .is-editing .editor-sidebar > * {
+    width: 188px;
+    flex-shrink: 0;
+  }
+  .is-editing .sidebar-hidden .editor-sidebar {
+    opacity: 0;
+    border-right-width: 0;
+  }
+  .is-editing [data-animating] .editor-form {
+    overflow: hidden;
+  }
+  .is-editing [data-animating] .editor-form > .step-enter {
+    width: calc(var(--form-freeze) - 48px);
+  }
+  .is-editing .form-hidden .editor-form {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}
+
+.editor-sidebar .editor-mode button {
+  font-size: 13px;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+.section-nav button > span {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.section-nav button > small {
+  flex: none;
+}
+@media (max-width: 1049px) {
+  .editor-sidebar .resume-language {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 10px 0 12px;
+  }
+  .editor-sidebar .resume-language .relative:has(> .ui-select) {
+    width: auto;
+    min-width: 160px;
+  }
+  .editor-sidebar .resume-language .ui-select {
+    padding-top: 7px;
+    padding-bottom: 7px;
+    font-size: 13px;
   }
 }

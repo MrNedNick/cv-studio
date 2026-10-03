@@ -94,11 +94,8 @@ const messages: Record<string, string> = {
     'Klassische Serifentypografie, zentriert',
   'Classic uses a timeless monochrome palette.':
     'Classic verwendet eine zeitlose monochrome Palette.',
-  'Classic — Noto Serif': 'Klassisch – Noto Serif',
   Close: 'Schließen',
   'Collapse all': 'Alle einklappen',
-  'Collapse panel': 'Leiste einklappen',
-  'Collapse section panel': 'Abschnittsleiste einklappen',
   Comfortable: 'Großzügig',
   'Common in Germany, Austria and Switzerland. Usually left out in the US, UK and Canada.':
     'Üblich in Deutschland, Österreich und der Schweiz. In den USA, Großbritannien und Kanada meist weggelassen.',
@@ -158,13 +155,9 @@ const messages: Record<string, string> = {
   'End date': 'Enddatum',
   English: 'Englisch',
   Entries: 'Einträge',
-  'Every option supports Latin and Cyrillic text.':
-    'Jede Variante unterstützt lateinische und kyrillische Schrift.',
   'Every template and feature is free':
     'Jede Vorlage und jede Funktion ist kostenlos',
   'Expand all': 'Alle ausklappen',
-  'Expand panel': 'Leiste ausklappen',
-  'Expand section panel': 'Abschnittsleiste ausklappen',
   'Explore templates': 'Vorlagen ansehen',
   'Fill in the sections at your own pace. Your changes save automatically.':
     'Füllen Sie die Abschnitte in Ihrem Tempo aus. Änderungen werden automatisch gespeichert.',
@@ -177,7 +170,7 @@ const messages: Record<string, string> = {
     'Zum Lesen und Kopieren. Das Layout des Dokuments sehen Sie im Tab PDF.',
   'For sharing': 'Zum Versenden',
   Forest: 'Waldgrün',
-  'Form panel': 'Formularbereich',
+  Form: 'Formular',
   'Form width': 'Formularbreite',
   'Formula: action verb + what you did + measurable result (Google’s X‑Y‑Z).':
     'Formel: Handlungsverb + was Sie getan haben + messbares Ergebnis (X‑Y‑Z von Google).',
@@ -200,6 +193,7 @@ const messages: Record<string, string> = {
   'Hard-working team player looking for new challenges.':
     'Fleißiger Teamplayer sucht neue Herausforderungen.',
   'Hide form · Ctrl/⌘ \\': 'Formular ausblenden · Strg/⌘ \\',
+  'Hide sections': 'Abschnitte ausblenden',
   'How it works': 'So funktioniert’s',
   'How to write this section': 'So füllen Sie diesen Abschnitt aus',
   Improve: 'Verbessern',
@@ -245,9 +239,8 @@ const messages: Record<string, string> = {
   'Match a job posting': 'Mit einer Stellenanzeige abgleichen',
   'Measurable results': 'Messbare Ergebnisse',
   'Missing from your resume': 'Fehlt im Lebenslauf',
-  'Mixed — Serif + Sans': 'Gemischt – Serif + Sans',
+  Mixed: 'Gemischt',
   'Modern template': 'Vorlage Modern',
-  'Modern — Noto Sans': 'Modern – Noto Sans',
   'More room for your experience': 'Mehr Platz für Ihre Erfahrung',
   'More than two pages. Try the compact template or shorten older experience.':
     'Mehr als zwei Seiten. Probieren Sie die kompakte Vorlage oder kürzen Sie ältere Erfahrung.',
@@ -308,6 +301,7 @@ const messages: Record<string, string> = {
   'PDF properties': 'PDF-Eigenschaften',
   Page: 'Seite',
   'Pages: {pages} · A4': 'Seiten: {pages} · A4',
+  Panels: 'Bereiche',
   'Paste a job posting to see which of its skills and terms your resume already covers. Everything runs in your browser.':
     'Fügen Sie eine Stellenanzeige ein, um zu sehen, welche Kenntnisse und Begriffe Ihr Lebenslauf bereits abdeckt. Alles läuft in Ihrem Browser.',
   'Paste the job description…': 'Stellenbeschreibung einfügen…',
@@ -381,17 +375,21 @@ const messages: Record<string, string> = {
   'Room to strengthen': 'Noch Luft nach oben',
   'SIMPLER THAN YOU THINK': 'EINFACHER, ALS SIE DENKEN',
   STEP: 'SCHRITT',
+  Sans: 'Ohne Serifen',
   Save: 'Speichern',
   'Save JSON backup': 'JSON-Sicherung speichern',
   'Save backup': 'Sicherung speichern',
   'Saved in this browser': 'In diesem Browser gespeichert',
   'Saving…': 'Wird gespeichert…',
   'Section order': 'Reihenfolge der Abschnitte',
+  Sections: 'Abschnitte',
   'Sections filled': 'Ausgefüllte Abschnitte',
   'Separate with commas. Use the job posting’s terms for skills you actually have, and show your key skills in your experience.':
     'Durch Kommas trennen. Verwenden Sie die Begriffe der Stellenanzeige für Kenntnisse, die Sie wirklich haben, und zeigen Sie die wichtigsten in Ihrer Erfahrung.',
+  Serif: 'Mit Serifen',
   'Show dismissed tips': 'Ausgeblendete Hinweise anzeigen',
   'Show form · Ctrl/⌘ \\': 'Formular einblenden · Strg/⌘ \\',
+  'Show sections': 'Abschnitte einblenden',
   'Show work you’re proud of.': 'Zeigen Sie Arbeiten, auf die Sie stolz sind.',
   'Skills first · a clear single column':
     'Kenntnisse zuerst · klare einzelne Spalte',
@@ -431,6 +429,9 @@ const messages: Record<string, string> = {
     'Dieser Browser konnte Ihre Daten nicht speichern. Laden Sie vor dem Verlassen eine JSON-Sicherung herunter.',
   'This file exceeds 10 MB. Choose a smaller PDF or JSON file.':
     'Diese Datei ist größer als 10 MB. Wählen Sie eine kleinere PDF- oder JSON-Datei.',
+  'This is before the start date.': 'Das liegt vor dem Startdatum.',
+  'This looks mistyped: use digits, spaces and +.':
+    'Sieht nach einem Tippfehler aus: nur Ziffern, Leerzeichen und +.',
   'This section has 100 entries. Edit or remove an entry before adding another.':
     'Dieser Abschnitt hat 100 Einträge. Bearbeiten oder entfernen Sie einen, bevor Sie einen neuen hinzufügen.',
   'This will replace your current resume. Save a backup first if you want to return to it later.':
@@ -447,10 +448,14 @@ const messages: Record<string, string> = {
   'Undo · Ctrl/⌘ Z': 'Rückgängig · Strg/⌘ Z',
   'Untitled resume': 'Unbenannter Lebenslauf',
   'Updating preview…': 'Vorschau wird aktualisiert…',
+  'Use @ and a domain, like name@mail.com.':
+    'Mit @ und Domain, z. B. name@mail.com.',
   'Use CEFR levels (A1–C2) or “Native”. Recruiters in Europe filter by them.':
     'Verwenden Sie GER-Niveaus (A1–C2) oder „Muttersprache“. Recruiter in Europa filtern danach.',
   'Use Undo above to restore removed entries or changes.':
     'Mit „Rückgängig“ oben stellen Sie entfernte Einträge oder Änderungen wieder her.',
+  'Use a web address, like linkedin.com/in/name.':
+    'Eine Webadresse, z. B. linkedin.com/in/name.',
   'Use template': 'Vorlage verwenden',
   'Use the job title you are applying for, written the way vacancies write it.':
     'Nennen Sie die Position, auf die Sie sich bewerben – so, wie sie in Stellenanzeigen steht.',

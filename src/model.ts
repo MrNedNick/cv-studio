@@ -1,6 +1,6 @@
 import { samples } from './samples'
 import { translate, type Vars } from './i18n'
-export const locales = ['en', 'ru', 'de', 'es', 'bg', 'uk'] as const
+export const locales = ['en', 'de', 'es', 'bg', 'uk', 'ru'] as const
 export type Locale = (typeof locales)[number]
 export const localeNames: Record<Locale, string> = {
   en: 'English',
@@ -332,7 +332,8 @@ const obj = (value: unknown): Record<string, unknown> =>
   value && typeof value === 'object' && !Array.isArray(value)
     ? (value as Record<string, unknown>)
     : {}
-function cleanResume(value: unknown, otherValue?: unknown): Resume {
+/** `others` are the sibling versions: repaired IDs avoid every ID they use, so pairs stay aligned. */
+function cleanResume(value: unknown, others: unknown[] = []): Resume {
   const input = obj(value),
     basics = obj(input.basics),
     result = emptyResume()
@@ -349,9 +350,14 @@ function cleanResume(value: unknown, otherValue?: unknown): Resume {
       0,
       100,
     )
-    const other = obj(otherValue)[section]
     const reserved = new Set(
-      [...items, ...(Array.isArray(other) ? other.slice(0, 100) : [])]
+      [
+        ...items,
+        ...others.flatMap((other) => {
+          const list = obj(other)[section]
+          return Array.isArray(list) ? list.slice(0, 100) : []
+        }),
+      ]
         .map((item) => str(obj(item).id))
         .filter(Boolean),
     )
@@ -391,17 +397,13 @@ export function parseDocument(input: unknown): StudioDocument {
     stored = locales.filter((l) => sourceVersions[l])
   if (source.schemaVersion === 1 && stored.length) {
     const result = createDocument()
-    // Pair entry IDs against the first stored version; older files have only ru/en.
-    const base = cleanResume(
-      sourceVersions[stored[0]],
-      sourceVersions[stored[1] ?? stored[0]],
-    )
+    // Older files have only ru/en; missing versions are skeletons of the first one.
+    const siblings = (locale: Locale) =>
+        stored.filter((l) => l !== locale).map((l) => sourceVersions[l]),
+      base = cleanResume(sourceVersions[stored[0]], siblings(stored[0]))
     for (const locale of locales)
       result.versions[locale] = sourceVersions[locale]
-        ? cleanResume(
-            sourceVersions[locale],
-            sourceVersions[stored.find((l) => l !== locale) ?? locale],
-          )
+        ? cleanResume(sourceVersions[locale], siblings(locale))
         : skeletonOf(base)
     result.language = isLocale(source.language) ? source.language : stored[0]
     result.template = (templateIds as readonly string[]).includes(

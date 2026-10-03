@@ -30,6 +30,7 @@ import {
   sections,
   type Locale,
   isLocale,
+  isEmptyVersion,
   locales,
   localeNames,
   type StudioDocument,
@@ -365,6 +366,15 @@ export default function App() {
       /* The language still changes for this visit. */
     }
     setLocale(next)
+    // A resume written in the interface language follows it, as long as the
+    // other version has text; a deliberately different language stays put.
+    if (
+      doc &&
+      doc.language === locale &&
+      next !== locale &&
+      !isEmptyVersion(doc.versions[next])
+    )
+      update({ ...doc, language: next })
   }
   function undo() {
     if (!doc || !history.length) return

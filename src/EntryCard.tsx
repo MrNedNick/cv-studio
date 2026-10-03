@@ -8,6 +8,7 @@ export default function EntryCard({
   entry,
   title,
   locale,
+  contentLocale,
   expanded,
   toggle,
   moveUp,
@@ -18,6 +19,8 @@ export default function EntryCard({
   entry: Entry
   title: string
   locale: Locale
+  /** Language of the resume text; dates in the summary follow it. */
+  contentLocale?: Locale
   expanded: boolean
   toggle: () => void
   moveUp?: () => void
@@ -27,7 +30,7 @@ export default function EntryCard({
 }) {
   const id = useId(),
     t = translator(locale)
-  const dates = dateRange(entry, locale)
+  const dates = dateRange(entry, contentLocale ?? locale)
   return (
     <div
       className={`entry-card ${expanded ? '' : 'collapsed'}`}

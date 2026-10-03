@@ -94,11 +94,8 @@ const messages: Record<string, string> = {
     'Tipografía clásica con serifa, centrada',
   'Classic uses a timeless monochrome palette.':
     'Classic usa una paleta monocromática atemporal.',
-  'Classic — Noto Serif': 'Clásica — Noto Serif',
   Close: 'Cerrar',
   'Collapse all': 'Contraer todo',
-  'Collapse panel': 'Contraer panel',
-  'Collapse section panel': 'Contraer el panel de secciones',
   Comfortable: 'Holgada',
   'Common in Germany, Austria and Switzerland. Usually left out in the US, UK and Canada.':
     'Habitual en Alemania, Austria y Suiza. En EE. UU., Reino Unido y Canadá normalmente se omite.',
@@ -157,13 +154,9 @@ const messages: Record<string, string> = {
   'End date': 'Fecha de fin',
   English: 'Inglés',
   Entries: 'Entradas',
-  'Every option supports Latin and Cyrillic text.':
-    'Todas las opciones admiten alfabeto latino y cirílico.',
   'Every template and feature is free':
     'Todas las plantillas y funciones son gratis',
   'Expand all': 'Expandir todo',
-  'Expand panel': 'Expandir panel',
-  'Expand section panel': 'Expandir el panel de secciones',
   'Explore templates': 'Ver plantillas',
   'Fill in the sections at your own pace. Your changes save automatically.':
     'Rellena las secciones a tu ritmo. Los cambios se guardan automáticamente.',
@@ -176,7 +169,7 @@ const messages: Record<string, string> = {
     'Para leer y copiar. El diseño del documento está en la pestaña PDF.',
   'For sharing': 'Para enviar',
   Forest: 'Bosque',
-  'Form panel': 'Panel del formulario',
+  Form: 'Formulario',
   'Form width': 'Ancho del formulario',
   'Formula: action verb + what you did + measurable result (Google’s X‑Y‑Z).':
     'Fórmula: verbo de acción + qué hiciste + resultado medible (la X‑Y‑Z de Google).',
@@ -199,6 +192,7 @@ const messages: Record<string, string> = {
   'Hard-working team player looking for new challenges.':
     'Trabajador y con espíritu de equipo, busco nuevos retos.',
   'Hide form · Ctrl/⌘ \\': 'Ocultar formulario · Ctrl/⌘ \\',
+  'Hide sections': 'Ocultar secciones',
   'How it works': 'Cómo funciona',
   'How to write this section': 'Cómo rellenar esta sección',
   Improve: 'Mejorar',
@@ -243,9 +237,8 @@ const messages: Record<string, string> = {
   'Match a job posting': 'Comparar con una oferta',
   'Measurable results': 'Resultados medibles',
   'Missing from your resume': 'Falta en tu currículum',
-  'Mixed — Serif + Sans': 'Mixta — Serif + Sans',
+  Mixed: 'Mixta',
   'Modern template': 'Plantilla Modern',
-  'Modern — Noto Sans': 'Moderna — Noto Sans',
   'More room for your experience': 'Más espacio para tu experiencia',
   'More than two pages. Try the compact template or shorten older experience.':
     'Más de dos páginas. Prueba la plantilla compacta o acorta la experiencia antigua.',
@@ -305,6 +298,7 @@ const messages: Record<string, string> = {
   'PDF properties': 'Propiedades del PDF',
   Page: 'Página',
   'Pages: {pages} · A4': 'Páginas: {pages} · A4',
+  Panels: 'Paneles',
   'Paste a job posting to see which of its skills and terms your resume already covers. Everything runs in your browser.':
     'Pega una oferta para ver qué habilidades y términos ya cubre tu currículum. Todo se procesa en tu navegador.',
   'Paste the job description…': 'Pega la descripción del puesto…',
@@ -376,17 +370,21 @@ const messages: Record<string, string> = {
   'Room to strengthen': 'Margen de mejora',
   'SIMPLER THAN YOU THINK': 'MÁS SENCILLO DE LO QUE CREES',
   STEP: 'PASO',
+  Sans: 'Sin serifa',
   Save: 'Guardar',
   'Save JSON backup': 'Guardar copia JSON',
   'Save backup': 'Guardar copia',
   'Saved in this browser': 'Guardado en este navegador',
   'Saving…': 'Guardando…',
   'Section order': 'Orden de las secciones',
+  Sections: 'Secciones',
   'Sections filled': 'Secciones completadas',
   'Separate with commas. Use the job posting’s terms for skills you actually have, and show your key skills in your experience.':
     'Sepáralas con comas. Usa los términos de la oferta para las habilidades que realmente tienes y demuestra las clave en tu experiencia.',
+  Serif: 'Con serifa',
   'Show dismissed tips': 'Mostrar sugerencias ocultas',
   'Show form · Ctrl/⌘ \\': 'Mostrar formulario · Ctrl/⌘ \\',
+  'Show sections': 'Mostrar secciones',
   'Show work you’re proud of.': 'Muestra trabajos de los que estés orgulloso.',
   'Skills first · a clear single column':
     'Habilidades primero · una columna clara',
@@ -426,6 +424,9 @@ const messages: Record<string, string> = {
     'Este navegador no pudo guardar tus datos. Descarga una copia JSON antes de salir.',
   'This file exceeds 10 MB. Choose a smaller PDF or JSON file.':
     'Este archivo supera los 10 MB. Elige un PDF o JSON más pequeño.',
+  'This is before the start date.': 'Es anterior a la fecha de inicio.',
+  'This looks mistyped: use digits, spaces and +.':
+    'Parece una errata: usa dígitos, espacios y +.',
   'This section has 100 entries. Edit or remove an entry before adding another.':
     'Esta sección tiene 100 entradas. Edita o elimina una antes de añadir otra.',
   'This will replace your current resume. Save a backup first if you want to return to it later.':
@@ -442,10 +443,14 @@ const messages: Record<string, string> = {
   'Undo · Ctrl/⌘ Z': 'Deshacer · Ctrl/⌘ Z',
   'Untitled resume': 'Currículum sin título',
   'Updating preview…': 'Actualizando la vista previa…',
+  'Use @ and a domain, like name@mail.com.':
+    'Usa @ y un dominio, como nombre@mail.com.',
   'Use CEFR levels (A1–C2) or “Native”. Recruiters in Europe filter by them.':
     'Usa los niveles del MCER (A1–C2) o «Nativo». En Europa se filtra por ellos.',
   'Use Undo above to restore removed entries or changes.':
     'Usa Deshacer arriba para recuperar entradas eliminadas o cambios.',
+  'Use a web address, like linkedin.com/in/name.':
+    'Usa una dirección web, como linkedin.com/in/nombre.',
   'Use template': 'Usar plantilla',
   'Use the job title you are applying for, written the way vacancies write it.':
     'Escribe el puesto al que aspiras tal como aparece en las ofertas.',
