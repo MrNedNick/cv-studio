@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { expect, it } from 'vitest'
 import { collectKeys } from '../scripts/i18n-keys.mjs'
-import { dictionaries, translate } from './i18n'
+import { detectLocale, dictionaries, translate } from './i18n'
 
 const { keys } = collectKeys()
 
@@ -32,4 +32,12 @@ it('fills placeholders and falls back to English', () => {
   expect(translate('uk', 'нет', 'Not in the dictionary')).toBe(
     'Not in the dictionary',
   )
+})
+
+it('picks the first supported browser language', () => {
+  expect(detectLocale(['de-AT', 'en-US'])).toBe('de')
+  expect(detectLocale(['fr-FR', 'uk-UA', 'ru'])).toBe('uk')
+  expect(detectLocale(['ES'])).toBe('es')
+  expect(detectLocale(['fr', 'it'])).toBe('en')
+  expect(detectLocale([])).toBe('en')
 })

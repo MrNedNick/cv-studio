@@ -639,6 +639,33 @@
   font-size: 13px;
   font-weight: 400;
 }
+.site-author {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.site-author a {
+  color: var(--text);
+  text-decoration: none;
+}
+.site-author a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.site-author .author-link {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  color: var(--muted);
+}
+.site-author .author-link:hover {
+  color: var(--text);
+  background: var(--soft);
+  text-decoration: none;
+}
 .gallery-page {
   max-width: 1350px;
   margin: auto;
@@ -1994,6 +2021,11 @@ dialog p {
   }
   .site-footer .brand {
     font-size: 20px;
+  }
+  .site-author {
+    order: 4;
+    width: 100%;
+    font-size: 12px;
   }
   .gallery-page {
     padding: 40px 24px;

@@ -1,4 +1,4 @@
-import type { Locale } from './model'
+import { isLocale, type Locale } from './model'
 import de from './locales/de'
 import es from './locales/es'
 import bg from './locales/bg'
@@ -40,3 +40,12 @@ export function translate(
 export const translator =
   (locale: Locale) => (ru: string, en: string, vars?: Vars) =>
     translate(locale, ru, en, vars)
+
+/** The first browser language the site supports, e.g. `de-AT` → `de`; English otherwise. */
+export function detectLocale(languages: readonly string[]): Locale {
+  for (const language of languages) {
+    const base = language.toLowerCase().split('-')[0]
+    if (isLocale(base)) return base
+  }
+  return 'en'
+}

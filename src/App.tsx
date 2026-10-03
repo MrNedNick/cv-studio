@@ -47,10 +47,26 @@ import {
 import { loadDocument, saveDocument } from './storage'
 import { MiniResume, TemplateCards, templates } from './components'
 import { Disclosure, useLingering } from './motion'
-import { translator } from './i18n'
+import { detectLocale, translator } from './i18n'
 import './App.css'
 // The editor is a separate chunk so the home page paints first; it is fetched
 // in the background right after the first render.
+const GitHubMark = () => (
+  <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+    <path
+      fill="currentColor"
+      d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"
+    />
+  </svg>
+)
+const LinkedInMark = () => (
+  <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+    <path
+      fill="currentColor"
+      d="M13.63 0H2.37A2.37 2.37 0 0 0 0 2.37v11.26A2.37 2.37 0 0 0 2.37 16h11.26A2.37 2.37 0 0 0 16 13.63V2.37A2.37 2.37 0 0 0 13.63 0ZM4.9 13.5H2.6V6.1h2.3v7.4ZM3.75 5.08a1.34 1.34 0 1 1 0-2.67 1.34 1.34 0 0 1 0 2.67ZM13.5 13.5h-2.3V9.9c0-.86-.02-1.96-1.2-1.96-1.2 0-1.38.94-1.38 1.9v3.66H6.33V6.1h2.2v1.01h.03c.31-.58 1.06-1.2 2.18-1.2 2.33 0 2.76 1.54 2.76 3.53v4.06Z"
+    />
+  </svg>
+)
 const loadEditor = () => import('./Editor')
 const Editor = lazy(loadEditor)
 function download(blob: Blob, filename: string) {
@@ -126,10 +142,11 @@ export default function App() {
     [locale, setLocale] = useState<Locale>(() => {
       try {
         const stored = localStorage.getItem('neatcv-locale')
-        return isLocale(stored) ? stored : 'en'
+        if (isLocale(stored)) return stored
       } catch {
-        return 'en'
+        /* Storage is unavailable; fall back to the browser language. */
       }
+      return detectLocale(navigator.languages ?? [navigator.language])
     }),
     [theme, setTheme] = useState(() => {
       try {
@@ -880,6 +897,28 @@ export default function App() {
             'Your story. Your data. Your next chapter.',
           )}
         </span>
+        <p className="site-author">
+          {t('Автор —', 'Made by')}{' '}
+          <a href="https://www.linkedin.com/in/mrnednick/" rel="author">
+            Nikita Nedyalkov
+          </a>
+          <a
+            className="author-link"
+            href="https://github.com/MrNedNick"
+            aria-label="GitHub — Nikita Nedyalkov"
+            title="GitHub"
+          >
+            <GitHubMark />
+          </a>
+          <a
+            className="author-link"
+            href="https://www.linkedin.com/in/mrnednick/"
+            aria-label="LinkedIn — Nikita Nedyalkov"
+            title="LinkedIn"
+          >
+            <LinkedInMark />
+          </a>
+        </p>
         <button className="text-button" onClick={() => setHelp(true)}>
           {t('Бесплатно. И это всё.', 'Free. That’s the whole story.')}
           <ArrowUpRight />
