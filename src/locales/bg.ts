@@ -594,5 +594,12 @@ const messages: Record<string, string> = {
   'ivan.petrov@mail.com · Berlin, Germany · linkedin.com/in/ivanpetrov':
     'ivan.petrov@mail.bg · София, България · linkedin.com/in/ivanpetrov',
   '{section} in resume': '„{section}“ в автобиографията',
+  'Something went wrong': 'Нещо се обърка',
+  'Your resume is saved in this browser and nothing is lost. Reload the page — or download a copy first.':
+    'Автобиографията ви е запазена в този браузър и нищо не е изгубено. Презаредете страницата — или първо изтеглете копие.',
+  Reload: 'Презареди',
+  'Download a copy (JSON)': 'Изтегли копие (JSON)',
+  'Report the problem': 'Съобщете за проблема',
+  'Report a problem': 'Съобщете за проблем',
 }
 export default messages

@@ -37,7 +37,7 @@ import {
   type ResumeDocument,
   type Template,
 } from './model'
-import { loadDocument, saveDocument } from './storage'
+import { keepStorage, loadDocument, saveDocument } from './storage'
 import { Dialog, MiniResume, TemplateCards, templates } from './components'
 import { Disclosure, useLingering } from './motion'
 import { detectLocale, translator } from './i18n'
@@ -172,12 +172,18 @@ export default function App() {
     setSaveState('saving')
     const timer = setTimeout(() => {
       saveDocument(doc)
-        .then(() => {
-          if (active) setSaveState('saved')
-        })
-        .catch(() => {
-          if (active) setSaveState('error')
-        })
+        .then(
+          () => {
+            if (active) setSaveState('saved')
+            if (!doc.sample && !isEmptyVersion(doc.versions[doc.language]))
+              void Promise.resolve()
+                .then(keepStorage)
+                .catch(() => {})
+          },
+          () => {
+            if (active) setSaveState('error')
+          },
+        )
     }, 250)
     return () => {
       active = false
@@ -873,6 +879,14 @@ export default function App() {
             <LinkedInMark />
           </a>
         </p>
+        <a
+          className="text-button footer-report"
+          href="https://github.com/MrNedNick/cv-studio/issues/new/choose"
+          target="_blank"
+          rel="noreferrer"
+        >
+          {t('Сообщить о проблеме', 'Report a problem')}
+        </a>
         <button className="text-button" onClick={() => setHelp(true)}>
           {t('Бесплатно. И это всё.', 'Free. That’s the whole story.')}
           <ArrowUpRight />

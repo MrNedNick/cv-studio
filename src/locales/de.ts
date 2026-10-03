@@ -602,5 +602,12 @@ const messages: Record<string, string> = {
   'ivan.petrov@mail.com · Berlin, Germany · linkedin.com/in/ivanpetrov':
     'ivan.petrov@mail.de · Berlin, Deutschland · linkedin.com/in/ivanpetrov',
   '{section} in resume': '{section} im Lebenslauf',
+  'Something went wrong': 'Etwas ist schiefgelaufen',
+  'Your resume is saved in this browser and nothing is lost. Reload the page — or download a copy first.':
+    'Ihr Lebenslauf ist in diesem Browser gespeichert, nichts ist verloren. Laden Sie die Seite neu – oder laden Sie vorher eine Kopie herunter.',
+  Reload: 'Neu laden',
+  'Download a copy (JSON)': 'Kopie herunterladen (JSON)',
+  'Report the problem': 'Problem melden',
+  'Report a problem': 'Problem melden',
 }
 export default messages

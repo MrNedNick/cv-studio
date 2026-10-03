@@ -1,0 +1,21 @@
+name: Report a problem
+description: Something in NeatCV does not work or looks wrong
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what you saw instead. Please do not paste your resume text.
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and device
+      placeholder: e.g. Safari 18 on iPhone, Chrome 131 on Windows
+  - type: dropdown
+    id: language
+    attributes:
+      label: Interface language
+      options: [English, Deutsch, Español, Български, Українська, Русский]

@@ -1,0 +1,11 @@
+name: Suggest an idea
+description: A feature or change that would make NeatCV better for you
+labels: [idea]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would help?
+      description: Describe the problem you want solved; a rough idea is fine.
+    validations:
+      required: true
