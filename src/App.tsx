@@ -40,7 +40,7 @@ import {
 import { keepStorage, loadDocument, saveDocument } from './storage'
 import { Dialog, MiniResume, TemplateCards, templates } from './components'
 import { Disclosure, useLingering } from './motion'
-import { detectLocale, translator } from './i18n'
+import { detectLocale, translator, loadLocale, hasDictionary } from './i18n'
 import './App.css'
 // The editor is a separate chunk so the home page paints first; it is fetched
 // in the background right after the first render.
@@ -88,6 +88,8 @@ export default function App() {
       }
       return detectLocale(navigator.languages ?? [navigator.language])
     }),
+    [localeReady, setLocaleReady] = useState(() => hasDictionary(locale)),
+    [languageLoading, setLanguageLoading] = useState(false),
     [theme, setTheme] = useState(() => {
       try {
         return (
@@ -102,6 +104,7 @@ export default function App() {
     }),
     [saveState, setSaveState] = useState<'saved' | 'saving' | 'error'>('saved'),
     [notice, setNotice] = useState(''),
+    [localeError, setLocaleError] = useState(''),
     [pendingImport, setPendingImport] = useState<{
       doc: ResumeDocument
       filename: string
@@ -124,7 +127,25 @@ export default function App() {
     helpView = useLingering(help, help)
   const input = useRef<HTMLInputElement>(null),
     lastHistory = useRef({ time: 0, key: '' }),
+    localeRequest = useRef(0),
     t = translator(locale)
+  useEffect(() => {
+    if (localeReady) return
+    let active = true
+    loadLocale(locale)
+      .then(() => {
+        if (active) setLocaleReady(true)
+      })
+      .catch(() => {
+        if (!active) return
+        setLocale('en')
+        setLocaleReady(true)
+        setLocaleError('Could not load this language. Reload and try again.')
+      })
+    return () => {
+      active = false
+    }
+  }, [locale, localeReady])
   useEffect(() => {
     let active = true
     loadDocument()
@@ -198,19 +219,18 @@ export default function App() {
     let active = true
     setSaveState('saving')
     const timer = setTimeout(() => {
-      saveDocument(doc)
-        .then(
-          () => {
-            if (active) setSaveState('saved')
-            if (!doc.sample && !isEmptyVersion(doc.versions[doc.language]))
-              void Promise.resolve()
-                .then(keepStorage)
-                .catch(() => {})
-          },
-          () => {
-            if (active) setSaveState('error')
-          },
-        )
+      saveDocument(doc).then(
+        () => {
+          if (active) setSaveState('saved')
+          if (!doc.sample && !isEmptyVersion(doc.versions[doc.language]))
+            void Promise.resolve()
+              .then(keepStorage)
+              .catch(() => {})
+        },
+        () => {
+          if (active) setSaveState('error')
+        },
+      )
     }, 250)
     return () => {
       active = false
@@ -404,12 +424,36 @@ export default function App() {
     document.documentElement.lang = locale
   }, [locale])
   function changeLocale(next: Locale) {
-    try {
-      localStorage.setItem('neatcv-locale', next)
-    } catch {
-      /* The language still changes for this visit. */
+    const request = ++localeRequest.current
+    const apply = () => {
+      setLocaleError('')
+      try {
+        localStorage.setItem('neatcv-locale', next)
+      } catch {
+        /* Keep this visit's choice. */
+      }
+      setLocale(next)
+      setLanguageLoading(false)
     }
-    setLocale(next)
+    if (hasDictionary(next)) {
+      apply()
+      return
+    }
+    setLanguageLoading(true)
+    loadLocale(next)
+      .then(() => {
+        if (request === localeRequest.current) apply()
+      })
+      .catch(() => {
+        if (request !== localeRequest.current) return
+        setLanguageLoading(false)
+        setLocaleError(
+          t(
+            'Не удалось загрузить язык. Перезагрузите страницу и попробуйте снова.',
+            'Could not load this language. Reload and try again.',
+          ),
+        )
+      })
   }
   // The resume is always edited and exported in the site language; each
   // language keeps its own version of the text.
@@ -634,6 +678,15 @@ export default function App() {
       </section>
     </>
   )
+  if (!localeReady)
+    return (
+      <div className="app-shell">
+        <main className="loading" role="status" aria-busy="true">
+          <LoaderCircle className="spin" />
+          NeatCV
+        </main>
+      </div>
+    )
   return (
     <div
       className={`app-shell ${location.pathname === '/edit' && doc ? 'is-editing' : ''}`}
@@ -668,10 +721,15 @@ export default function App() {
         </nav>
         <div className="header-tools">
           <label className="language-button">
-            <Globe2 size={15} aria-hidden="true" />
+            {languageLoading ? (
+              <LoaderCircle size={15} className="spin" aria-hidden="true" />
+            ) : (
+              <Globe2 size={15} aria-hidden="true" />
+            )}
             <span aria-hidden="true">{locale.toUpperCase()}</span>
             <select
               value={locale}
+              aria-busy={languageLoading}
               onChange={(e) => changeLocale(e.target.value as Locale)}
               aria-label={t('Язык интерфейса', 'Interface language')}
             >
@@ -919,13 +977,25 @@ export default function App() {
           <ArrowUpRight />
         </button>
       </footer>
-      {notice && (
-        <div className="toast" role="status">
-          <span>{notice}</span>
+      {(localeError || notice) && (
+        <div className="toast" role={localeError ? 'alert' : 'status'}>
+          <span>{localeError || notice}</span>
+          {localeError && (
+            <button
+              className="button secondary"
+              disabled={Boolean(doc) && saveState !== 'saved'}
+              onClick={() => window.location.reload()}
+            >
+              {t('Перезагрузить', 'Reload')}
+            </button>
+          )}
           <button
             className="icon-button"
             aria-label={t('Закрыть уведомление', 'Dismiss notification')}
-            onClick={() => setNotice('')}
+            onClick={() => {
+              setNotice('')
+              setLocaleError('')
+            }}
           >
             <X size={18} />
           </button>

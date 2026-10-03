@@ -1,15 +1,29 @@
 import { isLocale, type Locale } from './model'
-import de from './locales/de'
-import es from './locales/es'
-import bg from './locales/bg'
-import uk from './locales/uk'
+/** Interface dictionaries are fetched only when their language is requested. */
+export const dictionaries: Partial<Record<Locale, Record<string, string>>> = {}
+const loaders = {
+  de: () => import('./locales/de'),
+  es: () => import('./locales/es'),
+  bg: () => import('./locales/bg'),
+  uk: () => import('./locales/uk'),
+}
+const pending = new Map<Locale, Promise<void>>()
+export const hasDictionary = (locale: Locale) =>
+  locale === 'en' || locale === 'ru' || Boolean(dictionaries[locale])
 
-/** Interface translations beyond Russian and English, keyed by the English text. */
-export const dictionaries: Partial<Record<Locale, Record<string, string>>> = {
-  de,
-  es,
-  bg,
-  uk,
+export function loadLocale(locale: Locale): Promise<void> {
+  if (hasDictionary(locale)) return Promise.resolve()
+  const current = pending.get(locale)
+  if (current) return current
+  const request = loaders[locale as keyof typeof loaders]()
+    .then(({ default: dictionary }) => {
+      dictionaries[locale] = dictionary
+    })
+    .finally(() => {
+      pending.delete(locale)
+    })
+  pending.set(locale, request)
+  return request
 }
 
 export type Vars = Record<string, string | number>

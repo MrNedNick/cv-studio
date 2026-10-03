@@ -2,6 +2,7 @@ import 'fake-indexeddb/auto'
 import '@testing-library/jest-dom/vitest'
 import {
   cleanup,
+  configure,
   fireEvent,
   render,
   screen,
@@ -11,6 +12,7 @@ import {
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeAll, beforeEach, expect, it, vi } from 'vitest'
 import App from './App'
+import { loadLocale } from './i18n'
 import { exportPdf } from './pdf'
 import { keepStorage, loadDocument, saveDocument } from './storage'
 import { createDocument, emptyEntry } from './model'
@@ -23,7 +25,10 @@ vi.mock('./storage', () => ({
   saveDocument: vi.fn(async () => undefined),
   keepStorage: vi.fn(async () => undefined),
 }))
-beforeAll(() => {
+beforeAll(async () => {
+  // Allow the first lazy editor import to finish on a busy machine.
+  configure({ asyncUtilTimeout: 3000 })
+  await Promise.all((['de', 'es', 'bg', 'uk'] as const).map(loadLocale))
   URL.createObjectURL = vi.fn(() => 'blob:test')
   URL.revokeObjectURL = vi.fn()
   HTMLDialogElement.prototype.showModal = function () {

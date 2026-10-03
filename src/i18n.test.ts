@@ -1,11 +1,13 @@
 // @vitest-environment node
-import { expect, it } from 'vitest'
+import { beforeAll, expect, it } from 'vitest'
 import { collectKeys } from '../scripts/i18n-keys.mjs'
-import { detectLocale, dictionaries, translate } from './i18n'
+import { detectLocale, dictionaries, translate, loadLocale } from './i18n'
 
 const { keys } = collectKeys()
+const translatedLocales = ['de', 'es', 'bg', 'uk'] as const
+beforeAll(() => Promise.all(translatedLocales.map(loadLocale)))
 
-it.each(Object.keys(dictionaries))(
+it.each(translatedLocales)(
   'translates every interface string into %s',
   (locale) => {
     const dictionary = dictionaries[locale as keyof typeof dictionaries]!

@@ -1,5 +1,7 @@
 // UI strings keyed by their English text.
 const messages: Record<string, string> = {
+  'Could not load this language. Reload and try again.':
+    'Не вдалося завантажити цю мову. Перезавантажте сторінку та спробуйте ще раз.',
   '1–2 pages': '1–2 сторінки',
   '6–30 skills': '6–30 навичок',
   'A FORMAT FOR YOUR STORY': 'ФОРМАТ ДЛЯ ВАШОЇ ІСТОРІЇ',
