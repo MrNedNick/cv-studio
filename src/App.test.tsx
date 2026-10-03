@@ -688,6 +688,37 @@ it('validates contact fields once they are left', async () => {
   fireEvent.change(github, { target: { value: 'ftp://example' } })
   fireEvent.blur(github)
   expect(github).toHaveAttribute('aria-invalid', 'true')
+  fireEvent.change(github, { target: { value: 'github.com/example' } })
+  expect(github).not.toHaveAttribute('aria-invalid')
+  const phone = screen.getByLabelText('Телефон')
+  fireEvent.change(phone, { target: { value: '(---)' } })
+  fireEvent.blur(phone)
+  expect(phone).toHaveAttribute('aria-invalid', 'true')
+  fireEvent.change(phone, { target: { value: '+49 (30) 1234-5678' } })
+  expect(phone).not.toHaveAttribute('aria-invalid')
+})
+it('moves through contacts with Enter without interrupting composition or multiline writing', async () => {
+  render(
+    <MemoryRouter initialEntries={['/edit']}>
+      <App />
+    </MemoryRouter>,
+  )
+  await newResume()
+  const name = screen.getByLabelText('Имя и фамилия')
+  name.focus()
+  fireEvent.keyDown(name, { key: 'Enter', isComposing: true })
+  expect(name).toHaveFocus()
+  fireEvent.keyDown(name, { key: 'Enter' })
+  expect(screen.getByLabelText('Должность или специализация')).toHaveFocus()
+  const github = screen.getByLabelText('GitHub')
+  github.focus()
+  fireEvent.keyDown(github, { key: 'Enter' })
+  expect(github).not.toHaveFocus()
+  await openStep(/О себе/)
+  const profile = screen.getByLabelText('Коротко о вас')
+  profile.focus()
+  fireEvent.keyDown(profile, { key: 'Enter' })
+  expect(profile).toHaveFocus()
 })
 it('toggles the form with one button, a shortcut, or by choosing a section', async () => {
   localStorage.removeItem('neatcv-form-hidden')

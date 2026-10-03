@@ -27,12 +27,22 @@ export default defineConfig({
     },
     {
       name: 'iphone-safari',
-      testMatch: ['mobile.e2e.ts', 'a11y.e2e.ts', 'locales.e2e.ts'],
+      testMatch: [
+        'mobile.e2e.ts',
+        'a11y.e2e.ts',
+        'locales.e2e.ts',
+        'contacts.e2e.ts',
+      ],
       use: { ...devices['iPhone 15 Pro Max'], browserName: 'webkit' },
     },
     {
       name: 'phone-chromium',
-      testMatch: ['mobile.e2e.ts', 'a11y.e2e.ts', 'locales.e2e.ts'],
+      testMatch: [
+        'mobile.e2e.ts',
+        'a11y.e2e.ts',
+        'locales.e2e.ts',
+        'contacts.e2e.ts',
+      ],
       use: { ...devices['iPhone 15 Pro Max'], browserName: 'chromium' },
     },
   ],

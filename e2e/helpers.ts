@@ -17,6 +17,8 @@ export async function openExample(page: Page) {
 }
 
 export async function step(page: Page, name: string | RegExp) {
+  // After a reload the lazy editor must mount before choosing its navigation.
+  await expect(page.locator('.editor-toolbar')).toBeVisible()
   const picker = page.getByRole('button', { name: 'Resume steps', exact: true })
   if (await picker.isVisible()) await picker.click()
   await page
