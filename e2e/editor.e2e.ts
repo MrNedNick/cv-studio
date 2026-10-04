@@ -34,8 +34,8 @@ test('a resume filled from scratch survives a reload', async ({ page }) => {
     .getByRole('textbox', { name: 'Company', exact: true })
     .fill('Nordlicht Digital')
   await page.getByLabel('Start date').fill('2022-03')
-  // The switch input is visually hidden behind its styled track.
-  await page.getByRole('switch', { name: 'Present' }).check({ force: true })
+  // Let the control scroll into view above the sticky footer before clicking.
+  await page.getByRole('switch', { name: 'Present' }).check()
   await page
     .getByLabel('Achievements and impact')
     .fill('Cut build time by 40% by moving to Vite\nLed a team of 4 engineers')
