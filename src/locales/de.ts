@@ -1,5 +1,53 @@
 // UI strings keyed by their English text.
 const messages: Record<string, string> = {
+  'The preview shows example text until you write your own. Choose a look, then Personal details.':
+    'Die Vorschau zeigt Beispieltext, bis Sie selbst schreiben. Wählen Sie ein Design und gehen Sie dann zu Persönliche Daten.',
+  'Edits save only in this browser. Keep an editable PDF or JSON backup before clearing browser data.':
+    'Änderungen werden nur in diesem Browser gespeichert. Bewahren Sie vor dem Löschen der Browserdaten ein bearbeitbares PDF oder JSON auf.',
+  'Each language has its own text; nothing is translated automatically. Contacts, dates and links are shared.':
+    'Jede Sprache hat ihren eigenen Text; es gibt keine automatische Übersetzung. Kontakte, Daten und Links sind gemeinsam.',
+  'Turn off In resume to skip a section without deleting it. Writing examples are available below.':
+    'Schalten Sie Im Lebenslauf aus, um einen Abschnitt ohne Löschen zu überspringen. Schreibbeispiele finden Sie unten.',
+  'Enter or comma adds a skill. Paste a comma-separated list to add several at once.':
+    'Enter oder Komma fügt eine Kenntnis hinzu. Eine kommagetrennte Liste ergänzt mehrere auf einmal.',
+  'Choose a level from A1–C2 or write your own. These are languages you speak, not the PDF language.':
+    'Wählen Sie A1–C2 oder beschreiben Sie Ihr Niveau selbst. Dies sind Ihre Sprachkenntnisse, nicht die PDF-Sprache.',
+  'Check every PDF page. Use For sharing for employers; keep an Editable copy to edit again.':
+    'Prüfen Sie alle PDF-Seiten. Zum Teilen ist für Arbeitgeber; eine Bearbeitbare Kopie ist für spätere Änderungen.',
+  'Check pages and line breaks in the actual PDF. Zoom affects the preview only; Text view helps with reading.':
+    'Prüfen Sie Seiten und Zeilenumbrüche im echten PDF. Der Zoom betrifft nur die Vorschau; die Textansicht erleichtert das Lesen.',
+  'Add several skills at once': 'Mehrere Kenntnisse auf einmal hinzufügen',
+  'Another language, a separate version': 'Andere Sprache, eigene Version',
+  'Choose a level that fits': 'Ein passendes Niveau wählen',
+  'Choose what you need help with. You can write and download in any order; completing every step is optional.':
+    'Wählen Sie, wobei Sie Hilfe brauchen. Schreiben und Herunterladen sind jederzeit möglich; nicht jeder Schritt muss ausgefüllt werden.',
+  'Contextual editor tips': 'Hinweise beim Bearbeiten',
+  'Dismiss this editor tip': 'Diesen Hinweis nicht mehr anzeigen',
+  'Editor guide': 'Hilfe zum Editor',
+  'Editor tip': 'Hinweis zum Editor',
+  'Keep only the sections you need': 'Nur benötigte Abschnitte behalten',
+  'Restore dismissed editor tips': 'Ausgeblendete Hinweise wieder anzeigen',
+  'Review, then keep two copies': 'Prüfen und zwei Kopien behalten',
+  'Saved here, in this browser': 'Hier in diesem Browser gespeichert',
+  'See what the reader will see': 'Sehen, was die Leser sehen',
+  'Show in editor': 'Im Editor zeigen',
+  'Start with the look': 'Mit dem Design beginnen',
+  'Checks help you spot gaps; they do not rate your chances of getting hired. Inspect the PDF, download For sharing for employers, and keep an Editable copy for yourself to reopen here and continue editing.':
+    'Die Prüfungen zeigen Lücken auf; sie bewerten nicht Ihre Einstellungschancen. Prüfen Sie das PDF, laden Sie Zum Teilen für Arbeitgeber herunter und behalten Sie eine Bearbeitbare Kopie zum erneuten Öffnen und Bearbeiten.',
+  'Choose a language and level. A1–A2 is basic, B1–B2 independent, C1–C2 proficient. You can describe the level in your own words. These are languages you speak; the PDF language is selected at the top.':
+    'Wählen Sie Sprache und Niveau. A1–A2 steht für elementare, B1–B2 für selbstständige, C1–C2 für kompetente Sprachverwendung. Sie können das Niveau auch selbst beschreiben. Hier geht es um Ihre Sprachkenntnisse; die PDF-Sprache wählen Sie oben.',
+  'Do not need this section? Turn off In resume: your text is kept and Next skips this step. Open How to write this section for structure and examples. Collapsing an entry keeps it in the PDF.':
+    'Abschnitt nicht benötigt? Schalten Sie Im Lebenslauf aus: Der Text bleibt erhalten und Weiter überspringt den Schritt. So schreiben Sie diesen Abschnitt bietet Struktur und Beispiele. Eingeklappte Einträge bleiben im PDF.',
+  'Edits save automatically. They will not appear on another device, and clearing browser data removes this copy. When you finish, keep an editable PDF or use the actions menu to save JSON.':
+    'Änderungen werden automatisch gespeichert. Sie erscheinen nicht auf anderen Geräten; das Löschen der Browserdaten entfernt diese Kopie. Speichern Sie am Ende ein bearbeitbares PDF oder über das Aktionsmenü eine JSON-Kopie.',
+  'Pick a template, then move to Personal details. While your resume is empty, the preview uses example text; it is not added to your resume. On a phone, open Preview to see the design.':
+    'Wählen Sie eine Vorlage und gehen Sie dann zu Persönliche Daten. Solange Ihr Lebenslauf leer ist, zeigt die Vorschau Beispieltext; dieser wird nicht übernommen. Öffnen Sie am Telefon die Vorschau, um das Design zu sehen.',
+  'The language selector at the top changes the interface and resume version. Text is not translated automatically; an empty version can copy another as a starting point. Contacts, dates and links are shared. Sharing PDFs contain the selected version.':
+    'Die Sprachauswahl oben ändert die Oberfläche und die Lebenslaufversion. Text wird nicht automatisch übersetzt; eine leere Version kann eine andere als Ausgangspunkt kopieren. Kontakte, Daten und Links sind gemeinsam. PDFs zum Teilen enthalten die gewählte Version.',
+  'This is the actual PDF: check every page and line break. Text view is useful for reading and copying. Zoom changes only the preview, not the text size in the file. Change text size in the Template step.':
+    'Dies ist das echte PDF: Prüfen Sie alle Seiten und Zeilenumbrüche. Die Textansicht hilft beim Lesen und Kopieren. Der Zoom ändert nur die Vorschau, nicht die Schriftgröße in der Datei. Ändern Sie diese im Schritt Vorlage.',
+  'Type a skill and press Enter or comma. You can paste a list separated by commas. Suggestions below are optional; add only skills you actually have.':
+    'Geben Sie eine Kenntnis ein und drücken Sie Enter oder Komma. Sie können eine kommagetrennte Liste einfügen. Die Vorschläge unten sind optional; ergänzen Sie nur tatsächliche Kenntnisse.',
   'Could not load this language. Reload and try again.':
     'Diese Sprache konnte nicht geladen werden. Lade die Seite neu und versuche es erneut.',
   '1–2 pages': '1–2 Seiten',

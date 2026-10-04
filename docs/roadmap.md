@@ -8,7 +8,7 @@ The editor is free, private, and usable without an account. Future work should k
 4. **Cover letter.** A matching one-page letter in the same design, with structure guidance rather than generated text.
 5. **Import with review.** Extract ordinary text PDFs into editable fields, with a clear comparison and review of uncertain dates and names.
 
-Delivered recently: the Review step with content checks, vacancy matching, writing guidance and an action-verb library, section order and visibility, plain-text export, twelve templates, ten colors, an optional photo, a collapsible section panel and a resizable form.
+Delivered recently: optional contextual onboarding and an Editor guide with persistent dismissal and opt-out; the Review step with content checks, vacancy matching, writing guidance and an action-verb library, section order and visibility, plain-text export, twelve templates, ten colors, an optional photo, a collapsible section panel and a resizable form.
 
 ## Mobile quality
 

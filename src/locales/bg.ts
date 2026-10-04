@@ -1,5 +1,53 @@
 // UI strings keyed by their English text.
 const messages: Record<string, string> = {
+  'The preview shows example text until you write your own. Choose a look, then Personal details.':
+    'Прегледът показва примерен текст, докато напишете свой. Изберете оформление и преминете към Лични данни.',
+  'Edits save only in this browser. Keep an editable PDF or JSON backup before clearing browser data.':
+    'Промените се запазват само в този браузър. Запазете редактируем PDF или JSON, преди да изчистите данните му.',
+  'Each language has its own text; nothing is translated automatically. Contacts, dates and links are shared.':
+    'Всеки език има свой текст; няма автоматичен превод. Контактите, датите и връзките са общи.',
+  'Turn off In resume to skip a section without deleting it. Writing examples are available below.':
+    'Изключете В резюмето, за да пропуснете раздел без изтриване. Примери за попълване има по-долу.',
+  'Enter or comma adds a skill. Paste a comma-separated list to add several at once.':
+    'Enter или запетая добавя умение. Поставете списък със запетаи, за да добавите няколко наведнъж.',
+  'Choose a level from A1–C2 or write your own. These are languages you speak, not the PDF language.':
+    'Изберете ниво A1–C2 или го опишете сами. Това са езиците, които говорите, не езикът на PDF.',
+  'Check every PDF page. Use For sharing for employers; keep an Editable copy to edit again.':
+    'Проверете всички страници на PDF. За споделяне е за работодатели; Редактируемо копие е за бъдещи промени.',
+  'Check pages and line breaks in the actual PDF. Zoom affects the preview only; Text view helps with reading.':
+    'Проверете страниците и редовете в действителния PDF. Мащабът променя само прегледа; Текст е удобен за четене.',
+  'Add several skills at once': 'Добавете няколко умения наведнъж',
+  'Another language, a separate version': 'Друг език, отделна версия',
+  'Choose a level that fits': 'Изберете подходящо ниво',
+  'Choose what you need help with. You can write and download in any order; completing every step is optional.':
+    'Изберете за какво ви трябва помощ. Можете да пишете и изтегляте в произволен ред; не е нужно да попълвате всяка стъпка.',
+  'Contextual editor tips': 'Подсказки по време на редактиране',
+  'Dismiss this editor tip': 'Не показвайте тази подсказка отново',
+  'Editor guide': 'Помощ за редактора',
+  'Editor tip': 'Подсказка за редактора',
+  'Keep only the sections you need': 'Оставете само нужните раздели',
+  'Restore dismissed editor tips': 'Възстановете скритите подсказки',
+  'Review, then keep two copies': 'Проверете и запазете две копия',
+  'Saved here, in this browser': 'Запазено тук, в този браузър',
+  'See what the reader will see': 'Вижте какво ще види читателят',
+  'Show in editor': 'Покажете в редактора',
+  'Start with the look': 'Започнете с оформлението',
+  'Checks help you spot gaps; they do not rate your chances of getting hired. Inspect the PDF, download For sharing for employers, and keep an Editable copy for yourself to reopen here and continue editing.':
+    'Проверките помагат да забележите пропуски, но не оценяват шансовете ви за работа. Прегледайте PDF, изтеглете За споделяне за работодателите и запазете Редактируемо копие за себе си, за да го отворите тук и продължите.',
+  'Choose a language and level. A1–A2 is basic, B1–B2 independent, C1–C2 proficient. You can describe the level in your own words. These are languages you speak; the PDF language is selected at the top.':
+    'Изберете език и ниво. A1–A2 е основно, B1–B2 самостоятелно, C1–C2 свободно владеене. Можете да опишете нивото със свои думи. Това са езиците, които говорите; езикът на PDF се избира горе.',
+  'Do not need this section? Turn off In resume: your text is kept and Next skips this step. Open How to write this section for structure and examples. Collapsing an entry keeps it in the PDF.':
+    'Не ви трябва този раздел? Изключете В резюмето: текстът остава, а Напред пропуска тази стъпка. Отворете Как да напишете този раздел за структура и примери. Свитият запис остава в PDF.',
+  'Edits save automatically. They will not appear on another device, and clearing browser data removes this copy. When you finish, keep an editable PDF or use the actions menu to save JSON.':
+    'Промените се запазват автоматично. Няма да се появят на друго устройство, а изчистването на данните на браузъра премахва това копие. Накрая запазете редактируем PDF или JSON от менюто с действия.',
+  'Pick a template, then move to Personal details. While your resume is empty, the preview uses example text; it is not added to your resume. On a phone, open Preview to see the design.':
+    'Изберете шаблон и преминете към Лични данни. Докато резюмето е празно, прегледът показва примерен текст, който не се добавя в него. На телефон отворете Преглед, за да видите оформлението.',
+  'The language selector at the top changes the interface and resume version. Text is not translated automatically; an empty version can copy another as a starting point. Contacts, dates and links are shared. Sharing PDFs contain the selected version.':
+    'Изборът на език горе сменя интерфейса и версията на резюмето. Текстът не се превежда автоматично; празна версия може да започне като копие на друга. Контактите, датите и връзките са общи. PDF за споделяне съдържа избраната версия.',
+  'This is the actual PDF: check every page and line break. Text view is useful for reading and copying. Zoom changes only the preview, not the text size in the file. Change text size in the Template step.':
+    'Това е действителният PDF: проверете всяка страница и пренасяне на ред. Изгледът Текст е удобен за четене и копиране. Мащабът променя само прегледа, не размера на текста във файла. Променете размера в стъпката Шаблон.',
+  'Type a skill and press Enter or comma. You can paste a list separated by commas. Suggestions below are optional; add only skills you actually have.':
+    'Въведете умение и натиснете Enter или запетая. Можете да поставите списък, разделен със запетаи. Предложенията долу са по избор; добавяйте само умения, които имате.',
   'Could not load this language. Reload and try again.':
     'Този език не можа да се зареди. Презареди страницата и опитай отново.',
   '1–2 pages': '1–2 страници',

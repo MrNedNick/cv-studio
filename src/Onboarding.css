@@ -1,0 +1,142 @@
+.guide-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: -10px 0 24px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--soft);
+  font-size: 12px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+.guide-tip > svg {
+  flex: 0 0 auto;
+  margin-top: 3px;
+  color: var(--accent);
+}
+.guide-tip > div {
+  min-width: 0;
+  flex: 1;
+}
+.guide-tip strong {
+  font-size: 13px;
+}
+.guide-tip p {
+  margin: 5px 0;
+  color: var(--muted);
+}
+.guide-tip .icon-button {
+  flex: 0 0 auto;
+  margin: -6px -6px 0 0;
+}
+.guide-tip .text-button {
+  font-size: 12px;
+  text-align: left;
+  white-space: normal;
+}
+.guide-opener {
+  color: var(--muted);
+  flex: 0 0 auto;
+}
+.preview-panel > .guide-tip {
+  margin: 0 0 16px;
+}
+.editor-guide-dialog {
+  width: min(560px, calc(100vw - 32px));
+}
+.guide-intro {
+  color: var(--muted);
+  line-height: 1.7;
+}
+.guide-preferences {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  align-items: center;
+  padding: 16px 0;
+}
+.guide-preferences .text-button {
+  white-space: normal;
+  text-align: left;
+}
+.guide-topics details {
+  border-top: 1px solid var(--line);
+  padding: 4px 0;
+}
+.guide-topics summary {
+  cursor: pointer;
+  padding: 12px 4px;
+  font-weight: 600;
+}
+.guide-topics p {
+  margin: 0 4px 8px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+.guide-topics .text-button {
+  margin: 0 4px 8px;
+}
+.guide-topics summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+@media (max-width: 1049px) {
+  .guide-tip {
+    padding: 12px;
+    gap: 8px;
+  }
+  .guide-tip .icon-button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .guide-tip .text-button,
+  .guide-topics .text-button,
+  .guide-preferences .text-button {
+    min-height: 44px;
+  }
+  .guide-topics summary {
+    min-height: 44px;
+  }
+}
+.guide-access {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0;
+}
+.guide-access .text-button {
+  min-height: 32px;
+  font-size: 12px;
+  gap: 6px;
+}
+@media (max-width: 1049px) {
+  .guide-access .text-button {
+    min-height: 44px;
+  }
+}
+.guide-preferences .switch-row {
+  margin: 0;
+}
+.guide-preferences .switch-row label {
+  min-height: 44px;
+}
+@media (max-height: 600px) {
+  .preview-panel > .guide-tip {
+    padding: 6px 12px;
+    margin-bottom: 8px;
+  }
+  .preview-panel > .guide-tip > div {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+  }
+  .preview-panel > .guide-tip p {
+    display: none;
+  }
+  .preview-panel > .guide-tip .icon-button {
+    margin: 0;
+  }
+}

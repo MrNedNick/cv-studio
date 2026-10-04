@@ -45,6 +45,7 @@ import {
   Sparkles,
   SquarePen,
   MessageSquareWarning,
+  CircleHelp,
 } from 'lucide-react'
 import {
   accents,
@@ -88,6 +89,13 @@ import { canAnimate, Disclosure, useLingering, useMediaQuery } from './motion'
 import { ReviewStep, WritingGuide } from './Coach'
 import { SkillsField } from './SkillsField'
 import { LanguageFields } from './LanguageFields'
+import {
+  EditorGuide,
+  GuideTip,
+  guideStep,
+  useOnboarding,
+  type GuideTopic,
+} from './Onboarding'
 import { languageName, proficiency } from './suggestions'
 import { reviewResume } from './writing'
 const Preview = lazy(() => import('./Preview'))
@@ -182,6 +190,7 @@ export default function Editor({
     [widthOverride, setWidthOverride] = useState<string | null>(null),
     desktop = useMediaQuery('(min-width: 1050px)'),
     mobile = useMediaQuery('(max-width: 1049px)'),
+    shortViewport = useMediaQuery('(max-height: 600px)'),
     [resizing, setResizing] = useState(false),
     [formWidth, setFormWidth] = useState<number | null>(
       () => Number(readSetting('neatcv-form-width')) || null,
@@ -205,6 +214,10 @@ export default function Editor({
           ),
         ),
     )
+  const onboarding = useOnboarding()
+  const [guideOpen, setGuideOpen] = useState(false)
+  const guideOpener = useRef<HTMLButtonElement>(null)
+  const pendingGuideTopic = useRef<GuideTopic | null>(null)
   const t = translator(locale),
     // The interface language (locale) and the resume version (lang) are independent.
     lang = doc.language,
@@ -251,6 +264,7 @@ export default function Editor({
     focusSection = useRef(false),
     pendingEntry = useRef<{ id: string; field: boolean } | null>(null)
   function goSection(next: Step, reveal = false) {
+    onboarding.request(null)
     setMobileSteps(false)
     setMobilePreview(false)
     if (
@@ -274,6 +288,28 @@ export default function Editor({
     setSection(next)
     if (section === next) focusForm()
   }
+  function openGuide() {
+    const opener =
+      (desktop && formHidden) || (mobile && mobilePreview)
+        ? menuButton
+        : guideOpener
+    opener.current?.focus({ preventScroll: true })
+    setGuideOpen(true)
+  }
+  useEffect(() => {
+    if (guideOpen || !pendingGuideTopic.current) return
+    const topic = pendingGuideTopic.current
+    pendingGuideTopic.current = null
+    if (topic === 'preview') {
+      setMobilePreview(true)
+      requestAnimationFrame(() => {
+        document
+          .querySelector<HTMLElement>('.preview-panel .guide-tip button')
+          ?.focus({ preventScroll: true })
+      })
+    } else goSection(guideStep[topic])
+    onboarding.request(topic)
+  }, [guideOpen])
   const tab = section === 'design' ? 'design' : 'content'
   function focusForm() {
     const heading = form.current?.querySelector('h1')
@@ -820,6 +856,52 @@ export default function Editor({
         : step === 'design'
           ? t('Шаблон', 'Template')
           : labels[step]
+  const guideAccess = (
+    <div className="guide-access">
+      <button
+        ref={guideOpener}
+        className="text-button guide-opener"
+        aria-haspopup="dialog"
+        onClick={(event) => {
+          event.currentTarget.focus()
+          setGuideOpen(true)
+        }}
+      >
+        <CircleHelp size={15} aria-hidden="true" />
+        {t('Помощь по редактору', 'Editor guide')}
+      </button>
+    </div>
+  )
+  const contextTopic: GuideTopic | null =
+    onboarding.requested && onboarding.requested !== 'preview'
+      ? guideStep[onboarding.requested] === section
+        ? onboarding.requested
+        : null
+      : section === 'design'
+        ? doc.sample
+          ? null
+          : 'design'
+        : section === 'basics'
+          ? 'basics'
+          : section === 'skills' ||
+              section === 'languages' ||
+              section === 'review'
+            ? section
+            : isHidden(section)
+              ? null
+              : 'structure'
+  const contextTip =
+    contextTopic &&
+    onboarding.requested !== 'preview' &&
+    onboarding.show(contextTopic) ? (
+      <GuideTip
+        topic={contextTopic}
+        locale={locale}
+        dismiss={() => onboarding.dismiss(contextTopic)}
+        help={openGuide}
+        focusAfterDismiss={guideOpener}
+      />
+    ) : null
   const meta = pdfMetadata(doc)
   const emptyVersion = isEmptyVersion(resume),
     sources = locales.filter(
@@ -1233,6 +1315,15 @@ export default function Editor({
             <FileText size={16} />
             {t('Скачать .txt для анкет', 'Download .txt for forms')}
           </button>
+          <button
+            onClick={() => {
+              setMenu(false)
+              openGuide()
+            }}
+          >
+            <CircleHelp size={16} />
+            {t('Помощь по редактору', 'Editor guide')}
+          </button>
           <a
             href="https://github.com/MrNedNick/cv-studio/issues/new/choose"
             target="_blank"
@@ -1243,6 +1334,19 @@ export default function Editor({
             {t('Сообщить о проблеме', 'Report a problem')}
           </a>
         </div>
+      )}
+      {guideOpen && (
+        <EditorGuide
+          locale={locale}
+          close={() => setGuideOpen(false)}
+          enabled={onboarding.enabled}
+          setEnabled={onboarding.setEnabled}
+          reset={onboarding.reset}
+          choose={(topic) => {
+            pendingGuideTopic.current = topic
+            setGuideOpen(false)
+          }}
+        />
       )}
       {mobileSteps && !desktop && (
         <Dialog
@@ -1271,7 +1375,10 @@ export default function Editor({
         <button
           aria-pressed={!mobilePreview}
           className={!mobilePreview ? 'active' : ''}
-          onClick={() => setMobilePreview(false)}
+          onClick={() => {
+            setMobilePreview(false)
+            onboarding.request(null)
+          }}
         >
           <PenLine size={16} />
           {t('Редактор', 'Editor')}
@@ -1386,6 +1493,7 @@ export default function Editor({
                     <div className="eyebrow">
                       {t('ШАГ', 'STEP')} 01 / 0{steps.length}
                     </div>
+                    {guideAccess}
                   </div>
                   <h1 tabIndex={-1}>{t('Шаблон', 'Template')}</h1>
                   <p className="form-description">
@@ -1394,6 +1502,7 @@ export default function Editor({
                       'Choose how your resume looks. You can switch at any time — your text stays.',
                     )}
                   </p>
+                  {contextTip}
                   <div className="design-options">
                     {templates.map((template) => (
                       <button
@@ -1545,6 +1654,7 @@ export default function Editor({
                       {t('ШАГ', 'STEP')} 0{steps.indexOf(section) + 1} / 0
                       {steps.length}
                     </div>
+                    {guideAccess}
                   </div>
                   {section === 'review' ? (
                     <>
@@ -1557,6 +1667,7 @@ export default function Editor({
                           'Last step: check the content, compare with a vacancy, and download your PDF.',
                         )}
                       </p>
+                      {contextTip}
                       <ReviewStep
                         resume={resume}
                         locale={locale}
@@ -1596,6 +1707,7 @@ export default function Editor({
                         )}
                       </div>
                       <p className="form-description">{subtitles[section]}</p>
+                      {contextTip}
                       {isHidden(section) && (
                         <div className="section-off" role="note">
                           <EyeOff size={17} aria-hidden="true" />
@@ -2285,6 +2397,18 @@ export default function Editor({
               <GripVertical size={14} />
             </span>
           </div>
+          {((((mobile && mobilePreview) || (desktop && formHidden)) &&
+            !shortViewport) ||
+            onboarding.requested === 'preview') &&
+            onboarding.show('preview') && (
+              <GuideTip
+                topic="preview"
+                locale={locale}
+                dismiss={() => onboarding.dismiss('preview')}
+                help={openGuide}
+                focusAfterDismiss={menuButton}
+              />
+            )}
           <Suspense
             fallback={
               <div className="loading">

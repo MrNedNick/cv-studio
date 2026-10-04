@@ -1,5 +1,53 @@
 // UI strings keyed by their English text.
 const messages: Record<string, string> = {
+  'The preview shows example text until you write your own. Choose a look, then Personal details.':
+    'Перегляд показує приклад, поки ви не напишете свій текст. Виберіть оформлення й перейдіть до особистих даних.',
+  'Edits save only in this browser. Keep an editable PDF or JSON backup before clearing browser data.':
+    'Правки зберігаються лише в цьому браузері. Перед очищенням його даних збережіть редагований PDF або JSON.',
+  'Each language has its own text; nothing is translated automatically. Contacts, dates and links are shared.':
+    'У кожної мови свій текст; автоматичного перекладу немає. Контакти, дати й посилання спільні.',
+  'Turn off In resume to skip a section without deleting it. Writing examples are available below.':
+    'Вимкніть У резюме, щоб пропустити розділ без видалення тексту. Приклади для заповнення доступні нижче.',
+  'Enter or comma adds a skill. Paste a comma-separated list to add several at once.':
+    'Enter або кома додають навичку. Вставте список через коми, щоб додати кілька одразу.',
+  'Choose a level from A1–C2 or write your own. These are languages you speak, not the PDF language.':
+    'Виберіть рівень A1–C2 або опишіть своїми словами. Це мови, якими ви володієте, а не мова PDF.',
+  'Check every PDF page. Use For sharing for employers; keep an Editable copy to edit again.':
+    'Перевірте всі сторінки PDF. Для надсилання — роботодавцю; Редагована копія — для майбутніх правок.',
+  'Check pages and line breaks in the actual PDF. Zoom affects the preview only; Text view helps with reading.':
+    'Перевірте сторінки й переноси у справжньому PDF. Масштаб впливає лише на перегляд; Текст зручний для читання.',
+  'Add several skills at once': 'Додайте кілька навичок одразу',
+  'Another language, a separate version': 'Інша мова — окрема версія',
+  'Choose a level that fits': 'Виберіть відповідний рівень',
+  'Choose what you need help with. You can write and download in any order; completing every step is optional.':
+    'Виберіть, із чим потрібна допомога. Можна писати й завантажувати в будь-якому порядку — проходити всі кроки необов’язково.',
+  'Contextual editor tips': 'Підказки під час роботи',
+  'Dismiss this editor tip': 'Більше не показувати цю підказку',
+  'Editor guide': 'Допомога з редактором',
+  'Editor tip': 'Підказка редактора',
+  'Keep only the sections you need': 'Залиште лише потрібні розділи',
+  'Restore dismissed editor tips': 'Повернути закриті підказки',
+  'Review, then keep two copies': 'Перевірте й збережіть дві копії',
+  'Saved here, in this browser': 'Збережено тут, у цьому браузері',
+  'See what the reader will see': 'Погляньте очима читача',
+  'Show in editor': 'Показати в редакторі',
+  'Start with the look': 'Почніть із вигляду',
+  'Checks help you spot gaps; they do not rate your chances of getting hired. Inspect the PDF, download For sharing for employers, and keep an Editable copy for yourself to reopen here and continue editing.':
+    'Перевірки допомагають помітити пропуски, але не оцінюють шанси на роботу. Перегляньте PDF, завантажте Для надсилання роботодавцю й збережіть Редаговану копію для себе — її можна відкрити тут і продовжити правки.',
+  'Choose a language and level. A1–A2 is basic, B1–B2 independent, C1–C2 proficient. You can describe the level in your own words. These are languages you speak; the PDF language is selected at the top.':
+    'Виберіть мову й рівень. A1–A2 — початковий, B1–B2 — самостійне володіння, C1–C2 — досвідчене. Можна описати рівень своїми словами. Це мови, якими ви володієте; мова самого PDF обирається вгорі.',
+  'Do not need this section? Turn off In resume: your text is kept and Next skips this step. Open How to write this section for structure and examples. Collapsing an entry keeps it in the PDF.':
+    'Не потрібен розділ? Вимкніть У резюме: текст збережеться, а Далі пропустить цей крок. Відкрийте Як написати цей розділ — там структура й приклади. Згорнута картка залишається в PDF.',
+  'Edits save automatically. They will not appear on another device, and clearing browser data removes this copy. When you finish, keep an editable PDF or use the actions menu to save JSON.':
+    'Правки зберігаються автоматично. На іншому пристрої вони не з’являться, а очищення даних браузера видалить цю копію. Коли закінчите, збережіть редагований PDF або JSON через меню дій.',
+  'Pick a template, then move to Personal details. While your resume is empty, the preview uses example text; it is not added to your resume. On a phone, open Preview to see the design.':
+    'Виберіть шаблон і перейдіть до особистих даних. Поки резюме порожнє, перегляд показує приклад — він не додається до вашого резюме. На телефоні відкрийте Перегляд, щоб побачити оформлення.',
+  'The language selector at the top changes the interface and resume version. Text is not translated automatically; an empty version can copy another as a starting point. Contacts, dates and links are shared. Sharing PDFs contain the selected version.':
+    'Перемикач мови вгорі змінює інтерфейс і версію резюме. Текст не перекладається автоматично: порожню версію можна почати з копії іншої. Контакти, дати й посилання спільні. PDF для надсилання містить обрану версію.',
+  'This is the actual PDF: check every page and line break. Text view is useful for reading and copying. Zoom changes only the preview, not the text size in the file. Change text size in the Template step.':
+    'Це справжній PDF: перевірте всі сторінки й переноси рядків. Режим Текст зручний для читання та копіювання. Масштаб змінює лише перегляд, а не розмір тексту у файлі. Змініть розмір у кроці Шаблон.',
+  'Type a skill and press Enter or comma. You can paste a list separated by commas. Suggestions below are optional; add only skills you actually have.':
+    'Введіть навичку й натисніть Enter або кому. Можна вставити список через коми. Пропозиції нижче необов’язкові — додавайте лише навички, якими справді володієте.',
   'Could not load this language. Reload and try again.':
     'Не вдалося завантажити цю мову. Перезавантажте сторінку та спробуйте ще раз.',
   '1–2 pages': '1–2 сторінки',

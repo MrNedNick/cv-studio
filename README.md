@@ -37,6 +37,7 @@ The second problem is coming back later. A PDF is usually a dead end: to change 
 - Collapse experience, education, projects, and language entries into compact summaries, or expand them all. New entries receive keyboard focus; collapsed text remains in your PDF.
 - Add, remove, and reorder entries, with undo and redo. Fast edits in different fields remain separate undo steps.
 - Fields check themselves when you leave them: email, phone, links, and end dates show a short, specific message and a red outline (shared Field, Select, Switch, and auto-growing Textarea components).
+- Get short contextual editor tips and an optional Editor guide beside every step. Dismiss a topic permanently, disable automatic tips, or reopen a specific topic on demand. Help explains local saves, language versions, optional sections and PDF copies without blocking writing. See [the onboarding behavior and checks](docs/onboarding.md).
 - Follow dismissible guidance for contact details, dates, empty entries, long paragraphs, and concrete achievements. Each tip opens its relevant section.
 - The first step is the template: twelve designs with accent, five text sizes, typography and density below them. While the resume is empty, the preview shows the chosen template with example text.
 - Entry sections open with an empty entry ready to fill. Any section except personal details can be left out with one switch; Next skips it and the content is kept.
