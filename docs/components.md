@@ -11,7 +11,7 @@ NeatCV has four shared primitives under `src/ui/components/` (Field, Select, Swi
 | Dialog | Native modal focus trap, Escape/backdrop close, focus restore, unique heading IDs | Nested transitions; long content; safe areas; reduced motion |
 | Step navigation | Same step list in desktop sidebar and mobile dialog; progress and hidden sections | Keyboard focus after selecting the current step; hidden-step clarity |
 | EntryCard | Collapse, reorder, delete, focus on new entry, undo | Long translated headings and 100-entry sections |
-| Skills / LanguageFields | Chips, Enter/comma/paste, role suggestions, language picker, CEFR | Screen-reader announcements, chip removal and touch sizes |
+| Skills / LanguageFields | Chips, Enter/comma/paste, role suggestions, full-text wrapping, keyboard removal returns to writing, language picker, CEFR | Screen-reader announcements; real-device touch and keyboard |
 | Preview | Actual PDF, fit/zoom, text alternative, retry and page navigation | Touch panning, multi-page text, memory use on older phones |
 | Import / export | Confirmation, editable vs sharing copy, persistent backup offer after sharing, JSON feedback and error/retry | iOS Files/share sheet and interruption during downloads |
 | Buttons / notices | CSS tokens and explicit accessible names | Consolidate variants; disabled/loading layout; error vs saved status |
@@ -27,3 +27,5 @@ The mobile update reuses the existing Dialog and step navigation, gives dialogs 
 Contact checks cover invalid email, phone and URL messages, linked error descriptions, correction, bare web addresses, Enter navigation, composition input, both themes, phone widths and persistence after a reload. URL fields keep a text input with `inputmode="url"` because a valid bare domain should not be rejected by native URL validation. Only the portfolio field requests URL autofill; LinkedIn/GitHub use separate names and disable shared URL autofill. The combined city/country field has no city-only autofill token. Real iOS keyboard suggestions and saved-contact autofill still need a physical device check.
 
 Gallery browser checks cover both themes, 320/430 px, keyboard switch and modal focus, Escape/restore, disabled/loading actions, chips, twelve disabled template cards, error correction, axe and storage isolation. The gallery is a first review surface, not a complete audit of entry cards, PDF preview, all six translations or real iOS controls. Skills Enter/Backspace also respect composition input, with behavior tests.
+
+Skill checks include a long uninterrupted word and Cyrillic text at 320/360/430 px in both themes. Chips wrap without truncating stored text and keep the removal target at least 44 px on phones. Enter/Space removal returns keyboard focus to the input; pointer removal does not force the software keyboard open. The workflow covers adding again, removing the final chip and keeping the resulting skills after a reload.
