@@ -4245,6 +4245,9 @@ dialog[open] {
   background: var(--line);
   transition: background-color 0.2s var(--ease);
 }
+.switch-row label > span > span {
+  pointer-events: none;
+}
 .switch-row label > span > span:last-of-type {
   position: relative;
   width: 18px;
@@ -4263,6 +4266,13 @@ dialog[open] {
 }
 .switch-row .ui-switch:focus-visible + span {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+.switch-row label:has(.ui-switch:disabled) {
+  opacity: 0.6;
+  cursor: default;
+}
+.ui-switch:disabled {
+  cursor: default;
 }
 [data-theme='dark'] .switch-row .ui-switch:checked + span + span {
   background: var(--on-accent);

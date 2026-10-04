@@ -258,7 +258,9 @@ export function TemplateCards({
           onClick={() => onPick(template.id)}
         >
           <div className="template-image">
-            <span className="template-number">0{index + 1}</span>
+            <span className="template-number">
+              {String(index + 1).padStart(2, '0')}
+            </span>
             <MiniResume template={template.id} locale={locale} />
             <span className="template-use">
               {translate(locale, 'Выбрать шаблон', 'Use template')}
