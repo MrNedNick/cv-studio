@@ -4946,16 +4946,23 @@ dialog .guide-example p {
 }
 .skill-tags li {
   display: inline-flex;
+  max-width: 100%;
+  min-width: 0;
   align-items: center;
   gap: 2px;
   padding: 4px 4px 4px 10px;
-  border-radius: 99px;
+  border-radius: 16px;
   background: var(--soft);
   font-size: 13px;
   animation: fade-in 0.18s var(--ease);
 }
+.skill-tags li > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
 .skill-tags button {
   display: grid;
+  flex-shrink: 0;
   place-items: center;
   width: 22px;
   height: 22px;

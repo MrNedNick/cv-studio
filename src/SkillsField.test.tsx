@@ -2,6 +2,7 @@ import '@testing-library/jest-dom/vitest'
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { useState } from 'react'
 import { afterEach, expect, it } from 'vitest'
+import userEvent from '@testing-library/user-event'
 import { SkillsField } from './SkillsField'
 
 afterEach(cleanup)
@@ -54,6 +55,41 @@ it('deduplicates pasted skills and allows removing the last chip from the keyboa
   fireEvent.click(
     screen.getByRole('button', { name: 'Remove “Accessibility”' }),
   )
+  expect(
+    screen.queryByRole('list', { name: 'Added skills' }),
+  ).not.toBeInTheDocument()
+})
+
+it('returns keyboard removal to writing and preserves long pasted skills', async () => {
+  const user = userEvent.setup()
+  render(<Skills />)
+  const input = screen.getByLabelText('Your skills')
+  const longSkill = 'TypeScript'.repeat(20)
+  await user.click(input)
+  await user.paste(`${longSkill}, Анализ данных,`)
+  expect(
+    screen.getByRole('button', { name: `Remove “${longSkill}”` }),
+  ).toBeInTheDocument()
+  const remove = screen.getByRole('button', { name: 'Remove “Accessibility”' })
+  remove.focus()
+  await user.keyboard('{Enter}')
+  expect(input).toHaveFocus()
+  await user.type(input, 'Research{Enter}')
+  expect(
+    screen.getByRole('button', { name: 'Remove “Research”' }),
+  ).toBeInTheDocument()
+  fireEvent.click(
+    screen.getByRole('button', { name: `Remove “${longSkill}”` }),
+    { detail: 0 },
+  )
+  fireEvent.click(
+    screen.getByRole('button', { name: 'Remove “Анализ данных”' }),
+    { detail: 0 },
+  )
+  fireEvent.click(screen.getByRole('button', { name: 'Remove “Research”' }), {
+    detail: 0,
+  })
+  expect(input).toHaveFocus()
   expect(
     screen.queryByRole('list', { name: 'Added skills' }),
   ).not.toBeInTheDocument()

@@ -1,4 +1,4 @@
-import { useId, useState } from 'react'
+import { useId, useRef, useState } from 'react'
 import { Plus, X } from 'lucide-react'
 import { roleFor, skillRoles, skillText } from './suggestions'
 import { translator } from './i18n'
@@ -30,6 +30,7 @@ export function SkillsField({
 }) {
   const t = translator(locale),
     id = useId(),
+    input = useRef<HTMLInputElement>(null),
     skills = splitSkills(value),
     [draft, setDraft] = useState(''),
     guessed = roleFor(jobTitle),
@@ -80,7 +81,10 @@ export function SkillsField({
                   aria-label={t('Убрать «{skill}»', 'Remove “{skill}”', {
                     skill,
                   })}
-                  onClick={() => commit(skills.filter((_, j) => j !== i))}
+                  onClick={(event) => {
+                    commit(skills.filter((_, j) => j !== i))
+                    if (event.detail === 0) input.current?.focus()
+                  }}
                 >
                   <X size={13} />
                 </button>
@@ -90,6 +94,7 @@ export function SkillsField({
         )}
         <input
           id={id}
+          ref={input}
           value={draft}
           lang={lang}
           maxLength={1000}
