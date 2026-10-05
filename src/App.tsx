@@ -6,6 +6,7 @@ import {
   useRef,
   useState,
 } from 'react'
+import { trackEvent } from './analytics'
 import {
   Link,
   Navigate,
@@ -124,6 +125,7 @@ export default function App() {
     [pendingImport, setPendingImport] = useState<{
       doc: ResumeDocument
       filename: string
+      format: 'pdf' | 'json'
     } | null>(null),
     [pendingStart, setPendingStart] = useState<boolean | null>(null),
     [help, setHelp] = useState(false),
@@ -332,6 +334,9 @@ export default function App() {
       return
     }
     update(createDocument(sample, locale))
+    trackEvent(sample ? 'example_opened' : 'resume_created', {
+      language: locale,
+    })
     notify('')
     setPendingStart(null)
     setDocumentRevision((value) => value + 1)
@@ -342,6 +347,7 @@ export default function App() {
       navigate('/edit')
       return
     }
+    if (!doc) trackEvent('resume_created', { language: locale })
     const next = doc || createDocument(false, locale)
     update({ ...next, template })
     navigate('/edit')
@@ -371,7 +377,11 @@ export default function App() {
             await import('./pdf-reader')
           ).importPdf(await file.arrayBuffer())
         : parseDocument(JSON.parse(await file.text()))
-      setPendingImport({ doc: next, filename: file.name })
+      setPendingImport({
+        doc: next,
+        filename: file.name,
+        format: isPdf ? 'pdf' : 'json',
+      })
     } catch {
       notify(
         t(
@@ -403,6 +413,10 @@ export default function App() {
           }
         : { ...imported, language: locale },
     )
+    trackEvent('resume_imported', {
+      language: locale,
+      format: pendingImport.format,
+    })
     setPendingImport(null)
     setDocumentRevision((value) => value + 1)
     navigate('/edit')
@@ -422,6 +436,7 @@ export default function App() {
         }),
         'resume.json',
       )
+      trackEvent('json_downloaded', { format: 'json' })
       notify(
         t(
           'JSON-копия скачана. Откройте её здесь, чтобы восстановить резюме.',
@@ -459,6 +474,11 @@ export default function App() {
                 .replace(/\s+/g, '-') || 'Resume'
             }-${snapshot.language.toUpperCase()}${editable ? '-editable' : ''}-CV.pdf`,
       )
+      trackEvent('pdf_downloaded', {
+        language: snapshot.language,
+        template: snapshot.template,
+        format: editable ? 'editable' : 'sharing',
+      })
       notify(
         editable
           ? t(
@@ -1119,20 +1139,7 @@ export default function App() {
           <button onClick={() => setSaveAttempt((value) => value + 1)}>
             {t('Повторить сохранение', 'Retry saving')}
           </button>
-          {doc && (
-            <button
-              onClick={() =>
-                download(
-                  new Blob([JSON.stringify(toJsonResume(doc))], {
-                    type: 'application/json',
-                  }),
-                  'resume.json',
-                )
-              }
-            >
-              JSON ↓
-            </button>
-          )}
+          {doc && <button onClick={() => backup()}>JSON ↓</button>}
         </div>
       )}
       {exportView.shown && exportShown && (

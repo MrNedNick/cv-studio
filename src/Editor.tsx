@@ -1,3 +1,4 @@
+import { trackEvent } from './analytics'
 import {
   cloneElement,
   lazy,
@@ -609,6 +610,7 @@ export default function Editor({
     link.href = url
     link.download = `${(resume.basics.name || 'resume').trim().replace(/\s+/g, '-')}-${lang.toUpperCase()}-CV.txt`
     link.click()
+    trackEvent('text_downloaded', { language: lang, format: 'text' })
     setTimeout(() => URL.revokeObjectURL(url), 1000)
   }
   const [photoError, setPhotoError] = useState('')

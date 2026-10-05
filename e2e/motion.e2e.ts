@@ -476,6 +476,7 @@ for (const theme of ['light', 'dark'] as const) {
         await settle(page)
         await page.reload()
         await expect(formButton).toHaveAttribute('aria-pressed', 'false')
+        await settle(page)
         const reopened = await layoutFrames(formButton)
         const visible = reopened.filter((f) => f.opacity > 0.05)
         staysStill(visible.map((f) => f.heading))

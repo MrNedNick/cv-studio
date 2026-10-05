@@ -16,6 +16,9 @@ concurrency:
 jobs:
   check:
     runs-on: ubuntu-latest
+    env:
+      VITE_UMAMI_WEBSITE_ID: ${{ vars.UMAMI_WEBSITE_ID }}
+      VITE_UMAMI_SCRIPT_URL: ${{ vars.UMAMI_SCRIPT_URL }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -26,8 +29,18 @@ jobs:
       - run: npm run lint
       - run: npm test
       - run: npm run build
+        env:
+          VITE_UMAMI_WEBSITE_ID: ''
+          VITE_UMAMI_SCRIPT_URL: ''
       - run: npx playwright install --with-deps chromium webkit
       - run: npm run e2e
+        env:
+          VITE_UMAMI_WEBSITE_ID: ''
+          VITE_UMAMI_SCRIPT_URL: ''
+      - run: npm run build
+        if: vars.UMAMI_WEBSITE_ID != ''
+      - run: npx playwright test e2e/sources.e2e.ts
+        if: vars.UMAMI_WEBSITE_ID != ''
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

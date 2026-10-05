@@ -59,7 +59,9 @@ The second problem is coming back later. A PDF is usually a dead end: to change 
 - Copy the resume as plain text or download a `.txt` for online application forms.
 - Import and export JSON Resume. The `cvStudio` extension preserves every language version and presentation settings.
 
-All templates and downloads are free. There are no watermarks, accounts, analytics, or resume uploads. Data is saved in IndexedDB on the current browser. Clearing browser data removes that local copy: keep an editable PDF or JSON backup. Sharing PDFs have no source attachment; editable copies contain every language version and design settings, so keep those for your own use.
+All templates and downloads are free. There are no watermarks, accounts or resume uploads. Data is saved in IndexedDB on the current browser. Clearing browser data removes that local copy: keep an editable PDF or JSON backup. Sharing PDFs have no source attachment; editable copies contain every language version and design settings, so keep those for your own use.
+
+Shared links can include `?ref=reddit`, `?ref=telegram` or `?ref=linkedin-profile`. Source labels are remembered locally for 30 days, separately from resumes and backups. Analytics is disabled by default. An optional Umami website ID enables a small set of events with source labels and no resume contents, contacts or file names; browser tracking opt-outs are respected. See the [source-label table and setup](docs/sources.md).
 
 ## Design and implementation
 
