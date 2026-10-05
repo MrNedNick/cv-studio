@@ -159,11 +159,21 @@ for (const theme of ['light', 'dark'] as const) {
       await expect(page.getByLabel('Full name', { exact: true })).toHaveValue(
         'Walkthrough Tester',
       )
+      const viewport = page.viewportSize()!
+      if (!isMobile) {
+        await page.setViewportSize({ width: viewport.width, height: 600 })
+        await expect
+          .poll(() =>
+            page.locator('.editor-form').evaluate((form) => form.clientHeight),
+          )
+          .toBeLessThan(600)
+      }
       await page.locator('.editor-form').evaluate((form) => {
         form.scrollTop = form.scrollHeight
       })
       await expect(tip(page)).not.toBeVisible()
       await page.getByRole('button', { name: 'Continue walkthrough' }).click()
+      if (!isMobile) await page.setViewportSize(viewport)
       await positioned(page, 'basics')
       await expect(
         tip(page).getByRole('button', { name: 'Next', exact: true }),

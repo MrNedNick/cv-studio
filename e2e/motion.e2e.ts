@@ -5,7 +5,7 @@ import { downloadPdf, openExample, step } from './helpers.ts'
 async function transitionFrames(element: Locator) {
   return element.evaluate(async (trigger) => {
     const el = document.getElementById(trigger.getAttribute('aria-controls')!)!
-    trigger.click()
+    ;(trigger as HTMLElement).click()
     const heights: number[] = []
     for (let i = 0; i < 4; i++) {
       await new Promise<void>((resolve) =>
