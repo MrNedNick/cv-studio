@@ -12,9 +12,9 @@ NeatCV has four shared primitives under `src/ui/components/` (Field, Select, Swi
 | Step navigation | Same step list in desktop sidebar and mobile dialog; progress and hidden sections | Keyboard focus after selecting the current step; hidden-step clarity |
 | EntryCard | Collapse, reorder, delete, focus on new entry, undo | Long translated headings and 100-entry sections |
 | Skills / LanguageFields | Chips, Enter/comma/paste, role suggestions, full-text wrapping, keyboard removal returns to writing, language picker, CEFR | Screen-reader announcements; real-device touch and keyboard |
-| Preview | Actual PDF, fit/zoom, text alternative, retry and page navigation | Touch panning, multi-page text, memory use on older phones |
+| Preview | Actual PDF, fit/zoom, structured text, on-demand extracted text and link inspection, retry and page navigation | Touch panning, multi-page text, memory use on older phones |
 | Import / export | Confirmation, editable vs sharing copy, persistent backup offer after sharing, JSON feedback and error/retry | iOS Files/share sheet and interruption during downloads |
-| Onboarding / Editor guide | Inline contextual cards, topic dismissal, persistent opt-out, explicit topic navigation, reset, native disclosures and focus restore; six languages | Physical-device and screen-reader review |
+| Onboarding / Editor guide | Anchored floating coach marks, eight-step optional tour, outline/arrow, viewport tracking, typing priority, persistent opt-out, topic navigation, reset and focus restore; six languages | Physical-device and screen-reader review |
 | Buttons / notices | CSS tokens and explicit accessible names | Consolidate variants; disabled/loading layout; error vs saved status |
 
 Use this matrix for every visual review: light/dark, 320/360/430 px, desktop, long German labels, Cyrillic, keyboard focus, disabled, loading, error, empty and selected states. Respect reduced motion and native browser zoom. Keep behavior tests close to the component and use end-to-end tests for persistence, imports and exports.

@@ -37,7 +37,7 @@ The second problem is coming back later. A PDF is usually a dead end: to change 
 - Collapse experience, education, projects, and language entries into compact summaries, or expand them all. New entries receive keyboard focus; collapsed text remains in your PDF.
 - Add, remove, and reorder entries, with undo and redo. Fast edits in different fields remain separate undo steps.
 - Fields check themselves when you leave them: email, phone, links, and end dates show a short, specific message and a red outline (shared Field, Select, Switch, and auto-growing Textarea components).
-- Get short contextual editor tips and an optional Editor guide beside every step. Dismiss a topic permanently, disable automatic tips, or reopen a specific topic on demand. Help explains local saves, language versions, optional sections and PDF copies without blocking writing. See [the onboarding behavior and checks](docs/onboarding.md).
+- Follow floating hints with arrows to the relevant controls, or start an optional eight-step walkthrough through writing and PDF download. Skip it, revisit a step, disable automatic tips, or request a specific topic from Editor guide. Automatic help yields to typing; your writing remains available throughout. See [the onboarding behavior and checks](docs/onboarding.md).
 - Follow dismissible guidance for contact details, dates, empty entries, long paragraphs, and concrete achievements. Each tip opens its relevant section.
 - The first step is the template: twelve designs with accent, five text sizes, typography and density below them. While the resume is empty, the preview shows the chosen template with example text.
 - Entry sections open with an empty entry ready to fill. Any section except personal details can be left out with one switch; Next skips it and the content is kept.
@@ -49,8 +49,9 @@ The second problem is coming back later. A PDF is usually a dead end: to change 
 - Reorder sections or hide the ones you don’t need; hidden content is kept.
 - PDF headings, dates (“Present”, “heute”, “actualidad”…), writing tips, action verbs, and the content checks follow the language of the version you edit. The built-in example exists in all six languages.
 - Fit the actual A4 page to the desktop workspace and step through pages, zoom from 25% to 300% (the page fills the panel and can be dragged; Ctrl/⌘ + wheel or pinch zooms around the cursor), or switch to an accessible text view for reading and copying. Retry a failed preview without reloading.
+- Inspect the actual PDF’s extracted reading order, text by page and embedded links from the Text preview. Checks update after edits and offer retry; empty-text pages and long documents receive guidance.
 - Choose a PDF for sharing (the default, selected language only) or an editable backup. Both have selectable text, embedded Cyrillic/Latin fonts, and clickable links.
-- After a sharing download, a dismissible reminder offers an editable PDF or JSON backup of your latest edits. A backup failure keeps the form available for retry.
+- After a sharing download, a dismissible reminder offers an editable PDF or JSON backup of your latest edits. On phones it occupies its own space without covering the editor. A backup failure keeps the form available for retry.
 - Reopen an editable PDF copy made here and continue editing. Editable copies include a `neatcv.json` attachment containing every language version and the design settings.
 - Inspect PDF properties before downloading: author, subject, and keywords come from the selected version’s visible name, role, and skills.
 - Review the name and file before importing; save a backup or cancel before replacing the current resume. Undo can restore the previous document.

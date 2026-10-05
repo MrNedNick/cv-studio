@@ -1,30 +1,40 @@
 # Help while writing
 
-The editor offers short, inline guidance for the current task. It never opens a tour or modal automatically, puts a spotlight over controls, advances steps, imposes completion, or starts a timer. People can write, navigate and download immediately.
+The editor uses floating coach marks next to the control that matters now. A fine outline and an arrow connect each explanation to its target. The rest of the editor remains usable: there is no backdrop, focus trap, timer or requirement to finish a tour.
 
-A consistent **Editor guide** button sits beside the step number, with the same action in **Resume actions** when the form is hidden or the phone shows the preview. The guide opens only by request. Each topic expands independently and can navigate to its relevant step or the PDF preview.
+A fresh blank resume starts with help choosing a template. **Start walkthrough** begins an optional eight-step route: template, name and role, writing examples, skills, language levels, language versions, review and PDF preview. **Back** revisits a step with the current writing intact; the final action opens the normal download dialog. **Skip walkthrough**, the close button or Escape ends the tour and remembers the opt-out. Completing the tour also turns off automatic onboarding.
 
-| Topic | When inline guidance appears | What it clarifies |
+The consistent **Editor guide** action remains beside the step number, or in **Resume actions** when the form is hidden. It opens an on-demand reference with eight independent disclosures, a tour starter, preferences and **Show in editor** for a specific topic. Opening this reference ends the active tour; closing it restores its opener. Normal section navigation or changing the phone's Editor/Preview view also exits the tour.
+
+| Topic | Target | What it clarifies |
 | --- | --- | --- |
-| Template | Own resume, Template step | Empty previews use sample text without adding it to the document |
-| Personal details | Personal details | Autosave is local to this browser; portable backups matter |
-| Language versions | Requested from the guide | The top language control changes the interface and resume version; text is not automatically translated |
-| Optional sections | Visible Profile, Experience, Education or Projects | Hiding retains text, Next skips hidden steps, writing examples are available |
-| Skills | Skills | Enter/comma and pasting several comma-separated skills |
-| Languages | Languages | CEFR or custom levels, distinct from the PDF language |
-| Review | Review | Checks are suggestions; sharing and editable PDF serve different purposes |
-| Preview | Phone preview or hidden desktop form with enough viewport height; always available by request | Real PDF pages and line breaks, text alternative, preview zoom vs exported text size |
+| Template | Selected template's name | Empty previews use example text without adding it to the document |
+| Personal details | Full name field | Where to begin writing and how automatic local saving works |
+| Optional sections | Writing examples or hidden-section recovery | Examples explain structure and results; hiding retains text |
+| Skills | Skill input or recovery | Enter/comma and pasting several comma-separated skills |
+| Languages | Entire CEFR group or recovery | All levels remain clickable; custom levels differ from the PDF language |
+| Language versions | Top language control | Each language keeps separate text; text is not translated automatically |
+| Review | Vacancy field | Content checks and optional skill comparison before export |
+| Preview | Text view control | Actual PDF pages, readable text, and sharing vs editable copies |
 
-The example already has a banner, so its Template step avoids an additional automatic introduction. Hidden sections keep their existing recovery message instead of repeating general guidance. Automatic preview tips defer on short screens to preserve PDF space; requested preview help becomes a compact card. Only one onboarding tip is visible in the workspace at a time; existing field validation and writing checks remain available.
+Automatic tips do not move focus. Focusing a text field or language selector hides the full card, including during a requested tour; a compact Continue walkthrough control keeps that tour available after writing. Desktop cards sit outside the form, with a fine connector to their target, so other form controls remain accessible. Cards reposition after scrolling, resizing, content changes and visual-viewport updates; they appear only when the whole target and card fit. A requested tip whose target is offscreen offers **Continue walkthrough** to bring it back, plus a close control. Native modals temporarily hide coach marks. The fictional example avoids an additional automatic Template introduction, and hidden sections retain their recovery message.
 
-Close a tip to remember its dismissal for that topic across visits and resumes. **Contextual editor tips** disables automatic onboarding cards. **Show in editor** requests a single topic even when automatic tips are off, without changing that preference. **Restore dismissed editor tips** restores all topics and enables guidance. Preferences use a separate, versioned localStorage key; they do not enter the resume, undo history or downloaded backups. When storage is blocked, controls still work for the current visit. Malformed stored preferences recover safely.
+Dismissal is remembered per topic. **Contextual editor tips** disables automatic cards; requested help still works without changing that preference. **Restore dismissed editor tips** enables guidance and restores every topic. Preferences use a separate versioned localStorage key, stay outside the resume, undo history and backups, and continue working for the current visit if storage is blocked. Malformed preferences recover safely.
 
-Native disclosure controls and the existing Dialog/Switch provide keyboard interaction and focus handling. Opening a topic focuses its destination; closing a tip returns focus to the nearby help control; Escape closes the guide and restores its opener. Inline cards are labelled complementary regions, not alerts or live announcements. Help never moves focus while someone is writing. The interface supports all six languages, both themes, reduced motion and phone-sized controls.
+Interactive cards are labelled nonmodal dialogs, rather than tooltips with focusable content. The highlighted control receives an associated description. Requested steps focus their primary action; Escape restores the target, and closing by pointer returns to nearby help. All six interface languages, both themes, reduced motion and 44 px phone controls are supported.
 
-The design follows [NN/g's contextual-help guidance](https://www.nngroup.com/articles/onboarding-tutorials/) and [progressive disclosure](https://www.nngroup.com/articles/progressive-disclosure/). Consistent placement is informed by [WCAG 2.2's Consistent Help criterion](https://www.w3.org/WAI/WCAG22/Understanding/consistent-help.html). These references explain the design choices; they are not a claim of complete WCAG certification.
+These decisions follow [Adobe Spectrum's coach-mark guidance](https://spectrum.adobe.com/web/design-only/components/coach-mark), [NN/g's contextual onboarding guidance](https://www.nngroup.com/articles/onboarding-tutorials/) and the [WAI distinction between tooltips and interactive dialogs](https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/). They explain the design choices, not a claim of complete WCAG certification.
+
+## Checking the exported text
+
+In the Text preview, **Check PDF text** opens an optional inspection of the generated PDF itself. It shows text in the extraction order for each page and its actual web, email and phone links. Empty text pages and documents longer than two pages receive a warning. Processing happens locally, loads only on request and follows the latest document; late results from earlier edits are discarded. Failed checks offer retry while the structured text view stays available.
+
+This helps people inspect reading order and links. It does not rate hiring chances, certify compatibility with every applicant tracking system, or contact external sites to test links. Detecting partially missing text and geometric overflow remains future work.
+
+On phones, the persistent backup reminder occupies its own space below the workspace after a sharing download, so it does not cover fields or preview controls.
 
 ## Verification
 
-Unit coverage checks topic-specific dismissal across mounts, persistent disable/enable, explicitly requested help, reset, blocked storage, malformed preferences and keyboard focus without changing writing. Translation checks require every English key in the four additional dictionaries.
+Unit coverage checks dismissal, persistent preferences, requested help, reset, blocked storage, malformed values, placement and visual viewport offsets; PDF inspection covers page text, safe links, empty pages, retry and stale results. Translation checks require every interface key in the additional dictionaries.
 
-Browser coverage uses desktop Chromium, phone Chromium and iPhone WebKit: fresh start with no automatic dialog; writing with focus intact; dismissal, disable, reload and restore; manual help with automatic tips off; hidden-section recovery; example documents; language-version guidance; preview, review and PDF selection. Both themes, 320/360/430 px, six languages, Escape/focus restoration, axe, console errors and failed requests are covered. The existing suite verifies editing, persistence and sharing/editable PDF/JSON round trips. Physical iPhone keyboard and screen-reader use still need a real-device check.
+Browser coverage uses desktop Chromium, phone Chromium and iPhone WebKit: complete tour to a downloaded editable PDF; Back and data preservation; scrolling and resume; Escape, focus restore, typing and opt-out; reload and manual restart; example and hidden-section recovery; narrow, landscape and tablet screens; all six languages; axe, console errors and failed requests. PDF inspection is compared with real sharing downloads for both a single-column and two-column template. Existing coverage checks editing, undo, persistence and PDF/JSON round trips. Physical iPhone keyboard and screen-reader use still need real-device checks.
