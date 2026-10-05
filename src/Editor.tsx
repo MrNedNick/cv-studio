@@ -263,6 +263,8 @@ export default function Editor({
     totalSteps = countedSteps.length
   const currentDocument = useRef(doc)
   currentDocument.current = doc
+  const currentSection = useRef(section)
+  currentSection.current = section
   const form = useRef<HTMLElement>(null),
     menuButton = useRef<HTMLButtonElement>(null),
     menuPanel = useRef<HTMLDivElement>(null),
@@ -529,7 +531,8 @@ export default function Editor({
     const index = entries.findIndex((e) => e.id === id)
     if (index < 0) return
     const next = entries[index + 1] || entries[index - 1]
-    pendingEntry.current = { id: next?.id || '', field: false }
+    if (currentSection.current === section)
+      pendingEntry.current = { id: next?.id || '', field: false }
     const changed = {
       ...current,
       versions: mapVersions(

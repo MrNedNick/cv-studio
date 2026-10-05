@@ -43,11 +43,21 @@ export default function EntryCard({
   const dates = dateRange(entry, contentLocale ?? locale),
     card = useRef<HTMLDivElement>(null),
     leaving = useRef(false),
+    completed = useRef(false),
     [closing, setClosing] = useState(false),
     activeAnimation = useRef<Animation | null>(null),
     latestRemove = useRef(remove)
   latestRemove.current = remove
-  useEffect(() => () => activeAnimation.current?.cancel(), [])
+  useEffect(
+    () => () => {
+      activeAnimation.current?.cancel()
+      if (leaving.current && !completed.current) {
+        completed.current = true
+        latestRemove.current()
+      }
+    },
+    [],
+  )
   useLayoutEffect(() => {
     const element = card.current
     if (!fresh || !element || !canFade(element)) return
@@ -90,8 +100,10 @@ export default function EntryCard({
     )
     activeAnimation.current = animation
     animation.onfinish = () => {
-      if (activeAnimation.current === animation && element.isConnected)
+      if (activeAnimation.current === animation && element.isConnected) {
+        completed.current = true
         latestRemove.current()
+      }
     }
   }
   return (

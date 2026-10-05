@@ -159,6 +159,8 @@ export default function App() {
     t = translator(locale)
   const currentDocument = useRef(doc)
   currentDocument.current = doc
+  const currentEditorRevision = useRef(documentRevision)
+  currentEditorRevision.current = documentRevision
   function notify(message: string, offerBackup = false) {
     setNotice({ message, offerBackup })
   }
@@ -961,7 +963,10 @@ export default function App() {
                     key={documentRevision}
                     doc={doc}
                     locale={locale}
-                    update={update}
+                    update={(next, group) => {
+                      if (currentEditorRevision.current === documentRevision)
+                        update(next, group)
+                    }}
                     undo={undo}
                     redo={redo}
                     canUndo={!!history.length}

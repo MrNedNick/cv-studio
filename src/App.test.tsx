@@ -981,7 +981,7 @@ it('deletes an entry from the button under its fields', async () => {
   fireEvent.click(screen.getByRole('button', { name: 'Отменить' }))
   expect(screen.getByLabelText('Должность')).toHaveValue('Temp')
 })
-it('keeps simultaneous animated deletions and their undo history independent', async () => {
+it('keeps animated deletions independent through simultaneous finishes, navigation and undo', async () => {
   const original = Object.getOwnPropertyDescriptor(
     HTMLElement.prototype,
     'animate',
@@ -1034,6 +1034,25 @@ it('keeps simultaneous animated deletions and their undo history independent', a
     expect(
       screen.getAllByRole('button', { name: 'Удалить запись' }),
     ).toHaveLength(2)
+    fireEvent.click(
+      screen.getAllByRole('button', { name: 'Удалить запись' })[0],
+    )
+    await openStep(/Навыки/)
+    await openStep(/Опыт работы/)
+    expect(
+      screen.getAllByRole('button', { name: 'Удалить запись' }),
+    ).toHaveLength(1)
+    fireEvent.click(screen.getByRole('button', { name: 'Отменить' }))
+    expect(
+      screen.getAllByRole('button', { name: 'Удалить запись' }),
+    ).toHaveLength(2)
+    fireEvent.click(
+      screen.getAllByRole('button', { name: 'Удалить запись' })[0],
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Очистить всё' }))
+    fireEvent.click(await screen.findByRole('button', { name: 'Начать новое' }))
+    await openStep(/Личные данные/)
+    expect(screen.getByLabelText('Имя и фамилия')).toHaveValue('')
   } finally {
     cleanup()
     if (original)
