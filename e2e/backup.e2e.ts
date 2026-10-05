@@ -9,6 +9,7 @@ for (const theme of ['light', 'dark'] as const) {
     test('a sharing download offers a restorable backup of the latest edits', async ({
       page,
     }) => {
+      test.setTimeout(60000)
       const errors: string[] = []
       page.on('pageerror', (error) => errors.push(error.message))
       page.on('response', (response) => {

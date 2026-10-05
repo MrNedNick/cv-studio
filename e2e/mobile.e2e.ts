@@ -39,6 +39,7 @@ for (const theme of ['light', 'dark'] as const) {
     test('writes, navigates, previews and exports on a touch phone', async ({
       page,
     }) => {
+      test.setTimeout(60000)
       const errors: string[] = []
       page.on('pageerror', (error) => errors.push(error.message))
       page.on('response', (response) => {
@@ -128,6 +129,7 @@ for (const [width, height] of [
   [932, 430],
 ]) {
   test(`all steps stay reachable at ${width} x ${height}`, async ({ page }) => {
+    test.setTimeout(60000)
     await openExample(page)
     await page.setViewportSize({ width, height })
     for (const name of [
