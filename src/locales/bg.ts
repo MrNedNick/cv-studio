@@ -82,7 +82,6 @@ const messages: Record<string, string> = {
   'A distinctive two-column layout': 'Отличително оформление в две колони',
   'A few focused sentences about your experience and strengths.':
     'Няколко точни изречения за опита и силните Ви страни.',
-  'A little guidance': 'Малка подсказка',
   'A single-column template is a safer choice for automated screening.':
     'За автоматичен подбор по-сигурният избор е шаблон в една колона.',
   'A solid base': 'Добра основа',
@@ -201,7 +200,6 @@ const messages: Record<string, string> = {
   Description: 'Описание',
   Design: 'Дизайн',
   'Dismiss notification': 'Затвори известието',
-  'Dismiss tip': 'Скрий подсказката',
   'Document title': 'Заглавие на документа',
   Done: 'Готово',
   Download: 'Изтегли',
@@ -446,7 +444,6 @@ const messages: Record<string, string> = {
   'Saving…': 'Запазва се…',
   Sections: 'Раздели',
   Serif: 'Със серифи',
-  'Show dismissed tips': 'Покажи скритите подсказки',
   'Show sections': 'Покажи разделите',
   'Show work you’re proud of.': 'Покажете работа, с която се гордеете.',
   'Skills first · a clear single column': 'Първо уменията · ясна една колона',

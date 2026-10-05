@@ -38,7 +38,7 @@ The second problem is coming back later. A PDF is usually a dead end: to change 
 - Add, remove, and reorder entries, with undo and redo. Fast edits in different fields remain separate undo steps.
 - Fields check themselves when you leave them: email, phone, links, and end dates show a short, specific message and a red outline (shared Field, Select, Switch, and auto-growing Textarea components).
 - Follow floating hints with arrows to the relevant controls, or start an optional eight-step walkthrough through writing and PDF download. Skip it, revisit a step, disable automatic tips, or request a specific topic from Editor guide. Automatic help yields to typing; your writing remains available throughout. See [the onboarding behavior and checks](docs/onboarding.md).
-- Follow dismissible guidance for contact details, dates, empty entries, long paragraphs, and concrete achievements. Each tip opens its relevant section.
+- Check content in Review before downloading: contact details, dates, empty entries, long paragraphs and concrete achievements. Section forms keep optional writing help beside their heading.
 - The first step is the template: twelve designs with accent, five text sizes, typography and density below them. While the resume is empty, the preview shows the chosen template with example text.
 - Entry sections open with an empty entry ready to fill. Any section except personal details can be left out with one switch; Next skips it and the content is kept.
 - Skills are chips (Enter or a comma adds one) with suggestions for eleven fields, picked from the job title. Languages come from a list named in the resume language, with CEFR level chips.

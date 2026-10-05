@@ -1182,35 +1182,6 @@
   font-size: 13px;
   border-radius: 5px;
 }
-.tips {
-  padding: 17px;
-  background: var(--soft);
-  border-radius: 7px;
-  margin: 24px 0;
-}
-.tips > div {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  color: var(--accent);
-  margin-bottom: 10px;
-}
-.tips p {
-  font-size: 13px;
-  line-height: 1.8;
-  color: var(--muted);
-  display: flex;
-  gap: 8px;
-  margin-top: 8px;
-  align-items: flex-start;
-}
-.tips p > button {
-  background: none;
-  color: var(--muted);
-  padding: 3px;
-  margin-left: auto;
-}
 .preview-panel {
   background: var(--canvas);
   padding: 25px 34px 35px;
@@ -2268,12 +2239,6 @@ dialog p {
   .form-bottom .button {
     font-size: 13px;
   }
-  .tips p {
-    font-size: 13px;
-  }
-  .tips > div {
-    font-size: 13px;
-  }
   .preview-panel {
     display: none;
     padding: 23px 17px;
@@ -2444,9 +2409,6 @@ dialog p {
     font-size: 13px;
   }
   .document-title span {
-    font-size: 13px;
-  }
-  .tips p {
     font-size: 13px;
   }
 
@@ -2664,28 +2626,6 @@ dialog p {
 }
 .import-actions {
   flex-wrap: wrap;
-}
-.tips p > .tip-link {
-  color: var(--text);
-  margin: 0;
-  padding: 4px 0;
-  display: flex;
-  gap: 8px;
-  align-items: baseline;
-  text-align: left;
-  line-height: inherit;
-}
-.tips .tip-link:hover {
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-.tips p > button:not(.tip-link) {
-  min-width: 28px;
-  min-height: 28px;
-}
-.restore-tips {
-  margin-bottom: 16px;
-  font-size: 14px;
 }
 .editor-form h1:focus {
   outline: none;
@@ -3036,8 +2976,7 @@ dialog p {
   .is-editing .field select {
     font-size: 15px;
   }
-  .is-editing .field-hint,
-  .is-editing .tips p {
+  .is-editing .field-hint {
     font-size: 14px;
   }
   .is-editing .preview-panel {

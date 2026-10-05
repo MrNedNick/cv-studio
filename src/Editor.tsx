@@ -20,7 +20,6 @@ import {
   FileText,
   Globe2,
   GraduationCap,
-  Lightbulb,
   ListChecks,
   Menu,
   Plus,
@@ -52,7 +51,6 @@ import {
   accents,
   createDocument,
   emptyEntry,
-  getTips,
   sectionLabels,
   sections,
   safeUrl,
@@ -207,7 +205,6 @@ export default function Editor({
     [mobilePreview, setMobilePreview] = useState(false),
     [mobileSteps, setMobileSteps] = useState(false),
     [menu, setMenu] = useState(false),
-    [hiddenTips, setHiddenTips] = useState<string[]>([]),
     [entryAnnouncement, setEntryAnnouncement] = useState(''),
     [preferredSource, setCopySource] = useState<Locale>('en'),
     [collapsed, setCollapsed] = useState<Set<string>>(
@@ -234,11 +231,6 @@ export default function Editor({
     lang = doc.language,
     resume = doc.versions[lang],
     labels = sectionLabels[locale],
-    allTips = getTips(resume, locale, lang).filter(
-      (tip) => !hiddenTips.includes(tip.id),
-    ),
-    // Only the open section's tips; the Review step lists everything.
-    tips = allTips.filter((tip) => tip.section === section),
     completedSections = sections.filter((s) =>
       s === 'basics'
         ? resume.basics.name.trim()
@@ -2376,46 +2368,6 @@ export default function Editor({
                           )}
                         </fieldset>
                       </Collapse>
-                      {tips.length > 0 && (
-                        <div className="tips">
-                          <div>
-                            <Lightbulb size={17} />
-                            <strong>
-                              {t('Небольшая подсказка', 'A little guidance')}
-                            </strong>
-                          </div>
-                          {tips.map((tip) => (
-                            <p key={tip.id}>
-                              <button
-                                className="tip-link"
-                                onClick={() => goSection(tip.section, true)}
-                              >
-                                {tip.message}
-                                <ChevronRight size={14} />
-                              </button>
-                              <button
-                                aria-label={`${t('Скрыть подсказку', 'Dismiss tip')}: ${tip.message}`}
-                                onClick={() =>
-                                  setHiddenTips([...hiddenTips, tip.id])
-                                }
-                              >
-                                <X size={14} />
-                              </button>
-                            </p>
-                          ))}
-                        </div>
-                      )}
-                      {hiddenTips.length > 0 && (
-                        <button
-                          className="text-button restore-tips"
-                          onClick={() => setHiddenTips([])}
-                        >
-                          {t(
-                            'Показать скрытые подсказки',
-                            'Show dismissed tips',
-                          )}
-                        </button>
-                      )}
                     </>
                   )}
                 </>

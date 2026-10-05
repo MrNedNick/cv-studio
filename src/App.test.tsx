@@ -285,45 +285,33 @@ it('rejects oversized imports without changing the current resume', async () => 
   expect(read).not.toHaveBeenCalled()
   expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
 })
-it('opens the relevant section from a tip and restores dismissed guidance', async () => {
+it('keeps forms free of inline guidance and retains optional writing help and review', async () => {
   render(
     <MemoryRouter initialEntries={['/edit']}>
       <App />
     </MemoryRouter>,
   )
   await newResume()
-  await openStep(/Навыки/)
-  // Tips belong to their section; Skills shows none about the name.
+  expect(screen.queryByText('Небольшая подсказка')).not.toBeInTheDocument()
+  await openStep(/Образование/)
+  fireEvent.click(screen.getByRole('button', { name: 'Добавить запись' }))
+  expect(screen.getAllByLabelText('Учебное заведение').at(-1)).toHaveValue('')
+  expect(screen.queryByText('Небольшая подсказка')).not.toBeInTheDocument()
   expect(
-    screen.queryByRole('button', {
-      name: 'Добавьте имя, чтобы резюме было легко найти.',
-    }),
-  ).not.toBeInTheDocument()
-  await openStep(/Личные данные/)
-  fireEvent.click(
-    screen.getByRole('button', {
-      name: 'Добавьте имя, чтобы резюме было легко найти.',
-    }),
-  )
-  expect(screen.getByRole('heading', { name: 'Личные данные' })).toHaveFocus()
-  fireEvent.click(
-    screen.getByRole('button', {
-      name: 'Скрыть подсказку: Добавьте имя, чтобы резюме было легко найти.',
-    }),
-  )
-  expect(
-    screen.queryByRole('button', {
-      name: 'Добавьте имя, чтобы резюме было легко найти.',
-    }),
+    screen.queryByRole('button', { name: /Скрыть подсказку/ }),
   ).not.toBeInTheDocument()
   fireEvent.click(
-    screen.getByRole('button', { name: 'Показать скрытые подсказки' }),
+    screen.getByRole('button', { name: 'Как заполнить этот раздел' }),
   )
   expect(
-    screen.getByRole('button', {
-      name: 'Добавьте имя, чтобы резюме было легко найти.',
-    }),
-  ).toBeInTheDocument()
+    await screen.findByRole('dialog', { name: 'Как заполнить: Образование' }),
+  ).toBeVisible()
+  fireEvent.click(screen.getByRole('button', { name: 'Закрыть' }))
+  await openStep(/Проверка/)
+  expect(
+    await screen.findByRole('heading', { name: 'Проверка и отправка' }),
+  ).toBeVisible()
+  expect(screen.getByText(/проверок содержания/)).toBeVisible()
 })
 it('closes document actions with Escape and returns focus to its trigger', async () => {
   render(

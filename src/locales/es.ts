@@ -84,7 +84,6 @@ const messages: Record<string, string> = {
     'Un diseño a dos columnas con personalidad',
   'A few focused sentences about your experience and strengths.':
     'Unas frases concretas sobre tu experiencia y tus puntos fuertes.',
-  'A little guidance': 'Una pequeña sugerencia',
   'A single-column template is a safer choice for automated screening.':
     'Para la selección automatizada, una plantilla de una columna es la opción más segura.',
   'A solid base': 'Una buena base',
@@ -202,7 +201,6 @@ const messages: Record<string, string> = {
   Description: 'Descripción',
   Design: 'Diseño',
   'Dismiss notification': 'Cerrar notificación',
-  'Dismiss tip': 'Ocultar sugerencia',
   'Document title': 'Título del documento',
   Done: 'Hecho',
   Download: 'Descargar',
@@ -449,7 +447,6 @@ const messages: Record<string, string> = {
   'Saving…': 'Guardando…',
   Sections: 'Secciones',
   Serif: 'Con serifa',
-  'Show dismissed tips': 'Mostrar sugerencias ocultas',
   'Show sections': 'Mostrar secciones',
   'Show work you’re proud of.': 'Muestra trabajos de los que estés orgulloso.',
   'Skills first · a clear single column':

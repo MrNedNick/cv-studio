@@ -83,7 +83,6 @@ const messages: Record<string, string> = {
   'A distinctive two-column layout': 'Ein markantes zweispaltiges Layout',
   'A few focused sentences about your experience and strengths.':
     'Ein paar prägnante Sätze über Ihre Erfahrung und Stärken.',
-  'A little guidance': 'Ein kleiner Hinweis',
   'A single-column template is a safer choice for automated screening.':
     'Für die automatische Vorauswahl ist eine einspaltige Vorlage die sicherere Wahl.',
   'A solid base': 'Eine solide Basis',
@@ -203,7 +202,6 @@ const messages: Record<string, string> = {
   Description: 'Beschreibung',
   Design: 'Design',
   'Dismiss notification': 'Benachrichtigung schließen',
-  'Dismiss tip': 'Hinweis ausblenden',
   'Document title': 'Dokumenttitel',
   Done: 'Erledigt',
   Download: 'Herunterladen',
@@ -453,7 +451,6 @@ const messages: Record<string, string> = {
   'Saving…': 'Wird gespeichert…',
   Sections: 'Abschnitte',
   Serif: 'Mit Serifen',
-  'Show dismissed tips': 'Ausgeblendete Hinweise anzeigen',
   'Show sections': 'Abschnitte einblenden',
   'Show work you’re proud of.': 'Zeigen Sie Arbeiten, auf die Sie stolz sind.',
   'Skills first · a clear single column':
