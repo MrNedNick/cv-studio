@@ -261,6 +261,8 @@ export default function Editor({
     countedSteps = steps.filter((step) => !isHidden(step)),
     completed = countedSteps.filter(stepDone).length,
     totalSteps = countedSteps.length
+  const currentDocument = useRef(doc)
+  currentDocument.current = doc
   const form = useRef<HTMLElement>(null),
     menuButton = useRef<HTMLButtonElement>(null),
     menuPanel = useRef<HTMLDivElement>(null),
@@ -392,9 +394,9 @@ export default function Editor({
       window.removeEventListener('keydown', escape)
     }
   }, [menu])
-  function mapVersions(change: (version: Resume) => Resume) {
+  function mapVersions(change: (version: Resume) => Resume, source = doc) {
     return Object.fromEntries(
-      locales.map((l) => [l, change(doc.versions[l])]),
+      locales.map((l) => [l, change(source.versions[l])]),
     ) as ResumeDocument['versions']
   }
   function basic(key: keyof Resume['basics'], value: string) {
@@ -522,16 +524,24 @@ export default function Editor({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [section, isHidden(section)])
   function remove(section: EntrySection, id: string) {
-    const index = resume[section].findIndex((e) => e.id === id)
-    const next = resume[section][index + 1] || resume[section][index - 1]
+    const current = currentDocument.current
+    const entries = current.versions[current.language][section]
+    const index = entries.findIndex((e) => e.id === id)
+    if (index < 0) return
+    const next = entries[index + 1] || entries[index - 1]
     pendingEntry.current = { id: next?.id || '', field: false }
-    update({
-      ...doc,
-      versions: mapVersions((version) => ({
-        ...version,
-        [section]: version[section].filter((e) => e.id !== id),
-      })),
-    })
+    const changed = {
+      ...current,
+      versions: mapVersions(
+        (version) => ({
+          ...version,
+          [section]: version[section].filter((e) => e.id !== id),
+        }),
+        current,
+      ),
+    }
+    currentDocument.current = changed
+    update(changed)
   }
   function move(section: EntrySection, index: number, direction: number) {
     pendingEntry.current = { id: resume[section][index].id, field: false }

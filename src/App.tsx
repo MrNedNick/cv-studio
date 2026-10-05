@@ -157,6 +157,8 @@ export default function App() {
     lastHistory = useRef({ time: 0, key: '' }),
     localeRequest = useRef(0),
     t = translator(locale)
+  const currentDocument = useRef(doc)
+  currentDocument.current = doc
   function notify(message: string, offerBackup = false) {
     setNotice({ message, offerBackup })
   }
@@ -295,13 +297,15 @@ export default function App() {
     }
   }, [doc, saveState])
   function update(next: ResumeDocument, group = '') {
+    const previous = currentDocument.current
     if (
-      doc &&
+      previous &&
       (!group ||
         group !== lastHistory.current.key ||
         Date.now() - lastHistory.current.time > 700)
     )
-      setHistory((h) => [...h.slice(-49), doc])
+      setHistory((h) => [...h.slice(-49), previous])
+    currentDocument.current = next
     lastHistory.current = { time: group ? Date.now() : 0, key: group }
     setFuture([])
     setDoc(next)

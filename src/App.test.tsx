@@ -1,6 +1,7 @@
 import 'fake-indexeddb/auto'
 import '@testing-library/jest-dom/vitest'
 import {
+  act,
   cleanup,
   configure,
   fireEvent,
@@ -979,6 +980,66 @@ it('deletes an entry from the button under its fields', async () => {
   expect(screen.queryByLabelText('Должность')).not.toBeInTheDocument()
   fireEvent.click(screen.getByRole('button', { name: 'Отменить' }))
   expect(screen.getByLabelText('Должность')).toHaveValue('Temp')
+})
+it('keeps simultaneous animated deletions and their undo history independent', async () => {
+  const original = Object.getOwnPropertyDescriptor(
+    HTMLElement.prototype,
+    'animate',
+  )
+  const closing: Animation[] = []
+  Object.defineProperty(HTMLElement.prototype, 'animate', {
+    configurable: true,
+    value: (frames: Keyframe[]) => {
+      const animation = {
+        cancel: vi.fn(),
+        playState: 'running',
+        onfinish: null,
+      } as unknown as Animation
+      if (frames.at(-1)?.height === '0px') closing.push(animation)
+      return animation
+    },
+  })
+  try {
+    render(
+      <MemoryRouter initialEntries={['/edit']}>
+        <App />
+      </MemoryRouter>,
+    )
+    await startExample()
+    await openStep(/Опыт работы/)
+    const cards = screen.getAllByRole('button', { name: 'Удалить запись' })
+    fireEvent.click(cards[0])
+    fireEvent.click(cards[1])
+    expect(cards[0].closest('.entry-card')).toHaveAttribute('inert')
+    expect(cards[1].closest('.entry-card')).toHaveAttribute(
+      'aria-hidden',
+      'true',
+    )
+    expect(closing).toHaveLength(2)
+    act(() => {
+      for (const animation of closing)
+        animation.onfinish?.call(
+          animation,
+          new Event('finish') as AnimationPlaybackEvent,
+        )
+    })
+    expect(
+      screen.queryByRole('button', { name: 'Удалить запись' }),
+    ).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Отменить' }))
+    expect(
+      screen.getAllByRole('button', { name: 'Удалить запись' }),
+    ).toHaveLength(1)
+    fireEvent.click(screen.getByRole('button', { name: 'Отменить' }))
+    expect(
+      screen.getAllByRole('button', { name: 'Удалить запись' }),
+    ).toHaveLength(2)
+  } finally {
+    cleanup()
+    if (original)
+      Object.defineProperty(HTMLElement.prototype, 'animate', original)
+    else delete (HTMLElement.prototype as Partial<HTMLElement>).animate
+  }
 })
 it('edits PDF properties in Review and falls back to the resume', async () => {
   render(

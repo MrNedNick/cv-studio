@@ -1,4 +1,11 @@
-import { useId, useLayoutEffect, useRef, type ReactNode } from 'react'
+import {
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react'
 import { ArrowDown, ArrowUp, ChevronDown, Trash2 } from 'lucide-react'
 import { dateRange, type Entry, type Locale } from './model'
 import { Collapse, canFade, reducedMotion } from './motion'
@@ -35,12 +42,17 @@ export default function EntryCard({
     t = translator(locale)
   const dates = dateRange(entry, contentLocale ?? locale),
     card = useRef<HTMLDivElement>(null),
-    leaving = useRef(false)
+    leaving = useRef(false),
+    [closing, setClosing] = useState(false),
+    activeAnimation = useRef<Animation | null>(null),
+    latestRemove = useRef(remove)
+  latestRemove.current = remove
+  useEffect(() => () => activeAnimation.current?.cancel(), [])
   useLayoutEffect(() => {
     const element = card.current
     if (!fresh || !element || !canFade(element)) return
     const height = element.offsetHeight
-    element.animate(
+    activeAnimation.current = element.animate(
       reducedMotion()
         ? [{ opacity: 0 }, { opacity: 1 }]
         : [
@@ -57,12 +69,15 @@ export default function EntryCard({
     if (leaving.current) return
     if (!element || !canFade(element)) return remove()
     leaving.current = true
+    setClosing(true)
+    const height = element.getBoundingClientRect().height
+    activeAnimation.current?.cancel()
     element.style.overflow = 'hidden'
     const animation = element.animate(
       reducedMotion()
         ? [{ opacity: 1 }, { opacity: 0 }]
         : [
-            { opacity: 1, height: `${element.offsetHeight}px` },
+            { opacity: 1, height: `${height}px` },
             {
               opacity: 0,
               height: '0px',
@@ -73,13 +88,19 @@ export default function EntryCard({
           ],
       { duration: 200, easing: 'cubic-bezier(.4,0,.6,1)', fill: 'forwards' },
     )
-    animation.onfinish = () => remove()
+    activeAnimation.current = animation
+    animation.onfinish = () => {
+      if (activeAnimation.current === animation && element.isConnected)
+        latestRemove.current()
+    }
   }
   return (
     <div
       ref={card}
       className={`entry-card ${expanded ? '' : 'collapsed'}`}
       data-entry-id={entry.id}
+      inert={closing}
+      aria-hidden={closing}
     >
       <div className="entry-header">
         <h2>

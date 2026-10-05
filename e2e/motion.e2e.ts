@@ -104,6 +104,23 @@ for (const theme of ['light', 'dark'] as const) {
         )
         await expect(page.locator('dialog')).toHaveCount(0)
         await expect(writing).toBeFocused()
+        const titles = await page
+          .locator('.entry-toggle strong')
+          .allTextContents()
+        await page.locator('.entry-card .delete').evaluateAll((buttons) => {
+          for (const button of buttons) (button as HTMLElement).click()
+        })
+        await expect(page.locator('.entry-card')).toHaveCount(0)
+        for (const count of [1, 2]) {
+          if (isMobile)
+            await page
+              .getByRole('button', { name: 'Resume actions', exact: true })
+              .click()
+          await page.getByRole('button', { name: 'Undo', exact: true }).click()
+          await expect(page.locator('#document-menu')).toHaveCount(0)
+          await expect(page.locator('.entry-card')).toHaveCount(count)
+        }
+        await expect(page.locator('.entry-toggle strong')).toHaveText(titles)
         const actions = page.getByRole('button', {
           name: 'Resume actions',
           exact: true,
