@@ -33,6 +33,9 @@ for (const theme of ['light', 'dark'] as const) {
           .getByRole('button', { name: 'Editable copy', exact: true })
           .boundingBox())!
         expect(box.height).toBeGreaterThanOrEqual(44)
+        const formBox = (await page.locator('.editor-form').boundingBox())!
+        const noticeBox = (await toast.boundingBox())!
+        expect(formBox.y + formBox.height).toBeLessThanOrEqual(noticeBox.y + 1)
       }
       await page.waitForFunction(() =>
         document.getAnimations().every((a) => a.playState !== 'running'),
