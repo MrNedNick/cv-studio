@@ -5,6 +5,7 @@ import {
   useRef,
   useState,
   type ReactNode,
+  type RefObject,
 } from 'react'
 import { ChevronDown } from 'lucide-react'
 
@@ -18,6 +19,37 @@ export const reducedMotion = () =>
  */
 export function canAnimate(element?: Element | null) {
   return typeof element?.animate === 'function'
+}
+
+/** Shrinks a dismissed item in the document flow before it unmounts. */
+export function useExitCollapse(
+  ref: RefObject<HTMLElement | null>,
+  closing: boolean,
+) {
+  useLayoutEffect(() => {
+    const element = ref.current
+    if (!closing || !element || !canAnimate(element)) return
+    const animation = element.animate(
+      reducedMotion()
+        ? [{ opacity: 1 }, { opacity: 0 }]
+        : [
+            {
+              height: `${element.getBoundingClientRect().height}px`,
+              opacity: 1,
+            },
+            {
+              height: '0px',
+              opacity: 0,
+              paddingTop: '0px',
+              paddingBottom: '0px',
+              marginTop: '0px',
+              marginBottom: '0px',
+            },
+          ],
+      { duration: EXIT_MS, easing: 'ease-in', fill: 'forwards' },
+    )
+    return () => animation.cancel()
+  }, [closing, ref])
 }
 export const motionMs = (ms: number) =>
   reducedMotion() ? Math.round(ms * 0.6) : ms
@@ -45,9 +77,10 @@ export function useMediaQuery(query: string) {
  * Returns the value to render and whether it is on its way out.
  */
 export function useLingering<T>(value: T, open: boolean) {
-  const [state, setState] = useState({ value, open, closing: false })
-  if (open && (!state.open || state.value !== value))
-    setState({ value, open: true, closing: false })
+  const last = useRef(value)
+  const [state, setState] = useState({ open, closing: false })
+  if (open) last.current = value
+  if (open && !state.open) setState({ open: true, closing: false })
   else if (!open && state.open)
     setState({ ...state, open: false, closing: canFade(document.body) })
   useEffect(() => {
@@ -59,7 +92,7 @@ export function useLingering<T>(value: T, open: boolean) {
     return () => clearTimeout(timer)
   }, [state.closing])
   return {
-    value: state.open || state.closing ? state.value : value,
+    value: state.open || state.closing ? last.current : value,
     shown: state.open || state.closing,
     closing: state.closing,
   }
@@ -79,49 +112,71 @@ export function Collapse({
 }) {
   const ref = useRef<HTMLDivElement>(null),
     [shown, setShown] = useState(open),
-    previous = useRef(open)
+    previous = useRef(open),
+    active = useRef<Animation | null>(null),
+    currentOpen = useRef(open)
+  currentOpen.current = open
   if (open && !shown) setShown(true)
   useLayoutEffect(() => {
     const element = ref.current
     if (previous.current === open) return
     previous.current = open
     if (!element) return
+    if (open) element.hidden = false
     if (!canAnimate(element)) {
       if (!open) setShown(false)
       return
     }
-    element.getAnimations().forEach((animation) => animation.cancel())
+    const reversing = active.current?.playState === 'running'
+    const start = reversing
+      ? element.getBoundingClientRect().height
+      : open
+        ? 0
+        : element.getBoundingClientRect().height
+    active.current?.cancel()
     const height = element.scrollHeight
     element.style.overflow = 'hidden'
     const animation = element.animate(
-      open
-        ? [
-            { height: '0px', opacity: 0 },
-            { height: `${height}px`, opacity: 1 },
-          ]
-        : [
-            { height: `${height}px`, opacity: 1 },
-            { height: '0px', opacity: 0 },
-          ],
+      reducedMotion()
+        ? [{ opacity: open ? 0 : 1 }, { opacity: open ? 1 : 0 }]
+        : open
+          ? [
+              { height: `${start}px`, opacity: reversing ? 1 : 0 },
+              { height: `${height}px`, opacity: 1 },
+            ]
+          : [
+              { height: `${start}px`, opacity: 1 },
+              { height: '0px', opacity: 0 },
+            ],
       {
         duration: motionMs(open ? 240 : EXIT_MS),
         easing: open ? 'cubic-bezier(.2,.8,.2,1)' : 'ease-in',
+        fill: 'forwards',
       },
     )
+    active.current = animation
     animation.onfinish = () => {
+      if (active.current !== animation || currentOpen.current !== open) return
       element.style.overflow = ''
-      if (open) return
+      if (open) {
+        animation.cancel()
+        return
+      }
       // Hide before React unmounts the content so the full height never flashes.
       element.hidden = true
       setShown(false)
+      animation.cancel()
     }
   }, [open])
+  useEffect(() => () => active.current?.cancel(), [])
   return (
     <div
       ref={ref}
       id={id}
       className={`collapse ${className || ''}`}
       hidden={!shown}
+      inert={!open}
+      aria-hidden={!open}
     >
       {shown ? children : null}
     </div>

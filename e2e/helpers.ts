@@ -26,6 +26,7 @@ export async function step(page: Page, name: string | RegExp) {
     .getByRole('button', { name })
     .first()
     .click()
+  await expect(page.locator('.mobile-steps-dialog')).toHaveCount(0)
 }
 
 export async function waitForSave(page: Page) {

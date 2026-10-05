@@ -11,6 +11,7 @@ import type { Template } from './model'
 import './index.css'
 import './App.css'
 import './gallery.css'
+import { Disclosure, useLingering } from './motion'
 
 function Gallery() {
   const [dark, setDark] = useState(
@@ -25,6 +26,7 @@ function Gallery() {
   const [included, setIncluded] = useState(true)
   const [density, setDensity] = useState('comfortable')
   const [dialog, setDialog] = useState(false)
+  const dialogView = useLingering(dialog, dialog)
   const [busy, setBusy] = useState(false)
   const [disableTemplates, setDisableTemplates] = useState(false)
   const [template, setTemplate] = useState<Template>('modern')
@@ -203,7 +205,10 @@ function Gallery() {
               </button>
               <button
                 className="button secondary"
-                onClick={() => setDialog(true)}
+                onClick={(event) => {
+                  event.currentTarget.focus({ preventScroll: true })
+                  setDialog(true)
+                }}
               >
                 Open dialog
               </button>
@@ -218,6 +223,19 @@ function Gallery() {
               Escape closes the dialog and returns focus. Tab stays inside while
               it is open.
             </p>
+            <Disclosure
+              summary="Expandable details"
+              className="gallery-disclosure"
+            >
+              <p>
+                Open and close this block, including halfway through a
+                transition.
+              </p>
+              <label>
+                A field inside the expanded block
+                <input defaultValue="Your work stays here while the block is open" />
+              </label>
+            </Disclosure>
           </section>
           <section
             id="skills"
@@ -265,8 +283,9 @@ function Gallery() {
           Back to the resume editor <ArrowRight size={16} aria-hidden="true" />
         </a>
       </footer>
-      {dialog && (
+      {dialogView.shown && (
         <Dialog
+          closing={dialogView.closing}
           title="Continue with your latest edits"
           closeLabel="Close dialog"
           close={() => setDialog(false)}

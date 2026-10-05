@@ -1059,7 +1059,7 @@
   color: var(--muted);
   opacity: 0.8;
 }
-.field > p,
+.field p,
 .field-hint {
   font-size: 12px;
   color: var(--muted);
@@ -1430,6 +1430,13 @@ dialog p {
   display: flex;
   align-items: center;
   gap: 12px;
+}
+.storage-warning {
+  animation: fade-in 0.22s var(--ease);
+}
+.storage-warning.is-closing {
+  animation: fade-out 0.18s var(--ease) forwards;
+  pointer-events: none;
 }
 .toast .icon-button {
   margin-left: auto;
@@ -2248,7 +2255,7 @@ dialog p {
   .field-row input {
     font-size: 15px;
   }
-  .field > p,
+  .field p,
   .field-hint {
     font-size: 13px;
   }
@@ -2417,7 +2424,7 @@ dialog p {
   .field select {
     font-size: 15px;
   }
-  .field > p,
+  .field p,
   .field-hint {
     font-size: 13px;
   }
@@ -3833,6 +3840,14 @@ dialog.is-closing::backdrop {
 .copy-toast.is-closing {
   animation: toast-out 0.18s ease-in forwards;
 }
+.toast {
+  animation: fade-in 0.22s var(--ease);
+}
+.toast.is-closing {
+  animation: fade-out 0.18s var(--ease) forwards;
+  pointer-events: none;
+  overflow: hidden;
+}
 .verb-group,
 .match-result,
 .photo-preview img,
@@ -4176,14 +4191,14 @@ dialog[open] {
 .field [aria-invalid='true']:focus {
   box-shadow: 0 0 0 3px color-mix(in srgb, #c0503a 22%, transparent);
 }
-.field > p[role='alert'] {
+.field p[role='alert'] {
   color: #c0503a;
   animation: fade-in 0.18s var(--ease);
 }
 [data-theme='dark'] .field [aria-invalid='true'] {
   border-color: #e0806b;
 }
-[data-theme='dark'] .field > p[role='alert'] {
+[data-theme='dark'] .field p[role='alert'] {
   color: #ef9a86;
 }
 .ui-textarea {

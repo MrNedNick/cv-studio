@@ -26,8 +26,9 @@ for (const theme of ['light', 'dark'] as const) {
             .click()
         await page.getByRole('button', { name: 'Text', exact: true }).click()
         const details = page.locator('.pdf-text-check')
-        if (!((await details.getAttribute('open')) !== null))
-          await details.locator('summary').click()
+        const toggle = details.getByRole('button', { name: 'Check PDF text' })
+        if ((await toggle.getAttribute('aria-expanded')) !== 'true')
+          await toggle.click()
         const actual = page.getByRole('region', {
           name: 'Text extracted from PDF',
         })

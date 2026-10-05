@@ -1,4 +1,5 @@
 import {
+  cloneElement,
   lazy,
   Suspense,
   useEffect,
@@ -85,7 +86,13 @@ import { Switch } from './ui/components/switch/switch'
 import EntryCard from './EntryCard'
 import { translator } from './i18n'
 import { preparePhoto } from './photo'
-import { canAnimate, Disclosure, useLingering, useMediaQuery } from './motion'
+import {
+  canAnimate,
+  Collapse,
+  Disclosure,
+  useLingering,
+  useMediaQuery,
+} from './motion'
 import { ReviewStep, WritingGuide } from './Coach'
 import { SkillsField } from './SkillsField'
 import { LanguageFields } from './LanguageFields'
@@ -216,6 +223,8 @@ export default function Editor({
     )
   const onboarding = useOnboarding()
   const [guideOpen, setGuideOpen] = useState(false)
+  const referenceView = useLingering(guideOpen, guideOpen)
+  const pickerView = useLingering(mobileSteps, mobileSteps && !desktop)
   const [tourIndex, setTourIndex] = useState<number | null>(null)
   const pendingTour = useRef<number | null>(null)
   const guideOpener = useRef<HTMLButtonElement>(null)
@@ -320,15 +329,21 @@ export default function Editor({
     })
   }
   useEffect(() => {
-    if (guideOpen || !pendingGuideTopic.current) return
+    if (referenceView.shown || !pendingGuideTopic.current) return
     const topic = pendingGuideTopic.current
     pendingGuideTopic.current = null
     const index = pendingTour.current
     pendingTour.current = null
     showGuideTopic(topic, index)
-  }, [guideOpen])
+  }, [referenceView.shown])
   const tab = section === 'design' ? 'design' : 'content'
   function focusForm() {
+    if (
+      pickerView.shown ||
+      referenceView.shown ||
+      document.querySelector('dialog[open]')
+    )
+      return
     const heading = form.current?.querySelector('h1')
     heading?.focus({ preventScroll: true })
     heading?.scrollIntoView?.({ block: 'nearest' })
@@ -336,7 +351,7 @@ export default function Editor({
   }
   useEffect(() => {
     if (focusSection.current) focusForm()
-  }, [section, tab])
+  }, [section, tab, pickerView.shown, referenceView.shown])
   useEffect(() => {
     function keydown(event: KeyboardEvent) {
       if (event.isComposing || document.querySelector('dialog[open]')) return
@@ -916,17 +931,14 @@ export default function Editor({
               ? null
               : 'structure')
   const contextTip =
-    !guideOpen &&
-    !menu &&
-    !mobileSteps &&
-    contextTopic &&
-    onboarding.show(contextTopic) ? (
+    !guideOpen && contextTopic && onboarding.show(contextTopic) ? (
       <GuideTip
         key={`${contextTopic}:${tourIndex}`}
         topic={contextTopic}
         locale={locale}
         anchor={guideAnchors[contextTopic]}
         explicit={onboarding.requested !== null}
+        paused={menu || pickerView.shown}
         index={tourIndex ?? undefined}
         back={
           tourIndex !== null && tourIndex > 0
@@ -971,6 +983,7 @@ export default function Editor({
         }}
       />
     ) : null
+  const contextView = useLingering(contextTip, Boolean(contextTip))
   const meta = pdfMetadata(doc)
   const emptyVersion = isEmptyVersion(resume),
     sources = locales.filter(
@@ -1404,9 +1417,12 @@ export default function Editor({
           </a>
         </div>
       )}
-      {contextTip}
-      {guideOpen && (
+      {contextView.shown &&
+        contextView.value &&
+        cloneElement(contextView.value, { closing: contextView.closing })}
+      {referenceView.shown && (
         <EditorGuide
+          closing={referenceView.closing}
           locale={locale}
           close={() => setGuideOpen(false)}
           enabled={onboarding.enabled}
@@ -1423,8 +1439,9 @@ export default function Editor({
           }}
         />
       )}
-      {mobileSteps && !desktop && (
+      {pickerView.shown && !desktop && (
         <Dialog
+          closing={pickerView.closing}
           title={t('Шаги резюме', 'Resume steps')}
           closeLabel={t('Закрыть', 'Close')}
           close={() => setMobileSteps(false)}
@@ -1785,7 +1802,7 @@ export default function Editor({
                         )}
                       </div>
                       <p className="form-description">{subtitles[section]}</p>
-                      {isHidden(section) && (
+                      <Collapse open={isHidden(section)}>
                         <div className="section-off" role="note">
                           <EyeOff size={17} aria-hidden="true" />
                           <p>
@@ -1801,7 +1818,7 @@ export default function Editor({
                             {t('Показать', 'Show it')}
                           </button>
                         </div>
-                      )}
+                      </Collapse>
                       {emptyVersion && sources.length > 0 && (
                         <div className="version-start" role="note">
                           <Languages size={18} aria-hidden="true" />
@@ -1883,473 +1900,482 @@ export default function Editor({
                             : undefined
                         }
                       />
-                      <fieldset
-                        className="section-fields"
-                        disabled={isHidden(section)}
-                      >
-                        {section === 'basics' ? (
-                          <>
-                            <div className="photo-field">
-                              <div className="photo-preview" aria-hidden="true">
-                                {doc.photo ? (
-                                  <img src={doc.photo} alt="" />
-                                ) : (
-                                  <UserRound size={26} />
-                                )}
-                              </div>
-                              <div>
-                                <strong>
-                                  {t(
-                                    'Фото (необязательно)',
-                                    'Photo (optional)',
-                                  )}
-                                </strong>
-                                <p>
-                                  {t(
-                                    'Принято в Германии, Австрии и Швейцарии. В США, Великобритании и Канаде фото обычно не добавляют.',
-                                    'Common in Germany, Austria and Switzerland. Usually left out in the US, UK and Canada.',
-                                  )}
-                                </p>
-                                <div className="photo-actions">
-                                  <label className="button secondary">
-                                    <Upload size={15} />
-                                    {doc.photo
-                                      ? t('Заменить', 'Replace')
-                                      : t('Добавить фото', 'Add photo')}
-                                    <input
-                                      className="visually-hidden"
-                                      type="file"
-                                      accept="image/jpeg,image/png,image/webp"
-                                      onChange={(event) => {
-                                        const file = event.target.files?.[0]
-                                        event.target.value = ''
-                                        if (file) void choosePhoto(file)
-                                      }}
-                                    />
-                                  </label>
-                                  {doc.photo && (
-                                    <button
-                                      className="text-button"
-                                      onClick={() =>
-                                        update({ ...doc, photo: '' })
-                                      }
-                                    >
-                                      {t('Убрать фото', 'Remove photo')}
-                                    </button>
+                      <Collapse open={!isHidden(section)}>
+                        <fieldset className="section-fields">
+                          {section === 'basics' ? (
+                            <>
+                              <div className="photo-field">
+                                <div
+                                  className="photo-preview"
+                                  aria-hidden="true"
+                                >
+                                  {doc.photo ? (
+                                    <img src={doc.photo} alt="" />
+                                  ) : (
+                                    <UserRound size={26} />
                                   )}
                                 </div>
-                                {photoError && (
-                                  <p className="field-error" role="alert">
-                                    {photoError}
+                                <div>
+                                  <strong>
+                                    {t(
+                                      'Фото (необязательно)',
+                                      'Photo (optional)',
+                                    )}
+                                  </strong>
+                                  <p>
+                                    {t(
+                                      'Принято в Германии, Австрии и Швейцарии. В США, Великобритании и Канаде фото обычно не добавляют.',
+                                      'Common in Germany, Austria and Switzerland. Usually left out in the US, UK and Canada.',
+                                    )}
                                   </p>
+                                  <div className="photo-actions">
+                                    <label className="button secondary">
+                                      <Upload size={15} />
+                                      {doc.photo
+                                        ? t('Заменить', 'Replace')
+                                        : t('Добавить фото', 'Add photo')}
+                                      <input
+                                        className="visually-hidden"
+                                        type="file"
+                                        accept="image/jpeg,image/png,image/webp"
+                                        onChange={(event) => {
+                                          const file = event.target.files?.[0]
+                                          event.target.value = ''
+                                          if (file) void choosePhoto(file)
+                                        }}
+                                      />
+                                    </label>
+                                    {doc.photo && (
+                                      <button
+                                        className="text-button"
+                                        onClick={() =>
+                                          update({ ...doc, photo: '' })
+                                        }
+                                      >
+                                        {t('Убрать фото', 'Remove photo')}
+                                      </button>
+                                    )}
+                                  </div>
+                                  {photoError && (
+                                    <p className="field-error" role="alert">
+                                      {photoError}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                              <FormField
+                                {...contactKeyboard}
+                                name="resume-name"
+                                autoComplete="name"
+                                autoCapitalize="words"
+                                label={t('Имя и фамилия', 'Full name')}
+                                value={resume.basics.name}
+                                onChange={(v) => basic('name', v)}
+                                placeholder={t(
+                                  'Как к вам обращаться?',
+                                  'Your full name',
                                 )}
+                              />
+                              <FormField
+                                {...contactKeyboard}
+                                name="resume-job-title"
+                                autoComplete="organization-title"
+                                autoCapitalize="words"
+                                spellCheck
+                                label={t(
+                                  'Должность или специализация',
+                                  'Job title or speciality',
+                                )}
+                                value={resume.basics.label}
+                                onChange={(v) => basic('label', v)}
+                                placeholder={t(
+                                  'Например, продуктовый дизайнер',
+                                  'e.g. Product designer',
+                                )}
+                              />
+                              <div className="form-divider">
+                                {t('КОНТАКТЫ', 'CONTACT DETAILS')}
                               </div>
-                            </div>
-                            <FormField
-                              {...contactKeyboard}
-                              name="resume-name"
-                              autoComplete="name"
-                              autoCapitalize="words"
-                              label={t('Имя и фамилия', 'Full name')}
-                              value={resume.basics.name}
-                              onChange={(v) => basic('name', v)}
-                              placeholder={t(
-                                'Как к вам обращаться?',
-                                'Your full name',
-                              )}
-                            />
-                            <FormField
-                              {...contactKeyboard}
-                              name="resume-job-title"
-                              autoComplete="organization-title"
-                              autoCapitalize="words"
-                              spellCheck
-                              label={t(
-                                'Должность или специализация',
-                                'Job title or speciality',
-                              )}
-                              value={resume.basics.label}
-                              onChange={(v) => basic('label', v)}
-                              placeholder={t(
-                                'Например, продуктовый дизайнер',
-                                'e.g. Product designer',
-                              )}
-                            />
-                            <div className="form-divider">
-                              {t('КОНТАКТЫ', 'CONTACT DETAILS')}
-                            </div>
-                            <div className="field-row">
+                              <div className="field-row">
+                                <FormField
+                                  {...contactKeyboard}
+                                  name="resume-email"
+                                  autoComplete="email"
+                                  inputMode="email"
+                                  label={t('Электронная почта', 'Email')}
+                                  value={resume.basics.email}
+                                  onChange={(v) => basic('email', v)}
+                                  type="email"
+                                  placeholder="you@example.com"
+                                  validate={checkEmail}
+                                />
+                                <FormField
+                                  {...contactKeyboard}
+                                  name="resume-phone"
+                                  autoComplete="tel"
+                                  inputMode="tel"
+                                  label={t('Телефон', 'Phone')}
+                                  value={resume.basics.phone}
+                                  onChange={(v) => basic('phone', v)}
+                                  type="tel"
+                                  placeholder="+49 …"
+                                  validate={checkPhone}
+                                />
+                              </div>
                               <FormField
                                 {...contactKeyboard}
-                                name="resume-email"
-                                autoComplete="email"
-                                inputMode="email"
-                                label={t('Электронная почта', 'Email')}
-                                value={resume.basics.email}
-                                onChange={(v) => basic('email', v)}
-                                type="email"
-                                placeholder="you@example.com"
-                                validate={checkEmail}
+                                name="resume-location"
+                                autoComplete="off"
+                                autoCapitalize="words"
+                                label={t('Город и страна', 'City and country')}
+                                value={resume.basics.location}
+                                onChange={(v) => basic('location', v)}
+                                placeholder={t(
+                                  'Например, Берлин, Германия',
+                                  'e.g. Berlin, Germany',
+                                )}
                               />
                               <FormField
                                 {...contactKeyboard}
-                                name="resume-phone"
-                                autoComplete="tel"
-                                inputMode="tel"
-                                label={t('Телефон', 'Phone')}
-                                value={resume.basics.phone}
-                                onChange={(v) => basic('phone', v)}
-                                type="tel"
-                                placeholder="+49 …"
-                                validate={checkPhone}
+                                name="resume-website"
+                                autoComplete="url"
+                                inputMode="url"
+                                label={t(
+                                  'Сайт или портфолио',
+                                  'Website or portfolio',
+                                )}
+                                value={resume.basics.url}
+                                onChange={(v) => basic('url', v)}
+                                placeholder="https://…"
+                                validate={checkUrl}
+                                hint={t(
+                                  'Необязательные поля можно оставить пустыми — они не попадут в PDF.',
+                                  'Leave optional fields blank — they won’t appear in your PDF.',
+                                )}
                               />
-                            </div>
+                              <FormField
+                                {...contactKeyboard}
+                                name="resume-linkedin"
+                                autoComplete="off"
+                                inputMode="url"
+                                label="LinkedIn"
+                                value={resume.basics.linkedin}
+                                onChange={(v) => basic('linkedin', v)}
+                                placeholder="linkedin.com/in/your-name"
+                                validate={checkUrl}
+                              />
+                              <FormField
+                                {...contactKeyboard}
+                                name="resume-github"
+                                autoComplete="off"
+                                inputMode="url"
+                                enterKeyHint="done"
+                                label="GitHub"
+                                value={resume.basics.github}
+                                onChange={(v) => basic('github', v)}
+                                placeholder="github.com/your-name"
+                                validate={checkUrl}
+                              />
+                            </>
+                          ) : section === 'summary' ? (
                             <FormField
-                              {...contactKeyboard}
-                              name="resume-location"
-                              autoComplete="off"
-                              autoCapitalize="words"
-                              label={t('Город и страна', 'City and country')}
-                              value={resume.basics.location}
-                              onChange={(v) => basic('location', v)}
-                              placeholder={t(
-                                'Например, Берлин, Германия',
-                                'e.g. Berlin, Germany',
-                              )}
-                            />
-                            <FormField
-                              {...contactKeyboard}
-                              name="resume-website"
-                              autoComplete="url"
-                              inputMode="url"
                               label={t(
-                                'Сайт или портфолио',
-                                'Website or portfolio',
+                                'Коротко о вас',
+                                'Your professional profile',
                               )}
-                              value={resume.basics.url}
-                              onChange={(v) => basic('url', v)}
-                              placeholder="https://…"
-                              validate={checkUrl}
+                              value={resume.basics.summary}
+                              onChange={(v) => basic('summary', v)}
+                              multiline
+                              placeholder={t(
+                                'Что вы умеете, какой у вас опыт и какую пользу приносите?',
+                                'What do you do well, and what value do you bring?',
+                              )}
                               hint={t(
-                                'Необязательные поля можно оставить пустыми — они не попадут в PDF.',
-                                'Leave optional fields blank — they won’t appear in your PDF.',
+                                '2–4 предложения. Пишите конкретно, без общих фраз.',
+                                'Aim for 2–4 specific sentences. Skip generic buzzwords.',
                               )}
                             />
-                            <FormField
-                              {...contactKeyboard}
-                              name="resume-linkedin"
-                              autoComplete="off"
-                              inputMode="url"
-                              label="LinkedIn"
-                              value={resume.basics.linkedin}
-                              onChange={(v) => basic('linkedin', v)}
-                              placeholder="linkedin.com/in/your-name"
-                              validate={checkUrl}
-                            />
-                            <FormField
-                              {...contactKeyboard}
-                              name="resume-github"
-                              autoComplete="off"
-                              inputMode="url"
-                              enterKeyHint="done"
-                              label="GitHub"
-                              value={resume.basics.github}
-                              onChange={(v) => basic('github', v)}
-                              placeholder="github.com/your-name"
-                              validate={checkUrl}
-                            />
-                          </>
-                        ) : section === 'summary' ? (
-                          <FormField
-                            label={t(
-                              'Коротко о вас',
-                              'Your professional profile',
-                            )}
-                            value={resume.basics.summary}
-                            onChange={(v) => basic('summary', v)}
-                            multiline
-                            placeholder={t(
-                              'Что вы умеете, какой у вас опыт и какую пользу приносите?',
-                              'What do you do well, and what value do you bring?',
-                            )}
-                            hint={t(
-                              '2–4 предложения. Пишите конкретно, без общих фраз.',
-                              'Aim for 2–4 specific sentences. Skip generic buzzwords.',
-                            )}
-                          />
-                        ) : section === 'skills' ? (
-                          <SkillsField
-                            value={resume.skills}
-                            onChange={(v) =>
-                              update(
-                                {
-                                  ...doc,
-                                  versions: {
-                                    ...doc.versions,
-                                    [lang]: { ...resume, skills: v },
+                          ) : section === 'skills' ? (
+                            <SkillsField
+                              value={resume.skills}
+                              onChange={(v) =>
+                                update(
+                                  {
+                                    ...doc,
+                                    versions: {
+                                      ...doc.versions,
+                                      [lang]: { ...resume, skills: v },
+                                    },
                                   },
-                                },
-                                `${lang}:skills`,
-                              )
-                            }
-                            locale={locale}
-                            lang={lang}
-                            jobTitle={resume.basics.label}
-                          />
-                        ) : (
-                          <>
-                            {resume[section].length > 1 && (
-                              <div className="entries-toolbar">
-                                <span>
-                                  {t('Записей', 'Entries')}:{' '}
-                                  {resume[section].length}
-                                </span>
-                                <button
-                                  className="text-button"
-                                  onClick={() => {
-                                    const allCollapsed = resume[section].every(
-                                      (e) =>
+                                  `${lang}:skills`,
+                                )
+                              }
+                              locale={locale}
+                              lang={lang}
+                              jobTitle={resume.basics.label}
+                            />
+                          ) : (
+                            <>
+                              {resume[section].length > 1 && (
+                                <div className="entries-toolbar">
+                                  <span>
+                                    {t('Записей', 'Entries')}:{' '}
+                                    {resume[section].length}
+                                  </span>
+                                  <button
+                                    className="text-button"
+                                    onClick={() => {
+                                      const allCollapsed = resume[
+                                        section
+                                      ].every((e) =>
                                         collapsed.has(`${section}:${e.id}`),
-                                    )
-                                    setCollapsed((current) => {
-                                      const next = new Set(current)
-                                      resume[section].forEach((e) => {
-                                        if (allCollapsed)
-                                          next.delete(`${section}:${e.id}`)
-                                        else next.add(`${section}:${e.id}`)
+                                      )
+                                      setCollapsed((current) => {
+                                        const next = new Set(current)
+                                        resume[section].forEach((e) => {
+                                          if (allCollapsed)
+                                            next.delete(`${section}:${e.id}`)
+                                          else next.add(`${section}:${e.id}`)
+                                        })
+                                        return next
                                       })
-                                      return next
-                                    })
-                                  }}
+                                    }}
+                                  >
+                                    {resume[section].every((e) =>
+                                      collapsed.has(`${section}:${e.id}`),
+                                    )
+                                      ? t('Развернуть все', 'Expand all')
+                                      : t('Свернуть все', 'Collapse all')}
+                                  </button>
+                                </div>
+                              )}
+                              {resume[section].map((e, i) => (
+                                <EntryCard
+                                  key={e.id}
+                                  entry={e}
+                                  title={
+                                    e.title || `${labels[section]} ${i + 1}`
+                                  }
+                                  locale={locale}
+                                  contentLocale={lang}
+                                  fresh={freshEntry === e.id}
+                                  expanded={
+                                    !collapsed.has(`${section}:${e.id}`)
+                                  }
+                                  toggle={() => toggleEntry(e.id)}
+                                  moveUp={
+                                    i > 0
+                                      ? () => move(section, i, -1)
+                                      : undefined
+                                  }
+                                  moveDown={
+                                    i < resume[section].length - 1
+                                      ? () => move(section, i, 1)
+                                      : undefined
+                                  }
+                                  remove={() => remove(section, e.id)}
                                 >
-                                  {resume[section].every((e) =>
-                                    collapsed.has(`${section}:${e.id}`),
-                                  )
-                                    ? t('Развернуть все', 'Expand all')
-                                    : t('Свернуть все', 'Collapse all')}
-                                </button>
-                              </div>
-                            )}
-                            {resume[section].map((e, i) => (
-                              <EntryCard
-                                key={e.id}
-                                entry={e}
-                                title={e.title || `${labels[section]} ${i + 1}`}
-                                locale={locale}
-                                contentLocale={lang}
-                                fresh={freshEntry === e.id}
-                                expanded={!collapsed.has(`${section}:${e.id}`)}
-                                toggle={() => toggleEntry(e.id)}
-                                moveUp={
-                                  i > 0 ? () => move(section, i, -1) : undefined
-                                }
-                                moveDown={
-                                  i < resume[section].length - 1
-                                    ? () => move(section, i, 1)
-                                    : undefined
-                                }
-                                remove={() => remove(section, e.id)}
-                              >
-                                {section === 'languages' ? (
-                                  <LanguageFields
-                                    entry={e}
-                                    locale={locale}
-                                    lang={lang}
-                                    pickLanguage={(code) =>
-                                      entryEverywhere(
-                                        section,
-                                        e.id,
-                                        (l) => ({
-                                          title: languageName(code, l),
-                                        }),
-                                        `languages:${e.id}:title`,
-                                      )
-                                    }
-                                    pickLevel={(index) =>
-                                      entryEverywhere(
-                                        section,
-                                        e.id,
-                                        (l) => ({
-                                          subtitle: proficiency[l][index],
-                                        }),
-                                        `languages:${e.id}:level`,
-                                      )
-                                    }
-                                    setTitle={(v) =>
-                                      entry(section, e.id, 'title', v)
-                                    }
-                                    setLevel={(v) =>
-                                      entry(section, e.id, 'subtitle', v)
-                                    }
-                                  />
-                                ) : (
-                                  <>
-                                    <FormField
-                                      label={
-                                        section === 'work'
-                                          ? t('Должность', 'Job title')
-                                          : section === 'education'
-                                            ? t(
-                                                'Специальность / степень',
-                                                'Degree / field of study',
-                                              )
-                                            : t(
-                                                'Название проекта',
-                                                'Project name',
-                                              )
+                                  {section === 'languages' ? (
+                                    <LanguageFields
+                                      entry={e}
+                                      locale={locale}
+                                      lang={lang}
+                                      pickLanguage={(code) =>
+                                        entryEverywhere(
+                                          section,
+                                          e.id,
+                                          (l) => ({
+                                            title: languageName(code, l),
+                                          }),
+                                          `languages:${e.id}:title`,
+                                        )
                                       }
-                                      value={e.title}
-                                      onChange={(v) =>
+                                      pickLevel={(index) =>
+                                        entryEverywhere(
+                                          section,
+                                          e.id,
+                                          (l) => ({
+                                            subtitle: proficiency[l][index],
+                                          }),
+                                          `languages:${e.id}:level`,
+                                        )
+                                      }
+                                      setTitle={(v) =>
                                         entry(section, e.id, 'title', v)
                                       }
-                                    />
-                                    <FormField
-                                      label={
-                                        section === 'work'
-                                          ? t('Компания', 'Company')
-                                          : section === 'education'
-                                            ? t(
-                                                'Учебное заведение',
-                                                'Institution',
-                                              )
-                                            : t(
-                                                'Роль / организация',
-                                                'Role / organization',
-                                              )
-                                      }
-                                      value={e.subtitle}
-                                      onChange={(v) =>
+                                      setLevel={(v) =>
                                         entry(section, e.id, 'subtitle', v)
                                       }
                                     />
-                                  </>
-                                )}
-                                {section !== 'languages' && (
-                                  <>
-                                    <div className="field-row">
+                                  ) : (
+                                    <>
                                       <FormField
-                                        label={t('Начало', 'Start date')}
-                                        type="month"
-                                        value={e.startDate}
+                                        label={
+                                          section === 'work'
+                                            ? t('Должность', 'Job title')
+                                            : section === 'education'
+                                              ? t(
+                                                  'Специальность / степень',
+                                                  'Degree / field of study',
+                                                )
+                                              : t(
+                                                  'Название проекта',
+                                                  'Project name',
+                                                )
+                                        }
+                                        value={e.title}
                                         onChange={(v) =>
-                                          entry(section, e.id, 'startDate', v)
+                                          entry(section, e.id, 'title', v)
                                         }
                                       />
-                                      {!e.current && (
-                                        <FormField
-                                          label={t('Окончание', 'End date')}
-                                          type="month"
-                                          value={e.endDate}
-                                          onChange={(v) =>
-                                            entry(section, e.id, 'endDate', v)
-                                          }
-                                          validate={(v) =>
-                                            e.startDate && v < e.startDate
+                                      <FormField
+                                        label={
+                                          section === 'work'
+                                            ? t('Компания', 'Company')
+                                            : section === 'education'
                                               ? t(
-                                                  'Окончание раньше начала.',
-                                                  'This is before the start date.',
+                                                  'Учебное заведение',
+                                                  'Institution',
                                                 )
-                                              : undefined
+                                              : t(
+                                                  'Роль / организация',
+                                                  'Role / organization',
+                                                )
+                                        }
+                                        value={e.subtitle}
+                                        onChange={(v) =>
+                                          entry(section, e.id, 'subtitle', v)
+                                        }
+                                      />
+                                    </>
+                                  )}
+                                  {section !== 'languages' && (
+                                    <>
+                                      <div className="field-row">
+                                        <FormField
+                                          label={t('Начало', 'Start date')}
+                                          type="month"
+                                          value={e.startDate}
+                                          onChange={(v) =>
+                                            entry(section, e.id, 'startDate', v)
                                           }
                                         />
-                                      )}
-                                    </div>
-                                    <div className="switch-row">
-                                      <Switch
-                                        className="ui-switch"
-                                        checked={e.current}
-                                        onChange={(event) =>
-                                          entry(
-                                            section,
-                                            e.id,
-                                            'current',
-                                            event.target.checked,
-                                          )
-                                        }
-                                        label={t(
-                                          'По настоящее время',
-                                          'Present',
+                                        {!e.current && (
+                                          <FormField
+                                            label={t('Окончание', 'End date')}
+                                            type="month"
+                                            value={e.endDate}
+                                            onChange={(v) =>
+                                              entry(section, e.id, 'endDate', v)
+                                            }
+                                            validate={(v) =>
+                                              e.startDate && v < e.startDate
+                                                ? t(
+                                                    'Окончание раньше начала.',
+                                                    'This is before the start date.',
+                                                  )
+                                                : undefined
+                                            }
+                                          />
                                         )}
-                                      />
-                                    </div>
-                                    <FormField
-                                      label={
-                                        section === 'work'
-                                          ? t(
-                                              'Результаты и достижения',
-                                              'Achievements and impact',
+                                      </div>
+                                      <div className="switch-row">
+                                        <Switch
+                                          className="ui-switch"
+                                          checked={e.current}
+                                          onChange={(event) =>
+                                            entry(
+                                              section,
+                                              e.id,
+                                              'current',
+                                              event.target.checked,
                                             )
-                                          : t('Описание', 'Description')
-                                      }
-                                      multiline
-                                      value={e.description}
-                                      onChange={(v) =>
-                                        entry(section, e.id, 'description', v)
-                                      }
-                                      onFocus={() => setActiveEntry(e.id)}
-                                      hint={
-                                        section === 'work'
-                                          ? t(
-                                              'Каждая новая строка — отдельный пункт. Добавьте результаты в цифрах.',
-                                              'One achievement per line. Include measurable results.',
-                                            )
-                                          : undefined
-                                      }
-                                    />
-                                    {section === 'projects' && (
+                                          }
+                                          label={t(
+                                            'По настоящее время',
+                                            'Present',
+                                          )}
+                                        />
+                                      </div>
                                       <FormField
-                                        label={t(
-                                          'Ссылка на проект',
-                                          'Project link',
-                                        )}
-                                        value={e.url}
-                                        onChange={(v) =>
-                                          entry(section, e.id, 'url', v)
+                                        label={
+                                          section === 'work'
+                                            ? t(
+                                                'Результаты и достижения',
+                                                'Achievements and impact',
+                                              )
+                                            : t('Описание', 'Description')
                                         }
-                                        validate={checkUrl}
-                                        placeholder="https://…"
+                                        multiline
+                                        value={e.description}
+                                        onChange={(v) =>
+                                          entry(section, e.id, 'description', v)
+                                        }
+                                        onFocus={() => setActiveEntry(e.id)}
+                                        hint={
+                                          section === 'work'
+                                            ? t(
+                                                'Каждая новая строка — отдельный пункт. Добавьте результаты в цифрах.',
+                                                'One achievement per line. Include measurable results.',
+                                              )
+                                            : undefined
+                                        }
                                       />
+                                      {section === 'projects' && (
+                                        <FormField
+                                          label={t(
+                                            'Ссылка на проект',
+                                            'Project link',
+                                          )}
+                                          value={e.url}
+                                          onChange={(v) =>
+                                            entry(section, e.id, 'url', v)
+                                          }
+                                          validate={checkUrl}
+                                          placeholder="https://…"
+                                        />
+                                      )}
+                                    </>
+                                  )}
+                                </EntryCard>
+                              ))}
+                              {resume[section].length === 0 && (
+                                <div className="empty-section">
+                                  <Plus size={24} />
+                                  <p>
+                                    {t('Здесь пока пусто', 'Nothing here yet')}
+                                  </p>
+                                  <span>
+                                    {t(
+                                      'Добавьте запись или пропустите раздел.',
+                                      'Add an entry, or skip this section.',
                                     )}
-                                  </>
-                                )}
-                              </EntryCard>
-                            ))}
-                            {resume[section].length === 0 && (
-                              <div className="empty-section">
-                                <Plus size={24} />
-                                <p>
-                                  {t('Здесь пока пусто', 'Nothing here yet')}
-                                </p>
-                                <span>
-                                  {t(
-                                    'Добавьте запись или пропустите раздел.',
-                                    'Add an entry, or skip this section.',
-                                  )}
-                                </span>
-                              </div>
-                            )}
-                            <button
-                              className="button add-entry"
-                              disabled={resume[section].length >= 100}
-                              onClick={() => add(section)}
-                            >
-                              <Plus size={17} />
-                              {t('Добавить запись', 'Add entry')}
-                            </button>
-                            <p className="field-hint">
-                              {resume[section].length >= 100
-                                ? t(
-                                    'В разделе уже 100 записей. Отредактируйте или удалите одну, чтобы добавить новую.',
-                                    'This section has 100 entries. Edit or remove an entry before adding another.',
-                                  )
-                                : t(
-                                    'Удаление и изменения можно отменить стрелкой вверху.',
-                                    'Use Undo above to restore removed entries or changes.',
-                                  )}
-                            </p>
-                          </>
-                        )}
-                      </fieldset>
+                                  </span>
+                                </div>
+                              )}
+                              <button
+                                className="button add-entry"
+                                disabled={resume[section].length >= 100}
+                                onClick={() => add(section)}
+                              >
+                                <Plus size={17} />
+                                {t('Добавить запись', 'Add entry')}
+                              </button>
+                              <p className="field-hint">
+                                {resume[section].length >= 100
+                                  ? t(
+                                      'В разделе уже 100 записей. Отредактируйте или удалите одну, чтобы добавить новую.',
+                                      'This section has 100 entries. Edit or remove an entry before adding another.',
+                                    )
+                                  : t(
+                                      'Удаление и изменения можно отменить стрелкой вверху.',
+                                      'Use Undo above to restore removed entries or changes.',
+                                    )}
+                              </p>
+                            </>
+                          )}
+                        </fieldset>
+                      </Collapse>
                       {tips.length > 0 && (
                         <div className="tips">
                           <div>
@@ -2442,6 +2468,11 @@ export default function Editor({
           className="preview-panel"
           aria-label={t('Предпросмотр резюме', 'Resume preview')}
         >
+          {((desktop && formHidden) || (mobile && mobilePreview)) && (
+            <h1 className="visually-hidden">
+              {t('Предпросмотр резюме', 'Resume preview')}
+            </h1>
+          )}
           <div
             className="panel-resizer"
             role="separator"

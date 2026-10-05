@@ -56,7 +56,10 @@ export function WritingGuide({
         type="button"
         className="chip guide-chip"
         aria-haspopup="dialog"
-        onClick={() => setOpen(true)}
+        onClick={(event) => {
+          event.currentTarget.focus({ preventScroll: true })
+          setOpen(true)
+        }}
       >
         <Lightbulb size={15} aria-hidden="true" />
         {t('Как заполнить этот раздел', 'How to write this section')}

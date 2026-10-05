@@ -320,6 +320,7 @@ export function Dialog({
         undefined
       }
       inert={closing}
+      aria-hidden={closing}
       onCancel={(e) => {
         e.preventDefault()
         if (!closing) close()

@@ -1,5 +1,6 @@
 import { useId, type ReactElement, cloneElement } from 'react'
 import { cn } from '../../lib/cn'
+import { Collapse, useLingering } from '../../../motion'
 
 export interface FieldProps {
   label?: string
@@ -32,6 +33,10 @@ export function Field({
   const id = useId()
   const messageId = `${id}-message`
   const message = error ?? hint
+  const feedback = useLingering(
+    { message, error: Boolean(error) },
+    Boolean(message),
+  )
 
   return (
     <div className={cn('flex w-full flex-col gap-1.5', className)}>
@@ -56,15 +61,20 @@ export function Field({
         'aria-describedby': message ? messageId : undefined,
       })}
 
-      {message && (
-        <p
-          id={messageId}
-          role={error ? 'alert' : undefined}
-          className={cn('text-xs', error ? 'text-danger' : 'text-text-muted')}
-        >
-          {message}
-        </p>
-      )}
+      <Collapse open={Boolean(message)}>
+        {feedback.shown && (
+          <p
+            id={messageId}
+            role={feedback.value.error ? 'alert' : undefined}
+            className={cn(
+              'text-xs',
+              feedback.value.error ? 'text-danger' : 'text-text-muted',
+            )}
+          >
+            {feedback.value.message}
+          </p>
+        )}
+      </Collapse>
     </div>
   )
 }

@@ -8,16 +8,20 @@ NeatCV has four shared primitives under `src/ui/components/` (Field, Select, Swi
 | Select | Native selection; language-specific options; required and disabled state | Touch target, native picker and high contrast |
 | Switch | Checkbox-based toggle; section inclusion and current employment | Pointer and keyboard behavior; disabled and error state |
 | Textarea | Auto-grow, character limit, spelling language | Long pasted text, mobile keyboard, internal scrolling |
-| Dialog | Native modal focus trap, Escape/backdrop close, focus restore, unique heading IDs | Nested transitions; long content; safe areas; reduced motion |
+| Dialog | Native modal focus trap, Escape/backdrop close, focus restore, unique heading IDs; all product dialogs remain mounted through their exit | Long content; safe areas; physical-device focus |
 | Step navigation | Same step list in desktop sidebar and mobile dialog; progress and hidden sections | Keyboard focus after selecting the current step; hidden-step clarity |
-| EntryCard | Collapse, reorder, delete, focus on new entry, undo | Long translated headings and 100-entry sections |
+| EntryCard | Collapse, reorder, animated delete, focus on new entry, undo; interrupted collapse reverses from its current height | Long translated headings and 100-entry sections |
 | Skills / LanguageFields | Chips, Enter/comma/paste, role suggestions, full-text wrapping, keyboard removal returns to writing, language picker, CEFR | Screen-reader announcements; real-device touch and keyboard |
 | Preview | Actual PDF, fit/zoom, structured text, on-demand extracted text and link inspection, retry and page navigation | Touch panning, multi-page text, memory use on older phones |
 | Import / export | Confirmation, editable vs sharing copy, persistent backup offer after sharing, JSON feedback and error/retry | iOS Files/share sheet and interruption during downloads |
 | Onboarding / Editor guide | Anchored floating coach marks, eight-step optional tour, outline/arrow, viewport tracking, typing priority, persistent opt-out, topic navigation, reset and focus restore; six languages | Physical-device and screen-reader review |
-| Buttons / notices | CSS tokens and explicit accessible names | Consolidate variants; disabled/loading layout; error vs saved status |
+| Buttons / notices | CSS tokens, explicit accessible names, fading notices and feedback; phone backup reminders fold out of the page flow | Consolidate variants; disabled/loading layout |
 
 Use this matrix for every visual review: light/dark, 320/360/430 px, desktop, long German labels, Cyrillic, keyboard focus, disabled, loading, error, empty and selected states. Respect reduced motion and native browser zoom. Keep behavior tests close to the component and use end-to-end tests for persistence, imports and exports.
+
+The shared motion helpers retain outgoing content for 180 ms, make it inert during exit and cancel an earlier exit when the surface reopens. Disclosure and entry bodies reverse from the current measured height; stale animation callbacks cannot hide reopened content. Reduced motion uses fades without height animation. Native modal focus trapping stays active until the dialog closes, then focus returns to its opener. The gallery includes a disclosure for checking interrupted opening and closing.
+
+Motion browser scenarios cover both themes and both motion preferences in desktop Chromium, phone Chromium and iPhone WebKit. They exercise disclosure reversal, modal Escape and close buttons, writing help, entry collapse, editor menus, the mobile step picker and backup notice dismissal, including focus restoration, inert exits, accessibility checks and console errors.
 
 Review the actual components at [`components.html`](https://neatcv.cc/components.html) (locally, `/components.html`). It is a separate Vite entry with temporary state, the same component imports and the same product styles; it does not read or write stored resumes. It covers labelled hints, validation after blur, explicit errors, disabled controls, long German labels, native select/switch, multiline writing, loading actions, modal focus and skill/template choices.
 

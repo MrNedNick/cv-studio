@@ -23,6 +23,10 @@ Dismissal is remembered per topic. **Contextual editor tips** disables automatic
 
 Interactive cards are labelled nonmodal dialogs, rather than tooltips with focusable content. The highlighted control receives an associated description. Requested steps focus their primary action; Escape restores the target, and closing by pointer returns to nearby help. All six interface languages, both themes, reduced motion and 44 px phone controls are supported.
 
+Choosing a template or preview mode collapses the card so the next control remains available. Resume actions and the mobile section picker pause the card without restarting the tour or moving focus away from the menu when it closes.
+
+Cards and their compact resume controls fade in and out. Topic disclosures and PDF inspection use the same reversible collapse as the editor. Closing help or the mobile step picker completes its exit before showing a requested step, and controls in an outgoing surface are inert.
+
 These decisions follow [Adobe Spectrum's coach-mark guidance](https://spectrum.adobe.com/web/design-only/components/coach-mark), [NN/g's contextual onboarding guidance](https://www.nngroup.com/articles/onboarding-tutorials/) and the [WAI distinction between tooltips and interactive dialogs](https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/). They explain the design choices, not a claim of complete WCAG certification.
 
 ## Checking the exported text

@@ -12,6 +12,7 @@ import { translator } from './i18n'
 import { Dialog } from './components'
 import { Switch } from './ui/components/switch/switch'
 import type { Locale, Section } from './model'
+import { Disclosure, useLingering } from './motion'
 import './Onboarding.css'
 
 export type GuideTopic =
@@ -291,6 +292,8 @@ export function GuideTip({
   index,
   back,
   explicit = false,
+  paused = false,
+  closing = false,
 }: {
   topic: GuideTopic
   locale: Locale
@@ -303,6 +306,8 @@ export function GuideTip({
   index?: number
   back?: () => void
   explicit?: boolean
+  paused?: boolean
+  closing?: boolean
 }) {
   const t = translator(locale),
     text = guideText(locale, topic)
@@ -310,6 +315,15 @@ export function GuideTip({
     action = useRef<HTMLButtonElement>(null)
   const targetRef = useRef<HTMLElement | null>(null)
   const focused = useRef(false)
+  const wasClosing = useRef(false)
+  useEffect(() => {
+    if (closing) wasClosing.current = true
+    else if (wasClosing.current) {
+      wasClosing.current = false
+      focused.current = false
+      setSuspended(false)
+    }
+  }, [closing])
   const [layout, setLayout] = useState<{
     target: Rect
     position: ReturnType<typeof placeGuide>
@@ -374,6 +388,7 @@ export function GuideTip({
       }
       const container = target.closest('.editor-form, .preview-panel')
       const bounds = container?.getBoundingClientRect()
+      const modes = target.closest('.preview-modes')?.getBoundingClientRect()
       const visible =
         rect.top >= Math.max(screen.top, bounds?.top ?? screen.top) &&
         rect.bottom <=
@@ -381,14 +396,23 @@ export function GuideTip({
         rect.left >= screen.left &&
         rect.right <= screen.left + screen.width
       const position = placeGuide(
-        bounds && innerWidth >= 1050
+        modes
           ? {
-              ...targetRect,
-              left: bounds.left,
-              right: bounds.right,
-              width: bounds.width,
+              left: modes.left,
+              right: modes.right,
+              top: modes.top,
+              bottom: modes.bottom,
+              width: modes.width,
+              height: modes.height,
             }
-          : targetRect,
+          : bounds && container?.matches('.editor-form') && innerWidth >= 1050
+            ? {
+                ...targetRect,
+                left: bounds.left,
+                right: bounds.right,
+                width: bounds.width,
+              }
+            : targetRect,
         card.current.offsetWidth,
         card.current.scrollHeight,
         screen,
@@ -442,14 +466,19 @@ export function GuideTip({
     }
   }, [anchor, topic, locale, suspended])
   useEffect(() => {
-    if (explicit && layout && !focused.current) {
+    if (explicit && layout && !paused && !closing && !focused.current) {
       action.current?.focus({ preventScroll: true })
       focused.current = true
     }
-  }, [explicit, layout])
+  }, [explicit, layout, paused, closing])
   useEffect(() => {
     function keydown(event: KeyboardEvent) {
-      if (event.key !== 'Escape' || document.querySelector('dialog[open]'))
+      if (
+        paused ||
+        closing ||
+        event.key !== 'Escape' ||
+        document.querySelector('dialog[open]')
+      )
         return
       const inCard = card.current?.contains(document.activeElement)
       event.preventDefault()
@@ -466,7 +495,7 @@ export function GuideTip({
       if (
         event.target instanceof HTMLElement &&
         (event.target.matches('input, textarea, select') ||
-          event.target.closest('.design-options button'))
+          event.target.closest('.design-options button, .preview-modes button'))
       ) {
         // Keep the form available while writing; a requested tour can be resumed.
         setSuspended(true)
@@ -475,7 +504,7 @@ export function GuideTip({
     function pointerdown(event: PointerEvent) {
       if (
         event.target instanceof Element &&
-        event.target.closest('.design-options button')
+        event.target.closest('.design-options button, .preview-modes button')
       )
         setSuspended(true)
     }
@@ -487,38 +516,44 @@ export function GuideTip({
       document.removeEventListener('focusin', focusin)
       document.removeEventListener('pointerdown', pointerdown)
     }
-  }, [explicit])
+  }, [explicit, paused, closing])
   function close() {
     dismiss()
     focusAfterDismiss.current?.focus({ preventScroll: true })
   }
-  const position = layout?.position
-  const hidden = !layout || suspended
+  const hidden = !layout || suspended || paused || closing
+  const cardView = useLingering(layout, !hidden)
+  const displayed = cardView.value
+  const position = displayed?.position
+  const resumeView = useLingering(
+    true,
+    hidden && explicit && !modalOpen && !paused && !closing,
+  )
   return createPortal(
     <>
-      {!hidden && (
+      {cardView.shown && displayed && (
         <div
-          className="guide-spotlight"
+          className={`guide-spotlight ${cardView.closing ? 'is-closing' : ''}`}
           aria-hidden="true"
           style={{
-            left: layout.target.left - 4,
-            top: layout.target.top - 4,
-            width: layout.target.width + 8,
-            height: layout.target.height + 8,
+            left: displayed.target.left - 4,
+            top: displayed.target.top - 4,
+            width: displayed.target.width + 8,
+            height: displayed.target.height + 8,
           }}
         />
       )}
-      {!hidden && position && (
+      {cardView.shown && position && displayed && (
         <>
           {position.side === 'right' &&
-            position.x - layout.target.right > 20 && (
+            position.x - displayed.target.right > 20 && (
               <span
                 className="guide-connector"
                 aria-hidden="true"
                 style={{
-                  left: layout.target.right + 4,
+                  left: displayed.target.right + 4,
                   top: position.y + position.arrow,
-                  width: position.x - layout.target.right - 10,
+                  width: position.x - displayed.target.right - 10,
                 }}
               />
             )}
@@ -544,18 +579,20 @@ export function GuideTip({
       )}
       <div
         ref={card}
-        className="guide-tip guide-floating"
+        className={`guide-tip guide-floating ${cardView.closing ? 'is-closing' : ''}`}
         data-guide-topic={topic}
         data-placement={position?.side}
         role="dialog"
         aria-modal="false"
         aria-label={t('Подсказка редактора', 'Editor tip')}
+        aria-hidden={cardView.closing || !cardView.shown}
+        inert={cardView.closing || !cardView.shown}
         style={
           {
             left: position?.x ?? 12,
             top: position?.y ?? 12,
             maxHeight: position?.maxHeight,
-            visibility: hidden ? 'hidden' : 'visible',
+            visibility: cardView.shown ? 'visible' : 'hidden',
             '--guide-arrow': `${position?.arrow ?? 24}px`,
           } as CSSProperties
         }
@@ -605,8 +642,12 @@ export function GuideTip({
           </div>
         </div>
       </div>
-      {hidden && explicit && !modalOpen && (
-        <div className="guide-resume">
+      {resumeView.shown && (
+        <div
+          className={`guide-resume ${resumeView.closing ? 'is-closing' : ''}`}
+          inert={resumeView.closing}
+          aria-hidden={resumeView.closing}
+        >
           <button
             className="button primary"
             onClick={() => {
@@ -644,6 +685,7 @@ export function EditorGuide({
   reset,
   choose,
   begin,
+  closing = false,
 }: {
   locale: Locale
   close: () => void
@@ -652,6 +694,7 @@ export function EditorGuide({
   reset: () => void
   choose: (topic: GuideTopic) => void
   begin: () => void
+  closing?: boolean
 }) {
   const t = translator(locale)
   return (
@@ -660,6 +703,7 @@ export function EditorGuide({
       closeLabel={t('Закрыть', 'Close')}
       close={close}
       className="editor-guide-dialog"
+      closing={closing}
     >
       <button className="button primary guide-start" onClick={begin}>
         {t('Показать редактор шаг за шагом', 'Walk me through the editor')}{' '}
@@ -688,13 +732,12 @@ export function EditorGuide({
         {guideTopics.map((topic) => {
           const text = guideText(locale, topic)
           return (
-            <details key={topic}>
-              <summary>{text.title}</summary>
+            <Disclosure key={topic} summary={text.title}>
               <p>{text.body}</p>
               <button className="text-button" onClick={() => choose(topic)}>
                 {t('Показать в редакторе', 'Show in editor')}
               </button>
-            </details>
+            </Disclosure>
           )
         })}
       </div>

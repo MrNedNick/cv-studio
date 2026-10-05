@@ -20,6 +20,7 @@ import ResumeText from './ResumeText'
 import type { Locale, ResumeDocument } from './model'
 import { translator } from './i18n'
 import './PdfTextReview.css'
+import { Disclosure } from './motion'
 
 const PdfTextReview = lazy(() => import('./PdfTextReview'))
 
@@ -289,22 +290,20 @@ export default function Preview({
               'For reading and copying. See the PDF tab for the document layout.',
             )}
           </p>
-          <details
+          <Disclosure
             className="pdf-text-check"
             open={checkText}
-            onToggle={(event) => setCheckText(event.currentTarget.open)}
+            onToggle={setCheckText}
+            summary={t('Проверить текст PDF', 'Check PDF text')}
           >
-            <summary>{t('Проверить текст PDF', 'Check PDF text')}</summary>
-            {checkText && (
-              <Suspense
-                fallback={
-                  <p>{t('Проверяем текст PDF…', 'Checking PDF text…')}</p>
-                }
-              >
-                <PdfTextReview doc={doc} locale={locale} />
-              </Suspense>
-            )}
-          </details>
+            <Suspense
+              fallback={
+                <p>{t('Проверяем текст PDF…', 'Checking PDF text…')}</p>
+              }
+            >
+              <PdfTextReview doc={doc} locale={locale} />
+            </Suspense>
+          </Disclosure>
           <ResumeText doc={doc} locale={locale} />
         </>
       )}

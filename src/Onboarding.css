@@ -20,11 +20,11 @@
   white-space: normal;
   text-align: left;
 }
-.guide-topics details {
+.guide-topics > .disclosure {
   border-top: 1px solid var(--line);
   padding: 4px 0;
 }
-.guide-topics summary {
+.guide-topics .disclosure-summary {
   cursor: pointer;
   padding: 12px 4px;
   font-weight: 600;
@@ -37,7 +37,7 @@
 .guide-topics .text-button {
   margin: 0 4px 8px;
 }
-.guide-topics summary:focus-visible {
+.guide-topics .disclosure-summary:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
   border-radius: 4px;
@@ -56,7 +56,7 @@
   .guide-preferences .text-button {
     min-height: 44px;
   }
-  .guide-topics summary {
+  .guide-topics .disclosure-summary {
     min-height: 44px;
   }
 }
@@ -237,4 +237,15 @@
 .guide-pointer-left {
   border-top: 1px solid var(--accent);
   border-right: 1px solid var(--accent);
+}
+.guide-floating,
+.guide-resume,
+.guide-spotlight {
+  animation: fade-in 0.18s var(--ease);
+}
+.guide-floating.is-closing,
+.guide-resume.is-closing,
+.guide-spotlight.is-closing {
+  animation: fade-out 0.18s var(--ease) forwards;
+  pointer-events: none;
 }

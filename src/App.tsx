@@ -39,7 +39,12 @@ import {
 } from './model'
 import { keepStorage, loadDocument, saveDocument } from './storage'
 import { Dialog, MiniResume, TemplateCards, templates } from './components'
-import { Disclosure, useLingering } from './motion'
+import {
+  Disclosure,
+  useExitCollapse,
+  useLingering,
+  useMediaQuery,
+} from './motion'
 import { detectLocale, translator, loadLocale, hasDictionary } from './i18n'
 import './App.css'
 // The editor is a separate chunk so the home page paints first; it is fetched
@@ -128,6 +133,26 @@ export default function App() {
     importShown = importView.value,
     startView = useLingering(pendingStart, pendingStart !== null),
     helpView = useLingering(help, help)
+  const noticeView = useLingering(
+    {
+      message: localeError || notice.message,
+      error: Boolean(localeError),
+      offerBackup: notice.offerBackup && !localeError,
+    },
+    Boolean(localeError || notice.message),
+  )
+  const noticeShown = noticeView.value
+  const importingView = useLingering(importing, importing)
+  const storageView = useLingering(
+    saveState,
+    saveState === 'error' && !loadError,
+  )
+  const noticeRef = useRef<HTMLDivElement>(null)
+  const phone = useMediaQuery('(max-width: 1049px)')
+  useExitCollapse(
+    noticeRef,
+    noticeView.closing && noticeShown.offerBackup && phone,
+  )
   const input = useRef<HTMLInputElement>(null),
     lastHistory = useRef({ time: 0, key: '' }),
     localeRequest = useRef(0),
@@ -1005,14 +1030,17 @@ export default function App() {
           <ArrowUpRight />
         </button>
       </footer>
-      {(localeError || notice.message) && (
+      {noticeView.shown && (
         <div
-          className={`toast ${notice.offerBackup && !localeError ? 'backup-toast' : ''}`}
-          role={localeError ? 'alert' : 'status'}
+          ref={noticeRef}
+          className={`toast ${noticeShown.offerBackup ? 'backup-toast' : ''} ${noticeView.closing ? 'is-closing' : ''}`}
+          role={noticeShown.error ? 'alert' : 'status'}
+          inert={noticeView.closing}
+          aria-hidden={noticeView.closing}
         >
           <div className="toast-content">
-            <span>{localeError || notice.message}</span>
-            {notice.offerBackup && !localeError && doc && (
+            <span>{noticeShown.message}</span>
+            {noticeShown.offerBackup && doc && (
               <div className="toast-actions">
                 <button
                   className="button secondary"
@@ -1028,7 +1056,7 @@ export default function App() {
               </div>
             )}
           </div>
-          {localeError && (
+          {noticeShown.error && (
             <button
               className="button secondary"
               disabled={Boolean(doc) && saveState !== 'saved'}
@@ -1049,14 +1077,23 @@ export default function App() {
           </button>
         </div>
       )}
-      {importing && (
-        <div className="toast" role="status">
+      {importingView.shown && (
+        <div
+          className={`toast ${importingView.closing ? 'is-closing' : ''}`}
+          role="status"
+          aria-hidden={importingView.closing}
+        >
           <LoaderCircle className="spin" size={18} />
           {t('Открываем файл…', 'Opening file…')}
         </div>
       )}
-      {saveState === 'error' && !loadError && (
-        <div className="storage-warning" role="alert">
+      {storageView.shown && (
+        <div
+          className={`storage-warning ${storageView.closing ? 'is-closing' : ''}`}
+          role="alert"
+          inert={storageView.closing}
+          aria-hidden={storageView.closing}
+        >
           {t(
             'Браузер не разрешает сохранить данные. Скачайте JSON-копию, прежде чем закрыть страницу.',
             'This browser could not save your data. Download a JSON backup before leaving.',

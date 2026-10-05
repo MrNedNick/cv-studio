@@ -27,9 +27,9 @@ async function guide(page: Page) {
 async function choose(page: Page, title: string) {
   const dialog = await guide(page)
   const topic = dialog
-    .locator('details')
-    .filter({ has: page.locator('summary', { hasText: title }) })
-  await topic.locator('summary').click()
+    .locator('.disclosure')
+    .filter({ has: page.locator('.disclosure-summary', { hasText: title }) })
+  await topic.locator('.disclosure-summary').click()
   await topic.getByRole('button', { name: 'Show in editor' }).click()
 }
 async function positioned(page: Page, topic: string) {
@@ -69,6 +69,7 @@ for (const theme of ['light', 'dark'] as const) {
     test.use({ colorScheme: theme })
     test('walkthrough points to real controls and completes with an editable PDF', async ({
       page,
+      isMobile,
     }, testInfo) => {
       test.setTimeout(90000)
       const errors: string[] = []
@@ -118,6 +119,26 @@ for (const theme of ['light', 'dark'] as const) {
       await page.screenshot({
         path: testInfo.outputPath('onboarding-writing.png'),
       })
+      const actions = page.getByRole('button', {
+        name: 'Resume actions',
+        exact: true,
+      })
+      await actions.click()
+      await expect(tip(page)).not.toBeVisible()
+      await page.keyboard.press('Escape')
+      await expect(actions).toBeFocused()
+      await positioned(page, 'basics')
+      if (isMobile) {
+        const picker = page.getByRole('button', {
+          name: 'Resume steps',
+          exact: true,
+        })
+        await picker.click()
+        await expect(tip(page)).not.toBeVisible()
+        await page.keyboard.press('Escape')
+        await expect(picker).toBeFocused()
+        await positioned(page, 'basics')
+      }
       await tip(page).getByRole('button', { name: 'Next', exact: true }).click()
       await positioned(page, 'structure')
       await page
@@ -138,8 +159,9 @@ for (const theme of ['light', 'dark'] as const) {
       await expect(page.getByLabel('Full name', { exact: true })).toHaveValue(
         'Walkthrough Tester',
       )
-      await page.locator('.editor-form').hover({ position: { x: 4, y: 100 } })
-      await page.mouse.wheel(0, 1200)
+      await page.locator('.editor-form').evaluate((form) => {
+        form.scrollTop = form.scrollHeight
+      })
       await expect(tip(page)).not.toBeVisible()
       await page.getByRole('button', { name: 'Continue walkthrough' }).click()
       await positioned(page, 'basics')
@@ -180,10 +202,13 @@ for (const theme of ['light', 'dark'] as const) {
       await tip(page).getByRole('button', { name: 'Next', exact: true }).click()
       await positioned(page, 'preview')
       await page.getByRole('button', { name: 'Text', exact: true }).click()
+      await expect(tip(page)).not.toBeVisible()
       await expect(page.locator('.resume-text')).toContainText(
         'Walkthrough Tester',
       )
       await axe(page)
+      await page.getByRole('button', { name: 'Continue walkthrough' }).click()
+      await positioned(page, 'preview')
       await tip(page)
         .getByRole('button', { name: 'Download PDF', exact: true })
         .click()
@@ -328,7 +353,7 @@ test('floating help fits narrow and landscape screens in six languages', async (
     await help(page).click()
     const dialog = page.getByRole('dialog', { name: title, exact: true })
     await expect(dialog.getByRole('switch', { name: toggle })).toBeChecked()
-    await expect(dialog.locator('summary')).toHaveCount(8)
+    await expect(dialog.locator('.disclosure-summary')).toHaveCount(8)
     await axe(page)
     await dialog.locator('.dialog-head button').press('Escape')
     await expect(help(page)).toBeFocused()
