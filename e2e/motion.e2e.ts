@@ -2,8 +2,10 @@ import { expect, test, type Locator } from '@playwright/test'
 import { AxeBuilder } from '@axe-core/playwright'
 import { downloadPdf, openExample, step } from './helpers.ts'
 
-async function frames(element: Locator) {
-  return element.evaluate(async (el) => {
+async function transitionFrames(element: Locator) {
+  return element.evaluate(async (trigger) => {
+    const el = document.getElementById(trigger.getAttribute('aria-controls')!)!
+    trigger.click()
     const heights: number[] = []
     for (let i = 0; i < 4; i++) {
       await new Promise<void>((resolve) =>
@@ -28,10 +30,9 @@ for (const theme of ['light', 'dark'] as const) {
         page.on('pageerror', (error) => errors.push(error.message))
         await page.goto('./components.html')
         const toggle = page.getByRole('button', { name: 'Expandable details' })
-        const body = page.locator('.gallery-disclosure .collapse')
-        await toggle.click()
+        const body = page.locator('.gallery-disclosure > .collapse')
+        const openingHeights = await transitionFrames(toggle)
         await expect(body).toBeVisible()
-        const openingHeights = await frames(body)
         await page.waitForFunction(() =>
           document
             .querySelector('.gallery-disclosure .collapse')
@@ -43,9 +44,8 @@ for (const theme of ['light', 'dark'] as const) {
         )
         if (reduced === 'no-preference')
           expect(Math.min(...openingHeights)).toBeLessThan(full)
-        await toggle.click()
+        const heights = await transitionFrames(toggle)
         await expect(body).toHaveAttribute('inert', '')
-        const heights = await frames(body)
         if (reduced === 'no-preference') {
           expect(Math.min(...heights)).toBeLessThan(full)
           expect(Math.max(...heights)).toBeGreaterThan(0)

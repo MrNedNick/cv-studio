@@ -120,19 +120,15 @@ for (const theme of ['light', 'dark'] as const) {
   })
 }
 
-test('all steps stay reachable at narrow, tablet and landscape sizes', async ({
-  page,
-}) => {
-  // Forty step changes and five PDF renders need a larger budget on CI WebKit.
-  test.setTimeout(90_000)
-  await openExample(page)
-  for (const [width, height] of [
-    [320, 640],
-    [360, 740],
-    [430, 739],
-    [768, 1024],
-    [932, 430],
-  ]) {
+for (const [width, height] of [
+  [320, 640],
+  [360, 740],
+  [430, 739],
+  [768, 1024],
+  [932, 430],
+]) {
+  test(`all steps stay reachable at ${width} x ${height}`, async ({ page }) => {
+    await openExample(page)
     await page.setViewportSize({ width, height })
     for (const name of [
       'Personal details',
@@ -169,8 +165,8 @@ test('all steps stay reachable at narrow, tablet and landscape sizes', async ({
         () => document.documentElement.scrollWidth - innerWidth,
       ),
     ).toBeLessThanOrEqual(0)
-  }
-})
+  })
+}
 
 test('adapts the workspace to a smaller visual viewport without changing pinch zoom', async ({
   page,

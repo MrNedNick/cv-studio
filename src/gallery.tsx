@@ -227,14 +227,18 @@ function Gallery() {
               summary="Expandable details"
               className="gallery-disclosure"
             >
-              <p>
-                Open and close this block, including halfway through a
-                transition.
-              </p>
-              <label>
-                A field inside the expanded block
-                <input defaultValue="Your work stays here while the block is open" />
-              </label>
+              <div className="gallery-disclosure-content">
+                <p>
+                  Open and close this block, including halfway through a
+                  transition.
+                </p>
+                <Field
+                  className="field"
+                  label="A field inside the expanded block"
+                >
+                  <input defaultValue="Your work stays here while the block is open" />
+                </Field>
+              </div>
             </Disclosure>
           </section>
           <section
