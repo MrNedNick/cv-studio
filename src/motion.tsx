@@ -133,19 +133,24 @@ export function Collapse({
       : open
         ? 0
         : element.getBoundingClientRect().height
+    const opacity = reversing
+      ? Number(getComputedStyle(element).opacity)
+      : open
+        ? 0
+        : 1
     active.current?.cancel()
     const height = element.scrollHeight
     element.style.overflow = 'hidden'
     const animation = element.animate(
       reducedMotion()
-        ? [{ opacity: open ? 0 : 1 }, { opacity: open ? 1 : 0 }]
+        ? [{ opacity }, { opacity: open ? 1 : 0 }]
         : open
           ? [
-              { height: `${start}px`, opacity: reversing ? 1 : 0 },
+              { height: `${start}px`, opacity },
               { height: `${height}px`, opacity: 1 },
             ]
           : [
-              { height: `${start}px`, opacity: 1 },
+              { height: `${start}px`, opacity },
               { height: '0px', opacity: 0 },
             ],
       {

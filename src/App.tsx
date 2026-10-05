@@ -1,4 +1,11 @@
-import { Suspense, lazy, useEffect, useRef, useState } from 'react'
+import {
+  Suspense,
+  lazy,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react'
 import {
   Link,
   Navigate,
@@ -207,7 +214,7 @@ export default function App() {
       window.requestIdleCallback ?? ((fn: () => void) => setTimeout(fn, 1500))
     idle(() => void loadEditor())
   }, [])
-  useEffect(() => {
+  useLayoutEffect(() => {
     document.documentElement.dataset.theme = theme
   }, [theme])
   useEffect(() => {
@@ -239,6 +246,7 @@ export default function App() {
   }, [])
   // Only an explicit choice is remembered; otherwise the device theme applies.
   function toggleTheme() {
+    document.documentElement.dataset.themeAnimated = 'true'
     const next = theme === 'dark' ? 'light' : 'dark'
     try {
       localStorage.setItem('neatcv-theme', next)

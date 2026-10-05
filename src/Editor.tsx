@@ -348,7 +348,7 @@ export default function Editor({
     heading?.scrollIntoView?.({ block: 'nearest' })
     focusSection.current = false
   }
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (focusSection.current) focusForm()
   }, [
     section,
@@ -691,7 +691,8 @@ export default function Editor({
   }, [widthOverride])
   // Grid tracks only animate between plain lengths, so pin the current width,
   // move to the target width, then hand back to the flexible track.
-  const freezeTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
+  const freezeTimer = useRef<ReturnType<typeof setTimeout>>(undefined),
+    formGutter = useRef(0)
   /**
    * Keeps the form content at one width while its column animates, so the text
    * slides under the edge instead of re-wrapping on every frame.
@@ -700,11 +701,19 @@ export default function Editor({
     const grid = body.current
     if (!grid) return
     clearTimeout(freezeTimer.current)
-    grid.style.setProperty('--form-freeze', `${Math.round(width)}px`)
+    const frozen = Number.parseFloat(
+      grid.style.getPropertyValue('--form-freeze'),
+    )
+    grid.style.setProperty('--form-freeze', `${Math.max(width, frozen || 0)}px`)
+    const panel = form.current
+    if (panel && !formHidden && !grid.dataset.animating)
+      formGutter.current = panel.offsetWidth - panel.clientWidth
+    grid.style.setProperty('--form-scrollbar', `${formGutter.current}px`)
     grid.dataset.animating = 'form'
     freezeTimer.current = setTimeout(() => {
       delete grid.dataset.animating
       grid.style.removeProperty('--form-freeze')
+      grid.style.removeProperty('--form-scrollbar')
     }, 360)
   }
   useEffect(() => () => clearTimeout(freezeTimer.current), [])
@@ -719,6 +728,14 @@ export default function Editor({
     )
       return
     clearTimeout(layoutTimer.current)
+    if (formHidden && target > 0) {
+      // A narrow closed track cannot reserve its scrollbar gutter. Measure the
+      // destination before painting, including when reopening after a reload.
+      grid.style.transition = 'none'
+      grid.style.setProperty('--form-w', `${target}px`)
+      const panel = form.current!
+      formGutter.current = panel.offsetWidth - panel.clientWidth
+    }
     freezeForm(Math.max(from, target))
     // Switch tracks without a transition: flexible ↔ fixed sizes cannot interpolate.
     grid.style.transition = 'none'
@@ -733,15 +750,14 @@ export default function Editor({
     }, 340)
   }
   function standardWidth() {
-    const free =
-      (body.current?.getBoundingClientRect().width || 1400) -
-      (sidebarHidden ? 0 : 212)
+    const free = (body.current?.getBoundingClientRect().width || 1400) - 212
     let width = (free * 0.75) / 2
     if (free - width < 420) width = free - 420
-    return Math.max(340, width)
+    return Math.min(720, Math.max(340, width))
   }
   function changeFormWidth(next: number | null, animate = true) {
-    if (animate) animateForm(formHidden ? 0 : (next ?? standardWidth()))
+    if (animate)
+      animateForm(formHidden ? 0 : boundedFormWidth(next ?? standardWidth()))
     writeSetting('neatcv-form-width', next ? String(Math.round(next)) : null)
     setFormWidth(next)
   }
@@ -749,7 +765,7 @@ export default function Editor({
   toggleFormRef.current = () => toggleForm()
   function toggleForm(hidden = !formHidden) {
     if (hidden === formHidden) return
-    animateForm(hidden ? 0 : (formWidth ?? standardWidth()))
+    animateForm(hidden ? 0 : boundedFormWidth(formWidth ?? standardWidth()))
     writeSetting('neatcv-form-hidden', hidden ? 'hidden' : null)
     setFormHidden(hidden)
   }
@@ -758,11 +774,17 @@ export default function Editor({
     return {
       min: 340,
       // Keep the preview the main thing: the form never takes over the screen.
-      max: Math.max(
-        340,
-        Math.min(720, total - (sidebarHidden ? 0 : 212) - 520),
-      ),
+      max: Math.max(340, Math.min(720, total - 212 - 420)),
     }
+  }
+  function boundedFormWidth(width: number) {
+    return Math.max(
+      340,
+      Math.min(
+        width,
+        (body.current?.getBoundingClientRect().width || 1400) - 632,
+      ),
+    )
   }
   // Behaves like a macOS split view: the form stops at its minimum width,
   // snaps shut when dragged well past it, and opens again from the edge.
@@ -821,7 +843,7 @@ export default function Editor({
     const { min, max } = widthLimits(),
       current = formHidden
         ? 0
-        : formWidth || form.current?.getBoundingClientRect().width || min,
+        : form.current?.getBoundingClientRect().width || formWidth || min,
       step = event.shiftKey ? 80 : 20
     const next =
       event.key === 'ArrowLeft'
@@ -1532,8 +1554,8 @@ export default function Editor({
               (formHidden
                 ? '0px'
                 : formWidth
-                  ? `${formWidth}px`
-                  : 'minmax(340px, 0.75fr)'),
+                  ? `clamp(340px, ${formWidth}px, calc(100% - 632px))`
+                  : 'clamp(340px, calc((100% - 212px) * .375), 720px)'),
           } as CSSProperties
         }
       >
@@ -1574,7 +1596,7 @@ export default function Editor({
           inert={formHidden && desktop}
           aria-hidden={(formHidden && desktop) || undefined}
         >
-          {doc.sample && (
+          <Collapse open={Boolean(doc.sample)} className="sample-banner-wrap">
             <div className="sample-banner" role="note">
               <Sparkles size={17} aria-hidden="true" />
               <p>
@@ -1591,12 +1613,17 @@ export default function Editor({
                 className="icon-button"
                 aria-label={t('Оставить пример', 'Keep the example')}
                 title={t('Оставить пример', 'Keep the example')}
-                onClick={() => update({ ...doc, sample: false })}
+                onClick={() => {
+                  form.current
+                    ?.querySelector('h1')
+                    ?.focus({ preventScroll: true })
+                  update({ ...doc, sample: false })
+                }}
               >
                 <X size={16} />
               </button>
             </div>
-          )}
+          </Collapse>
           <ContentLang.Provider value={lang}>
             <div key={`${tab}:${section}`} className="step-enter">
               {section === 'design' ? (
@@ -2456,11 +2483,7 @@ export default function Editor({
             aria-valuenow={
               formHidden
                 ? 0
-                : Math.round(
-                    formWidth ||
-                      form.current?.getBoundingClientRect().width ||
-                      0,
-                  )
+                : Math.round(boundedFormWidth(formWidth ?? standardWidth()))
             }
             aria-valuemin={0}
             aria-valuemax={Math.round(widthLimits().max)}

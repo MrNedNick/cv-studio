@@ -72,10 +72,71 @@
   descent-override: 27.35%;
   line-gap-override: 0%;
 }
+/* Interpolate the palette once; component layout and motion keep their own transitions. */
+@property --bg {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #fcfcf8;
+}
+@property --surface {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #fff;
+}
+@property --text {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #263a32;
+}
+@property --muted {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #59675e;
+}
+@property --line {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #e3e7df;
+}
+@property --soft {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #f1f3ec;
+}
+@property --accent {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #24594b;
+}
+@property --on-accent {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #fff;
+}
+@property --canvas {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #e9ede7;
+}
+@property --invalid-line {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #c0503a;
+}
+@property --error {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #c0503a;
+}
+@property --danger {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #b4583f;
+}
 :root {
   font-family: Noto, 'Noto fallback', Arial, sans-serif;
-  color: #263a32;
-  background: #fcfcf8;
+  color: var(--text);
+  background: var(--bg);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -89,6 +150,9 @@
   --lime: #d8ef98;
   --on-accent: #fff;
   --canvas: #e9ede7;
+  --invalid-line: #c0503a;
+  --error: #c0503a;
+  --danger: #b4583f;
   color-scheme: light;
   font-size: 14px;
 }
@@ -103,9 +167,24 @@
   --lime: #d8ef98;
   --on-accent: #17291c;
   --canvas: #101914;
+  --invalid-line: #e0806b;
+  --error: #ef9a86;
+  --danger: #ef9a86;
   color: var(--text);
   background: var(--bg);
   color-scheme: dark;
+}
+:root[data-theme-animated] {
+  transition-property:
+    --bg, --surface, --text, --muted, --line, --soft, --accent, --on-accent,
+    --canvas, --invalid-line, --error, --danger;
+  transition-duration: 320ms;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme-animated] {
+    transition-duration: 120ms !important;
+  }
 }
 * {
   box-sizing: border-box;
@@ -214,7 +293,7 @@ button {
   *,
   *::before,
   *::after {
-    transition-duration: 0.01ms !important;
+    transition-duration: 0s !important;
     scroll-behavior: auto !important;
   }
   .spin {

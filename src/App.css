@@ -2953,6 +2953,8 @@ dialog p {
   }
   .is-editing .editor-form {
     overflow-y: auto;
+    scrollbar-gutter: stable;
+    overflow-anchor: none;
     min-height: 0;
     padding: 24px;
     --form-pad-x: 24px;
@@ -3206,7 +3208,7 @@ dialog p {
   margin-bottom: 3px;
 }
 .guide-weak {
-  color: #b4583f;
+  color: var(--danger);
 }
 .guide-strong {
   color: var(--accent);
@@ -4125,20 +4127,14 @@ dialog[open] {
 }
 .field [aria-invalid='true'],
 .field [aria-invalid='true']:hover {
-  border-color: #c0503a;
+  border-color: var(--invalid-line);
 }
 .field [aria-invalid='true']:focus {
-  box-shadow: 0 0 0 3px color-mix(in srgb, #c0503a 22%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--invalid-line) 22%, transparent);
 }
 .field p[role='alert'] {
-  color: #c0503a;
+  color: var(--error);
   animation: fade-in 0.18s var(--ease);
-}
-[data-theme='dark'] .field [aria-invalid='true'] {
-  border-color: #e0806b;
-}
-[data-theme='dark'] .field p[role='alert'] {
-  color: #ef9a86;
 }
 .ui-textarea {
   field-sizing: content;
@@ -4228,6 +4224,7 @@ dialog[open] {
 }
 .switch-row .ui-switch:checked + span + span {
   transform: translateX(18px);
+  background: var(--on-accent);
 }
 .switch-row .ui-switch:focus-visible + span {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent);
@@ -4238,9 +4235,6 @@ dialog[open] {
 }
 .ui-switch:disabled {
   cursor: default;
-}
-[data-theme='dark'] .switch-row .ui-switch:checked + span + span {
-  background: var(--on-accent);
 }
 /* Segmented control, as in macOS settings. */
 .control-block {
@@ -4341,8 +4335,9 @@ dialog[open] {
   .is-editing [data-animating] .editor-form {
     overflow: hidden;
   }
-  .is-editing [data-animating] .editor-form > .step-enter {
-    width: calc(var(--form-freeze) - 48px);
+  .is-editing [data-animating] .editor-form > .step-enter,
+  .is-editing [data-animating] .editor-form > .sample-banner-wrap {
+    width: calc(var(--form-freeze) - 48px - var(--form-scrollbar, 0px));
   }
   .is-editing .form-hidden .editor-form {
     padding-left: 24px;
@@ -4386,11 +4381,11 @@ dialog[open] {
 /* Panels still slide with reduced motion — shorter, so the change stays legible. */
 @media (prefers-reduced-motion: reduce) {
   .is-editing .editor-body {
-    transition: grid-template-columns 0.2s var(--ease) !important;
+    transition: grid-template-columns 0.2s var(--ease);
   }
   .is-editing .editor-sidebar,
   .is-editing .editor-form {
-    transition: opacity 0.16s var(--ease) !important;
+    transition: opacity 0.16s var(--ease);
   }
 }
 
@@ -4480,11 +4475,8 @@ dialog[open] {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: #b4583f;
+  color: var(--danger);
   font-size: 13px;
-}
-[data-theme='dark'] .text-button.danger {
-  color: #ef9a86;
 }
 .design-panes {
   margin: 0 0 22px;
@@ -4498,7 +4490,7 @@ dialog[open] {
 }
 @media (min-width: 1050px) {
   .is-editing [data-animating] .editor-form > .form-footer {
-    width: var(--form-freeze);
+    width: calc(var(--form-freeze) - var(--form-scrollbar, 0px));
     box-sizing: border-box;
   }
 }
@@ -4586,8 +4578,12 @@ dialog[open] {
   }
 }
 /* Example banner: one clear way to start your own resume. */
+.sample-banner-wrap {
+  flex: none;
+}
 .sample-banner {
   display: flex;
+  flex: none;
   align-items: center;
   gap: 12px;
   margin: 0 0 20px;
@@ -4633,7 +4629,7 @@ dialog[open] {
   color: var(--muted);
 }
 .clear-all:hover {
-  color: #b4583f;
+  color: var(--danger);
 }
 .section-nav .design-link {
   margin-bottom: 6px;
@@ -4938,7 +4934,7 @@ dialog .guide-example p {
 }
 .skill-tags button:hover {
   background: var(--surface);
-  color: #c0503a;
+  color: var(--error);
 }
 .skills-box input {
   flex: 1;
@@ -5228,6 +5224,8 @@ dialog .guide-example p {
     width: 100%;
     min-height: 0;
     overflow-y: auto;
+    scrollbar-gutter: stable;
+    overflow-anchor: none;
     padding: 20px max(20px, env(safe-area-inset-right)) 0
       max(20px, env(safe-area-inset-left));
     --form-pad-x: 20px;
