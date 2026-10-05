@@ -649,18 +649,28 @@ export function safeUrl(url: string): string | undefined {
     const value = url.trim()
     if (
       !value ||
+      /[\u0000-\u001f\u007f]/.test(value) ||
+      /\s/.test(value.replace(/^https?:\/\//i, '').split(/[/?#]/, 1)[0]) ||
       (/^[a-z][a-z\d+.-]*:/i.test(value) && !/^https?:\/\//i.test(value))
     )
       return undefined
     const parsed = new URL(value.includes('://') ? value : `https://${value}`)
     return ['https:', 'http:'].includes(parsed.protocol) &&
       !parsed.username &&
-      !parsed.password
+      !parsed.password &&
+      Boolean(parsed.hostname) &&
+      !/[\s%<>]/.test(parsed.hostname)
       ? parsed.href
       : undefined
   } catch {
     return undefined
   }
+}
+export function safeEmailUrl(email: string): string | undefined {
+  const value = email.trim()
+  return /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(value)
+    ? `mailto:${encodeURIComponent(value).replace(/%40/g, '@')}`
+    : undefined
 }
 export function dateRange(entry: Entry, locale: Locale) {
   const format = (value: string) => {

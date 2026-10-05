@@ -1,5 +1,20 @@
 // UI strings keyed by their English text.
 const messages: Record<string, string> = {
+  'Link targets to check: {count}': 'Адреси за проверка: {count}',
+  'Use an email with @ and a domain. This address will appear in the PDF without a link.':
+    'Въведете имейл с @ и домейн. Този адрес ще се появи в PDF без връзка.',
+  'Use an http or https address, like example.com. This link will be left out of the PDF.':
+    'Използвайте http или https адрес, например example.com. Тази връзка няма да попадне в PDF.',
+  'Edit {section}': 'Редактиране: {section}',
+  'Text to check': 'Текст за проверка',
+  'These passages were not found in the extracted PDF text. Check them in the PDF tab or edit the section.':
+    'Тези откъси не са намерени в извлечения текст на PDF. Проверете ги в раздела PDF или редактирайте съответния раздел.',
+  'Passages not found: {count}': 'Ненамерени откъси: {count}',
+  'Page {page}: text may extend past the paper edge. Try a smaller text size or another template and check the PDF tab.':
+    'Страница {page}: текстът може да излиза извън листа. Опитайте по-малък размер на текста или друг шаблон и проверете раздела PDF.',
+  'Passages at the edge: {count}': 'Откъси при ръба: {count}',
+  'No missing passages or text outside the paper edges found.':
+    'Не са открити липсващи откъси или текст извън краищата на листа.',
   'Check PDF text': 'Проверка на текста в PDF',
   'Text extracted from PDF': 'Текст, извлечен от PDF',
   'Check the reading order and links in the actual PDF. Everything runs in your browser.':

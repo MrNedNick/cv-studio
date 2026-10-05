@@ -1,6 +1,18 @@
 import { expect, it } from 'vitest'
 import { matchJob, reviewResume } from './writing'
 import { createDocument, emptyEntry, locales } from './model'
+it('does not count an omitted invalid web address as a clickable profile link', () => {
+  const resume = createDocument(false).versions.en
+  resume.basics.url = 'not a web address'
+  resume.basics.linkedin = 'javascript:alert(1)'
+  expect(
+    reviewResume(resume, 'en').find((check) => check.id === 'links')?.ok,
+  ).toBe(false)
+  resume.basics.github = 'github.com/example'
+  expect(
+    reviewResume(resume, 'en').find((check) => check.id === 'links')?.ok,
+  ).toBe(true)
+})
 
 it('passes a strong example and flags weak writing with reasons', () => {
   const doc = createDocument(true, 'en'),

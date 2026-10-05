@@ -14,6 +14,7 @@ import { translate } from './i18n'
 import {
   dateRange,
   safeUrl,
+  safeEmailUrl,
   sectionLabels,
   toJsonResume,
   visibleSections,
@@ -435,11 +436,17 @@ export function ResumePDF({ doc }: { doc: ResumeDocument }) {
               }}
             >
               {r.basics.location && <Text>{r.basics.location}</Text>}
-              {r.basics.email && (
-                <Link style={{ color: muted }} src={`mailto:${r.basics.email}`}>
-                  {r.basics.email}
-                </Link>
-              )}
+              {r.basics.email &&
+                (safeEmailUrl(r.basics.email) ? (
+                  <Link
+                    style={{ color: muted }}
+                    src={safeEmailUrl(r.basics.email)!}
+                  >
+                    {r.basics.email}
+                  </Link>
+                ) : (
+                  <Text>{r.basics.email}</Text>
+                ))}
               {r.basics.phone && <Text>{r.basics.phone}</Text>}
               {(['url', 'linkedin', 'github'] as const).map(
                 (key) =>

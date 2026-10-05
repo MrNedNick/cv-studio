@@ -47,6 +47,7 @@ import {
 } from './motion'
 import { detectLocale, translator, loadLocale, hasDictionary } from './i18n'
 import './App.css'
+import PdfLinkWarnings from './PdfLinkWarnings'
 // The editor is a separate chunk so the home page paints first; it is fetched
 // in the background right after the first render.
 const GitHubMark = () => (
@@ -1201,6 +1202,11 @@ export default function App() {
               </span>
             </label>
           </fieldset>
+          <PdfLinkWarnings
+            doc={exportShown}
+            locale={locale}
+            defaultOpen={false}
+          />
           {exportError && (
             <p className="export-error" role="alert">
               {t(

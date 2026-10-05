@@ -5454,3 +5454,45 @@ dialog .guide-example p {
     min-height: 44px;
   }
 }
+.pdf-link-warnings,
+.pdf-check-findings {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  padding: 12px;
+  margin: 12px 0;
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.pdf-link-warnings > .disclosure-summary {
+  min-height: 44px;
+  font-weight: 600;
+}
+.pdf-check-findings h3 {
+  font-size: 14px;
+  margin: 0 0 8px;
+}
+.pdf-link-warnings ul,
+.pdf-check-findings ul {
+  padding-left: 20px;
+  margin: 10px 0;
+}
+.pdf-link-warnings li,
+.pdf-check-findings li {
+  margin-bottom: 12px;
+}
+.pdf-link-warnings p,
+.pdf-check-findings p {
+  color: var(--muted);
+  margin: 6px 0;
+}
+.pdf-check-excerpt {
+  display: block;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.pdf-link-warnings .text-button,
+.pdf-check-findings .text-button {
+  min-height: 44px;
+}

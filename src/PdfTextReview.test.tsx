@@ -10,6 +10,15 @@ import {
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import PdfTextReview from './PdfTextReview'
 import { createDocument } from './model'
+const textItem = (str: string, x = 42) => ({
+  str,
+  hasEOL: true,
+  transform: [10, 0, 0, 10, x, 700],
+  width: 120,
+  height: 10,
+  fontName: 'test',
+  dir: 'ltr',
+})
 const { renderResume, getDocument } = vi.hoisted(() => ({
   renderResume: vi.fn(),
   getDocument: vi.fn(),
@@ -20,13 +29,13 @@ const destroy = vi.fn(async () => {})
 const pdf = {
   numPages: 2,
   getPage: async (page: number) => ({
+    view: [0, 0, 595, 842],
+    cleanup: vi.fn(),
     getTextContent: async () => ({
+      styles: { test: { ascent: 0.8, descent: -0.2 } },
       items:
         page === 1
-          ? [
-              { str: 'Александра Морозова', hasEOL: true },
-              { str: 'Product designer', hasEOL: false },
-            ]
+          ? [textItem('Александра Морозова'), textItem('Product designer')]
           : [],
     }),
     getAnnotations: async () =>
@@ -93,4 +102,32 @@ it('discards a late result after the document changes', async () => {
     resolveOld({ arrayBuffer: async () => new ArrayBuffer(4) }),
   )
   await waitFor(() => expect(getDocument).toHaveBeenCalledTimes(1))
+})
+it('shows missing writing, paper-edge warnings and an actionable section without changing data', async () => {
+  const doc = createDocument(false)
+  doc.versions.en.basics.name = 'Product designer'
+  doc.versions.en.basics.summary = 'A unique achievement missing from the PDF'
+  const original = structuredClone(doc)
+  const goSection = vi.fn()
+  getDocument.mockReturnValue({
+    promise: Promise.resolve({
+      numPages: 1,
+      getPage: async () => ({
+        view: [0, 0, 595, 842],
+        cleanup: vi.fn(),
+        getTextContent: async () => ({
+          items: [textItem('Product designer', 550)],
+          styles: { test: { ascent: 0.8, descent: -0.2 } },
+        }),
+        getAnnotations: async () => [],
+      }),
+    }),
+    destroy,
+  })
+  render(<PdfTextReview doc={doc} locale="en" goSection={goSection} />)
+  await screen.findByText('Passages not found: 1')
+  expect(screen.getByText(/Page 1: text may extend/)).toBeVisible()
+  fireEvent.click(screen.getByRole('button', { name: 'Edit Profile' }))
+  expect(goSection).toHaveBeenCalledWith('summary')
+  expect(doc).toEqual(original)
 })

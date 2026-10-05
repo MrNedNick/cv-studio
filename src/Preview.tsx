@@ -41,9 +41,11 @@ type Anchor = { x: number; y: number; px: number; py: number }
 export default function Preview({
   doc,
   locale = doc.language,
+  goSection,
 }: {
   doc: ResumeDocument
   locale?: Locale
+  goSection?: (section: import('./model').Section) => void
 }) {
   const t = translator(locale),
     pageLabel = useRef(t)
@@ -301,7 +303,7 @@ export default function Preview({
                 <p>{t('Проверяем текст PDF…', 'Checking PDF text…')}</p>
               }
             >
-              <PdfTextReview doc={doc} locale={locale} />
+              <PdfTextReview doc={doc} locale={locale} goSection={goSection} />
             </Suspense>
           </Disclosure>
           <ResumeText doc={doc} locale={locale} />

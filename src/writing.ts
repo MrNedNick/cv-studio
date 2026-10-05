@@ -1,5 +1,6 @@
 import {
   sectionLabels,
+  safeUrl,
   weakStart,
   type Locale,
   type Resume,
@@ -423,7 +424,7 @@ export function reviewResume(
   add(
     'links',
     'basics',
-    Boolean(b.linkedin.trim() || b.url.trim() || b.github.trim()),
+    [b.linkedin, b.url, b.github].some((url) => Boolean(safeUrl(url))),
     t('Ссылки на профиль', 'Profile links'),
     t(
       'LinkedIn, портфолио или GitHub — кликабельные, с полным адресом.',

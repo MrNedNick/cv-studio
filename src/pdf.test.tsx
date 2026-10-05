@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { expect, it, beforeAll } from 'vitest'
-import { PDFDocument } from 'pdf-lib'
+import { PDFDocument, StandardFonts } from 'pdf-lib'
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs'
 import { writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
@@ -9,9 +9,105 @@ import {
   parseDocument,
   templateIds,
   type Template,
+  locales,
 } from './model'
 import { configurePdfFonts, exportPdf } from './pdf'
+import {
+  inspectPdfPage,
+  missingPdfText,
+  type PdfPageInspection,
+} from './pdf-inspection'
 beforeAll(() => configurePdfFonts(`${resolve('public')}/`))
+it('detects text crossing a physical paper edge in an actual PDF', async () => {
+  const file = await PDFDocument.create()
+  const font = await file.embedFont(StandardFonts.Helvetica)
+  const page = file.addPage([595, 842])
+  page.drawText('Crossing the edge', { x: 590, y: 700, size: 12, font })
+  const task = getDocument({
+    data: await file.save(),
+    standardFontDataUrl: `${resolve('node_modules/pdfjs-dist/standard_fonts')}/`,
+  })
+  try {
+    const pdf = await task.promise
+    const actual = await pdf.getPage(1)
+    const inspected = inspectPdfPage(
+      await actual.getTextContent(),
+      [],
+      actual.view,
+    )
+    expect(inspected.overflow.length).toBeGreaterThan(0)
+    expect(inspected.overflow[0]).toBe('C')
+    const doc = createDocument(false)
+    doc.versions.en.basics.name = 'Crossing the edge'
+    expect(missingPdfText(doc, [inspected])).toEqual([
+      { section: 'basics', text: 'Crossing the edge' },
+    ])
+  } finally {
+    await task.destroy()
+  }
+})
+async function inspect(doc: import('./model').ResumeDocument) {
+  const blob = await exportPdf(doc, { editable: false })
+  const task = getDocument({ data: new Uint8Array(await blob.arrayBuffer()) })
+  try {
+    const pdf = await task.promise
+    const pages: PdfPageInspection[] = []
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i)
+      pages.push(
+        inspectPdfPage(
+          await page.getTextContent(),
+          await page.getAnnotations(),
+          page.view,
+        ),
+      )
+    }
+    return { pages, missing: missingPdfText(doc, pages) }
+  } finally {
+    await task.destroy()
+  }
+}
+it.each(locales)(
+  'inspects the %s example without reporting missing passages or overflow',
+  async (language) => {
+    const result = await inspect(createDocument(true, language))
+    expect(result.missing).toEqual([])
+    expect(result.pages.flatMap((page) => page.overflow)).toEqual([])
+  },
+)
+it('matches a single paragraph continued across pages, excluding fixed page numbers', async () => {
+  const doc = createDocument(true)
+  doc.versions.en.basics.summary = Array.from(
+    { length: 120 },
+    (_, i) =>
+      `Outcome ${i + 1} improved product conversion by 24% and shortened support times.`,
+  ).join(' ')
+  const result = await inspect(doc)
+  expect(result.pages.length).toBeGreaterThan(2)
+  expect(result.missing).toEqual([])
+  expect(result.pages.flatMap((page) => page.overflow)).toEqual([])
+})
+it('retains invalid email as text without creating an invalid PDF link', async () => {
+  const doc = createDocument(true)
+  doc.versions.en.basics.email = 'invalid-email'
+  doc.versions.en.basics.url = 'javascript:alert(1)'
+  const result = await inspect(doc)
+  expect(result.pages.map((page) => page.text).join(' ')).toContain(
+    'invalid-email',
+  )
+  expect(result.pages.flatMap((page) => page.links)).toEqual([])
+  expect(result.missing).toEqual([])
+})
+it('detects unsupported characters missing from the actual text layer', async () => {
+  const doc = createDocument(false)
+  doc.versions.en.basics.name = 'A Reader'
+  doc.versions.en.basics.summary =
+    'Delivered results 🚀 with clear measurements.'
+  const result = await inspect(doc)
+  expect(result.missing).toEqual([
+    { section: 'summary', text: doc.versions.en.basics.summary },
+  ])
+})
 it('exports selectable Cyrillic text, links, and editable source for every template', async () => {
   for (const template of templateIds as readonly Template[]) {
     const doc = createDocument(true, 'ru')
@@ -21,9 +117,13 @@ it('exports selectable Cyrillic text, links, and editable source for every templ
     const task = getDocument({ data: bytes })
     const pdf = await task.promise
     let text = ''
+    const inspected: PdfPageInspection[] = []
     for (let i = 1; i <= pdf.numPages; i++) {
       const page = await pdf.getPage(i)
       const content = await page.getTextContent()
+      inspected.push(
+        inspectPdfPage(content, await page.getAnnotations(), page.view),
+      )
       text += content.items
         .map((item) => ('str' in item ? item.str : ''))
         .join(' ')
@@ -34,6 +134,11 @@ it('exports selectable Cyrillic text, links, and editable source for every templ
     expect(text).toContain('Продуктовый дизайнер')
     expect(text).toContain('24%')
     expect(text).toContain('Английский')
+    expect(missingPdfText(doc, inspected), template).toEqual([])
+    expect(
+      inspected.flatMap((page) => page.overflow),
+      template,
+    ).toEqual([])
     const files = (await pdf.getAttachments()) as Record<
       string,
       { content: Uint8Array }
@@ -69,14 +174,24 @@ it.each(templateIds)(
     const task = getDocument({ data: bytes })
     const pdf = await task.promise
     let text = ''
+    const inspected: PdfPageInspection[] = []
     for (let i = 1; i <= pdf.numPages; i++) {
-      const content = await (await pdf.getPage(i)).getTextContent()
+      const page = await pdf.getPage(i)
+      const content = await page.getTextContent()
+      inspected.push(
+        inspectPdfPage(content, await page.getAnnotations(), page.view),
+      )
       text += content.items
         .map((item) => ('str' in item ? item.str : ''))
         .join(' ')
     }
     expect(text).toContain('Достижение 85')
     expect(text).toContain('Английский')
+    expect(missingPdfText(doc, inspected), template).toEqual([])
+    expect(
+      inspected.flatMap((page) => page.overflow),
+      template,
+    ).toEqual([])
     await task.destroy()
   },
   30000,

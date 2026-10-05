@@ -1,5 +1,20 @@
 // UI strings keyed by their English text.
 const messages: Record<string, string> = {
+  'Link targets to check: {count}': 'Destinos de enlaces por revisar: {count}',
+  'Use an email with @ and a domain. This address will appear in the PDF without a link.':
+    'Usa un correo con @ y un dominio. Esta dirección aparecerá en el PDF sin enlace.',
+  'Use an http or https address, like example.com. This link will be left out of the PDF.':
+    'Usa una dirección http o https, como example.com. Este enlace se omitirá del PDF.',
+  'Edit {section}': 'Editar {section}',
+  'Text to check': 'Texto por revisar',
+  'These passages were not found in the extracted PDF text. Check them in the PDF tab or edit the section.':
+    'Estos fragmentos no se encontraron en el texto extraído del PDF. Revísalos en la pestaña PDF o edita la sección.',
+  'Passages not found: {count}': 'Fragmentos no encontrados: {count}',
+  'Page {page}: text may extend past the paper edge. Try a smaller text size or another template and check the PDF tab.':
+    'Página {page}: el texto podría sobresalir del borde. Prueba un tamaño de texto menor u otra plantilla y revisa la pestaña PDF.',
+  'Passages at the edge: {count}': 'Fragmentos en el borde: {count}',
+  'No missing passages or text outside the paper edges found.':
+    'No se encontraron fragmentos ausentes ni texto fuera de los bordes.',
   'Check PDF text': 'Comprobar texto del PDF',
   'Text extracted from PDF': 'Texto extraído del PDF',
   'Check the reading order and links in the actual PDF. Everything runs in your browser.':

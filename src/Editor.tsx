@@ -54,6 +54,7 @@ import {
   sectionLabels,
   sections,
   safeUrl,
+  safeEmailUrl,
   pdfMetadata,
   emptyPdfMeta,
   textSizes,
@@ -335,6 +336,8 @@ export default function Editor({
   const tab = section === 'design' ? 'design' : 'content'
   function focusForm() {
     if (
+      (desktop && formHidden) ||
+      (mobile && mobilePreview) ||
       pickerView.shown ||
       referenceView.shown ||
       document.querySelector('dialog[open]')
@@ -347,7 +350,14 @@ export default function Editor({
   }
   useEffect(() => {
     if (focusSection.current) focusForm()
-  }, [section, tab, pickerView.shown, referenceView.shown])
+  }, [
+    section,
+    tab,
+    formHidden,
+    mobilePreview,
+    pickerView.shown,
+    referenceView.shown,
+  ])
   useEffect(() => {
     function keydown(event: KeyboardEvent) {
       if (event.isComposing || document.querySelector('dialog[open]')) return
@@ -833,7 +843,7 @@ export default function Editor({
     changeFormWidth(Math.min(max, next), false)
   }
   const checkEmail = (v: string) =>
-      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim())
+      safeEmailUrl(v)
         ? undefined
         : t(
             'Нужны @ и домен, например name@mail.com.',
@@ -2488,7 +2498,11 @@ export default function Editor({
               </p>
             )}
             {(!mobile || mobilePreview) && (
-              <Preview doc={previewDoc} locale={locale} />
+              <Preview
+                doc={previewDoc}
+                locale={locale}
+                goSection={(next) => goSection(next, true)}
+              />
             )}
           </Suspense>
         </section>

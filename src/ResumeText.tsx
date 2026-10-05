@@ -2,6 +2,7 @@ import { Fragment } from 'react'
 import {
   dateRange,
   safeUrl,
+  safeEmailUrl,
   sectionLabels,
   visibleSections,
   type EntrySection,
@@ -85,9 +86,14 @@ export default function ResumeText({
       )}
       <div className="resume-text-contacts">
         {resume.basics.location && <p>{resume.basics.location}</p>}
-        {resume.basics.email && (
-          <a href={`mailto:${resume.basics.email}`}>{resume.basics.email}</a>
-        )}
+        {resume.basics.email &&
+          (safeEmailUrl(resume.basics.email) ? (
+            <a href={safeEmailUrl(resume.basics.email)}>
+              {resume.basics.email}
+            </a>
+          ) : (
+            <p>{resume.basics.email}</p>
+          ))}
         {resume.basics.phone && <p>{resume.basics.phone}</p>}
         {(['url', 'linkedin', 'github'] as const).map(
           (key) =>
