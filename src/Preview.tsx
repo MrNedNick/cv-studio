@@ -1,4 +1,6 @@
 import {
+  lazy,
+  Suspense,
   useEffect,
   useLayoutEffect,
   useRef,
@@ -17,6 +19,9 @@ import {
 import ResumeText from './ResumeText'
 import type { Locale, ResumeDocument } from './model'
 import { translator } from './i18n'
+import './PdfTextReview.css'
+
+const PdfTextReview = lazy(() => import('./PdfTextReview'))
 
 const MIN_ZOOM = 25,
   MAX_ZOOM = 300,
@@ -55,6 +60,7 @@ export default function Preview({
     [error, setError] = useState(false),
     [pages, setPages] = useState(1),
     [mode, setMode] = useState<'pdf' | 'text'>('pdf'),
+    [checkText, setCheckText] = useState(false),
     [zoom, setZoom] = useState(100),
     [fit, setFit] = useState(true),
     [page, setPage] = useState(1),
@@ -283,6 +289,22 @@ export default function Preview({
               'For reading and copying. See the PDF tab for the document layout.',
             )}
           </p>
+          <details
+            className="pdf-text-check"
+            open={checkText}
+            onToggle={(event) => setCheckText(event.currentTarget.open)}
+          >
+            <summary>{t('Проверить текст PDF', 'Check PDF text')}</summary>
+            {checkText && (
+              <Suspense
+                fallback={
+                  <p>{t('Проверяем текст PDF…', 'Checking PDF text…')}</p>
+                }
+              >
+                <PdfTextReview doc={doc} locale={locale} />
+              </Suspense>
+            )}
+          </details>
           <ResumeText doc={doc} locale={locale} />
         </>
       )}

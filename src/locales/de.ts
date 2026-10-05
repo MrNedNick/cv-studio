@@ -1,5 +1,16 @@
 // UI strings keyed by their English text.
 const messages: Record<string, string> = {
+  'Check PDF text': 'PDF-Text prüfen',
+  'Text extracted from PDF': 'Aus dem PDF extrahierter Text',
+  'Check the reading order and links in the actual PDF. Everything runs in your browser.':
+    'Prüfen Sie die Lesereihenfolge und Links im tatsächlichen PDF. Alles läuft in Ihrem Browser.',
+  'Checking PDF text…': 'PDF-Text wird geprüft…',
+  'Could not read the PDF text. Try again.':
+    'Der PDF-Text konnte nicht gelesen werden. Versuchen Sie es erneut.',
+  'This page has no extractable text. Check it in the PDF tab.':
+    'Diese Seite enthält keinen extrahierbaren Text. Prüfen Sie sie im PDF-Tab.',
+  'Links in PDF': 'Links im PDF',
+  'No links on this page.': 'Keine Links auf dieser Seite.',
   'Hide form · Ctrl/⌘ \\': 'Formular ausblenden · Ctrl/⌘ \\',
   'Show form · Ctrl/⌘ \\': 'Formular anzeigen · Ctrl/⌘ \\',
   'Add your name and role': 'Name und Position ergänzen',

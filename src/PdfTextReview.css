@@ -1,0 +1,53 @@
+.pdf-text-check {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  margin: 12px 0;
+  padding: 4px 16px;
+  font-size: 13px;
+}
+.pdf-text-check > summary {
+  cursor: pointer;
+  min-height: 44px;
+  padding: 12px 0;
+  font-weight: 600;
+}
+.pdf-text-check > summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+.pdf-text-review {
+  padding-bottom: 12px;
+  overflow-wrap: anywhere;
+}
+.pdf-text-review > h2 {
+  font-size: 16px;
+}
+.pdf-text-review > p,
+.pdf-text-review [role='status'] {
+  color: var(--muted);
+  line-height: 1.7;
+}
+.pdf-text-page {
+  border-top: 1px solid var(--line);
+  margin-top: 16px;
+}
+.pdf-text-page h3 {
+  font-size: 14px;
+}
+.pdf-text-page h4 {
+  font-size: 12px;
+}
+.pdf-text-page pre {
+  font: inherit;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.pdf-text-page a {
+  color: var(--accent);
+}
+.pdf-text-page li {
+  margin: 8px 0;
+}

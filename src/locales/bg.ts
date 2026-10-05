@@ -1,5 +1,16 @@
 // UI strings keyed by their English text.
 const messages: Record<string, string> = {
+  'Check PDF text': 'Проверка на текста в PDF',
+  'Text extracted from PDF': 'Текст, извлечен от PDF',
+  'Check the reading order and links in the actual PDF. Everything runs in your browser.':
+    'Проверете реда на четене и връзките в самия PDF. Всичко се обработва в браузъра.',
+  'Checking PDF text…': 'Проверка на текста в PDF…',
+  'Could not read the PDF text. Try again.':
+    'Текстът в PDF не може да бъде прочетен. Опитайте отново.',
+  'This page has no extractable text. Check it in the PDF tab.':
+    'На тази страница няма текст за извличане. Проверете я в раздела PDF.',
+  'Links in PDF': 'Връзки в PDF',
+  'No links on this page.': 'На тази страница няма връзки.',
   'Hide form · Ctrl/⌘ \\': 'Скриване на формуляра · Ctrl/⌘ \\',
   'Show form · Ctrl/⌘ \\': 'Показване на формуляра · Ctrl/⌘ \\',
   'Add your name and role': 'Добавете име и длъжност',
