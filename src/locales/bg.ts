@@ -1,21 +1,30 @@
 // UI strings keyed by their English text.
 const messages: Record<string, string> = {
+  'Hide form · Ctrl/⌘ \\': 'Скриване на формуляра · Ctrl/⌘ \\',
+  'Show form · Ctrl/⌘ \\': 'Показване на формуляра · Ctrl/⌘ \\',
+  'Add your name and role': 'Добавете име и длъжност',
+  'Click the name field, then add your role below. Edits save automatically in this browser.':
+    'Натиснете полето за име и добавете длъжността си отдолу. Промените се запазват автоматично в този браузър.',
+  'Open the writing examples for help describing your experience and results. Hide an unneeded section without deleting its text.':
+    'Отворете примерите за описване на опит и резултати. Скрийте ненужен раздел, без да изтривате текста му.',
+  'Check the gaps above. Optionally paste a vacancy here to compare skills. Then inspect the PDF and keep both copies.':
+    'Проверете пропуските по-горе. По желание поставете обява тук, за да сравните уменията. След това прегледайте PDF и запазете двете копия.',
+  'Check the actual PDF pages. Click Text for reading and copying. Download a sharing copy and keep an editable copy for yourself.':
+    'Проверете страниците на действителния PDF. Натиснете Текст за четене и копиране. Изтеглете копие за споделяне и запазете редактируемо копие за себе си.',
+
+  'Skip walkthrough': 'Пропускане на обиколката',
+  'Continue walkthrough': 'Продължаване на обиколката',
+  'Walk me through the editor': 'Покажи редактора стъпка по стъпка',
+  'Start walkthrough': 'Започни обиколката',
+
   'The preview shows example text until you write your own. Choose a look, then Personal details.':
     'Прегледът показва примерен текст, докато напишете свой. Изберете оформление и преминете към Лични данни.',
-  'Edits save only in this browser. Keep an editable PDF or JSON backup before clearing browser data.':
-    'Промените се запазват само в този браузър. Запазете редактируем PDF или JSON, преди да изчистите данните му.',
   'Each language has its own text; nothing is translated automatically. Contacts, dates and links are shared.':
     'Всеки език има свой текст; няма автоматичен превод. Контактите, датите и връзките са общи.',
-  'Turn off In resume to skip a section without deleting it. Writing examples are available below.':
-    'Изключете В резюмето, за да пропуснете раздел без изтриване. Примери за попълване има по-долу.',
   'Enter or comma adds a skill. Paste a comma-separated list to add several at once.':
     'Enter или запетая добавя умение. Поставете списък със запетаи, за да добавите няколко наведнъж.',
   'Choose a level from A1–C2 or write your own. These are languages you speak, not the PDF language.':
     'Изберете ниво A1–C2 или го опишете сами. Това са езиците, които говорите, не езикът на PDF.',
-  'Check every PDF page. Use For sharing for employers; keep an Editable copy to edit again.':
-    'Проверете всички страници на PDF. За споделяне е за работодатели; Редактируемо копие е за бъдещи промени.',
-  'Check pages and line breaks in the actual PDF. Zoom affects the preview only; Text view helps with reading.':
-    'Проверете страниците и редовете в действителния PDF. Мащабът променя само прегледа; Текст е удобен за четене.',
   'Add several skills at once': 'Добавете няколко умения наведнъж',
   'Another language, a separate version': 'Друг език, отделна версия',
   'Choose a level that fits': 'Изберете подходящо ниво',
@@ -28,7 +37,6 @@ const messages: Record<string, string> = {
   'Keep only the sections you need': 'Оставете само нужните раздели',
   'Restore dismissed editor tips': 'Възстановете скритите подсказки',
   'Review, then keep two copies': 'Проверете и запазете две копия',
-  'Saved here, in this browser': 'Запазено тук, в този браузър',
   'See what the reader will see': 'Вижте какво ще види читателят',
   'Show in editor': 'Покажете в редактора',
   'Start with the look': 'Започнете с оформлението',
@@ -243,7 +251,6 @@ const messages: Record<string, string> = {
   Grow: 'Растеж',
   'Hard-working team player looking for new challenges.':
     'Трудолюбив екипен играч търси нови предизвикателства.',
-  'Hide form · Ctrl/⌘ \\': 'Скрий формуляра · Ctrl/⌘ \\',
   'Hide sections': 'Скрий разделите',
   'How it works': 'Как работи',
   'How to write this section': 'Как да попълните този раздел',
@@ -429,7 +436,6 @@ const messages: Record<string, string> = {
   Sections: 'Раздели',
   Serif: 'Със серифи',
   'Show dismissed tips': 'Покажи скритите подсказки',
-  'Show form · Ctrl/⌘ \\': 'Покажи формуляра · Ctrl/⌘ \\',
   'Show sections': 'Покажи разделите',
   'Show work you’re proud of.': 'Покажете работа, с която се гордеете.',
   'Skills first · a clear single column': 'Първо уменията · ясна една колона',

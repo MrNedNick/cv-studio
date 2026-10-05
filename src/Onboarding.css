@@ -1,47 +1,6 @@
-.guide-tip {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  margin: -10px 0 24px;
-  padding: 14px;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: var(--soft);
-  font-size: 12px;
-  line-height: 1.65;
-  overflow-wrap: anywhere;
-}
-.guide-tip > svg {
-  flex: 0 0 auto;
-  margin-top: 3px;
-  color: var(--accent);
-}
-.guide-tip > div {
-  min-width: 0;
-  flex: 1;
-}
-.guide-tip strong {
-  font-size: 13px;
-}
-.guide-tip p {
-  margin: 5px 0;
-  color: var(--muted);
-}
-.guide-tip .icon-button {
-  flex: 0 0 auto;
-  margin: -6px -6px 0 0;
-}
-.guide-tip .text-button {
-  font-size: 12px;
-  text-align: left;
-  white-space: normal;
-}
 .guide-opener {
   color: var(--muted);
   flex: 0 0 auto;
-}
-.preview-panel > .guide-tip {
-  margin: 0 0 16px;
 }
 .editor-guide-dialog {
   width: min(560px, calc(100vw - 32px));
@@ -122,21 +81,160 @@
 .guide-preferences .switch-row label {
   min-height: 44px;
 }
+
+.guide-floating {
+  position: fixed;
+  z-index: 70;
+  width: min(332px, calc(100vw - 24px));
+  padding: 16px 18px;
+  border: 1px solid var(--accent);
+  border-radius: 16px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 12px 40px #0003;
+  overflow: auto;
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.guide-tip-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: -7px -8px 8px 0;
+}
+.guide-count {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+.guide-floating strong {
+  display: block;
+  font-size: 17px;
+  line-height: 1.35;
+  padding-right: 4px;
+}
+.guide-floating p {
+  margin: 9px 0 14px;
+  color: var(--muted);
+}
+.guide-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: stretch;
+}
+.guide-actions > .text-button {
+  align-self: flex-start;
+  font-size: 12px;
+}
+.guide-navigation {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  justify-content: flex-end;
+}
+.guide-navigation .button {
+  flex: 1;
+  justify-content: center;
+  white-space: normal;
+  min-height: 44px;
+  font-size: 13px;
+  padding: 10px 12px;
+}
+.guide-floating .icon-button,
+.guide-floating .text-button {
+  min-height: 44px;
+}
+.guide-floating .icon-button {
+  min-width: 44px;
+}
+.guide-spotlight {
+  position: fixed;
+  z-index: 61;
+  border: 2px solid var(--accent);
+  border-radius: 10px;
+  pointer-events: none;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 15%, transparent);
+}
+.guide-resume {
+  position: fixed;
+  z-index: 70;
+  bottom: 82px;
+  right: 12px;
+  max-width: calc(100vw - 24px);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.guide-resume .icon-button {
+  min-width: 44px;
+  min-height: 44px;
+}
+.guide-start {
+  margin-top: 8px;
+  white-space: normal;
+}
 @media (max-height: 600px) {
-  .preview-panel > .guide-tip {
-    padding: 6px 12px;
-    margin-bottom: 8px;
+  .guide-floating {
+    padding: 10px 14px;
   }
-  .preview-panel > .guide-tip > div {
-    display: flex;
+  .guide-floating p {
+    margin: 6px 0;
+    font-size: 12px;
+  }
+  .guide-floating strong {
+    font-size: 14px;
+  }
+  .guide-tip-head {
+    margin-bottom: 0;
+  }
+  .guide-actions {
+    flex-direction: row;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 4px 12px;
+    justify-content: space-between;
   }
-  .preview-panel > .guide-tip p {
-    display: none;
+  .guide-navigation {
+    gap: 6px;
   }
-  .preview-panel > .guide-tip .icon-button {
-    margin: 0;
+  .guide-navigation .button {
+    padding: 8px;
   }
+}
+.guide-pointer {
+  position: fixed;
+  width: 12px;
+  height: 12px;
+  z-index: 71;
+  transform: rotate(45deg);
+  background: var(--surface);
+  pointer-events: none;
+}
+.guide-connector {
+  position: fixed;
+  height: 1px;
+  background: var(--accent);
+  z-index: 69;
+  pointer-events: none;
+}
+.guide-pointer-bottom {
+  border-top: 1px solid var(--accent);
+  border-left: 1px solid var(--accent);
+}
+.guide-pointer-top {
+  border-bottom: 1px solid var(--accent);
+  border-right: 1px solid var(--accent);
+}
+.guide-pointer-right {
+  border-bottom: 1px solid var(--accent);
+  border-left: 1px solid var(--accent);
+}
+.guide-pointer-left {
+  border-top: 1px solid var(--accent);
+  border-right: 1px solid var(--accent);
 }

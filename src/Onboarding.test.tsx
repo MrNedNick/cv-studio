@@ -1,15 +1,7 @@
 import '@testing-library/jest-dom/vitest'
-import {
-  act,
-  cleanup,
-  fireEvent,
-  render,
-  renderHook,
-  screen,
-} from '@testing-library/react'
+import { act, cleanup, renderHook } from '@testing-library/react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
-import { useRef, useState } from 'react'
-import { GuideTip, useOnboarding } from './Onboarding'
+import { placeGuide, useOnboarding } from './Onboarding'
 
 beforeEach(() => localStorage.clear())
 afterEach(() => {
@@ -72,32 +64,49 @@ it('recovers from malformed preferences without suppressing help', () => {
   expect(second.result.current.show('basics')).toBe(false)
   expect(second.result.current.show('design')).toBe(true)
 })
-it('dismisses inline help without taking away the keyboard or changing the writing', () => {
-  function Example() {
-    const [visible, setVisible] = useState(true),
-      opener = useRef<HTMLButtonElement>(null)
-    return (
-      <>
-        <button ref={opener}>Help</button>
-        <input aria-label="Resume name" defaultValue="Ada" />
-        {visible && (
-          <GuideTip
-            topic="basics"
-            locale="en"
-            dismiss={() => setVisible(false)}
-            help={() => {}}
-            focusAfterDismiss={opener}
-          />
-        )}
-      </>
+it('places the coach mark without covering its target and keeps it in the viewport', () => {
+  for (const width of [320, 360, 430, 1440]) {
+    const target = {
+      left: 24,
+      top: 280,
+      right: 220,
+      bottom: 340,
+      width: 196,
+      height: 60,
+    }
+    const position = placeGuide(target, Math.min(332, width - 24), 230, {
+      width,
+      height: 780,
+      top: 0,
+      left: 0,
+    })
+    expect(position.x).toBeGreaterThanOrEqual(12)
+    expect(position.x + Math.min(332, width - 24)).toBeLessThanOrEqual(
+      width - 12,
     )
+    expect(position.y).toBeGreaterThanOrEqual(12)
+    if (position.side === 'bottom')
+      expect(position.y).toBeGreaterThan(target.bottom)
+    if (position.side === 'right')
+      expect(position.x).toBeGreaterThan(target.right)
   }
-  render(<Example />)
-  expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-  fireEvent.click(
-    screen.getByRole('button', { name: 'Dismiss this editor tip' }),
-  )
-  expect(screen.getByRole('button', { name: 'Help' })).toHaveFocus()
-  expect(screen.getByLabelText('Resume name')).toHaveValue('Ada')
-  expect(screen.queryByRole('complementary')).not.toBeInTheDocument()
+})
+it('respects the visible viewport when the keyboard shrinks or offsets it', () => {
+  const target = {
+    left: 20,
+    top: 170,
+    right: 280,
+    bottom: 214,
+    width: 260,
+    height: 44,
+  }
+  const p = placeGuide(target, 296, 260, {
+    width: 320,
+    height: 300,
+    top: 100,
+    left: 0,
+  })
+  expect(p.y).toBeGreaterThanOrEqual(112)
+  expect(p.y + Math.min(260, p.maxHeight)).toBeLessThanOrEqual(388)
+  expect(p.y).toBeGreaterThan(target.bottom)
 })

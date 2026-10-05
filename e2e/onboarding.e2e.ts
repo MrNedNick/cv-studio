@@ -1,9 +1,16 @@
 import { expect, test, type Page } from '@playwright/test'
 import { AxeBuilder } from '@axe-core/playwright'
-import { openBlankEditor, openExample, step, waitForSave } from './helpers.ts'
+import {
+  openBlankEditor,
+  openExample,
+  readPdf,
+  step,
+  waitForSave,
+} from './helpers.ts'
 
-const help = (page: Page) =>
-  page.locator('.guide-access').getByRole('button', { name: 'Editor guide' })
+const tip = (page: Page) =>
+  page.getByRole('dialog', { name: 'Editor tip', exact: true })
+const help = (page: Page) => page.locator('.guide-access button')
 async function guide(page: Page) {
   if (await help(page).isVisible()) await help(page).click()
   else {
@@ -15,7 +22,7 @@ async function guide(page: Page) {
       .getByRole('button', { name: 'Editor guide' })
       .click()
   }
-  return page.getByRole('dialog', { name: 'Editor guide' })
+  return page.getByRole('dialog', { name: 'Editor guide', exact: true })
 }
 async function choose(page: Page, title: string) {
   const dialog = await guide(page)
@@ -24,7 +31,32 @@ async function choose(page: Page, title: string) {
     .filter({ has: page.locator('summary', { hasText: title }) })
   await topic.locator('summary').click()
   await topic.getByRole('button', { name: 'Show in editor' }).click()
-  await expect(dialog).not.toBeVisible()
+}
+async function positioned(page: Page, topic: string) {
+  await expect(tip(page)).toHaveAttribute('data-guide-topic', topic)
+  await expect(tip(page)).toBeVisible()
+  await expect
+    .poll(async () =>
+      page.evaluate(() => {
+        const cardElement = document.querySelector('.guide-floating')
+        const targetElement = document.querySelector('.guide-spotlight')
+        if (!cardElement || !targetElement) return false
+        const card = cardElement.getBoundingClientRect()
+        const target = targetElement.getBoundingClientRect()
+        const within =
+          card.x >= 0 &&
+          card.y >= 0 &&
+          card.right <= innerWidth + 1 &&
+          card.bottom <= innerHeight + 1
+        const overlap =
+          Math.min(card.right, target.right) >
+            Math.max(card.left, target.left) &&
+          Math.min(card.bottom, target.bottom) > Math.max(card.top, target.top)
+        return within && !overlap
+      }),
+    )
+    .toBe(true)
+  await expect(page.locator('.guide-tip:visible')).toHaveCount(1)
 }
 async function axe(page: Page) {
   await page.waitForFunction(() =>
@@ -35,9 +67,10 @@ async function axe(page: Page) {
 for (const theme of ['light', 'dark'] as const) {
   test.describe(theme, () => {
     test.use({ colorScheme: theme })
-    test('help is optional, persistent, keyboard accessible and keeps the latest writing', async ({
+    test('walkthrough points to real controls and completes with an editable PDF', async ({
       page,
     }, testInfo) => {
+      test.setTimeout(90000)
       const errors: string[] = []
       page.on('pageerror', (error) => errors.push(error.message))
       page.on('response', (response) => {
@@ -45,55 +78,75 @@ for (const theme of ['light', 'dark'] as const) {
           errors.push(`${response.status()} ${response.url()}`)
       })
       await openBlankEditor(page)
-      await expect(page.getByRole('dialog')).not.toBeVisible()
-      const tip = page.getByRole('complementary', { name: 'Editor tip' })
-      await expect(tip).toContainText('example text until you write your own')
-      await expect(page.locator('.guide-tip:visible')).toHaveCount(1)
-      await tip.getByRole('button', { name: 'Dismiss this editor tip' }).click()
-      await expect(help(page)).toBeFocused()
-      await step(page, 'Personal details')
-      const name = page.getByLabel('Full name', { exact: true })
-      await name.fill('Onboarding Tester')
-      await expect(name).toBeFocused()
-      await expect(tip).toContainText('clearing browser data')
-      let dialog = await guide(page)
-      await expect(
-        dialog.getByRole('switch', { name: 'Contextual editor tips' }),
-      ).toBeChecked()
+      await positioned(page, 'design')
+      await page
+        .locator('.design-options')
+        .getByRole('button', { name: /^Classic/ })
+        .click()
+      await positioned(page, 'design')
+      await page
+        .locator('.design-options')
+        .getByRole('button', { name: /^Compact/ })
+        .click()
+      await positioned(page, 'design')
       await axe(page)
-      for (const width of [320, 360, 430]) {
-        await page.setViewportSize({ width, height: 780 })
-        expect(
-          await page.evaluate(
-            () => document.documentElement.scrollWidth - innerWidth,
-          ),
-        ).toBe(0)
-        const toggleBox = await dialog
-          .locator('.switch-row label')
-          .boundingBox()
-        expect(toggleBox!.height).toBeGreaterThanOrEqual(44)
-        const box = await dialog.boundingBox()
-        expect(box!.x).toBeGreaterThanOrEqual(0)
-        expect(box!.x + box!.width).toBeLessThanOrEqual(width)
-      }
-      await dialog
-        .getByRole('switch', { name: 'Contextual editor tips' })
-        .uncheck()
-      await dialog
+      await page.screenshot({
+        path: testInfo.outputPath('onboarding-start.png'),
+      })
+      await tip(page).getByRole('button', { name: 'Start walkthrough' }).click()
+      await expect(tip(page)).toContainText('STEP 1 / 8')
+      await tip(page).getByRole('button', { name: 'Next', exact: true }).click()
+      await positioned(page, 'basics')
+      await expect(
+        tip(page).getByRole('button', { name: 'Next', exact: true }),
+      ).toBeFocused()
+      await page
+        .getByLabel('Full name', { exact: true })
+        .fill('Walkthrough Tester')
+      await expect(page.getByLabel('Full name', { exact: true })).toBeFocused()
+      await expect(tip(page)).not.toBeVisible()
+      await page
+        .getByLabel('Job title or speciality', { exact: true })
+        .fill('Frontend engineer')
+      await expect(
+        page.getByLabel('Job title or speciality', { exact: true }),
+      ).toBeFocused()
+      await page.getByRole('button', { name: 'Continue walkthrough' }).click()
+      await positioned(page, 'basics')
+      await page.screenshot({
+        path: testInfo.outputPath('onboarding-writing.png'),
+      })
+      await tip(page).getByRole('button', { name: 'Next', exact: true }).click()
+      await positioned(page, 'structure')
+      await page
+        .getByRole('button', { name: 'How to write this section' })
+        .click()
+      const writing = page.getByRole('dialog', {
+        name: 'How to write: Experience',
+        exact: true,
+      })
+      await expect(writing).toBeVisible()
+      await expect(tip(page)).not.toBeVisible()
+      await writing
         .getByRole('button', { name: 'Close', exact: true })
         .press('Escape')
-      await expect(help(page)).toBeFocused()
-      await expect(page.locator('.guide-tip:visible')).toHaveCount(0)
-      await expect(name).toHaveValue('Onboarding Tester')
-      await waitForSave(page)
-      await page.reload()
-      await step(page, 'Skills')
-      await expect(page.locator('.guide-tip:visible')).toHaveCount(0)
-      await choose(page, 'Add several skills at once')
-      await expect(page.locator('[data-guide-topic="skills"]')).toBeVisible()
+      await positioned(page, 'structure')
+      await tip(page).getByRole('button', { name: 'Back', exact: true }).click()
+      await positioned(page, 'basics')
+      await expect(page.getByLabel('Full name', { exact: true })).toHaveValue(
+        'Walkthrough Tester',
+      )
+      await page.locator('.editor-form').hover({ position: { x: 4, y: 100 } })
+      await page.mouse.wheel(0, 1200)
+      await expect(tip(page)).not.toBeVisible()
+      await page.getByRole('button', { name: 'Continue walkthrough' }).click()
+      await positioned(page, 'basics')
       await expect(
-        page.getByRole('heading', { name: 'Skills', exact: true }),
+        tip(page).getByRole('button', { name: 'Next', exact: true }),
       ).toBeFocused()
+      await tip(page).getByRole('button', { name: 'Next', exact: true }).click()
+      await tip(page).getByRole('button', { name: 'Next', exact: true }).click()
+      await positioned(page, 'skills')
       await page
         .getByLabel('Your skills', { exact: true })
         .fill('TypeScript, Accessibility,')
@@ -102,168 +155,183 @@ for (const theme of ['light', 'dark'] as const) {
         'TypeScript',
         'Accessibility',
       ])
-      await step(page, 'Personal details')
-      await expect(page.locator('.guide-tip:visible')).toHaveCount(0)
-      await expect(name).toHaveValue('Onboarding Tester')
-      dialog = await guide(page)
+      await page.getByRole('button', { name: 'Continue walkthrough' }).click()
+      await tip(page).getByRole('button', { name: 'Next', exact: true }).click()
+      await positioned(page, 'languages')
+      await page
+        .locator('.level-chips')
+        .first()
+        .getByRole('button', { name: 'B2', exact: true })
+        .click()
+      await tip(page).getByRole('button', { name: 'Next', exact: true }).click()
+      await positioned(page, 'versions')
+      await expect(page.locator('.site-header select')).toHaveAttribute(
+        'aria-describedby',
+        /editor-coach-description/,
+      )
+      await tip(page).getByRole('button', { name: 'Next', exact: true }).click()
+      await positioned(page, 'review')
+      await page
+        .getByLabel('Job posting text')
+        .fill('TypeScript and Accessibility')
+      await page.getByRole('button', { name: 'Continue walkthrough' }).click()
+      await tip(page).getByRole('button', { name: 'Next', exact: true }).click()
+      await positioned(page, 'preview')
+      await page.getByRole('button', { name: 'Text', exact: true }).click()
+      await expect(page.locator('.resume-text')).toContainText(
+        'Walkthrough Tester',
+      )
+      await axe(page)
+      await tip(page)
+        .getByRole('button', { name: 'Download PDF', exact: true })
+        .click()
+      const downloadDialog = page.getByRole('dialog', {
+        name: 'Download your resume',
+        exact: true,
+      })
       await expect(
-        dialog.getByRole('switch', { name: 'Contextual editor tips' }),
-      ).not.toBeChecked()
+        downloadDialog.getByRole('radio', { name: /For sharing/ }),
+      ).toBeChecked()
+      await downloadDialog.getByRole('radio', { name: /Editable copy/ }).check()
+      const [download] = await Promise.all([
+        page.waitForEvent('download'),
+        downloadDialog
+          .getByRole('button', { name: 'Download', exact: true })
+          .click(),
+      ])
+      const pdf = await readPdf(download)
+      expect(pdf.text).toContain('Walkthrough Tester')
+      expect(pdf.text).toContain('TypeScript')
+      expect(pdf.attachments).toHaveLength(1)
+      await waitForSave(page)
+      await page.reload()
+      await step(page, 'Personal details')
+      await expect(page.getByLabel('Full name', { exact: true })).toHaveValue(
+        'Walkthrough Tester',
+      )
+      await expect(tip(page)).not.toBeVisible()
+      expect(errors).toEqual([])
+    })
+    test('automatic help yields to typing, opt-out persists and help can be restarted', async ({
+      page,
+    }) => {
+      await openBlankEditor(page)
+      await tip(page)
+        .getByRole('button', { name: 'Dismiss this editor tip' })
+        .click()
+      await expect(help(page)).toBeFocused()
+      await step(page, 'Personal details')
+      await positioned(page, 'basics')
+      await page
+        .getByLabel('Full name', { exact: true })
+        .fill('Keep my writing')
+      await expect(tip(page)).not.toBeVisible()
+      await expect(page.getByLabel('Full name', { exact: true })).toBeFocused()
+      let dialog = await guide(page)
       await dialog
         .getByRole('switch', { name: 'Contextual editor tips' })
-        .check()
-      await dialog.getByRole('button', { name: 'Close', exact: true }).click()
-      await step(page, 'Template')
-      await expect(page.locator('.guide-tip:visible')).toHaveCount(0)
+        .uncheck()
+      await dialog
+        .getByRole('button', { name: 'Close', exact: true })
+        .press('Escape')
+      await expect(help(page)).toBeFocused()
+      await waitForSave(page)
+      await page.reload()
+      await step(page, 'Skills')
+      await expect(tip(page)).not.toBeVisible()
+      await choose(page, 'Add several skills at once')
+      await positioned(page, 'skills')
+      await tip(page)
+        .getByRole('button', { name: 'Got it', exact: true })
+        .click()
+      await expect(
+        page.getByLabel('Your skills', { exact: true }),
+      ).toBeFocused()
+      dialog = await guide(page)
+      await dialog
+        .getByRole('button', { name: 'Walk me through the editor' })
+        .click()
+      await positioned(page, 'design')
+      await tip(page)
+        .getByRole('button', { name: 'Skip walkthrough' })
+        .press('Escape')
+      await expect(tip(page)).not.toBeVisible()
+      await page.reload()
+      await step(page, 'Personal details')
+      await expect(page.getByLabel('Full name', { exact: true })).toHaveValue(
+        'Keep my writing',
+      )
+      await expect(tip(page)).not.toBeVisible()
       dialog = await guide(page)
       await dialog
         .getByRole('button', { name: 'Restore dismissed editor tips' })
         .click()
       await dialog.getByRole('button', { name: 'Close', exact: true }).click()
-      await expect(page.locator('[data-guide-topic="design"]')).toBeVisible()
+      await positioned(page, 'basics')
       await axe(page)
-      await waitForSave(page)
-      await page.reload()
-      await step(page, 'Personal details')
-      await expect(name).toHaveValue('Onboarding Tester')
-      await expect(page.locator('[data-guide-topic="basics"]')).toBeVisible()
-      await page.screenshot({ path: testInfo.outputPath('onboarding.png') })
-      expect(errors).toEqual([])
-    })
-    test('context matches hidden sections, language versions, examples, preview and sharing', async ({
-      page,
-      isMobile,
-    }) => {
-      await openExample(page)
-      await expect(page.locator('.sample-banner')).toBeVisible()
-      await expect(page.locator('[data-guide-topic="design"]')).toHaveCount(0)
-      await step(page, 'Experience')
-      await expect(page.locator('[data-guide-topic="structure"]')).toBeVisible()
-      await page
-        .locator('.section-head')
-        .getByRole('switch', { name: 'In resume', exact: true })
-        .uncheck()
-      await expect(page.locator('.section-off')).toBeVisible()
-      await expect(page.locator('.guide-tip:visible')).toHaveCount(0)
-      await page.getByRole('button', { name: 'Show it', exact: true }).click()
-      await expect(page.locator('[data-guide-topic="structure"]')).toBeVisible()
-      await page
-        .locator('.guide-tip')
-        .getByRole('button', { name: 'Dismiss this editor tip' })
-        .click()
-      await step(page, 'Education')
-      await expect(page.locator('.guide-tip:visible')).toHaveCount(0)
-      await choose(page, 'Another language, a separate version')
-      await expect(page.locator('[data-guide-topic="versions"]')).toContainText(
-        'translated automatically',
-      )
-      await step(page, 'Languages')
-      await expect(
-        page.locator('[data-guide-topic="languages"]'),
-      ).toContainText('A1–C2')
-      if (isMobile)
-        await page.getByRole('button', { name: 'Preview', exact: true }).click()
-      else await page.getByRole('button', { name: 'Form', exact: true }).click()
-      await expect(
-        page.locator('.preview-panel [data-guide-topic="preview"]'),
-      ).toBeVisible()
-      await page.setViewportSize({ width: 932, height: 430 })
-      if (!isMobile)
-        await page.getByRole('button', { name: 'Preview', exact: true }).click()
-      await expect(page.locator('.guide-tip:visible')).toHaveCount(0)
-      await expect(
-        page.getByRole('img', { name: 'Resume, page 1' }),
-      ).toBeVisible()
-      const previewHelp = await guide(page)
-      await previewHelp
-        .getByRole('button', { name: 'Close', exact: true })
-        .press('Escape')
-      await expect(
-        page.getByRole('button', { name: 'Resume actions', exact: true }),
-      ).toBeFocused()
-      await page.setViewportSize({ width: isMobile ? 430 : 1440, height: 900 })
-      if (isMobile)
-        await page.getByRole('button', { name: 'Editor', exact: true }).click()
-      else await page.getByRole('button', { name: 'Form', exact: true }).click()
-      await choose(page, 'See what the reader will see')
-      await expect(
-        page.locator('.preview-panel [data-guide-topic="preview"]'),
-      ).toBeVisible()
-      await expect(page.locator('.guide-tip:visible')).toHaveCount(1)
-      await page.setViewportSize({ width: 932, height: 430 })
-      await expect(page.locator('[data-guide-topic="preview"]')).toBeVisible()
-      await expect(
-        page.getByRole('img', { name: 'Resume, page 1' }),
-      ).toBeVisible()
-      if (isMobile)
-        await expect(
-          page.getByRole('button', { name: 'Preview', exact: true }),
-        ).toHaveAttribute('aria-pressed', 'true')
-      await page
-        .locator('.preview-panel .guide-tip')
-        .getByRole('button', { name: 'Dismiss this editor tip' })
-        .click()
-      await expect(
-        page.getByRole('button', { name: 'Resume actions', exact: true }),
-      ).toBeFocused()
-      await step(page, 'Review')
-      await expect(page.locator('[data-guide-topic="review"]')).toContainText(
-        'Editable copy',
-      )
-      await axe(page)
-      await page
-        .getByRole('button', { name: 'Download PDF', exact: true })
-        .first()
-        .click()
-      const dialog = page.getByRole('dialog')
-      await expect(
-        dialog.getByRole('radio', { name: /For sharing/ }),
-      ).toBeChecked()
-      await expect(
-        dialog.getByRole('radio', { name: /Editable copy/ }),
-      ).not.toBeChecked()
-      await dialog.getByRole('button', { name: 'Close', exact: true }).click()
-      await waitForSave(page)
-      await page.reload()
-      await step(page, 'Experience')
-      await expect(page.locator('.guide-tip:visible')).toHaveCount(0)
-      await expect(page.locator('.entry-card').first()).toContainText(
-        'Product designer',
-      )
     })
   })
 }
-test('guide follows all six interface languages on narrow screens', async ({
+test('example and hidden sections keep their recovery controls', async ({
   page,
 }) => {
-  test.setTimeout(60000)
+  await openExample(page)
+  await expect(page.locator('[data-guide-topic="design"]')).toHaveCount(0)
+  await step(page, 'Experience')
+  await positioned(page, 'structure')
+  await page
+    .locator('.section-head')
+    .getByRole('switch', { name: 'In resume', exact: true })
+    .uncheck()
+  await expect(tip(page)).not.toBeVisible()
+  await page.getByRole('button', { name: 'Show it', exact: true }).click()
+  await expect(page.locator('.entry-card').first()).toContainText(
+    'Product designer',
+  )
+  await positioned(page, 'structure')
+})
+test('floating help fits narrow and landscape screens in six languages', async ({
+  page,
+}) => {
+  test.setTimeout(90000)
   await openBlankEditor(page)
+  for (const size of [
+    { width: 320, height: 780 },
+    { width: 360, height: 780 },
+    { width: 430, height: 932 },
+    { width: 932, height: 430 },
+    { width: 768, height: 1024 },
+  ]) {
+    await page.setViewportSize(size)
+    await choose(page, 'Start with the look')
+    await positioned(page, 'design')
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth - innerWidth,
+      ),
+    ).toBe(0)
+  }
   await page.setViewportSize({ width: 320, height: 780 })
-  const locales = [
+  await choose(page, 'Start with the look')
+  for (const [locale, title, toggle] of [
     ['de', 'Hilfe zum Editor', 'Hinweise beim Bearbeiten'],
     ['es', 'Ayuda del editor', 'Consejos durante la edición'],
     ['bg', 'Помощ за редактора', 'Подсказки по време на редактиране'],
     ['uk', 'Допомога з редактором', 'Підказки під час роботи'],
     ['ru', 'Помощь по редактору', 'Подсказки по ходу работы'],
     ['en', 'Editor guide', 'Contextual editor tips'],
-  ]
-  for (const [locale, title, toggle] of locales) {
+  ]) {
     await page.locator('.site-header select').selectOption(locale)
-    const opener = page.locator('.guide-access button')
-    await expect(opener).toHaveText(title)
-    await opener.click()
-    const dialog = page.getByRole('dialog', { name: title })
+    await expect(help(page)).toHaveText(title)
+    await help(page).click()
+    const dialog = page.getByRole('dialog', { name: title, exact: true })
     await expect(dialog.getByRole('switch', { name: toggle })).toBeChecked()
     await expect(dialog.locator('summary')).toHaveCount(8)
-    await dialog.locator('summary').first().click()
-    await expect(dialog.locator('details[open] p')).not.toBeEmpty()
-    expect(
-      await page.evaluate(
-        () => document.documentElement.scrollWidth - innerWidth,
-      ),
-    ).toBe(0)
     await axe(page)
     await dialog.locator('.dialog-head button').press('Escape')
-    await expect(opener).toBeFocused()
+    await expect(help(page)).toBeFocused()
+    const box = await page.locator('.guide-floating:visible').boundingBox()
+    expect(box!.x).toBeGreaterThanOrEqual(0)
+    expect(box!.x + box!.width).toBeLessThanOrEqual(321)
   }
 })

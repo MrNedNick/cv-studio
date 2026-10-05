@@ -1,21 +1,30 @@
 // UI strings keyed by their English text.
 const messages: Record<string, string> = {
+  'Hide form · Ctrl/⌘ \\': 'Сховати форму · Ctrl/⌘ \\',
+  'Show form · Ctrl/⌘ \\': 'Показати форму · Ctrl/⌘ \\',
+  'Add your name and role': 'Додайте ім’я та посаду',
+  'Click the name field, then add your role below. Edits save automatically in this browser.':
+    'Натисніть поле імені й додайте свою посаду нижче. Зміни автоматично зберігаються в цьому браузері.',
+  'Open the writing examples for help describing your experience and results. Hide an unneeded section without deleting its text.':
+    'Відкрийте приклади, щоб описати досвід і результати. Приховайте непотрібний розділ, не видаляючи текст.',
+  'Check the gaps above. Optionally paste a vacancy here to compare skills. Then inspect the PDF and keep both copies.':
+    'Перевірте пропуски вище. За бажанням вставте вакансію сюди для порівняння навичок. Потім перегляньте PDF і збережіть обидві копії.',
+  'Check the actual PDF pages. Click Text for reading and copying. Download a sharing copy and keep an editable copy for yourself.':
+    'Перевірте сторінки справжнього PDF. Натисніть Текст для читання й копіювання. Завантажте копію для надсилання та збережіть редаговану копію для себе.',
+
+  'Skip walkthrough': 'Пропустити знайомство',
+  'Continue walkthrough': 'Продовжити знайомство',
+  'Walk me through the editor': 'Показати редактор крок за кроком',
+  'Start walkthrough': 'Почати знайомство',
+
   'The preview shows example text until you write your own. Choose a look, then Personal details.':
     'Перегляд показує приклад, поки ви не напишете свій текст. Виберіть оформлення й перейдіть до особистих даних.',
-  'Edits save only in this browser. Keep an editable PDF or JSON backup before clearing browser data.':
-    'Правки зберігаються лише в цьому браузері. Перед очищенням його даних збережіть редагований PDF або JSON.',
   'Each language has its own text; nothing is translated automatically. Contacts, dates and links are shared.':
     'У кожної мови свій текст; автоматичного перекладу немає. Контакти, дати й посилання спільні.',
-  'Turn off In resume to skip a section without deleting it. Writing examples are available below.':
-    'Вимкніть У резюме, щоб пропустити розділ без видалення тексту. Приклади для заповнення доступні нижче.',
   'Enter or comma adds a skill. Paste a comma-separated list to add several at once.':
     'Enter або кома додають навичку. Вставте список через коми, щоб додати кілька одразу.',
   'Choose a level from A1–C2 or write your own. These are languages you speak, not the PDF language.':
     'Виберіть рівень A1–C2 або опишіть своїми словами. Це мови, якими ви володієте, а не мова PDF.',
-  'Check every PDF page. Use For sharing for employers; keep an Editable copy to edit again.':
-    'Перевірте всі сторінки PDF. Для надсилання — роботодавцю; Редагована копія — для майбутніх правок.',
-  'Check pages and line breaks in the actual PDF. Zoom affects the preview only; Text view helps with reading.':
-    'Перевірте сторінки й переноси у справжньому PDF. Масштаб впливає лише на перегляд; Текст зручний для читання.',
   'Add several skills at once': 'Додайте кілька навичок одразу',
   'Another language, a separate version': 'Інша мова — окрема версія',
   'Choose a level that fits': 'Виберіть відповідний рівень',
@@ -28,7 +37,6 @@ const messages: Record<string, string> = {
   'Keep only the sections you need': 'Залиште лише потрібні розділи',
   'Restore dismissed editor tips': 'Повернути закриті підказки',
   'Review, then keep two copies': 'Перевірте й збережіть дві копії',
-  'Saved here, in this browser': 'Збережено тут, у цьому браузері',
   'See what the reader will see': 'Погляньте очима читача',
   'Show in editor': 'Показати в редакторі',
   'Start with the look': 'Почніть із вигляду',
@@ -242,7 +250,6 @@ const messages: Record<string, string> = {
   Grow: 'Зростання',
   'Hard-working team player looking for new challenges.':
     'Відповідальний командний гравець, шукаю нові виклики.',
-  'Hide form · Ctrl/⌘ \\': 'Приховати форму · Ctrl/⌘ \\',
   'Hide sections': 'Приховати розділи',
   'How it works': 'Як це працює',
   'How to write this section': 'Як заповнити цей розділ',
@@ -430,7 +437,6 @@ const messages: Record<string, string> = {
   Sections: 'Розділи',
   Serif: 'Із засічками',
   'Show dismissed tips': 'Показати приховані підказки',
-  'Show form · Ctrl/⌘ \\': 'Показати форму · Ctrl/⌘ \\',
   'Show sections': 'Показати розділи',
   'Show work you’re proud of.': 'Покажіть роботу, якою пишаєтеся.',
   'Skills first · a clear single column':

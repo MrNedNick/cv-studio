@@ -1,21 +1,30 @@
 // UI strings keyed by their English text.
 const messages: Record<string, string> = {
+  'Hide form · Ctrl/⌘ \\': 'Ocultar formulario · Ctrl/⌘ \\',
+  'Show form · Ctrl/⌘ \\': 'Mostrar formulario · Ctrl/⌘ \\',
+  'Add your name and role': 'Añade tu nombre y puesto',
+  'Click the name field, then add your role below. Edits save automatically in this browser.':
+    'Haz clic en el campo del nombre y añade tu puesto debajo. Los cambios se guardan automáticamente en este navegador.',
+  'Open the writing examples for help describing your experience and results. Hide an unneeded section without deleting its text.':
+    'Abre los ejemplos para describir tu experiencia y resultados. Oculta una sección innecesaria sin borrar su texto.',
+  'Check the gaps above. Optionally paste a vacancy here to compare skills. Then inspect the PDF and keep both copies.':
+    'Revisa los datos que faltan arriba. Si quieres, pega una oferta aquí para comparar habilidades. Después revisa el PDF y guarda ambas copias.',
+  'Check the actual PDF pages. Click Text for reading and copying. Download a sharing copy and keep an editable copy for yourself.':
+    'Revisa las páginas del PDF real. Pulsa Texto para leer y copiar. Descarga una copia para compartir y guarda una copia editable.',
+
+  'Skip walkthrough': 'Omitir recorrido',
+  'Continue walkthrough': 'Continuar recorrido',
+  'Walk me through the editor': 'Mostrar el editor paso a paso',
+  'Start walkthrough': 'Iniciar recorrido',
+
   'The preview shows example text until you write your own. Choose a look, then Personal details.':
     'La vista previa muestra un ejemplo hasta que escribas tu texto. Elige un diseño y pasa a Datos personales.',
-  'Edits save only in this browser. Keep an editable PDF or JSON backup before clearing browser data.':
-    'Los cambios se guardan solo en este navegador. Guarda un PDF editable o JSON antes de borrar los datos del navegador.',
   'Each language has its own text; nothing is translated automatically. Contacts, dates and links are shared.':
     'Cada idioma tiene su propio texto; no hay traducción automática. Los contactos, fechas y enlaces son comunes.',
-  'Turn off In resume to skip a section without deleting it. Writing examples are available below.':
-    'Desactiva En el currículum para saltar una sección sin borrarla. Encontrarás ejemplos de escritura abajo.',
   'Enter or comma adds a skill. Paste a comma-separated list to add several at once.':
     'Enter o coma añade una habilidad. Pega una lista separada por comas para añadir varias a la vez.',
   'Choose a level from A1–C2 or write your own. These are languages you speak, not the PDF language.':
     'Elige un nivel A1–C2 o descríbelo con tus palabras. Estas son las lenguas que hablas, no el idioma del PDF.',
-  'Check every PDF page. Use For sharing for employers; keep an Editable copy to edit again.':
-    'Revisa todas las páginas del PDF. Para compartir es para las empresas; guarda una Copia editable para futuros cambios.',
-  'Check pages and line breaks in the actual PDF. Zoom affects the preview only; Text view helps with reading.':
-    'Revisa las páginas y saltos de línea del PDF real. El zoom solo afecta a la vista previa; Texto facilita la lectura.',
   'Add several skills at once': 'Añade varias habilidades a la vez',
   'Another language, a separate version': 'Otro idioma, otra versión',
   'Choose a level that fits': 'Elige el nivel adecuado',
@@ -28,7 +37,6 @@ const messages: Record<string, string> = {
   'Keep only the sections you need': 'Conserva solo las secciones necesarias',
   'Restore dismissed editor tips': 'Restaurar consejos descartados',
   'Review, then keep two copies': 'Revisa y guarda dos copias',
-  'Saved here, in this browser': 'Guardado aquí, en este navegador',
   'See what the reader will see': 'Mira lo que verá quien lo lea',
   'Show in editor': 'Mostrar en el editor',
   'Start with the look': 'Empieza por el diseño',
@@ -245,7 +253,6 @@ const messages: Record<string, string> = {
   Grow: 'Crecer',
   'Hard-working team player looking for new challenges.':
     'Trabajador y con espíritu de equipo, busco nuevos retos.',
-  'Hide form · Ctrl/⌘ \\': 'Ocultar formulario · Ctrl/⌘ \\',
   'Hide sections': 'Ocultar secciones',
   'How it works': 'Cómo funciona',
   'How to write this section': 'Cómo rellenar esta sección',
@@ -432,7 +439,6 @@ const messages: Record<string, string> = {
   Sections: 'Secciones',
   Serif: 'Con serifa',
   'Show dismissed tips': 'Mostrar sugerencias ocultas',
-  'Show form · Ctrl/⌘ \\': 'Mostrar formulario · Ctrl/⌘ \\',
   'Show sections': 'Mostrar secciones',
   'Show work you’re proud of.': 'Muestra trabajos de los que estés orgulloso.',
   'Skills first · a clear single column':

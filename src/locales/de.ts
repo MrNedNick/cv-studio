@@ -1,21 +1,30 @@
 // UI strings keyed by their English text.
 const messages: Record<string, string> = {
+  'Hide form · Ctrl/⌘ \\': 'Formular ausblenden · Ctrl/⌘ \\',
+  'Show form · Ctrl/⌘ \\': 'Formular anzeigen · Ctrl/⌘ \\',
+  'Add your name and role': 'Name und Position ergänzen',
+  'Click the name field, then add your role below. Edits save automatically in this browser.':
+    'Klicken Sie auf das Namensfeld und ergänzen Sie darunter Ihre Position. Änderungen werden automatisch in diesem Browser gespeichert.',
+  'Open the writing examples for help describing your experience and results. Hide an unneeded section without deleting its text.':
+    'Öffnen Sie die Schreibbeispiele, um Erfahrung und Ergebnisse zu beschreiben. Blenden Sie nicht benötigte Abschnitte aus, ohne den Text zu löschen.',
+  'Check the gaps above. Optionally paste a vacancy here to compare skills. Then inspect the PDF and keep both copies.':
+    'Prüfen Sie die Lücken oben. Fügen Sie bei Bedarf eine Stellenanzeige zum Vergleich der Kenntnisse ein. Prüfen Sie dann das PDF und behalten Sie beide Kopien.',
+  'Check the actual PDF pages. Click Text for reading and copying. Download a sharing copy and keep an editable copy for yourself.':
+    'Prüfen Sie die tatsächlichen PDF-Seiten. Klicken Sie zum Lesen und Kopieren auf Text. Laden Sie eine Kopie zum Teilen herunter und behalten Sie eine bearbeitbare Kopie.',
+
+  'Skip walkthrough': 'Rundgang überspringen',
+  'Continue walkthrough': 'Rundgang fortsetzen',
+  'Walk me through the editor': 'Den Editor Schritt für Schritt zeigen',
+  'Start walkthrough': 'Rundgang starten',
+
   'The preview shows example text until you write your own. Choose a look, then Personal details.':
     'Die Vorschau zeigt Beispieltext, bis Sie selbst schreiben. Wählen Sie ein Design und gehen Sie dann zu Persönliche Daten.',
-  'Edits save only in this browser. Keep an editable PDF or JSON backup before clearing browser data.':
-    'Änderungen werden nur in diesem Browser gespeichert. Bewahren Sie vor dem Löschen der Browserdaten ein bearbeitbares PDF oder JSON auf.',
   'Each language has its own text; nothing is translated automatically. Contacts, dates and links are shared.':
     'Jede Sprache hat ihren eigenen Text; es gibt keine automatische Übersetzung. Kontakte, Daten und Links sind gemeinsam.',
-  'Turn off In resume to skip a section without deleting it. Writing examples are available below.':
-    'Schalten Sie Im Lebenslauf aus, um einen Abschnitt ohne Löschen zu überspringen. Schreibbeispiele finden Sie unten.',
   'Enter or comma adds a skill. Paste a comma-separated list to add several at once.':
     'Enter oder Komma fügt eine Kenntnis hinzu. Eine kommagetrennte Liste ergänzt mehrere auf einmal.',
   'Choose a level from A1–C2 or write your own. These are languages you speak, not the PDF language.':
     'Wählen Sie A1–C2 oder beschreiben Sie Ihr Niveau selbst. Dies sind Ihre Sprachkenntnisse, nicht die PDF-Sprache.',
-  'Check every PDF page. Use For sharing for employers; keep an Editable copy to edit again.':
-    'Prüfen Sie alle PDF-Seiten. Zum Teilen ist für Arbeitgeber; eine Bearbeitbare Kopie ist für spätere Änderungen.',
-  'Check pages and line breaks in the actual PDF. Zoom affects the preview only; Text view helps with reading.':
-    'Prüfen Sie Seiten und Zeilenumbrüche im echten PDF. Der Zoom betrifft nur die Vorschau; die Textansicht erleichtert das Lesen.',
   'Add several skills at once': 'Mehrere Kenntnisse auf einmal hinzufügen',
   'Another language, a separate version': 'Andere Sprache, eigene Version',
   'Choose a level that fits': 'Ein passendes Niveau wählen',
@@ -28,7 +37,6 @@ const messages: Record<string, string> = {
   'Keep only the sections you need': 'Nur benötigte Abschnitte behalten',
   'Restore dismissed editor tips': 'Ausgeblendete Hinweise wieder anzeigen',
   'Review, then keep two copies': 'Prüfen und zwei Kopien behalten',
-  'Saved here, in this browser': 'Hier in diesem Browser gespeichert',
   'See what the reader will see': 'Sehen, was die Leser sehen',
   'Show in editor': 'Im Editor zeigen',
   'Start with the look': 'Mit dem Design beginnen',
@@ -246,7 +254,6 @@ const messages: Record<string, string> = {
   Grow: 'Wachsen',
   'Hard-working team player looking for new challenges.':
     'Fleißiger Teamplayer sucht neue Herausforderungen.',
-  'Hide form · Ctrl/⌘ \\': 'Formular ausblenden · Strg/⌘ \\',
   'Hide sections': 'Abschnitte ausblenden',
   'How it works': 'So funktioniert’s',
   'How to write this section': 'So füllen Sie diesen Abschnitt aus',
@@ -436,7 +443,6 @@ const messages: Record<string, string> = {
   Sections: 'Abschnitte',
   Serif: 'Mit Serifen',
   'Show dismissed tips': 'Ausgeblendete Hinweise anzeigen',
-  'Show form · Ctrl/⌘ \\': 'Formular einblenden · Strg/⌘ \\',
   'Show sections': 'Abschnitte einblenden',
   'Show work you’re proud of.': 'Zeigen Sie Arbeiten, auf die Sie stolz sind.',
   'Skills first · a clear single column':

@@ -93,6 +93,7 @@ import {
   EditorGuide,
   GuideTip,
   guideStep,
+  tourTopics,
   useOnboarding,
   type GuideTopic,
 } from './Onboarding'
@@ -190,7 +191,6 @@ export default function Editor({
     [widthOverride, setWidthOverride] = useState<string | null>(null),
     desktop = useMediaQuery('(min-width: 1050px)'),
     mobile = useMediaQuery('(max-width: 1049px)'),
-    shortViewport = useMediaQuery('(max-height: 600px)'),
     [resizing, setResizing] = useState(false),
     [formWidth, setFormWidth] = useState<number | null>(
       () => Number(readSetting('neatcv-form-width')) || null,
@@ -216,6 +216,8 @@ export default function Editor({
     )
   const onboarding = useOnboarding()
   const [guideOpen, setGuideOpen] = useState(false)
+  const [tourIndex, setTourIndex] = useState<number | null>(null)
+  const pendingTour = useRef<number | null>(null)
   const guideOpener = useRef<HTMLButtonElement>(null)
   const pendingGuideTopic = useRef<GuideTopic | null>(null)
   const t = translator(locale),
@@ -265,6 +267,7 @@ export default function Editor({
     pendingEntry = useRef<{ id: string; field: boolean } | null>(null)
   function goSection(next: Step, reveal = false) {
     onboarding.request(null)
+    setTourIndex(null)
     setMobileSteps(false)
     setMobilePreview(false)
     if (
@@ -294,21 +297,35 @@ export default function Editor({
         ? menuButton
         : guideOpener
     opener.current?.focus({ preventScroll: true })
+    onboarding.request(null)
+    setTourIndex(null)
     setGuideOpen(true)
+  }
+  function showGuideTopic(topic: GuideTopic, index: number | null = null) {
+    setMobileSteps(false)
+    setMenu(false)
+    if (topic === 'preview') {
+      setMobilePreview(true)
+      if (desktop) toggleForm(true)
+    } else {
+      goSection(guideStep[topic])
+      focusSection.current = false
+      if (desktop && sidebarHidden) toggleSidebar()
+    }
+    setTourIndex(index)
+    onboarding.request(topic)
+    requestAnimationFrame(() => {
+      const target = document.querySelector<HTMLElement>(guideAnchors[topic])
+      target?.scrollIntoView?.({ block: 'center', behavior: 'instant' })
+    })
   }
   useEffect(() => {
     if (guideOpen || !pendingGuideTopic.current) return
     const topic = pendingGuideTopic.current
     pendingGuideTopic.current = null
-    if (topic === 'preview') {
-      setMobilePreview(true)
-      requestAnimationFrame(() => {
-        document
-          .querySelector<HTMLElement>('.preview-panel .guide-tip button')
-          ?.focus({ preventScroll: true })
-      })
-    } else goSection(guideStep[topic])
-    onboarding.request(topic)
+    const index = pendingTour.current
+    pendingTour.current = null
+    showGuideTopic(topic, index)
   }, [guideOpen])
   const tab = section === 'design' ? 'design' : 'content'
   function focusForm() {
@@ -862,21 +879,29 @@ export default function Editor({
         ref={guideOpener}
         className="text-button guide-opener"
         aria-haspopup="dialog"
-        onClick={(event) => {
-          event.currentTarget.focus()
-          setGuideOpen(true)
-        }}
+        onClick={openGuide}
       >
         <CircleHelp size={15} aria-hidden="true" />
         {t('Помощь по редактору', 'Editor guide')}
       </button>
     </div>
   )
+  const guideAnchors: Record<GuideTopic, string> = {
+    design:
+      '.design-options button[aria-pressed="true"] > div:not(.mini-resume)',
+    basics: 'input[name="resume-name"]',
+    versions: '.site-header select',
+    structure: '.guide-chip, .section-off button',
+    skills: '.skills-field input, .section-off button',
+    languages: '.level-chips, .section-off button',
+    review: '.job-match textarea',
+    preview: '.preview-modes button:last-child',
+  }
+  const inPreview = (mobile && mobilePreview) || (desktop && formHidden)
   const contextTopic: GuideTopic | null =
-    onboarding.requested && onboarding.requested !== 'preview'
-      ? guideStep[onboarding.requested] === section
-        ? onboarding.requested
-        : null
+    onboarding.requested ??
+    (inPreview
+      ? 'preview'
       : section === 'design'
         ? doc.sample
           ? null
@@ -889,17 +914,61 @@ export default function Editor({
             ? section
             : isHidden(section)
               ? null
-              : 'structure'
+              : 'structure')
   const contextTip =
+    !guideOpen &&
+    !menu &&
+    !mobileSteps &&
     contextTopic &&
-    onboarding.requested !== 'preview' &&
     onboarding.show(contextTopic) ? (
       <GuideTip
+        key={`${contextTopic}:${tourIndex}`}
         topic={contextTopic}
         locale={locale}
-        dismiss={() => onboarding.dismiss(contextTopic)}
+        anchor={guideAnchors[contextTopic]}
+        explicit={onboarding.requested !== null}
+        index={tourIndex ?? undefined}
+        back={
+          tourIndex !== null && tourIndex > 0
+            ? () => showGuideTopic(tourTopics[tourIndex - 1], tourIndex - 1)
+            : undefined
+        }
+        dismiss={() => {
+          if (tourIndex !== null) onboarding.setEnabled(false)
+          else onboarding.dismiss(contextTopic)
+          setTourIndex(null)
+        }}
         help={openGuide}
-        focusAfterDismiss={guideOpener}
+        focusAfterDismiss={inPreview ? menuButton : guideOpener}
+        primaryLabel={
+          tourIndex !== null
+            ? tourIndex === tourTopics.length - 1
+              ? t('Скачать PDF', 'Download PDF')
+              : t('Далее', 'Next')
+            : contextTopic === 'design'
+              ? t('Начать знакомство', 'Start walkthrough')
+              : t('Понятно', 'Got it')
+        }
+        primary={() => {
+          if (tourIndex !== null) {
+            if (tourIndex === tourTopics.length - 1) {
+              onboarding.setEnabled(false)
+              setTourIndex(null)
+              exportFile()
+            } else showGuideTopic(tourTopics[tourIndex + 1], tourIndex + 1)
+          } else if (contextTopic === 'design') showGuideTopic('design', 0)
+          else {
+            onboarding.dismiss(contextTopic)
+            const target = document.querySelector<HTMLElement>(
+              guideAnchors[contextTopic],
+            )
+            const control = target?.matches('button, input, textarea, select')
+              ? target
+              : (target?.closest<HTMLElement>('button') ??
+                target?.querySelector<HTMLElement>('button'))
+            control?.focus({ preventScroll: true })
+          }
+        }}
       />
     ) : null
   const meta = pdfMetadata(doc)
@@ -1335,6 +1404,7 @@ export default function Editor({
           </a>
         </div>
       )}
+      {contextTip}
       {guideOpen && (
         <EditorGuide
           locale={locale}
@@ -1342,6 +1412,11 @@ export default function Editor({
           enabled={onboarding.enabled}
           setEnabled={onboarding.setEnabled}
           reset={onboarding.reset}
+          begin={() => {
+            pendingGuideTopic.current = 'design'
+            pendingTour.current = 0
+            setGuideOpen(false)
+          }}
           choose={(topic) => {
             pendingGuideTopic.current = topic
             setGuideOpen(false)
@@ -1378,6 +1453,7 @@ export default function Editor({
           onClick={() => {
             setMobilePreview(false)
             onboarding.request(null)
+            setTourIndex(null)
           }}
         >
           <PenLine size={16} />
@@ -1386,7 +1462,11 @@ export default function Editor({
         <button
           aria-pressed={mobilePreview}
           className={mobilePreview ? 'active' : ''}
-          onClick={() => setMobilePreview(true)}
+          onClick={() => {
+            setMobilePreview(true)
+            onboarding.request(null)
+            setTourIndex(null)
+          }}
         >
           <Eye size={16} />
           {t('Просмотр', 'Preview')}
@@ -1502,7 +1582,6 @@ export default function Editor({
                       'Choose how your resume looks. You can switch at any time — your text stays.',
                     )}
                   </p>
-                  {contextTip}
                   <div className="design-options">
                     {templates.map((template) => (
                       <button
@@ -1667,7 +1746,6 @@ export default function Editor({
                           'Last step: check the content, compare with a vacancy, and download your PDF.',
                         )}
                       </p>
-                      {contextTip}
                       <ReviewStep
                         resume={resume}
                         locale={locale}
@@ -1707,7 +1785,6 @@ export default function Editor({
                         )}
                       </div>
                       <p className="form-description">{subtitles[section]}</p>
-                      {contextTip}
                       {isHidden(section) && (
                         <div className="section-off" role="note">
                           <EyeOff size={17} aria-hidden="true" />
@@ -2397,18 +2474,6 @@ export default function Editor({
               <GripVertical size={14} />
             </span>
           </div>
-          {((((mobile && mobilePreview) || (desktop && formHidden)) &&
-            !shortViewport) ||
-            onboarding.requested === 'preview') &&
-            onboarding.show('preview') && (
-              <GuideTip
-                topic="preview"
-                locale={locale}
-                dismiss={() => onboarding.dismiss('preview')}
-                help={openGuide}
-                focusAfterDismiss={menuButton}
-              />
-            )}
           <Suspense
             fallback={
               <div className="loading">
