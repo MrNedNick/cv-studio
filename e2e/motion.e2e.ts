@@ -241,13 +241,23 @@ async function themeFrames(trigger: Locator, reverseAt: number[] = []) {
     })
     const frames = [read()]
     ;(button as HTMLElement).click()
-    const start = performance.now()
-    for (let i = 0; performance.now() - start < 450; i++) {
+    let lastToggle = performance.now()
+    const lastReversal = Math.max(-1, ...reverseAt)
+    for (
+      let i = 0;
+      i <= lastReversal ||
+      performance.now() - lastToggle < 450 ||
+      root.getAnimations().some((a) => a.playState === 'running');
+      i++
+    ) {
       await new Promise<void>((resolve) =>
         requestAnimationFrame(() => resolve()),
       )
       frames.push(read())
-      if (reverseAt.includes(i)) (button as HTMLElement).click()
+      if (reverseAt.includes(i)) {
+        ;(button as HTMLElement).click()
+        lastToggle = performance.now()
+      }
     }
     return frames
   }, reverseAt)
