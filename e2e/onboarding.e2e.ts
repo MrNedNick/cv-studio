@@ -79,21 +79,23 @@ for (const theme of ['light', 'dark'] as const) {
       })
       await openBlankEditor(page)
       await positioned(page, 'design')
-      await page
-        .locator('.design-options')
-        .getByRole('button', { name: /^Classic/ })
-        .click()
-      await positioned(page, 'design')
-      await page
-        .locator('.design-options')
-        .getByRole('button', { name: /^Compact/ })
-        .click()
-      await positioned(page, 'design')
       await axe(page)
       await page.screenshot({
         path: testInfo.outputPath('onboarding-start.png'),
       })
-      await tip(page).getByRole('button', { name: 'Start walkthrough' }).click()
+      await page
+        .locator('.design-options')
+        .getByRole('button', { name: /^Classic/ })
+        .click()
+      await expect(tip(page)).not.toBeVisible()
+      await page
+        .locator('.design-options')
+        .getByRole('button', { name: /^Compact/ })
+        .click()
+      const introduction = await guide(page)
+      await introduction
+        .getByRole('button', { name: 'Walk me through the editor' })
+        .click()
       await expect(tip(page)).toContainText('STEP 1 / 8')
       await tip(page).getByRole('button', { name: 'Next', exact: true }).click()
       await positioned(page, 'basics')

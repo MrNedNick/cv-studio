@@ -465,17 +465,27 @@ export function GuideTip({
     function focusin(event: FocusEvent) {
       if (
         event.target instanceof HTMLElement &&
-        event.target.matches('input, textarea, select')
+        (event.target.matches('input, textarea, select') ||
+          event.target.closest('.design-options button'))
       ) {
         // Keep the form available while writing; a requested tour can be resumed.
         setSuspended(true)
       }
     }
+    function pointerdown(event: PointerEvent) {
+      if (
+        event.target instanceof Element &&
+        event.target.closest('.design-options button')
+      )
+        setSuspended(true)
+    }
     window.addEventListener('keydown', keydown)
     document.addEventListener('focusin', focusin)
+    document.addEventListener('pointerdown', pointerdown)
     return () => {
       window.removeEventListener('keydown', keydown)
       document.removeEventListener('focusin', focusin)
+      document.removeEventListener('pointerdown', pointerdown)
     }
   }, [explicit])
   function close() {
