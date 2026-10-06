@@ -29,8 +29,20 @@ async function choose(page: Page, title: string) {
   const topic = dialog
     .locator('.disclosure')
     .filter({ has: page.locator('.disclosure-summary', { hasText: title }) })
-  await topic.locator('.disclosure-summary').click()
+  const summary = topic.locator('.disclosure-summary')
+  await summary.click()
+  await expect(summary).toHaveAttribute('aria-expanded', 'true')
+  await expect
+    .poll(() =>
+      topic
+        .locator('.collapse')
+        .evaluate((el) =>
+          el.getAnimations().every((a) => a.playState !== 'running'),
+        ),
+    )
+    .toBe(true)
   await topic.getByRole('button', { name: 'Show in editor' }).click()
+  await expect(dialog).toHaveCount(0)
 }
 async function positioned(page: Page, topic: string) {
   await expect(tip(page)).toHaveAttribute('data-guide-topic', topic)
@@ -350,6 +362,10 @@ test('floating help fits narrow and landscape screens in six languages', async (
   }
   await page.setViewportSize({ width: 320, height: 780 })
   await choose(page, 'Start with the look')
+  await positioned(page, 'design')
+  await expect(
+    tip(page).getByRole('button', { name: 'Start walkthrough', exact: true }),
+  ).toBeFocused()
   for (const [locale, title, toggle] of [
     ['de', 'Hilfe zum Editor', 'Hinweise beim Bearbeiten'],
     ['es', 'Ayuda del editor', 'Consejos durante la edición'],
@@ -366,6 +382,7 @@ test('floating help fits narrow and landscape screens in six languages', async (
     await expect(dialog.locator('.disclosure-summary')).toHaveCount(8)
     await axe(page)
     await dialog.locator('.dialog-head button').press('Escape')
+    await expect(dialog).toHaveCount(0)
     await expect(help(page)).toBeFocused()
     const box = await page.locator('.guide-floating:visible').boundingBox()
     expect(box!.x).toBeGreaterThanOrEqual(0)
