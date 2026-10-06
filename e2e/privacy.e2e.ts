@@ -77,6 +77,15 @@ for (const theme of ['light', 'dark'] as const) {
             () => document.documentElement.scrollWidth <= innerWidth,
           ),
         ).toBe(true)
+        expect(
+          await page.locator('.privacy-contents a span').evaluateAll((items) =>
+            items.every((item) => {
+              const number = document.createRange()
+              number.selectNodeContents(item)
+              return number.getClientRects().length === 1
+            }),
+          ),
+        ).toBe(true)
         await page.getByRole('navigation').locator('a[href="#sentry"]').click()
         await expect(page.locator('#sentry h2')).toBeInViewport()
         expect((await new AxeBuilder({ page }).analyze()).violations).toEqual(

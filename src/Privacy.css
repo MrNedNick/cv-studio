@@ -51,6 +51,8 @@
   color: var(--muted);
 }
 .privacy-contents a span {
+  flex: 0 0 auto;
+  white-space: nowrap;
   color: var(--accent);
   font-size: 11px;
 }
