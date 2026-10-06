@@ -60,6 +60,8 @@ Resume content, photos, imports and PDF creation stay local. Clearing site data 
 
 Source links such as `?ref=reddit` retain first/latest attribution for 30 days, separately from the resume. Umami analytics is optional and disabled without a website ID. Sentry diagnostics is prepared and disabled without a valid public browser DSN; error messages, resume fields, breadcrumbs and attachments are excluded. GitHub Pages logs visitor IP addresses for security. Current behavior and service status are described in the [privacy notice](https://neatcv.cc/privacy.html), [source-label table](docs/sources.md), [Sentry setup and filtering](docs/sentry.md) and [service activation requirements](docs/privacy.md).
 
+Public pages have canonical addresses and a [sitemap](https://neatcv.cc/sitemap.xml); the home page and privacy notice include readable fallbacks without JavaScript. The editor requires JavaScript. [Search Console and Bing setup](docs/search-console.md) gives the domain verification and sitemap submission steps. Account verification requires the owner's provider-issued DNS value; sitemap availability alone does not mean the site is verified or indexed.
+
 ## Run and verify
 
 Use Node.js 22.12 or a newer supported LTS release.
