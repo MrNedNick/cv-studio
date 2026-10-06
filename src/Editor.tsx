@@ -47,6 +47,7 @@ import {
   SquarePen,
   MessageSquareWarning,
   CircleHelp,
+  LockKeyhole,
 } from 'lucide-react'
 import {
   accents,
@@ -1445,6 +1446,15 @@ export default function Editor({
             <CircleHelp size={16} />
             {t('Помощь по редактору', 'Editor guide')}
           </button>
+          <a
+            href="/privacy.html"
+            target="_blank"
+            rel="noreferrer"
+            onClick={() => setMenu(false)}
+          >
+            <LockKeyhole size={16} />
+            {t('Приватность — в новой вкладке', 'Privacy — opens in a new tab')}
+          </a>
           <a
             href="https://github.com/MrNedNick/cv-studio/issues/new/choose"
             target="_blank"

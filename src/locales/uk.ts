@@ -1,5 +1,52 @@
 // UI strings keyed by their English text.
 const messages: Record<string, string> = {
+  'Your resume stays on your device.': 'Резюме залишається на вашому пристрої.',
+  'This notice explains how NeatCV handles your resume, browser storage and optional services.':
+    'Тут описано, як NeatCV працює з резюме, сховищем браузера та додатковими сервісами.',
+  'Updated: 6 October 2026': 'Оновлено: 6 жовтня 2026',
+  'On this page': 'На цій сторінці',
+  'Resume and files': 'Резюме та файли',
+  'Editing, importing files, cropping your photo and generating PDFs happen in your browser. NeatCV does not upload your resume or require an account. The local resume is saved in IndexedDB.':
+    'Редагування, імпорт файлів, обрізання фото та створення PDF виконуються в браузері. NeatCV не завантажує резюме на сервер і не потребує акаунта. Локальне резюме зберігається в IndexedDB.',
+  'Sharing PDFs contain the selected language. Editable PDFs and JSON backups also contain every language version and design settings, including content hidden from the sharing PDF. Keep those backups for yourself. You choose who receives downloaded files.':
+    'PDF для надсилання містить вибрану мову. Редагований PDF і JSON-копія також містять усі мовні версії та налаштування, зокрема прихований у PDF для надсилання текст. Зберігайте такі копії для себе. Одержувачів завантажених файлів обираєте ви.',
+  'Browser storage': 'Сховище браузера',
+  'Language, theme, editor layout, guidance preferences and a pasted job posting are stored locally. They remain until you clear site data or your browser removes them. The app does not use advertising cookies.':
+    'Мова, тема, розташування панелей, налаштування підказок і вставлена вакансія зберігаються локально до очищення даних сайту вами або браузером. Застосунок не використовує рекламні cookies.',
+  'Source labels': 'Мітки джерел',
+  'Links with ?ref=reddit or similar labels help measure where visits come from. The first and latest valid labels, platform and timestamps are stored separately from your resume for 30 days. Untagged returns do not renew that period. Labels never enter resume backups.':
+    'Посилання з ?ref=reddit та подібними мітками допомагають зрозуміти, звідки приходять відвідувачі. Перша й остання коректні мітки, платформа та час візиту зберігаються окремо від резюме 30 днів. Повернення без мітки не подовжує строк. У копії резюме мітки не потрапляють.',
+  'Umami · usage analytics': 'Umami · статистика використання',
+  'Prepared · currently disabled': 'Підготовлений · зараз вимкнений',
+  'Configured in this build': 'Налаштований у цій версії',
+  'Umami is optional and requires a configured website ID. If enabled, it receives visits and successful resume creation, example, import and download events, with source labels, language, template and file format where relevant. Our event code excludes resume text, names, contacts, photos, file names and full URL queries.':
+    'Umami — додатковий сервіс, якому потрібен ID сайту. Після підключення він отримує події візиту, створення резюме, відкриття прикладу, імпорту та завантаження з мітками джерела, мовою, шаблоном і форматом файла, де це доречно. Код подій виключає текст резюме, імена, контакти, фото, назви файлів і повні параметри URL.',
+  'A receiving analytics service also receives connection information such as your IP address. Reports may include browser, device and approximate country. NeatCV does not configure session replay or cross-site user identification.':
+    'Сервіс статистики також отримує дані з’єднання, наприклад IP-адресу. Звіти можуть містити браузер, пристрій і приблизну країну. NeatCV не налаштовує запис сеансів або ідентифікацію користувача між сайтами.',
+  'Umami uses no tracking cookies. Do Not Track and Global Privacy Control prevent its tracker loading and event transmission in NeatCV. When no valid ID is configured, no Umami requests are made.':
+    'Umami не використовує cookies для відстеження. Do Not Track і Global Privacy Control блокують завантаження трекера та надсилання подій у NeatCV. Без коректного ID запитів до Umami немає.',
+  'Umami privacy notice': 'Політика приватності Umami',
+  'Sentry · error reporting': 'Sentry · звіти про помилки',
+  'Planned · not connected': 'Планується · не підключений',
+  'Sentry is a planned service for diagnosing technical failures. It is not installed or connected, and no Sentry reports are sent. Before activation, this notice will explain the exact diagnostic data, hosting, retention and controls. Resume fields, photos, imported files and editor recordings must be excluded.':
+    'Sentry планується для діагностики технічних збоїв. Він не встановлений і не підключений; звіти до Sentry не надсилаються. До підключення тут буде описано конкретні діагностичні дані, хостинг, строки зберігання та налаштування. Поля резюме, фото, імпортовані файли й запис редактора мають бути виключені.',
+  'Sentry data collection documentation': 'Документація Sentry про збір даних',
+  'Hosting and external links': 'Хостинг і зовнішні посилання',
+  'GitHub Pages serves this website and its fonts. GitHub logs visitor IP addresses for security, independently of optional analytics. These hosting logs are governed by GitHub’s privacy statement.':
+    'GitHub Pages обслуговує сайт і його шрифти. GitHub записує IP-адреси відвідувачів для безпеки незалежно від додаткової аналітики. Ці журнали регулює політика приватності GitHub.',
+  'GitHub, LinkedIn and other external links open services with their own privacy practices. Information you choose to send there is handled by those services. Do not include private resume details in public issue reports.':
+    'GitHub, LinkedIn та інші зовнішні посилання ведуть до сервісів зі своїми правилами приватності. Надіслану туди вами інформацію обробляють ці сервіси. Не додавайте особисті дані резюме до публічних повідомлень про помилки.',
+  'GitHub privacy statement': 'Політика приватності GitHub',
+  'Your choices': 'Ваші можливості',
+  'Save an editable PDF or JSON backup before clearing browser data. To remove the local resume, preferences and source labels, clear site data for neatcv.cc in your browser settings. This does not delete downloaded files; manage those on your device.':
+    'Перед очищенням даних браузера збережіть редагований PDF або JSON-копію. Щоб видалити локальне резюме, налаштування й мітки, очистьте дані сайту neatcv.cc у налаштуваннях браузера. Завантажені файли залишаться: керуйте ними на пристрої.',
+  'Contact and updates': 'Контакт та оновлення',
+  'NeatCV is made by Nikita Nedyalkov. For privacy questions, contact Nikita on LinkedIn. This notice will be updated before new services or materially different data processing are introduced.':
+    'Автор NeatCV — Nikita Nedyalkov. Запитання про приватність можна поставити Нікіті в LinkedIn. Цю сторінку буде оновлено до підключення нових сервісів або суттєвих змін обробки даних.',
+  'Back to NeatCV': 'Повернутися до NeatCV',
+  Privacy: 'Приватність',
+  'Your resume stays in your browser': 'Резюме зберігається у вашому браузері',
+  'Privacy — opens in a new tab': 'Приватність — у новій вкладці',
   'Link targets to check: {count}': 'Адреси для перевірки: {count}',
   'Use an email with @ and a domain. This address will appear in the PDF without a link.':
     'Укажіть електронну адресу з @ і доменом. Ця адреса з’явиться в PDF без посилання.',
@@ -37,12 +84,10 @@ const messages: Record<string, string> = {
     'Перевірте пропуски вище. За бажанням вставте вакансію сюди для порівняння навичок. Потім перегляньте PDF і збережіть обидві копії.',
   'Check the actual PDF pages. Click Text for reading and copying. Download a sharing copy and keep an editable copy for yourself.':
     'Перевірте сторінки справжнього PDF. Натисніть Текст для читання й копіювання. Завантажте копію для надсилання та збережіть редаговану копію для себе.',
-
   'Skip walkthrough': 'Пропустити знайомство',
   'Continue walkthrough': 'Продовжити знайомство',
   'Walk me through the editor': 'Показати редактор крок за кроком',
   'Start walkthrough': 'Почати знайомство',
-
   'The preview shows example text until you write your own. Choose a look, then Personal details.':
     'Перегляд показує приклад, поки ви не напишете свій текст. Виберіть оформлення й перейдіть до особистих даних.',
   'Each language has its own text; nothing is translated automatically. Contacts, dates and links are shared.':
@@ -543,7 +588,6 @@ const messages: Record<string, string> = {
   'Without “.pdf” — it is added for you.':
     'Без «.pdf» — розширення додасться само.',
   'FREE RESUME BUILDER': 'БЕЗКОШТОВНИЙ КОНСТРУКТОР РЕЗЮМЕ',
-  'Your data stays in your browser': 'Ваші дані залишаються в браузері',
   'Your data stays with you.': 'Ваші дані залишаються у вас.',
   'Your experience.': 'Ваш досвід.',
   'Your experience. At your pace.': 'Ваш досвід. У вашому темпі.',
@@ -683,10 +727,9 @@ const messages: Record<string, string> = {
   'Download a copy (JSON)': 'Завантажити копію (JSON)',
   'Report the problem': 'Повідомити про проблему',
   'Report a problem': 'Повідомити про проблему',
+  'JSON backup downloaded. Open it here to restore your resume.':
+    'JSON-копію завантажено. Відкрий її тут, щоб відновити резюме.',
+  'Could not download the backup. Try again; your resume is still here.':
+    'Не вдалося завантажити копію. Спробуй знову — резюме залишається тут.',
 }
-messages['JSON backup downloaded. Open it here to restore your resume.'] =
-  'JSON-копію завантажено. Відкрий її тут, щоб відновити резюме.'
-messages[
-  'Could not download the backup. Try again; your resume is still here.'
-] = 'Не вдалося завантажити копію. Спробуй знову — резюме залишається тут.'
 export default messages

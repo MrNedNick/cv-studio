@@ -29,6 +29,8 @@ For editor links, put the query before the hash: `https://neatcv.cc/?ref=telegra
 
 ## Connect Umami later
 
+Before activation, follow the [privacy notice and service disclosure requirements](privacy.md). The public [privacy page](https://neatcv.cc/privacy.html) must describe the actual provider and retention settings.
+
 Copy `.env.example` to `.env.local`, set `VITE_UMAMI_WEBSITE_ID` to the website UUID and rebuild. Umami Cloud uses `https://cloud.umami.is/script.js` by default; `VITE_UMAMI_SCRIPT_URL` selects an HTTPS self-hosted tracker. For Pages, set repository variables `UMAMI_WEBSITE_ID` and optionally `UMAMI_SCRIPT_URL`, then run **Verify and deploy**. The ID is public configuration, not a credential. Blank or invalid IDs leave analytics disabled and make no tracker requests.
 
 New events include `source`, `ref`, `first_source` and `first_ref`. Sources remembered before connecting are available on a later visit while still valid. Past events are not stored or replayed.
@@ -47,4 +49,4 @@ Cancelled replacements, imports and downloads do not count. Typing is not tracke
 
 In Umami, use **Events → Event data** to compare `source` or `ref`, then filter `pdf_downloaded` by `format=sharing` for the main conversion. First-source fields measure discovery rather than the last tagged visit. See the official [tracker functions](https://docs.umami.is/docs/tracker-functions), [tracker configuration](https://docs.umami.is/docs/tracker-configuration) and [event data](https://docs.umami.is/docs/event-data).
 
-Checks cover expiry/corruption, invalid and duplicate labels, both query positions, return visits, blocked storage, tracker loading/queueing/errors, opt-out and sanitized payloads. Browser scenarios cover both themes in desktop Chromium, phone Chromium and iPhone WebKit. The configured-tracker scenario uses an intercepted fixture and creates no real analytics traffic. CI runs the full suite with analytics disabled, then rebuilds with the configured ID and checks the source scenarios before publishing. An additional local check of the official Umami Cloud script intercepted its outgoing requests in desktop Chromium and phone WebKit and confirmed the event payloads.
+Checks cover expiry/corruption, invalid and duplicate labels, both query positions, return visits, blocked storage, tracker loading/queueing/errors, opt-out and sanitized payloads. Browser scenarios cover both themes in desktop Chromium, phone Chromium and iPhone WebKit. The configured-tracker scenario uses an intercepted fixture and creates no real analytics traffic. CI runs the full suite with analytics disabled, then rebuilds with the configured ID and checks the source and privacy scenarios before publishing. An additional local check of the official Umami Cloud script intercepted its outgoing requests in desktop Chromium and phone WebKit and confirmed the event payloads.

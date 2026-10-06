@@ -39,7 +39,7 @@ jobs:
           VITE_UMAMI_SCRIPT_URL: ''
       - run: npm run build
         if: vars.UMAMI_WEBSITE_ID != ''
-      - run: npx playwright test e2e/sources.e2e.ts
+      - run: npx playwright test e2e/sources.e2e.ts e2e/privacy.e2e.ts
         if: vars.UMAMI_WEBSITE_ID != ''
       - uses: actions/upload-artifact@v4
         if: failure()

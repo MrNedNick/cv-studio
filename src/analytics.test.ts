@@ -53,6 +53,21 @@ it('records source locally without loading or calling analytics when no ID exist
   )
 })
 
+it('sends the privacy route without its query or section fragment', async () => {
+  window.history.replaceState(
+    {},
+    '',
+    '/privacy.html?ref=telegram&email=private@example.com#sentry',
+  )
+  await init()
+  const track = tracker()
+  expect(track).toHaveBeenCalledTimes(1)
+  const payload = track.mock.calls[0][0]
+  expect(payload.url).toBe('/privacy.html')
+  expect(payload.data.ref).toBe('telegram')
+  expect(JSON.stringify(payload)).not.toMatch(/private@example|email=|#sentry/)
+})
+
 it('queues a visit and actions once, flushes on load and sends only safe event fields', async () => {
   const { initializeAnalytics, trackEvent } = await init()
   initializeAnalytics({ websiteId: id, scriptUrl: undefined })

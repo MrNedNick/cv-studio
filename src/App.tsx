@@ -660,10 +660,13 @@ export default function App() {
             </strong>
             <small>
               {t(
-                'Данные хранятся в вашем браузере',
-                'Your data stays in your browser',
+                'Резюме хранится в вашем браузере',
+                'Your resume stays in your browser',
               )}
             </small>
+            <a className="promise-privacy" href="/privacy.html">
+              {t('Приватность', 'Privacy')}
+            </a>
           </span>
         </div>
         <div>
@@ -974,7 +977,7 @@ export default function App() {
                   <p className="privacy-caption">
                     <LockKeyhole size={14} />
                     {t(
-                      'Без регистрации. Ваши данные не отправляются на сервер.',
+                      'Без регистрации. Резюме не отправляется на сервер.',
                       'No sign-up. Your resume is never sent to a server.',
                     )}
                   </p>
@@ -1055,6 +1058,9 @@ export default function App() {
             <LinkedInMark />
           </a>
         </p>
+        <a className="text-button" href="/privacy.html">
+          {t('Приватность', 'Privacy')}
+        </a>
         <a
           className="text-button footer-report"
           href="https://github.com/MrNedNick/cv-studio/issues/new/choose"

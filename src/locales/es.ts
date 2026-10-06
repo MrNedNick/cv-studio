@@ -1,5 +1,55 @@
 // UI strings keyed by their English text.
 const messages: Record<string, string> = {
+  'Your resume stays on your device.':
+    'Tu currículum permanece en tu dispositivo.',
+  'This notice explains how NeatCV handles your resume, browser storage and optional services.':
+    'Aquí explicamos cómo NeatCV trata tu currículum, el almacenamiento del navegador y los servicios opcionales.',
+  'Updated: 6 October 2026': 'Actualizado: 6 de octubre de 2026',
+  'On this page': 'En esta página',
+  'Resume and files': 'Currículum y archivos',
+  'Editing, importing files, cropping your photo and generating PDFs happen in your browser. NeatCV does not upload your resume or require an account. The local resume is saved in IndexedDB.':
+    'La edición, la importación de archivos, el recorte de fotos y la creación de PDF se realizan en tu navegador. NeatCV no sube tu currículum a un servidor ni exige una cuenta. La copia local se guarda en IndexedDB.',
+  'Sharing PDFs contain the selected language. Editable PDFs and JSON backups also contain every language version and design settings, including content hidden from the sharing PDF. Keep those backups for yourself. You choose who receives downloaded files.':
+    'Los PDF para compartir contienen el idioma elegido. Los PDF editables y las copias JSON incluyen todos los idiomas y ajustes de diseño, también el contenido oculto en el PDF para compartir. Guarda esas copias para ti. Tú eliges quién recibe los archivos descargados.',
+  'Browser storage': 'Almacenamiento del navegador',
+  'Language, theme, editor layout, guidance preferences and a pasted job posting are stored locally. They remain until you clear site data or your browser removes them. The app does not use advertising cookies.':
+    'El idioma, el tema, la disposición del editor, las preferencias de ayuda y la oferta de empleo pegada se guardan localmente hasta que tú o el navegador borren los datos del sitio. La app no utiliza cookies publicitarias.',
+  'Source labels': 'Etiquetas de origen',
+  'Links with ?ref=reddit or similar labels help measure where visits come from. The first and latest valid labels, platform and timestamps are stored separately from your resume for 30 days. Untagged returns do not renew that period. Labels never enter resume backups.':
+    'Los enlaces con ?ref=reddit u otras etiquetas ayudan a medir el origen de las visitas. La primera y la última etiqueta válidas, la plataforma y las fechas se guardan aparte del currículum durante 30 días. Volver sin etiqueta no amplía ese plazo. Las copias del currículum no incluyen etiquetas.',
+  'Umami · usage analytics': 'Umami · estadísticas de uso',
+  'Prepared · currently disabled': 'Preparado · desactivado actualmente',
+  'Configured in this build': 'Configurado en esta versión',
+  'Umami is optional and requires a configured website ID. If enabled, it receives visits and successful resume creation, example, import and download events, with source labels, language, template and file format where relevant. Our event code excludes resume text, names, contacts, photos, file names and full URL queries.':
+    'Umami es opcional y necesita un ID del sitio configurado. Si se activa, recibe visitas y eventos completados de creación, ejemplo, importación y descarga, con origen, idioma, plantilla y formato cuando corresponda. Nuestro código excluye el texto del currículum, nombres, contactos, fotos, nombres de archivos y consultas completas de URL.',
+  'A receiving analytics service also receives connection information such as your IP address. Reports may include browser, device and approximate country. NeatCV does not configure session replay or cross-site user identification.':
+    'El servicio receptor también recibe datos de conexión como la dirección IP. Los informes pueden incluir navegador, dispositivo y país aproximado. NeatCV no configura grabación de sesiones ni identificación de usuarios entre sitios.',
+  'Umami uses no tracking cookies. Do Not Track and Global Privacy Control prevent its tracker loading and event transmission in NeatCV. When no valid ID is configured, no Umami requests are made.':
+    'Umami no utiliza cookies de seguimiento. Do Not Track y Global Privacy Control impiden cargar el rastreador y enviar eventos en NeatCV. Sin un ID válido no se hacen solicitudes a Umami.',
+  'Umami privacy notice': 'Política de privacidad de Umami',
+  'Sentry · error reporting': 'Sentry · informes de errores',
+  'Planned · not connected': 'Previsto · no conectado',
+  'Sentry is a planned service for diagnosing technical failures. It is not installed or connected, and no Sentry reports are sent. Before activation, this notice will explain the exact diagnostic data, hosting, retention and controls. Resume fields, photos, imported files and editor recordings must be excluded.':
+    'Sentry está previsto para diagnosticar fallos técnicos. No está instalado ni conectado y no se envían informes. Antes de activarlo, este aviso detallará los datos de diagnóstico, alojamiento, plazos y controles. Se deben excluir campos del currículum, fotos, archivos importados y grabaciones del editor.',
+  'Sentry data collection documentation':
+    'Documentación de recopilación de datos de Sentry',
+  'Hosting and external links': 'Alojamiento y enlaces externos',
+  'GitHub Pages serves this website and its fonts. GitHub logs visitor IP addresses for security, independently of optional analytics. These hosting logs are governed by GitHub’s privacy statement.':
+    'GitHub Pages sirve este sitio y sus fuentes. GitHub registra direcciones IP de visitantes por seguridad, independientemente de las estadísticas opcionales. Esos registros se rigen por la declaración de privacidad de GitHub.',
+  'GitHub, LinkedIn and other external links open services with their own privacy practices. Information you choose to send there is handled by those services. Do not include private resume details in public issue reports.':
+    'GitHub, LinkedIn y otros enlaces externos llevan a servicios con sus propias prácticas de privacidad. Esos servicios tratan lo que decidas enviarles. No incluyas datos privados del currículum en informes públicos de errores.',
+  'GitHub privacy statement': 'Declaración de privacidad de GitHub',
+  'Your choices': 'Tus opciones',
+  'Save an editable PDF or JSON backup before clearing browser data. To remove the local resume, preferences and source labels, clear site data for neatcv.cc in your browser settings. This does not delete downloaded files; manage those on your device.':
+    'Guarda una copia editable en PDF o JSON antes de borrar los datos del navegador. Para eliminar el currículum local, las preferencias y las etiquetas, borra los datos de neatcv.cc en los ajustes del navegador. Los archivos descargados permanecen en tu dispositivo.',
+  'Contact and updates': 'Contacto y actualizaciones',
+  'NeatCV is made by Nikita Nedyalkov. For privacy questions, contact Nikita on LinkedIn. This notice will be updated before new services or materially different data processing are introduced.':
+    'NeatCV es obra de Nikita Nedyalkov. Para preguntas sobre privacidad, contacta con Nikita en LinkedIn. Este aviso se actualizará antes de introducir nuevos servicios o cambios sustanciales en el tratamiento de datos.',
+  'Back to NeatCV': 'Volver a NeatCV',
+  Privacy: 'Privacidad',
+  'Your resume stays in your browser':
+    'Tu currículum permanece en tu navegador',
+  'Privacy — opens in a new tab': 'Privacidad — abre una pestaña nueva',
   'Link targets to check: {count}': 'Destinos de enlaces por revisar: {count}',
   'Use an email with @ and a domain. This address will appear in the PDF without a link.':
     'Usa un correo con @ y un dominio. Esta dirección aparecerá en el PDF sin enlace.',
@@ -37,12 +87,10 @@ const messages: Record<string, string> = {
     'Revisa los datos que faltan arriba. Si quieres, pega una oferta aquí para comparar habilidades. Después revisa el PDF y guarda ambas copias.',
   'Check the actual PDF pages. Click Text for reading and copying. Download a sharing copy and keep an editable copy for yourself.':
     'Revisa las páginas del PDF real. Pulsa Texto para leer y copiar. Descarga una copia para compartir y guarda una copia editable.',
-
   'Skip walkthrough': 'Omitir recorrido',
   'Continue walkthrough': 'Continuar recorrido',
   'Walk me through the editor': 'Mostrar el editor paso a paso',
   'Start walkthrough': 'Iniciar recorrido',
-
   'The preview shows example text until you write your own. Choose a look, then Personal details.':
     'La vista previa muestra un ejemplo hasta que escribas tu texto. Elige un diseño y pasa a Datos personales.',
   'Each language has its own text; nothing is translated automatically. Contacts, dates and links are shared.':
@@ -544,7 +592,6 @@ const messages: Record<string, string> = {
   'Which copy do you need?': '¿Qué copia necesitas?',
   'Without “.pdf” — it is added for you.': 'Sin «.pdf»: se añade solo.',
   'FREE RESUME BUILDER': 'CREADOR DE CURRÍCULUMS GRATIS',
-  'Your data stays in your browser': 'Tus datos se quedan en tu navegador',
   'Your data stays with you.': 'Tus datos se quedan contigo.',
   'Your experience.': 'Tu experiencia.',
   'Your experience. At your pace.': 'Tu experiencia. A tu ritmo.',
@@ -683,11 +730,9 @@ const messages: Record<string, string> = {
   'Download a copy (JSON)': 'Descargar una copia (JSON)',
   'Report the problem': 'Informar del problema',
   'Report a problem': 'Informar de un problema',
+  'JSON backup downloaded. Open it here to restore your resume.':
+    'Copia JSON descargada. Ábrela aquí para restaurar tu currículum.',
+  'Could not download the backup. Try again; your resume is still here.':
+    'No se pudo descargar la copia. Inténtalo de nuevo; tu currículum sigue aquí.',
 }
-messages['JSON backup downloaded. Open it here to restore your resume.'] =
-  'Copia JSON descargada. Ábrela aquí para restaurar tu currículum.'
-messages[
-  'Could not download the backup. Try again; your resume is still here.'
-] =
-  'No se pudo descargar la copia. Inténtalo de nuevo; tu currículum sigue aquí.'
 export default messages

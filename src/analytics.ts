@@ -20,7 +20,7 @@ type EventData = Partial<Record<'language' | 'template' | 'format', string>>
 type Payload = {
   website: string
   hostname: string
-  url: '/' | '/edit'
+  url: '/' | '/edit' | '/privacy.html'
   title: 'NeatCV'
   referrer: ''
   name: AnalyticsEvent
@@ -113,7 +113,12 @@ export function trackEvent(name: AnalyticsEvent, details: EventData = {}) {
   const payload: Payload = {
     website,
     hostname: window.location.hostname,
-    url: window.location.hash.split('?')[0] === '#/edit' ? '/edit' : '/',
+    url:
+      window.location.pathname === '/privacy.html'
+        ? '/privacy.html'
+        : window.location.hash.split('?')[0] === '#/edit'
+          ? '/edit'
+          : '/',
     title: 'NeatCV',
     referrer: '',
     name,
@@ -123,11 +128,32 @@ export function trackEvent(name: AnalyticsEvent, details: EventData = {}) {
   else if (queue.length < 30) queue.push(payload)
 }
 
-export function initializeAnalytics(
+export function analyticsConfiguration(
   config = {
     websiteId: import.meta.env.VITE_UMAMI_WEBSITE_ID as string | undefined,
     scriptUrl: import.meta.env.VITE_UMAMI_SCRIPT_URL as string | undefined,
   },
+) {
+  const id = config.websiteId?.trim()
+  if (!id || !/^[a-f\d]{8}(?:-[a-f\d]{4}){3}-[a-f\d]{12}$/i.test(id))
+    return null
+  let scriptUrl: URL
+  try {
+    scriptUrl = new URL(config.scriptUrl || 'https://cloud.umami.is/script.js')
+    if (
+      scriptUrl.protocol !== 'https:' ||
+      scriptUrl.username ||
+      scriptUrl.password
+    )
+      return null
+  } catch {
+    return null
+  }
+  return { websiteId: id, scriptUrl: scriptUrl.href }
+}
+
+export function initializeAnalytics(
+  config?: Parameters<typeof analyticsConfiguration>[0],
 ) {
   if (started) return
   started = true
@@ -141,30 +167,13 @@ export function initializeAnalytics(
   }
   window.addEventListener('hashchange', captureNavigation)
   window.addEventListener('popstate', captureNavigation)
-  const id = config.websiteId?.trim()
-  if (
-    !id ||
-    !/^[a-f\d]{8}(?:-[a-f\d]{4}){3}-[a-f\d]{12}$/i.test(id) ||
-    optedOut()
-  )
-    return
-  let scriptUrl: URL
-  try {
-    scriptUrl = new URL(config.scriptUrl || 'https://cloud.umami.is/script.js')
-    if (
-      scriptUrl.protocol !== 'https:' ||
-      scriptUrl.username ||
-      scriptUrl.password
-    )
-      return
-  } catch {
-    return
-  }
-  website = id
+  const configured = analyticsConfiguration(config)
+  if (!configured || optedOut()) return
+  website = configured.websiteId
   const script = document.createElement('script')
   script.id = 'neatcv-analytics'
   script.async = true
-  script.src = scriptUrl.href
+  script.src = configured.scriptUrl
   script.dataset.websiteId = website
   script.dataset.autoTrack = 'false'
   script.dataset.excludeSearch = 'true'

@@ -1,0 +1,123 @@
+.privacy-page {
+  max-width: 1100px;
+  width: 100%;
+  margin: auto;
+  padding: 30px 40px 80px;
+}
+.privacy-back {
+  margin-bottom: 40px;
+}
+.privacy-page h1 {
+  max-width: 760px;
+  font-size: clamp(32px, 4.2vw, 52px);
+  font-weight: 400;
+  line-height: 1.16;
+  letter-spacing: -1.5px;
+  margin: 18px 0;
+}
+.privacy-intro {
+  max-width: 650px;
+  color: var(--muted);
+  line-height: 1.8;
+}
+.privacy-updated {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 24px 0 40px;
+}
+.privacy-layout {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 60px;
+  align-items: start;
+}
+.privacy-contents {
+  position: sticky;
+  top: 24px;
+  display: grid;
+  gap: 2px;
+  font-size: 13px;
+}
+.privacy-contents strong {
+  padding: 0 12px 12px;
+}
+.privacy-contents a {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 12px;
+  min-height: 44px;
+  border-radius: 6px;
+  color: var(--muted);
+}
+.privacy-contents a span {
+  color: var(--accent);
+  font-size: 11px;
+}
+.privacy-contents a:hover {
+  background: var(--soft);
+  color: var(--text);
+}
+.privacy-section {
+  border-top: 1px solid var(--line);
+  padding: 26px 0 36px;
+  scroll-margin-top: 24px;
+}
+.privacy-section h2 {
+  font-size: 22px;
+  line-height: 1.4;
+  margin: 0 0 16px;
+  font-weight: 600;
+}
+.privacy-section p {
+  font-size: 15px;
+  line-height: 1.85;
+  margin: 0 0 18px;
+}
+.privacy-section > a {
+  display: inline-block;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  padding: 10px 0;
+}
+.privacy-section .privacy-service-status {
+  display: inline-block;
+  font-size: 12px;
+  line-height: 1.6;
+  font-weight: 700;
+  color: var(--accent);
+  background: var(--soft);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 6px 10px;
+}
+.privacy-shell .site-footer {
+  flex-wrap: wrap;
+}
+@media (max-width: 760px) {
+  .privacy-page {
+    padding: 24px 20px 48px;
+  }
+  .privacy-back {
+    margin-bottom: 28px;
+  }
+  .privacy-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+  .privacy-contents {
+    position: static;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .privacy-contents strong {
+    grid-column: 1 / -1;
+  }
+  .privacy-contents a {
+    padding: 10px 8px;
+    gap: 8px;
+    overflow-wrap: anywhere;
+  }
+}

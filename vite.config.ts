@@ -10,6 +10,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         app: fileURLToPath(new URL('./index.html', import.meta.url)),
+        privacy: fileURLToPath(new URL('./privacy.html', import.meta.url)),
         components: fileURLToPath(
           new URL('./components.html', import.meta.url),
         ),
