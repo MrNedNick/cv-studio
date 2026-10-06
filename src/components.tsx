@@ -166,10 +166,12 @@ export function TemplateCards({
   disabled = false,
   locale,
   onPick,
+  headingAs: Heading = 'h3',
 }: {
   locale: Locale
   onPick: (template: Template) => void
   disabled?: boolean
+  headingAs?: 'h2' | 'h3'
 }) {
   return (
     <div className="template-grid">
@@ -192,7 +194,7 @@ export function TemplateCards({
           </div>
           <div className="template-caption">
             <div>
-              <h3>{template.name}</h3>
+              <Heading>{template.name}</Heading>
               <p>{translate(locale, template.ru, template.en)}</p>
             </div>
             <span>↗</span>

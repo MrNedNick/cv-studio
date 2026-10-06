@@ -1,10 +1,78 @@
 import { expect, test } from '@playwright/test'
+import { step, waitForSave } from './helpers.ts'
 import {
   homePath,
   publicLocales,
   publicMetadata,
   publicUrl,
 } from '../src/public-pages.ts'
+
+for (const result of ['success', 'failed', 'manual choice'] as const) {
+  test(`deferred saved language: ${result} never switches a resume after writing has started`, async ({
+    page,
+  }) => {
+    await page.addInitScript(() => {
+      if (!localStorage.getItem('language-restore-test')) {
+        localStorage.setItem('neatcv-locale', 'de')
+        localStorage.setItem('language-restore-test', '1')
+      }
+    })
+    let release!: () => void
+    const hold = new Promise<void>((resolve) => {
+      release = resolve
+    })
+    await page.route('**/de-*.js', async (route) => {
+      await hold
+      if (result === 'failed') await route.abort()
+      else await route.continue()
+    })
+    try {
+      await page.goto('/')
+      const select = page.locator('.language-button select')
+      await expect(select).toHaveAttribute('aria-busy', 'true')
+      const create = page.getByRole('button', { name: 'Create your resume' })
+      await expect(create).toBeDisabled()
+      if (result === 'success') {
+        const editor = page.getByRole('link', { name: 'Editor', exact: true })
+        const headerAvailable = await editor.isVisible()
+        if (headerAvailable) {
+          await editor.click()
+          await expect(
+            page.getByText('Opening the editor…', { exact: true }),
+          ).toBeVisible()
+          await expect(page.locator('.editor-form')).toHaveCount(0)
+        }
+        release()
+        await expect(select).toHaveValue('de')
+        await select.selectOption('en')
+        if (headerAvailable)
+          await page.getByRole('button', { name: /A blank resume/ }).click()
+        else await create.click()
+      } else if (result === 'failed') {
+        release()
+        await expect(select).toHaveAttribute('aria-busy', 'false')
+        await expect(create).toBeEnabled()
+        await create.click()
+      } else {
+        await select.selectOption('en')
+        await expect(create).toBeEnabled()
+        await create.click()
+      }
+      await step(page, 'Personal details')
+      const name = page.getByLabel('Full name', { exact: true })
+      await name.fill('Early writer')
+      release()
+      await waitForSave(page)
+      await expect(page.locator('html')).toHaveAttribute('lang', 'en')
+      await expect(name).toHaveValue('Early writer')
+      await page.reload()
+      await step(page, 'Personal details')
+      await expect(name).toHaveValue('Early writer')
+    } finally {
+      release()
+    }
+  })
+}
 
 test.describe('readable language pages', () => {
   test.use({ javaScriptEnabled: false })

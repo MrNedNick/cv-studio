@@ -19,7 +19,7 @@ The template IDs come from `src/template-data.ts`; Editorial uses `sidebar`. Ill
 
 React hydrates the saved HTML with the same initial language and route. A dictionary loads before hydration of a translated home. An explicit translated home address takes precedence over device or saved preferences. Manual home language choices update the address without reloading, preserving query parameters and hash navigation. Saved resumes remain in IndexedDB. Editor links and existing `#/edit` bookmarks continue to work, including from a public subdirectory.
 
-The editor preloads during idle time when the page is visible, online and without data saver or a 2G connection. Unmounting cancels the pending callback; conditions are checked again when it runs. Optional loading errors are handled. A direct editor action remains available on restricted connections.
+The editor preloads during idle time when the page is visible, online and without data saver or a 2G connection. Unmounting cancels the pending callback; conditions are checked again when it runs. Optional loading errors are handled. A direct editor action remains available on restricted connections. Resume creation and template selection wait for automatic language restoration, including direct header navigation; a slow stored preference cannot switch the language after writing starts. An explicit language choice takes precedence, and a failed automatic restore leaves the English editor usable.
 
 The saved or system palette applies in the head before static content paints. It does not enable theme animation; explicit toggles keep their existing smooth transitions. Browser checks hold the application module back to confirm that saved dark/light colors are already applied to the readable page.
 

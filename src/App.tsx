@@ -119,6 +119,7 @@ export default function App({
     }),
     [localeReady, setLocaleReady] = useState(() => hasDictionary(locale)),
     [languageLoading, setLanguageLoading] = useState(false),
+    [restoringLanguage, setRestoringLanguage] = useState(Boolean(bootstrap)),
     [theme, setTheme] = useState(() => {
       if (bootstrap || typeof window === 'undefined') return 'light'
       try {
@@ -181,6 +182,7 @@ export default function App({
     localeRequest = useRef(0),
     t = translator(locale)
   const currentDocument = useRef(doc)
+  const canStart = ready && !restoringLanguage
   const routePath =
     bootstrap &&
     location.pathname === '/' &&
@@ -286,7 +288,10 @@ export default function App({
   useEffect(() => {
     if (!bootstrap) return
     const explicit = homeLocale(window.location.pathname)
-    if (explicit && explicit !== 'en') return
+    if (explicit && explicit !== 'en') {
+      setRestoringLanguage(false)
+      return
+    }
     let desired = detectLocale(navigator.languages ?? [navigator.language])
     try {
       const stored = localStorage.getItem('neatcv-locale')
@@ -294,13 +299,23 @@ export default function App({
     } catch {
       /* Use device language. */
     }
-    if (desired === bootstrap.locale) return
+    if (desired === bootstrap.locale) {
+      setRestoringLanguage(false)
+      return
+    }
     const request = ++localeRequest.current
+    setLanguageLoading(true)
     void loadLocale(desired)
       .then(() => {
         if (request === localeRequest.current) setLocale(desired)
       })
       .catch(() => {})
+      .finally(() => {
+        if (request === localeRequest.current) {
+          setRestoringLanguage(false)
+          setLanguageLoading(false)
+        }
+      })
   }, [])
   useLayoutEffect(() => {
     document.documentElement.dataset.theme = theme
@@ -596,6 +611,7 @@ export default function App({
     document.documentElement.lang = locale
   }, [locale])
   function changeLocale(next: Locale) {
+    setRestoringLanguage(false)
     const request = ++localeRequest.current
     const apply = () => {
       setLocaleError('')
@@ -678,7 +694,7 @@ export default function App({
           <div className="hero-actions">
             <button
               className="button primary"
-              disabled={!ready}
+              disabled={!canStart}
               onClick={() => (doc ? navigate('/edit') : start(false))}
             >
               {doc
@@ -689,7 +705,7 @@ export default function App({
             <button
               className="text-button"
               onClick={() => start(true)}
-              disabled={!ready}
+              disabled={!canStart}
             >
               {t('Попробовать на примере', 'Try an example')}
               <ArrowRight size={17} />
@@ -802,7 +818,7 @@ export default function App({
           </a>
         </div>
         <TemplateCards
-          disabled={!ready}
+          disabled={!canStart}
           locale={locale}
           onPick={pickTemplate}
         />
@@ -998,7 +1014,8 @@ export default function App({
                   )}
                 </p>
                 <TemplateCards
-                  disabled={!ready}
+                  disabled={!canStart}
+                  headingAs="h2"
                   locale={locale}
                   onPick={pickTemplate}
                 />
@@ -1019,7 +1036,7 @@ export default function App({
             element={
               <TemplatePage
                 locale={locale}
-                ready={ready}
+                ready={canStart}
                 onPick={pickTemplate}
               />
             }
@@ -1027,7 +1044,7 @@ export default function App({
           <Route
             path="/edit"
             element={
-              !ready ? (
+              !ready || restoringLanguage ? (
                 // A separate node from the page that replaces it, so the swap
                 // is not measured as a layout shift.
                 <div className="loading" key="loading">

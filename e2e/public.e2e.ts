@@ -63,6 +63,14 @@ for (const theme of ['light', 'dark'] as const) {
         if (m.type() === 'error') errors.push(m.text())
       })
       await page.goto('./templates/')
+      await expect(page.locator('.template-caption h2')).toHaveCount(12)
+      expect(
+        (
+          await new AxeBuilder({ page })
+            .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'best-practice'])
+            .analyze()
+        ).violations,
+      ).toEqual([])
       await expect(
         page.getByRole('heading', {
           name: 'Great experience deserves great presentation.',
