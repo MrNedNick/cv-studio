@@ -6,7 +6,7 @@ The notice covers local resumes, files and photo processing, sharing versus edit
 
 Umami is prepared but disabled when no valid website ID and HTTPS tracker URL are configured. The page uses the same configuration validation as the tracker, so a later configured build does not continue claiming analytics is disabled. Do Not Track and Global Privacy Control can still prevent tracker loading in a configured build. Privacy-page events use `/privacy.html`, never a query or fragment.
 
-Sentry is not installed or configured. Naming it as a future service does not enable error reporting or authorize sending resume data.
+Sentry is prepared and disabled without a valid public browser DSN. The SDK loads on demand only in configured builds when browser privacy controls allow it. The notice follows that validated build configuration and displays the receiving host without its public key. No resume database is read by the reporting code. See [the exact event allowlist, tests and activation steps](sentry.md).
 
 Browser checks in `e2e/privacy.e2e.ts` cover all six languages, both themes, desktop and 360 px phone profiles, accessibility, reload, opening from home and the editor, unavailable storage and a no-JavaScript fallback. Configured-service checks intercept tracker requests instead of sending real analytics. `src/analytics.test.ts` verifies that privacy events omit query strings and fragments.
 

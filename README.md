@@ -58,11 +58,11 @@ There is one active resume per browser; keep backups for multiple documents. PDF
 
 Resume content, photos, imports and PDF creation stay local. Clearing site data removes the browser copy; downloaded backups remain on the device.
 
-Source links such as `?ref=reddit` retain first/latest attribution for 30 days, separately from the resume. Umami analytics is optional and disabled without a website ID. Sentry error reporting is planned. GitHub Pages logs visitor IP addresses for security. Current behavior and service status are described in the [privacy notice](https://neatcv.cc/privacy.html), [source-label table](docs/sources.md) and [service activation requirements](docs/privacy.md).
+Source links such as `?ref=reddit` retain first/latest attribution for 30 days, separately from the resume. Umami analytics is optional and disabled without a website ID. Sentry diagnostics is prepared and disabled without a valid public browser DSN; error messages, resume fields, breadcrumbs and attachments are excluded. GitHub Pages logs visitor IP addresses for security. Current behavior and service status are described in the [privacy notice](https://neatcv.cc/privacy.html), [source-label table](docs/sources.md), [Sentry setup and filtering](docs/sentry.md) and [service activation requirements](docs/privacy.md).
 
 ## Run and verify
 
-Use Node.js 22 or later.
+Use Node.js 22.12 or a newer supported LTS release.
 
 ```sh
 npm ci

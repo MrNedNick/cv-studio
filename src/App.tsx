@@ -7,6 +7,7 @@ import {
   useState,
 } from 'react'
 import { trackEvent } from './analytics'
+import { reportError } from './error-reporting'
 import { authorCopy } from './author-copy'
 import {
   Link,
@@ -495,6 +496,7 @@ export default function App() {
       setExportDocument(null)
     } catch (error) {
       setExportError(true)
+      reportError(error, 'pdf_export')
       console.error(error)
       notify(
         t(

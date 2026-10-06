@@ -42,6 +42,7 @@ export default defineConfig({
         'sources.e2e.ts',
         'privacy.e2e.ts',
         'about.e2e.ts',
+        'sentry.e2e.ts',
       ],
       use: { ...devices['iPhone 15 Pro Max'], browserName: 'webkit' },
     },
@@ -61,6 +62,7 @@ export default defineConfig({
         'sources.e2e.ts',
         'privacy.e2e.ts',
         'about.e2e.ts',
+        'sentry.e2e.ts',
       ],
       use: { ...devices['iPhone 15 Pro Max'], browserName: 'chromium' },
     },
@@ -68,7 +70,7 @@ export default defineConfig({
   webServer: remote
     ? undefined
     : {
-        command: `npx vite preview --host 127.0.0.1 --port ${port} --strictPort`,
+        command: `npx vite preview ${process.env.SENTRY_FIXTURE_BUILD === '1' ? '--outDir dist-sentry-test' : ''} --host 127.0.0.1 --port ${port} --strictPort`,
         url: `http://127.0.0.1:${port}/`,
         reuseExistingServer: false,
       },

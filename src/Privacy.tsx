@@ -8,6 +8,7 @@ import {
   Sun,
 } from 'lucide-react'
 import { analyticsConfiguration } from './analytics'
+import { errorReportingConfiguration } from './error-reporting'
 import { detectLocale, hasDictionary, loadLocale, translator } from './i18n'
 import { isLocale, localeNames, locales, type Locale } from './model'
 import { privacyCopy } from './privacy-copy'
@@ -52,6 +53,7 @@ export default function Privacy() {
   const [theme, setTheme] = useState(initialTheme)
   const request = useRef(0)
   const t = translator(locale)
+  const sentry = errorReportingConfiguration()
   const text = (key: keyof typeof privacyCopy) => {
     const copy = privacyCopy[key]
     return t(copy.ru, copy.en)
@@ -207,7 +209,9 @@ export default function Privacy() {
                   </p>
                 )}
                 {topic === 'sentry' && (
-                  <p className="privacy-service-status">{text('planned')}</p>
+                  <p className="privacy-service-status">
+                    {text(sentry ? 'configured' : 'disabled')}
+                  </p>
                 )}
                 <p>{text(`${topic}Body` as keyof typeof privacyCopy)}</p>
                 {topic === 'files' && <p>{text('exports')}</p>}
@@ -219,9 +223,21 @@ export default function Privacy() {
                   </>
                 )}
                 {topic === 'sentry' && (
-                  <a href="https://docs.sentry.io/platforms/javascript/data-management/data-collected/">
-                    {text('sentryDocs')}
-                  </a>
+                  <>
+                    <p>{text('sentryConnection')}</p>
+                    {sentry && (
+                      <p>
+                        {t(
+                          'Получатель отчётов: {host}',
+                          'Reporting host: {host}',
+                          { host: sentry.host },
+                        )}
+                      </p>
+                    )}
+                    <a href="https://docs.sentry.io/platforms/javascript/data-management/data-collected/">
+                      {text('sentryDocs')}
+                    </a>
+                  </>
                 )}
                 {topic === 'hosting' && (
                   <>

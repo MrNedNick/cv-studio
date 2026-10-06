@@ -19,6 +19,7 @@ jobs:
     env:
       VITE_UMAMI_WEBSITE_ID: ${{ vars.UMAMI_WEBSITE_ID }}
       VITE_UMAMI_SCRIPT_URL: ${{ vars.UMAMI_SCRIPT_URL }}
+      VITE_SENTRY_DSN: ${{ vars.SENTRY_DSN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -32,15 +33,30 @@ jobs:
         env:
           VITE_UMAMI_WEBSITE_ID: ''
           VITE_UMAMI_SCRIPT_URL: ''
+          VITE_SENTRY_DSN: ''
       - run: npx playwright install --with-deps chromium webkit
       - run: npm run e2e
         env:
           VITE_UMAMI_WEBSITE_ID: ''
           VITE_UMAMI_SCRIPT_URL: ''
+          VITE_SENTRY_DSN: ''
+      - name: Build isolated Sentry fixture
+        run: npm run build -- --outDir dist-sentry-test
+        env:
+          VITE_UMAMI_WEBSITE_ID: ''
+          VITE_UMAMI_SCRIPT_URL: ''
+          VITE_SENTRY_DSN: https://publickey@errors.example.test/123
+      - name: Verify Sentry filtering without sending real reports
+        run: npx playwright test e2e/sentry.e2e.ts e2e/privacy.e2e.ts
+        env:
+          VITE_UMAMI_WEBSITE_ID: ''
+          VITE_UMAMI_SCRIPT_URL: ''
+          VITE_SENTRY_DSN: https://publickey@errors.example.test/123
+          SENTRY_FIXTURE_BUILD: '1'
       - run: npm run build
-        if: vars.UMAMI_WEBSITE_ID != ''
-      - run: npx playwright test e2e/sources.e2e.ts e2e/privacy.e2e.ts
-        if: vars.UMAMI_WEBSITE_ID != ''
+        if: vars.UMAMI_WEBSITE_ID != '' || vars.SENTRY_DSN != ''
+      - run: npx playwright test e2e/sources.e2e.ts e2e/privacy.e2e.ts e2e/sentry.e2e.ts
+        if: vars.UMAMI_WEBSITE_ID != '' || vars.SENTRY_DSN != ''
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

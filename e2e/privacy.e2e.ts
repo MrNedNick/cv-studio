@@ -45,15 +45,24 @@ for (const theme of ['light', 'dark'] as const) {
         }),
       ).toBeVisible()
       await expect(
-        page.getByText(
-          configured
-            ? 'Configured in this build'
-            : 'Prepared · currently disabled',
-          { exact: true },
-        ),
+        page
+          .locator('#umami')
+          .getByText(
+            configured
+              ? 'Configured in this build'
+              : 'Prepared · currently disabled',
+            { exact: true },
+          ),
       ).toBeVisible()
       await expect(
-        page.getByText('Planned · not connected', { exact: true }),
+        page
+          .locator('#sentry')
+          .getByText(
+            process.env.VITE_SENTRY_DSN
+              ? 'Configured in this build'
+              : 'Prepared · currently disabled',
+            { exact: true },
+          ),
       ).toBeVisible()
       await expect(page).toHaveTitle('Privacy — NeatCV')
       const selector = page.locator('.language-button select')
@@ -182,7 +191,7 @@ test('the notice remains readable without JavaScript', async ({
     page.getByRole('heading', { name: 'Privacy — NeatCV' }),
   ).toBeVisible()
   await expect(
-    page.getByText(/Sentry is planned and is not connected/),
+    page.getByText(/Sentry error reporting is optional/),
   ).toBeVisible()
   await context.close()
 })

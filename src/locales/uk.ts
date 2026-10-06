@@ -1,4 +1,3 @@
-// UI strings keyed by their English text.
 const messages: Record<string, string> = {
   'Your resume stays on your device.': 'Резюме залишається на вашому пристрої.',
   'This notice explains how NeatCV handles your resume, browser storage and optional services.':
@@ -27,9 +26,6 @@ const messages: Record<string, string> = {
     'Umami не використовує cookies для відстеження. Do Not Track і Global Privacy Control блокують завантаження трекера та надсилання подій у NeatCV. Без коректного ID запитів до Umami немає.',
   'Umami privacy notice': 'Політика приватності Umami',
   'Sentry · error reporting': 'Sentry · звіти про помилки',
-  'Planned · not connected': 'Планується · не підключений',
-  'Sentry is a planned service for diagnosing technical failures. It is not installed or connected, and no Sentry reports are sent. Before activation, this notice will explain the exact diagnostic data, hosting, retention and controls. Resume fields, photos, imported files and editor recordings must be excluded.':
-    'Sentry планується для діагностики технічних збоїв. Він не встановлений і не підключений; звіти до Sentry не надсилаються. До підключення тут буде описано конкретні діагностичні дані, хостинг, строки зберігання та налаштування. Поля резюме, фото, імпортовані файли й запис редактора мають бути виключені.',
   'Sentry data collection documentation': 'Документація Sentry про збір даних',
   'Hosting and external links': 'Хостинг і зовнішні посилання',
   'GitHub Pages serves this website and its fonts. GitHub logs visitor IP addresses for security, independently of optional analytics. These hosting logs are governed by GitHub’s privacy statement.':
@@ -740,5 +736,10 @@ const messages: Record<string, string> = {
   'This is my personal project. There is no paid tier: every template, editing feature and PDF download is free, without watermarks or an account. Your resume stays in your browser.':
     'Це мій особистий проєкт. Платного тарифу немає: усі шаблони, редагування та завантаження PDF безкоштовні, без водяних знаків і реєстрації. Резюме залишається у вашому браузері.',
   'See the source on GitHub': 'Код проєкту на GitHub',
+  'Sentry integration is prepared and stays disabled without a valid DSN. When configured, error reports contain only an error category, a safe page route, loaded application asset names, line and column positions, and generated report identifiers and timestamps. Resume text, arbitrary error messages, names, contacts, photos, file names, URL queries, browser breadcrumbs and attachments are excluded. There is no session replay or automatic performance recording. Do Not Track and Global Privacy Control prevent reporting.':
+    'Інтеграцію Sentry підготовлено, вона вимкнена без коректного DSN. Після налаштування звіти містять лише категорію помилки, безпечний маршрут сторінки, назви завантажених файлів застосунку, позиції рядка й стовпця, згенеровані ідентифікатори та час. Текст резюме, довільні повідомлення помилок, імена, контакти, фото, назви особистих файлів, параметри URL, історія дій браузера та вкладення виключені. Запису сеансів та автоматичного збору продуктивності немає. Do Not Track і Global Privacy Control блокують звіти.',
+  'The configured reporting host receives connection data, including IP address and browser request headers. Region and retention depend on that Sentry project; these settings must be reviewed before activation. No resume content is included.':
+    'Налаштований отримувач отримує дані з’єднання, зокрема IP-адресу та заголовки запитів браузера. Регіон і строки зберігання залежать від проєкту Sentry, їх потрібно перевірити до підключення. Вміст резюме не передається.',
+  'Reporting host: {host}': 'Отримувач звітів: {host}',
 }
 export default messages

@@ -5,8 +5,10 @@ import './index.css'
 import App from './App.tsx'
 import { ErrorBoundary } from './ErrorBoundary'
 import { initializeAnalytics } from './analytics'
+import { initializeErrorReporting } from './error-reporting'
 
 initializeAnalytics()
+void initializeErrorReporting()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

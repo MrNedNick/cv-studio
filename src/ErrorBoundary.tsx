@@ -2,6 +2,7 @@ import { Component, type ReactNode } from 'react'
 import { detectLocale, translator } from './i18n'
 import { isLocale } from './model'
 import { loadDocument } from './storage'
+import { reportError } from './error-reporting'
 
 function currentLocale() {
   try {
@@ -26,6 +27,7 @@ export class ErrorBoundary extends Component<
     return { failed: true }
   }
   componentDidCatch(error: unknown) {
+    reportError(error, 'react_boundary')
     console.error(error)
   }
   async backup() {

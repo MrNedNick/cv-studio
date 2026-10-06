@@ -1,4 +1,3 @@
-// UI strings keyed by their English text.
 const messages: Record<string, string> = {
   'Your resume stays on your device.':
     'Tu currículum permanece en tu dispositivo.',
@@ -28,9 +27,6 @@ const messages: Record<string, string> = {
     'Umami no utiliza cookies de seguimiento. Do Not Track y Global Privacy Control impiden cargar el rastreador y enviar eventos en NeatCV. Sin un ID válido no se hacen solicitudes a Umami.',
   'Umami privacy notice': 'Política de privacidad de Umami',
   'Sentry · error reporting': 'Sentry · informes de errores',
-  'Planned · not connected': 'Previsto · no conectado',
-  'Sentry is a planned service for diagnosing technical failures. It is not installed or connected, and no Sentry reports are sent. Before activation, this notice will explain the exact diagnostic data, hosting, retention and controls. Resume fields, photos, imported files and editor recordings must be excluded.':
-    'Sentry está previsto para diagnosticar fallos técnicos. No está instalado ni conectado y no se envían informes. Antes de activarlo, este aviso detallará los datos de diagnóstico, alojamiento, plazos y controles. Se deben excluir campos del currículum, fotos, archivos importados y grabaciones del editor.',
   'Sentry data collection documentation':
     'Documentación de recopilación de datos de Sentry',
   'Hosting and external links': 'Alojamiento y enlaces externos',
@@ -743,5 +739,10 @@ const messages: Record<string, string> = {
   'This is my personal project. There is no paid tier: every template, editing feature and PDF download is free, without watermarks or an account. Your resume stays in your browser.':
     'Es mi proyecto personal. No hay plan de pago: todas las plantillas, las funciones de edición y las descargas PDF son gratuitas, sin marcas de agua ni cuenta. Tu currículum permanece en tu navegador.',
   'See the source on GitHub': 'Ver el código en GitHub',
+  'Sentry integration is prepared and stays disabled without a valid DSN. When configured, error reports contain only an error category, a safe page route, loaded application asset names, line and column positions, and generated report identifiers and timestamps. Resume text, arbitrary error messages, names, contacts, photos, file names, URL queries, browser breadcrumbs and attachments are excluded. There is no session replay or automatic performance recording. Do Not Track and Global Privacy Control prevent reporting.':
+    'La integración de Sentry está preparada y permanece desactivada sin un DSN válido. Una vez configurada, los informes solo contienen la categoría del error, una ruta segura, nombres de archivos cargados de la aplicación, posiciones de línea y columna e identificadores y marcas de tiempo generados. Se excluyen el texto del currículum, mensajes de error arbitrarios, nombres, contactos, fotos, nombres de archivos personales, parámetros URL, historial de acciones y adjuntos. No hay grabación de sesiones ni registro automático del rendimiento. Do Not Track y Global Privacy Control impiden los informes.',
+  'The configured reporting host receives connection data, including IP address and browser request headers. Region and retention depend on that Sentry project; these settings must be reviewed before activation. No resume content is included.':
+    'El servidor configurado recibe datos de conexión, incluida la dirección IP y las cabeceras del navegador. La región y la retención dependen del proyecto de Sentry y deben revisarse antes de activarlo. No se incluye el contenido del currículum.',
+  'Reporting host: {host}': 'Servidor de informes: {host}',
 }
 export default messages

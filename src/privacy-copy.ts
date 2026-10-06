@@ -79,13 +79,13 @@ export const privacyCopy = {
     ru: 'Sentry · отчёты об ошибках',
     en: 'Sentry · error reporting',
   },
-  planned: {
-    ru: 'Планируется · не подключён',
-    en: 'Planned · not connected',
-  },
   sentryBody: {
-    ru: 'Sentry планируется для диагностики технических сбоев. Он не установлен и не подключён; отчёты в Sentry не отправляются. До подключения здесь будут описаны конкретные диагностические данные, хостинг, сроки хранения и настройки. Поля резюме, фото, импортируемые файлы и запись редактора должны быть исключены.',
-    en: 'Sentry is a planned service for diagnosing technical failures. It is not installed or connected, and no Sentry reports are sent. Before activation, this notice will explain the exact diagnostic data, hosting, retention and controls. Resume fields, photos, imported files and editor recordings must be excluded.',
+    ru: 'Подключение Sentry подготовлено и выключено без корректного DSN. После настройки отчёты содержат только категорию ошибки, безопасный маршрут страницы, имена загруженных файлов приложения, позиции строки и столбца, сгенерированные идентификаторы и время отчёта. Текст резюме, произвольные сообщения ошибок, имена, контакты, фото, имена пользовательских файлов, параметры URL, история действий браузера и вложения исключены. Записи сеансов и автоматического сбора производительности нет. Do Not Track и Global Privacy Control блокируют отчёты.',
+    en: 'Sentry integration is prepared and stays disabled without a valid DSN. When configured, error reports contain only an error category, a safe page route, loaded application asset names, line and column positions, and generated report identifiers and timestamps. Resume text, arbitrary error messages, names, contacts, photos, file names, URL queries, browser breadcrumbs and attachments are excluded. There is no session replay or automatic performance recording. Do Not Track and Global Privacy Control prevent reporting.',
+  },
+  sentryConnection: {
+    ru: 'Настроенный получатель отчётов получает данные соединения, включая IP-адрес и заголовки запросов браузера. Регион обработки и сроки хранения зависят от настроек проекта Sentry; их нужно проверить до подключения. Содержимое резюме в запросы не включается.',
+    en: 'The configured reporting host receives connection data, including IP address and browser request headers. Region and retention depend on that Sentry project; these settings must be reviewed before activation. No resume content is included.',
   },
   sentryDocs: {
     ru: 'Документация Sentry о сборе данных',
