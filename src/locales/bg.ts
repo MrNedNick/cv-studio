@@ -731,5 +731,14 @@ const messages: Record<string, string> = {
     'JSON копието е изтеглено. Отвори го тук, за да възстановиш автобиографията си.',
   'Could not download the backup. Try again; your resume is still here.':
     'Копието не можа да се изтегли. Опитай отново; автобиографията ти остава тук.',
+  'MADE BY A PERSON': 'ЛИЧЕН ПРОЕКТ',
+  'The developer behind NeatCV.': 'Разработчикът на NeatCV.',
+  'A good resume shouldn’t end at a checkout.':
+    'Доброто CV не трябва да завършва с екран за плащане.',
+  'I built NeatCV so you can focus on your experience, make a clear resume and download it without a last-minute payment screen.':
+    'Създадох NeatCV, за да се съсредоточите върху опита си, да оформите ясно CV и да го изтеглите без неочаквано искане за плащане.',
+  'This is my personal project. There is no paid tier: every template, editing feature and PDF download is free, without watermarks or an account. Your resume stays in your browser.':
+    'Това е мой личен проект. Няма платен план: всички шаблони, функции за редактиране и PDF изтегляния са безплатни, без водни знаци или регистрация. CV-то ви остава в браузъра.',
+  'See the source on GitHub': 'Кодът в GitHub',
 }
 export default messages

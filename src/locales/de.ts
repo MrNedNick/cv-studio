@@ -737,5 +737,14 @@ const messages: Record<string, string> = {
     'JSON-Kopie heruntergeladen. Öffnen Sie sie hier, um Ihren Lebenslauf wiederherzustellen.',
   'Could not download the backup. Try again; your resume is still here.':
     'Die Kopie konnte nicht heruntergeladen werden. Versuchen Sie es erneut; Ihr Lebenslauf bleibt hier.',
+  'MADE BY A PERSON': 'EIN PERSÖNLICHES PROJEKT',
+  'The developer behind NeatCV.': 'Der Entwickler hinter NeatCV.',
+  'A good resume shouldn’t end at a checkout.':
+    'Ein guter Lebenslauf sollte nicht an einer Bezahlschranke enden.',
+  'I built NeatCV so you can focus on your experience, make a clear resume and download it without a last-minute payment screen.':
+    'Ich habe NeatCV entwickelt, damit Sie sich auf Ihre Erfahrung konzentrieren, einen klaren Lebenslauf erstellen und ihn ohne überraschende Zahlungsaufforderung herunterladen können.',
+  'This is my personal project. There is no paid tier: every template, editing feature and PDF download is free, without watermarks or an account. Your resume stays in your browser.':
+    'Dies ist mein persönliches Projekt. Es gibt keinen kostenpflichtigen Tarif: Alle Vorlagen, Bearbeitungsfunktionen und PDF-Downloads sind kostenlos, ohne Wasserzeichen oder Konto. Ihr Lebenslauf bleibt in Ihrem Browser.',
+  'See the source on GitHub': 'Quellcode auf GitHub',
 }
 export default messages

@@ -7,6 +7,7 @@ import {
   useState,
 } from 'react'
 import { trackEvent } from './analytics'
+import { authorCopy } from './author-copy'
 import {
   Link,
   Navigate,
@@ -763,6 +764,49 @@ export default function App() {
             <p>{step.text}</p>
           </div>
         ))}
+      </section>
+      <section
+        className="maker-section"
+        id="about"
+        aria-labelledby="maker-title"
+      >
+        <div className="maker-person">
+          <div className="eyebrow">
+            {t(authorCopy.eyebrow.ru, authorCopy.eyebrow.en)}
+          </div>
+          <span className="maker-monogram" aria-hidden="true">
+            NN
+          </span>
+          <a
+            className="maker-name"
+            href="https://www.linkedin.com/in/mrnednick/"
+            rel="author noreferrer"
+            target="_blank"
+          >
+            Nikita Nedyalkov <ArrowUpRight />
+          </a>
+          <p>{t(authorCopy.role.ru, authorCopy.role.en)}</p>
+        </div>
+        <div className="maker-story">
+          <h2 id="maker-title">
+            {t(authorCopy.title.ru, authorCopy.title.en)}
+          </h2>
+          <p>{t(authorCopy.why.ru, authorCopy.why.en)}</p>
+          <p>{t(authorCopy.free.ru, authorCopy.free.en)}</p>
+          <div className="maker-links">
+            <a
+              className="text-button"
+              href="https://github.com/MrNedNick/cv-studio"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <GitHubMark /> {t(authorCopy.source.ru, authorCopy.source.en)}
+            </a>
+            <a className="text-button" href="/privacy.html">
+              <LockKeyhole size={16} /> {t('Приватность', 'Privacy')}
+            </a>
+          </div>
+        </div>
       </section>
     </>
   )

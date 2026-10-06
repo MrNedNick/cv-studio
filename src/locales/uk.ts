@@ -731,5 +731,14 @@ const messages: Record<string, string> = {
     'JSON-копію завантажено. Відкрий її тут, щоб відновити резюме.',
   'Could not download the backup. Try again; your resume is still here.':
     'Не вдалося завантажити копію. Спробуй знову — резюме залишається тут.',
+  'MADE BY A PERSON': 'ОСОБИСТИЙ ПРОЄКТ',
+  'The developer behind NeatCV.': 'Розробник NeatCV.',
+  'A good resume shouldn’t end at a checkout.':
+    'Гарне резюме не має закінчуватися екраном оплати.',
+  'I built NeatCV so you can focus on your experience, make a clear resume and download it without a last-minute payment screen.':
+    'Я створив NeatCV, щоб ви могли зосередитися на своєму досвіді, оформити зрозуміле резюме та завантажити його без несподіваного екрана оплати.',
+  'This is my personal project. There is no paid tier: every template, editing feature and PDF download is free, without watermarks or an account. Your resume stays in your browser.':
+    'Це мій особистий проєкт. Платного тарифу немає: усі шаблони, редагування та завантаження PDF безкоштовні, без водяних знаків і реєстрації. Резюме залишається у вашому браузері.',
+  'See the source on GitHub': 'Код проєкту на GitHub',
 }
 export default messages

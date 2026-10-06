@@ -7,6 +7,78 @@
   padding: 0 5.6%;
   border-bottom: 1px solid var(--line);
 }
+.maker-section {
+  max-width: 1300px;
+  margin: 0 auto 64px;
+  padding: 48px 7%;
+  display: grid;
+  grid-template-columns: minmax(200px, 0.8fr) minmax(0, 1.5fr);
+  gap: 64px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  scroll-margin-top: 24px;
+}
+.maker-monogram {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  margin: 24px 0 16px;
+  border-radius: 50%;
+  background: var(--soft);
+  color: var(--accent);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -1px;
+}
+.maker-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  font-size: 19px;
+  font-weight: 600;
+}
+.maker-name:hover {
+  color: var(--accent);
+}
+.maker-person p {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.7;
+}
+.maker-story h2 {
+  max-width: 620px;
+  font-size: clamp(28px, 3vw, 36px);
+  line-height: 1.25;
+  font-weight: 400;
+  letter-spacing: -0.8px;
+  margin: 0 0 24px;
+}
+.maker-story p {
+  max-width: 620px;
+  font-size: 15px;
+  line-height: 1.85;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+.maker-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 28px;
+  margin-top: 20px;
+}
+.maker-links a {
+  min-height: 44px;
+}
+@media (max-width: 760px) {
+  .maker-section {
+    padding: 32px 6%;
+    margin-bottom: 32px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+  }
+}
 .brand {
   display: inline-flex;
   align-items: center;

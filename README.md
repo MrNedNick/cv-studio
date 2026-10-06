@@ -1,113 +1,82 @@
 # NeatCV
 
-A free resume editor with thoughtful templates, a live PDF preview, and no account or download paywall.
+A free resume editor with a live PDF preview and editable backups. Built by [Nikita Nedyalkov](https://www.linkedin.com/in/mrnednick/).
 
-**[Open NeatCV](https://neatcv.cc/)** · [Open the editor](https://neatcv.cc/#/edit)
+**[Open NeatCV](https://neatcv.cc/)** · [Try the editor](https://neatcv.cc/#/edit) · [Privacy](https://neatcv.cc/privacy.html)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/editor-dark.jpg" />
-  <img src="docs/editor-light.jpg" alt="NeatCV editor: resume steps on the left, the experience form in the middle, and the live A4 PDF preview on the right" />
+  <img src="docs/editor-light.jpg" alt="NeatCV: resume steps, an experience form and the live A4 PDF preview" />
 </picture>
 
-## Why
+## The problem
 
-Most online resume builders let you type for free and ask for a subscription when you download: Resume.io and Zety keep the PDF behind a paid plan, Novorésumé limits the free plan to one page and preset layouts ([pricing notes and sources](docs/research.md)). NeatCV keeps every template and every download free, needs no account, and stores the resume only in your browser.
+A resume needs to be easy to write, readable when exported and easy to update later. A payment screen at the download step interrupts that work. A PDF without its source makes the next edit harder: the person has to find an old account, recover a document or start over.
 
-The second problem is coming back later. A PDF is usually a dead end: to change one line six months from now you need the original account or the original file. NeatCV can put the source inside the PDF itself, so the file you send yourself is also the file you edit next time.
+NeatCV is a personal project built around three constraints: the complete editing and download flow is free, resume content stays in the browser, and a downloaded backup can be reopened without an account. There is no paid tier, subscription, watermark or resume upload. The [author block on the home page](https://neatcv.cc/) explains who made it and why it is free.
 
-## How the editable PDF works
+## The result
 
-1. The page is laid out with `@react-pdf/renderer`, so the PDF has a real text layer: it can be selected, searched and read by applicant tracking systems, and links stay clickable. The live preview renders that same PDF with PDF.js, so what you see is what you download.
-2. For an editable copy, `pdf-lib` attaches `neatcv.json` to the PDF as an embedded file. It holds every language version and the design settings.
-3. Opening that PDF in NeatCV reads the attachment back and restores the resume for editing. A sharing copy has no attachment and only the selected language.
+Start with a blank resume or a fictional example, fill in the sections, choose a template and download a PDF. The preview uses the same PDF as the export. Changes save locally; returning to the editor restores the current document.
 
-## What you can do
+- Twelve templates, accent and typography controls, optional photo cropping and a live A4 preview.
+- English, German, Spanish, Bulgarian, Ukrainian and Russian interfaces. Each language has its own resume text; contacts, dates and links are shared.
+- Writing examples, a voluntary floating walkthrough, review checks and local matching against a pasted job posting.
+- Accessible text preview and a check of the generated PDF’s selectable text and links.
+- Sharing PDF, editable PDF, JSON Resume backup and plain-text export.
+- Responsive editing, undo/redo, keyboard shortcuts, both themes and reduced-motion support.
+- Recovery after storage or preview errors, with retry and backup actions.
 
-- Start with a blank resume or a fictional example (a Berlin-based designer, in all six languages).
-- Edit contact details, profile, experience, education, skills, projects, and languages. Include separate portfolio, LinkedIn, and GitHub links, and an optional photo (cropped to a 4:5 portrait in the browser).
-- Write with guidance in every section: short rules, a before/after example, a sentence structure for profiles and achievements, and an action-verb library that starts a new point in the entry you are editing.
-- Finish with the Review step: 15 content checks (measurable results, weak openers such as “responsible for”, clichés, pronouns, dates, order, length, placeholders) with a link to the section that needs work.
-- Paste a job posting to see which of its skills your resume already covers and which are missing. Synonyms and plurals count as one skill; missing ones can be added to your skills in one click. Nothing leaves the browser.
-- Use the interface in English, German, Spanish, Bulgarian, Ukrainian, or Russian. The theme follows your device until you choose light or dark.
-- Each site language has its own version of the resume: switch the language at the top and the editor, preview, and PDF follow. Contacts, dates, and links are shared; an empty version can start as a copy of another one for translation.
-- On phones and tablets, edit one step at a time, open the complete step list in a dialog, and switch to the PDF or accessible text preview. Touch controls are enlarged, the footer respects safe areas, and the workspace follows the visual viewport when the keyboard opens. The hidden PDF is not generated while typing. Undo and redo are available in the actions menu.
-- Contact fields guide browser autofill and mobile keyboards; Enter moves to the next contact field. Email, phone and links show an accessible error after leaving the field, while valid web addresses without `https://` remain accepted.
-- Work in a desktop layout with a compact header, independently scrolling form, visible section progress, and a full-page PDF preview. Two toolbar buttons show or hide the section list and the form; hiding the section list preserves the form width, and the form slides without re-wrapping its content, including the example banner. Interrupted transitions reverse smoothly. Drag the divider (it has a visible grip) to resize the form, as in a macOS split view: it stops at the minimum, snaps closed past it, and opens again from the edge. Double-click the divider for the default width; Ctrl/⌘ \\ toggles the form.
-- Panels, entries, guidance, menus, and dialogs open and close with short animations. Theme colors blend smoothly and reverse from their current color on repeated clicks. With the system’s reduced-motion setting, only gentle fades remain.
-- Collapse experience, education, projects, and language entries into compact summaries, or expand them all. New entries receive keyboard focus; collapsed text remains in your PDF.
-- Add, remove, and reorder entries, with undo and redo. Fast edits in different fields remain separate undo steps.
-- Fields check themselves when you leave them: email, phone, links, and end dates show a short, specific message and a red outline (shared Field, Select, Switch, and auto-growing Textarea components).
-- Follow floating hints with arrows to the relevant controls, or start an optional eight-step walkthrough through writing and PDF download. Skip it, revisit a step, disable automatic tips, or request a specific topic from Editor guide. Automatic help yields to typing; your writing remains available throughout. See [the onboarding behavior and checks](docs/onboarding.md).
-- Check content in Review before downloading: contact details, dates, empty entries, long paragraphs and concrete achievements. Section forms keep optional writing help beside their heading.
-- The first step is the template: twelve designs with accent, five text sizes, typography and density below them. While the resume is empty, the preview shows the chosen template with example text.
-- Entry sections open with an empty entry ready to fill. Any section except personal details can be left out with one switch; Next skips it and the content is kept.
-- Skills are chips (Enter or a comma adds one) with suggestions for eleven fields, picked from the job title. Languages come from a list named in the resume language, with CEFR level chips.
-- “How to write this section” opens rules, several before → after examples, a structure to insert and action verbs.
-- Review also holds section order and visibility and the PDF properties (file name, title, author, subject, keywords — empty fields come from the resume).
-- Move through the steps with a fixed Back / Next footer; Review ends with the download. Delete an entry from its card, or use Clear everything under the step list (inside Resume steps on a phone) — both can be undone. The example shows a banner with Start my own.
-- Choose from twelve templates — Modern, Classic, Compact, Technical, Executive, Spotlight, Swiss, Timeline, Minimal, Bold, Ivy, and the two-column Editorial — plus ten accent colors, text density, and Sans, Serif, or mixed typography.
-- Reorder sections or hide the ones you don’t need; hidden content is kept.
-- PDF headings, dates (“Present”, “heute”, “actualidad”…), writing tips, action verbs, and the content checks follow the language of the version you edit. The built-in example exists in all six languages.
-- Fit the actual A4 page to the desktop workspace and step through pages, zoom from 25% to 300% (the page fills the panel and can be dragged; Ctrl/⌘ + wheel or pinch zooms around the cursor), or switch to an accessible text view for reading and copying. Retry a failed preview without reloading.
-- Inspect the actual PDF’s extracted reading order, text by page and embedded links from the Text preview. Check for unmatched writing, unsupported characters and text near the paper edges, then return to the relevant section to correct it. Checks update after edits and offer retry; empty-text pages and long documents receive guidance.
-- Before downloading, see a compact warning for invalid link targets: invalid web addresses are omitted from the PDF, and invalid email stays as plain text. Fix them in the form while preserving the source in your backups.
-- Choose a PDF for sharing (the default, selected language only) or an editable backup. Both have selectable text, embedded Cyrillic/Latin fonts, and clickable links.
-- After a sharing download, a dismissible reminder offers an editable PDF or JSON backup of your latest edits. On phones it occupies its own space without covering the editor. A backup failure keeps the form available for retry.
-- Reopen an editable PDF copy made here and continue editing. Editable copies include a `neatcv.json` attachment containing every language version and the design settings.
-- Inspect PDF properties before downloading: author, subject, and keywords come from the selected version’s visible name, role, and skills.
-- Review the name and file before importing; save a backup or cancel before replacing the current resume. Undo can restore the previous document.
-- Copy the resume as plain text or download a `.txt` for online application forms.
-- Import and export JSON Resume. The `cvStudio` extension preserves every language version and presentation settings.
+## The key design decision: two PDFs
 
-All templates and downloads are free. There are no watermarks, accounts or resume uploads. Data is saved in IndexedDB on the current browser. Clearing browser data removes that local copy: keep an editable PDF or JSON backup. Sharing PDFs have no source attachment; editable copies contain every language version and design settings, so keep those for your own use.
+A sharing PDF contains the selected language and no source attachment. An editable PDF includes `neatcv.json`: every language version and the design settings, including content hidden from the sharing PDF. This keeps a private backup useful without adding hidden material to the file sent to an employer.
 
-Shared links can include `?ref=reddit`, `?ref=telegram` or `?ref=linkedin-profile`. Source labels are remembered locally for 30 days, separately from resumes and backups. Analytics is disabled by default. An optional Umami website ID enables a small set of events with source labels and no resume contents, contacts or file names; browser tracking opt-outs are respected. Sentry error reporting is planned and is not installed or connected. GitHub Pages serves the site and logs visitor IP addresses for security. See the [privacy page](https://neatcv.cc/privacy.html), [source-label table and setup](docs/sources.md), and [service activation requirements](docs/privacy.md).
+The reopen flow is deliberately explicit: review the file, save a backup of the current resume if needed, then replace it. Import cancellation leaves the current document in place, and undo can restore the previous one.
 
-The privacy page is available in all six interface languages, links from the home page and opens in a separate tab from the editor. It has its own entry point and does not read or write the resume database, even if editor storage is unavailable. Its Umami status follows the validated build configuration; planned services are distinguished from enabled services.
+## Implementation choices
 
-## Design and implementation
+| Constraint                                              | Choice                                                                                       | What it gives the person using it                                   |
+| ------------------------------------------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| No resume account or upload                             | IndexedDB, with local browser preferences                                                    | Editing and persistence without a server round trip                 |
+| Preview matches the download                            | `@react-pdf/renderer` generates the PDF; PDF.js displays it                                  | The same layout in the editor and the exported file                 |
+| Backups work independently of accounts                  | `pdf-lib` embeds the JSON source in editable PDFs                                            | Reopen, edit and export from the file itself                        |
+| Six languages without translating a resume unexpectedly | Separate text versions and dictionaries loaded on demand                                     | A chosen interface language, with independent resume wording        |
+| Stable desktop and phone editing                        | Resizable panels, preserved scrollbars, interruptible transitions and mobile step navigation | Panels and controls stay usable while the layout changes            |
+| Private content stays private                           | Local processing and an explicit telemetry allowlist                                         | Optional measurements can exclude resume fields, files and contacts |
 
-React 19, TypeScript, and Vite. The renderer uses `@react-pdf/renderer` for layout, `pdf-lib` to attach editable source, and PDF.js to display the same PDF in the live preview. Fonts are hosted with the app and licensed under OFL (see `public/fonts/LICENSE`). The accessible form-field primitive comes from a shared component library. Hash routes support direct editor links on GitHub Pages.
+React 19, TypeScript and Vite run the interface. Fonts are hosted with the app and licensed under OFL. The editor and PDF code load as separate chunks. The privacy notice has its own entry point and does not open the resume database.
 
-German, Spanish, Bulgarian and Ukrainian interface dictionaries load individually when selected; an unsuccessful language switch preserves the current form.
+## Evidence and limits
 
-The home page loads first; the editor and the PDF code are separate chunks fetched when needed (the editor in the background right after the first paint). Interface fonts are WOFF2 files split into Latin, Latin Extended, and Cyrillic subsets, so a page downloads only the scripts it shows; PDF exports embed the complete TTF fonts. Failed storage reads preserve the existing data and offer a retry; failed writes offer retry and JSON backup. The document supports multiple pages; empty sections stay out of the export. Single-column templates are recommended for automated screening. Editorial offers a two-column alternative. Mobile layouts switch between editing and preview; both light and dark themes keep the exported paper white.
+[GitHub Actions](https://github.com/MrNedNick/cv-studio/actions) runs types, unit tests, a fresh production build and browser scenarios before publishing to GitHub Pages. The checks cover editing and reload, PDF download → reopen → edit, JSON round trips, all templates and languages, blocked storage, interrupted transitions, keyboard focus and axe accessibility checks in both themes.
 
-## Readability for applications
+Browser coverage includes desktop Chromium, phone Chromium and an iPhone WebKit profile, narrow and landscape layouts, and simulated keyboard viewport changes. These profiles do not replace testing on a physical iPhone or with a real screen reader. PDF text and link inspection is a practical check, not an ATS certification.
 
-Single-column templates keep the reading order simple. Technical places skills before work history. The editor links to [Greenhouse’s parsing guidance](https://support.greenhouse.io/hc/en-us/articles/200989175-Unsuccessful-resume-parse) and [CareerOneStop’s formatting guide](https://cloudfront.careeronestop.org/JobSearch/Resumes/ResumeGuide/formatting.aspx): use clear sections, readable text, relevant skills, and concrete experience. Match the wording of a vacancy only when it accurately describes your experience. Check the downloaded PDF and follow the employer’s requested format.
+There is one active resume per browser; keep backups for multiple documents. PDF import reads editable NeatCV copies, not arbitrary or scanned PDFs. Imports are limited to 10 MB, 100 entries per section and 30,000 characters per text value. Vacancy matching uses a fixed skills dictionary and can miss unusual terms. There is no automatic translation or cloud sync.
 
-Letter spacing in every template stays below the point where PDF text extractors split words into single letters, and a test checks that headings and titles extract intact. The writing checks follow recruiter guidance summarized in [docs/research.md](docs/research.md).
+## Privacy and operation
 
-The editor does not add hidden keywords, invent qualifications, or promise an ATS score. PDF metadata describes the document; it is not a ranking guarantee. Sharing exports contain only the chosen language, while editable backups contain every language version.
+Resume content, photos, imports and PDF creation stay local. Clearing site data removes the browser copy; downloaded backups remain on the device.
 
-## Keyboard shortcuts
+Source links such as `?ref=reddit` retain first/latest attribution for 30 days, separately from the resume. Umami analytics is optional and disabled without a website ID. Sentry error reporting is planned. GitHub Pages logs visitor IP addresses for security. Current behavior and service status are described in the [privacy notice](https://neatcv.cc/privacy.html), [source-label table](docs/sources.md) and [service activation requirements](docs/privacy.md).
 
-In the editor, use Ctrl/⌘ Z to undo, Ctrl/⌘ Shift Z to redo, and Ctrl/⌘ S to save a JSON backup. Escape closes the document actions menu. Native dialogs support Escape to cancel.
-
-## Development
+## Run and verify
 
 Use Node.js 22 or later.
 
 ```sh
 npm ci
 npm run dev
-npm test
 npm run lint
+npm test
 npm run build
 npx playwright install chromium webkit   # once
-npm run e2e                       # runs against the production build
-BASE_URL=https://neatcv.cc/ npm run e2e   # or against the live site
+npm run e2e                             # against the fresh build
+BASE_URL=https://neatcv.cc/ npm run e2e   # against the deployed site
 ```
 
-The development URL is `http://localhost:5173/`. Open `/components.html` for the [component state gallery](https://neatcv.cc/components.html): it uses the editor’s real components and styles with temporary state, without accessing saved resumes. Tests cover entry collapse/reordering/focus, duplicate imported IDs, sidebar PDF text positioning, import confirmation/cancellation and edits during file reads, storage recovery, keyboard navigation, targeted guidance, model validation, IndexedDB persistence, JSON round trips, shared contacts, undo/redo, export mode selection and retry, and PDF text, links, attachment inclusion/omission, templates, long-document pagination, typography compatibility, preview recovery, and text-view access. Playwright end-to-end tests fill a resume from scratch and reload it, run the full download → clear → reopen the PDF → edit loop (including a renamed file without the `.pdf` extension), check that the PDF text follows the selected language, switch through all twelve templates, check iPhone 15 Pro Max profiles in WebKit and Chromium, 320/360/430 px, tablet and landscape layouts, simulated keyboard viewport changes, language-loading failures and rapid language switches, and run axe accessibility checks on the home page and editor steps in light and dark themes. A unit test keeps every PDF text colour and accent at a contrast ratio of at least 4.5:1. GitHub Actions runs lint, unit tests, a production build, and the end-to-end suite before publishing `main` to Pages.
+Development runs at `http://localhost:5173/`. The [component gallery](https://neatcv.cc/components.html) uses temporary state without saved resumes. Ctrl/⌘ Z undoes an edit, Ctrl/⌘ Shift Z redoes it, and Ctrl/⌘ S downloads a JSON backup.
 
-The identity uses one SVG source for the UI, favicons, app icons and link preview; rebuild its derivatives with `npm run brand`. See [brand notes](docs/brand.md), [the component quality plan](docs/components.md) and [the roadmap](docs/roadmap.md), including optional paid services that preserve the free editor and downloads.
+Russian and English copy lives next to the code; the other four dictionaries are in `src/locales/`. `node scripts/i18n-keys.mjs` collects interface strings. Tests reject missing or stale translations and altered placeholders.
 
-## Boundaries
-
-PDF import supports editable copies exported by NeatCV. Sharing copies, arbitrary PDFs, and scanned documents cannot be reopened for editing. JSON Resume imports use the supported sections listed above; unsupported fields are not imported. Files are limited to 10 MB, entries to 100 per section, and individual imported text values to 30,000 characters. Each browser stores one active resume; use backups for multiple documents. Vacancy matching uses a built-in skills dictionary and repeated words, not a language model, so it can miss unusual terms. There is no automatic translation or cloud sync.
-
-## Translations
-
-Russian and English interface text lives next to the code; German, Spanish, Bulgarian, and Ukrainian are in `src/locales/`, keyed by the English text. `node scripts/i18n-keys.mjs` lists every string that needs a translation, and a test fails when a dictionary misses one, keeps a stale one, or changes a `{placeholder}`.
+Further reading: [writing and PDF research](docs/research.md), [onboarding](docs/onboarding.md), [components](docs/components.md), [brand](docs/brand.md) and [roadmap](docs/roadmap.md).
