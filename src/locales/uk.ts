@@ -1,4 +1,39 @@
 const messages: Record<string, string> = {
+  'About {template}': 'Про {template}',
+  'Can I change the template after writing?':
+    'Чи можна змінити шаблон після заповнення?',
+  'Can I reopen any PDF for editing?':
+    'Чи можна відкрити будь-який PDF для редагування?',
+  'Choose a design for your experience. In the editor you can adjust color, text size, spacing and section order. Switch designs without filling everything in again.':
+    'Виберіть оформлення для свого досвіду. У редакторі можна налаштувати колір, розмір тексту, відступи й порядок розділів. Змінюйте дизайн без повторного заповнення.',
+  'Choose a single-column design for a simpler reading order. Editorial has two columns: check its extracted text carefully. No template guarantees a screening outcome.':
+    'Для простішого порядку читання виберіть дизайн з однією колонкою. Editorial має дві колонки: уважно перевірте витягнутий текст. Жоден шаблон не гарантує результат відбору.',
+  'Choose “For sharing”: the file contains only the selected language, without editable source data. Editable PDFs and JSON contain every language version and design settings; keep them as private backups.':
+    'Виберіть «Для надсилання»: файл містить лише вибрану мовну версію без вихідних даних. Редаговані PDF і JSON містять усі мовні версії та оформлення; зберігайте їх як особисті резервні копії.',
+  'Frequently asked questions': 'Часті запитання',
+  'How NeatCV works': 'Як працює NeatCV',
+  'Illustrative preview. The editor shows the actual PDF with your text.':
+    'Приклад оформлення. Редактор показує справжній PDF із вашим текстом.',
+  'In this browser, on your device. NeatCV does not upload resume text, photos or files to a server. Clearing site data removes the local copy, so download a backup first.':
+    'У цьому браузері, на вашому пристрої. NeatCV не завантажує текст, фото чи файли резюме на сервер. Очищення даних сайту видалить локальну копію — спочатку завантажте резервну.',
+  'Is PDF download really free?': 'Завантаження PDF справді безкоштовне?',
+  'No sign-up. Free PDF without watermarks.':
+    'Без реєстрації. Безкоштовний PDF без водяних знаків.',
+  'Open the editor': 'Відкрити редактор',
+  'Template details': 'Опис шаблонів',
+  'The editor currently opens editable NeatCV PDFs and JSON Resume, up to 10 MB. Ordinary PDFs, scans and sharing PDFs do not contain the source data needed to restore editable fields.':
+    'Редактор відкриває редаговані PDF NeatCV і JSON Resume до 10 МБ. Звичайні PDF, скани й PDF для надсилання не містять вихідних даних для відновлення полів.',
+  'This template has two columns. Check the extracted PDF reading order before applying.':
+    'Цей шаблон має дві колонки. Перед відгуком перевірте порядок читання витягнутого тексту PDF.',
+  'Use {template} template': 'Використати шаблон {template}',
+  'Where is my resume stored?': 'Де зберігається моє резюме?',
+  'Which PDF should I send to an employer?': 'Який PDF надіслати роботодавцю?',
+  'Which template should I choose for automated screening?':
+    'Який шаблон вибрати для автоматичного відбору?',
+  'Yes. All twelve templates, editing and both PDF options are free. No registration, subscription or watermarks are required.':
+    'Так. Усі дванадцять шаблонів, редагування й обидва варіанти PDF безкоштовні. Без реєстрації, підписки та водяних знаків.',
+  'Yes. Open the Template step and choose another design: text, contacts and language versions stay in place. Check the PDF pages and text before sending it.':
+    'Так. Відкрийте крок «Шаблон» і виберіть інший дизайн: текст, контакти й мовні версії збережуться. Перед надсиланням перевірте сторінки та текст PDF.',
   'Your resume stays on your device.': 'Резюме залишається на вашому пристрої.',
   'This notice explains how NeatCV handles your resume, browser storage and optional services.':
     'Тут описано, як NeatCV працює з резюме, сховищем браузера та додатковими сервісами.',
@@ -197,8 +232,8 @@ const messages: Record<string, string> = {
     'По центру й стримано — для senior-посад',
   'Certificates that a vacancy names belong here too.':
     'Сюди ж — сертифікати, які згадує вакансія.',
-  'Change the interface language at the top of the page and the resume language next to the document name. A resume can have up to six language versions: you translate the text; contacts, dates, and links are shared. The PDF shows the selected version.':
-    'Мову інтерфейсу можна змінити вгорі сторінки, мову резюме — поруч із назвою документа. Резюме може мати до шести мовних версій: текст перекладаєте ви, а контакти, дати й посилання спільні. У PDF потрапляє обрана версія.',
+  'Choose a language at the top of the page for both the interface and the resume. Each language keeps its own text; you translate it yourself. Contacts, dates and links are shared. The PDF contains the selected language.':
+    'Вибери мову вгорі сторінки для інтерфейсу та резюме. Кожна мова зберігає свій текст; ти перекладаєш його самостійно. Контакти, дати й посилання спільні. PDF містить вибрану мову.',
   'Check the name and file, then continue editing.':
     'Перевірте ім’я та файл, потім продовжуйте редагування.',
   'Check your email: include @ and a domain.':
@@ -243,8 +278,8 @@ const messages: Record<string, string> = {
     'Не вдалося відкрити цей файл. Оберіть JSON Resume або редаговану PDF-копію з NeatCV (до 10 МБ). Копії для надсилання та інші PDF не містять редагованого джерела.',
   'Could not open your saved resume': 'Не вдалося відкрити збережене резюме',
   'Create your resume': 'Створіть резюме',
-  'Ctrl / ⌘ Z to undo; Ctrl / ⌘ Shift Z to redo; Ctrl / ⌘ S to save a JSON backup. Guidance below the form takes you to the section to review.':
-    'Ctrl / ⌘ Z — скасувати; Ctrl / ⌘ Shift Z — повторити; Ctrl / ⌘ S — зберегти JSON-копію. Підказки під формою ведуть до потрібного розділу.',
+  'Ctrl / ⌘ Z to undo; Ctrl / ⌘ Shift Z to redo; Ctrl / ⌘ S to save a JSON backup.':
+    'Ctrl / ⌘ Z — скасувати; Ctrl / ⌘ Shift Z — повторити; Ctrl / ⌘ S — зберегти JSON-копію.',
   'Dates for jobs and studies': 'Дати роботи й навчання',
   'Dates in the margin, career at a glance':
     'Дати на полях, кар’єра з одного погляду',

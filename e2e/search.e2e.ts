@@ -1,6 +1,10 @@
 import { expect, test } from '@playwright/test'
+import { publicPaths, publicUrl } from '../src/public-pages.ts'
 
-const canonical = ['https://neatcv.cc/', 'https://neatcv.cc/privacy.html']
+const canonical = [
+  ...publicPaths.map(publicUrl),
+  'https://neatcv.cc/privacy.html',
+]
 
 test('robots and sitemap expose only canonical public pages that can be crawled', async ({
   request,
@@ -68,7 +72,7 @@ test('crawler-facing metadata describes the free product and its author without 
       author: { name: 'Nikita Nedyalkov' },
     })
     expect(data.inLanguage).toHaveLength(6)
-    expect(html).toContain('<noscript>')
+    expect(html).toMatch(/<noscript\s*>/)
   }
 })
 
@@ -79,15 +83,16 @@ test.describe('without JavaScript', () => {
   }) => {
     await page.goto('./')
     await expect(
-      page.getByRole('heading', { name: 'NeatCV — free resume builder' }),
+      page.getByRole('heading', { name: 'Your experience. At its best. ✳' }),
     ).toBeVisible()
     await expect(
       page.getByText(/Enable JavaScript to use the editor/),
     ).toBeVisible()
-    await expect(
-      page.getByRole('link', { name: 'Nikita Nedyalkov' }),
-    ).toHaveAttribute('href', 'https://www.linkedin.com/in/mrnednick/')
-    await page.getByRole('link', { name: 'Privacy', exact: true }).click()
+    await expect(page.locator('.maker-name')).toHaveAttribute(
+      'href',
+      'https://www.linkedin.com/in/mrnednick/',
+    )
+    await page.locator('.promise-privacy').click()
     await expect(
       page.getByRole('heading', { name: 'Privacy — NeatCV' }),
     ).toBeVisible()

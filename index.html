@@ -6,6 +6,21 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     />
+    <script>
+      // Apply the palette before the readable HTML paints or modules load.
+      ;(() => {
+        let saved
+        try {
+          saved = localStorage.getItem('neatcv-theme')
+        } catch {}
+        document.documentElement.dataset.theme =
+          saved === 'dark' ||
+          (saved !== 'light' &&
+            matchMedia('(prefers-color-scheme: dark)').matches)
+            ? 'dark'
+            : 'light'
+      })()
+    </script>
     <title>NeatCV — free resume builder with PDF download</title>
     <meta
       name="description"
@@ -84,28 +99,14 @@
   </head>
   <body>
     <div id="root"></div>
-    <noscript>
-      <h1>NeatCV — free resume builder</h1>
-      <p>
-        Write your resume, choose from 12 designs and download a PDF with real
-        text and clickable links. No sign-up, no watermarks and no paid tier.
-        Your resume stays on your device.
-      </p>
-      <p>
-        Enable JavaScript to use the editor and live PDF preview. Keep an
-        editable PDF or JSON backup so you can update your resume later.
-      </p>
-      <p>
-        Built by
-        <a href="https://www.linkedin.com/in/mrnednick/">Nikita Nedyalkov</a>
-        as a personal project to make resume editing and downloads freely
-        available.
-      </p>
-      <p>
-        <a href="/privacy.html">Privacy</a> ·
-        <a href="https://github.com/MrNedNick/cv-studio">Source on GitHub</a>
-      </p>
-    </noscript>
+    <noscript
+      ><p>
+        Enable JavaScript to use the editor and live PDF preview. You can read
+        the <a href="/help/">guide and FAQ</a>, compare
+        <a href="/templates/">templates</a> and read our
+        <a href="/privacy.html">privacy notice</a> without JavaScript.
+      </p></noscript
+    >
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

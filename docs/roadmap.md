@@ -10,6 +10,8 @@ The editor is free, private, and usable without an account. Future work should k
 
 Delivered recently: floating contextual coach marks and an optional eight-step walkthrough to PDF download, with persistent dismissal and opt-out; actual PDF text and link inspection, unmatched-passage and paper-edge checks, and invalid-link warnings before download; a mobile backup reminder that reserves its own space; the Review step with content checks, vacancy matching, writing guidance and an action-verb library, section order and visibility, plain-text export, twelve templates, ten colors, an optional photo, a collapsible section panel and a resizable form.
 
+Also delivered: full static HTML for the six language homes, gallery, help and twelve template pages; translated home metadata and language alternatives; visible FAQ with matching structured data; a 21-page sitemap; smaller PDF fonts with a complete-font fallback; connection-aware idle editor loading. See [public pages and loading](public-pages.md).
+
 ## Mobile quality
 
 Keep the phone workflow focused on the current step. Writing, choosing any step, reading the actual PDF, and downloading must work with touch controls, in both themes, portrait and landscape. Maintain regression coverage for the iPhone 15 Pro Max Safari profile, a Chromium phone, 320/360 px widths and tablets. Real iPhone checks remain necessary for the software keyboard, Files/share sheet, safe areas and browser chrome; browser emulation complements those checks.

@@ -1,5 +1,7 @@
 # Component quality plan
 
+Public template pages reuse MiniResume, existing buttons and color tokens. The guide reuses the editor's help content; its FAQ is fully expanded so answers remain readable without JavaScript. The template link grid fits 360 px and keeps 48 px targets. Browser checks cover all twelve routes in both themes, axe, console errors, saved-text preservation and reload. The illustrative white paper keeps its own dark text in the dark theme.
+
 NeatCV has four shared primitives under `src/ui/components/` (Field, Select, Switch and Textarea). They are copied from the portfolio's `ui-registry` and receive the product's CSS tokens and responsive styles. Product behavior belongs in the components beside the editor rather than in the shared primitives.
 
 | Component                 | Existing behavior                                                                                                                                                                        | Next review                                                                   |

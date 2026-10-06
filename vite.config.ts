@@ -1,10 +1,25 @@
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vitest/config'
 import { fileURLToPath } from 'node:url'
+import { prerender } from './scripts/prerender.mjs'
+
+let outputDirectory = 'dist'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    {
+      name: 'public-pages',
+      apply: 'build',
+      configResolved(config) {
+        outputDirectory = config.build.outDir
+      },
+      async closeBundle() {
+        await prerender(outputDirectory)
+      },
+    },
+  ],
   base: '/',
   build: {
     rollupOptions: {

@@ -1,4 +1,40 @@
 const messages: Record<string, string> = {
+  'About {template}': 'Sobre {template}',
+  'Can I change the template after writing?':
+    '¿Puedo cambiar la plantilla después de escribir?',
+  'Can I reopen any PDF for editing?':
+    '¿Puedo abrir cualquier PDF para editarlo?',
+  'Choose a design for your experience. In the editor you can adjust color, text size, spacing and section order. Switch designs without filling everything in again.':
+    'Elige un diseño para tu experiencia. En el editor puedes ajustar el color, el tamaño del texto, el espaciado y el orden de las secciones. Cambia de diseño sin volver a rellenar todo.',
+  'Choose a single-column design for a simpler reading order. Editorial has two columns: check its extracted text carefully. No template guarantees a screening outcome.':
+    'Elige un diseño de una columna para facilitar el orden de lectura. Editorial tiene dos columnas: revisa bien el texto extraído. Ninguna plantilla garantiza un resultado de selección.',
+  'Choose “For sharing”: the file contains only the selected language, without editable source data. Editable PDFs and JSON contain every language version and design settings; keep them as private backups.':
+    'Elige «Para compartir»: el archivo contiene solo el idioma seleccionado, sin datos editables. Los PDF editables y JSON contienen todas las versiones de idioma y el diseño; guárdalos como copias privadas.',
+  'Frequently asked questions': 'Preguntas frecuentes',
+  'How NeatCV works': 'Cómo funciona NeatCV',
+  'Illustrative preview. The editor shows the actual PDF with your text.':
+    'Vista ilustrativa. El editor muestra el PDF real con tu texto.',
+  'In this browser, on your device. NeatCV does not upload resume text, photos or files to a server. Clearing site data removes the local copy, so download a backup first.':
+    'En este navegador, en tu dispositivo. NeatCV no sube texto, fotos ni archivos del currículum a un servidor. Borrar los datos del sitio elimina la copia local; descarga antes una copia de seguridad.',
+  'Is PDF download really free?': '¿Descargar el PDF es realmente gratis?',
+  'No sign-up. Free PDF without watermarks.':
+    'Sin registro. PDF gratuito sin marcas de agua.',
+  'Open the editor': 'Abrir el editor',
+  'Template details': 'Detalles de plantillas',
+  'The editor currently opens editable NeatCV PDFs and JSON Resume, up to 10 MB. Ordinary PDFs, scans and sharing PDFs do not contain the source data needed to restore editable fields.':
+    'El editor abre PDF editables de NeatCV y JSON Resume de hasta 10 MB. Los PDF comunes, escaneos y PDF para compartir no contienen los datos necesarios para recuperar campos editables.',
+  'This template has two columns. Check the extracted PDF reading order before applying.':
+    'Esta plantilla tiene dos columnas. Revisa el orden de lectura del texto extraído del PDF antes de presentar tu candidatura.',
+  'Use {template} template': 'Usar plantilla {template}',
+  'Where is my resume stored?': '¿Dónde se guarda mi currículum?',
+  'Which PDF should I send to an employer?':
+    '¿Qué PDF debo enviar a una empresa?',
+  'Which template should I choose for automated screening?':
+    '¿Qué plantilla elegir para la selección automatizada?',
+  'Yes. All twelve templates, editing and both PDF options are free. No registration, subscription or watermarks are required.':
+    'Sí. Las doce plantillas, la edición y ambas opciones de PDF son gratuitas. Sin registro, suscripción ni marcas de agua.',
+  'Yes. Open the Template step and choose another design: text, contacts and language versions stay in place. Check the PDF pages and text before sending it.':
+    'Sí. Abre el paso Plantilla y elige otro diseño: el texto, los contactos y las versiones de idioma se conservan. Revisa las páginas y el texto del PDF antes de enviarlo.',
   'Your resume stays on your device.':
     'Tu currículum permanece en tu dispositivo.',
   'This notice explains how NeatCV handles your resume, browser storage and optional services.':
@@ -202,8 +238,8 @@ const messages: Record<string, string> = {
     'Centrada y sobria para puestos sénior',
   'Certificates that a vacancy names belong here too.':
     'Los certificados que menciona una oferta también van aquí.',
-  'Change the interface language at the top of the page and the resume language next to the document name. A resume can have up to six language versions: you translate the text; contacts, dates, and links are shared. The PDF shows the selected version.':
-    'Cambia el idioma de la interfaz arriba en la página y el del currículum junto al nombre del documento. Un currículum puede tener hasta seis versiones de idioma: tú traduces el texto; los contactos, fechas y enlaces se comparten. El PDF muestra la versión elegida.',
+  'Choose a language at the top of the page for both the interface and the resume. Each language keeps its own text; you translate it yourself. Contacts, dates and links are shared. The PDF contains the selected language.':
+    'Elige arriba un idioma para la interfaz y el currículum. Cada idioma conserva su propio texto; tú lo traduces. Los contactos, las fechas y los enlaces se comparten. El PDF contiene el idioma seleccionado.',
   'Check the name and file, then continue editing.':
     'Revisa el nombre y el archivo y sigue editando.',
   'Check your email: include @ and a domain.':
@@ -248,8 +284,8 @@ const messages: Record<string, string> = {
     'No se pudo abrir este archivo. Elige un JSON Resume o una copia PDF editable de NeatCV (hasta 10 MB). Las copias para enviar y otros PDF no incluyen la fuente editable.',
   'Could not open your saved resume': 'No se pudo abrir tu currículum guardado',
   'Create your resume': 'Crea tu currículum',
-  'Ctrl / ⌘ Z to undo; Ctrl / ⌘ Shift Z to redo; Ctrl / ⌘ S to save a JSON backup. Guidance below the form takes you to the section to review.':
-    'Ctrl / ⌘ Z para deshacer; Ctrl / ⌘ Mayús Z para rehacer; Ctrl / ⌘ S para guardar una copia JSON. Las sugerencias bajo el formulario te llevan a la sección que revisar.',
+  'Ctrl / ⌘ Z to undo; Ctrl / ⌘ Shift Z to redo; Ctrl / ⌘ S to save a JSON backup.':
+    'Ctrl / ⌘ Z para deshacer; Ctrl / ⌘ Shift Z para rehacer; Ctrl / ⌘ S para guardar una copia JSON.',
   'Dates for jobs and studies': 'Fechas de empleos y estudios',
   'Dates in the margin, career at a glance':
     'Fechas en el margen, la trayectoria de un vistazo',

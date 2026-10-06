@@ -1,4 +1,40 @@
 const messages: Record<string, string> = {
+  'About {template}': 'За {template}',
+  'Can I change the template after writing?':
+    'Мога ли да сменя шаблона след попълване?',
+  'Can I reopen any PDF for editing?':
+    'Мога ли да отворя всеки PDF за редактиране?',
+  'Choose a design for your experience. In the editor you can adjust color, text size, spacing and section order. Switch designs without filling everything in again.':
+    'Изберете дизайн за своя опит. В редактора можете да настроите цвета, размера на текста, разстоянията и реда на разделите. Сменете дизайна без повторно попълване.',
+  'Choose a single-column design for a simpler reading order. Editorial has two columns: check its extracted text carefully. No template guarantees a screening outcome.':
+    'Изберете дизайн с една колона за по-лесен ред на четене. Editorial има две колони: проверете внимателно извлечения текст. Никой шаблон не гарантира резултат от подбора.',
+  'Choose “For sharing”: the file contains only the selected language, without editable source data. Editable PDFs and JSON contain every language version and design settings; keep them as private backups.':
+    'Изберете „За изпращане“: файлът съдържа само избрания език, без редактируеми изходни данни. Редактируемите PDF и JSON съдържат всички езикови версии и настройките на дизайна; пазете ги като лични резервни копия.',
+  'Frequently asked questions': 'Често задавани въпроси',
+  'How NeatCV works': 'Как работи NeatCV',
+  'Illustrative preview. The editor shows the actual PDF with your text.':
+    'Илюстративен пример. Редакторът показва действителния PDF с вашия текст.',
+  'In this browser, on your device. NeatCV does not upload resume text, photos or files to a server. Clearing site data removes the local copy, so download a backup first.':
+    'В този браузър, на вашето устройство. NeatCV не качва текста, снимките или файловете на CV на сървър. Изчистването на данните на сайта изтрива локалното копие — първо изтеглете резервно.',
+  'Is PDF download really free?': 'Изтеглянето на PDF наистина ли е безплатно?',
+  'No sign-up. Free PDF without watermarks.':
+    'Без регистрация. Безплатен PDF без водни знаци.',
+  'Open the editor': 'Отворете редактора',
+  'Template details': 'Описание на шаблоните',
+  'The editor currently opens editable NeatCV PDFs and JSON Resume, up to 10 MB. Ordinary PDFs, scans and sharing PDFs do not contain the source data needed to restore editable fields.':
+    'Редакторът отваря редактируеми NeatCV PDF и JSON Resume до 10 МБ. Обикновените PDF, сканираните документи и PDF за изпращане нямат изходните данни за възстановяване на полетата.',
+  'This template has two columns. Check the extracted PDF reading order before applying.':
+    'Този шаблон има две колони. Проверете реда на четене на извлечения PDF текст преди кандидатстване.',
+  'Use {template} template': 'Използвайте шаблона {template}',
+  'Where is my resume stored?': 'Къде се съхранява моето CV?',
+  'Which PDF should I send to an employer?':
+    'Кой PDF да изпратя на работодателя?',
+  'Which template should I choose for automated screening?':
+    'Кой шаблон да избера за автоматизиран подбор?',
+  'Yes. All twelve templates, editing and both PDF options are free. No registration, subscription or watermarks are required.':
+    'Да. Всички дванадесет шаблона, редактирането и двата PDF варианта са безплатни. Без регистрация, абонамент или водни знаци.',
+  'Yes. Open the Template step and choose another design: text, contacts and language versions stay in place. Check the PDF pages and text before sending it.':
+    'Да. Отворете стъпката „Шаблон“ и изберете друг дизайн: текстът, контактите и езиковите версии остават на място. Проверете страниците и текста на PDF преди изпращане.',
   'Your resume stays on your device.':
     'Автобиографията остава на вашето устройство.',
   'This notice explains how NeatCV handles your resume, browser storage and optional services.':
@@ -200,8 +236,8 @@ const messages: Record<string, string> = {
     'Центриран и сдържан за старши позиции',
   'Certificates that a vacancy names belong here too.':
     'Тук са и сертификатите, които обявата споменава.',
-  'Change the interface language at the top of the page and the resume language next to the document name. A resume can have up to six language versions: you translate the text; contacts, dates, and links are shared. The PDF shows the selected version.':
-    'Езикът на интерфейса се сменя горе на страницата, а езикът на автобиографията — до името на документа. Една автобиография може да има до шест езикови версии: текста превеждате Вие, а контактите, датите и линковете са общи. PDF показва избраната версия.',
+  'Choose a language at the top of the page for both the interface and the resume. Each language keeps its own text; you translate it yourself. Contacts, dates and links are shared. The PDF contains the selected language.':
+    'Избери език в горната част на страницата за интерфейса и автобиографията. Всеки език запазва свой текст; превеждаш го сам. Контактите, датите и връзките са общи. PDF съдържа избрания език.',
   'Check the name and file, then continue editing.':
     'Проверете името и файла и продължете с редакцията.',
   'Check your email: include @ and a domain.':
@@ -247,8 +283,8 @@ const messages: Record<string, string> = {
   'Could not open your saved resume':
     'Запазената автобиография не можа да бъде отворена',
   'Create your resume': 'Създайте автобиография',
-  'Ctrl / ⌘ Z to undo; Ctrl / ⌘ Shift Z to redo; Ctrl / ⌘ S to save a JSON backup. Guidance below the form takes you to the section to review.':
-    'Ctrl / ⌘ Z — отмяна; Ctrl / ⌘ Shift Z — повторение; Ctrl / ⌘ S — запазване на JSON копие. Подсказките под формуляра водят до раздела за проверка.',
+  'Ctrl / ⌘ Z to undo; Ctrl / ⌘ Shift Z to redo; Ctrl / ⌘ S to save a JSON backup.':
+    'Ctrl / ⌘ Z — отмяна; Ctrl / ⌘ Shift Z — повторение; Ctrl / ⌘ S — запазване на JSON копие.',
   'Dates for jobs and studies': 'Дати за работа и обучение',
   'Dates in the margin, career at a glance':
     'Дати в полето, кариерата с един поглед',

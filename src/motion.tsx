@@ -59,7 +59,9 @@ export const canFade = (element?: Element | null) =>
 
 /** Tracks a media query, e.g. the desktop breakpoint. */
 export function useMediaQuery(query: string) {
-  const read = () => Boolean(window.matchMedia?.(query).matches),
+  const read = () =>
+      typeof window !== 'undefined' &&
+      Boolean(window.matchMedia?.(query).matches),
     [matches, setMatches] = useState(read)
   useEffect(() => {
     const list = window.matchMedia?.(query)

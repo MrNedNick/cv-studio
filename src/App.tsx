@@ -58,8 +58,12 @@ import {
 import { detectLocale, translator, loadLocale, hasDictionary } from './i18n'
 import './App.css'
 import PdfLinkWarnings from './PdfLinkWarnings'
+import { HelpContent, HelpPage } from './HelpPage'
+import TemplatePage, { TemplateLinks } from './TemplatePage'
+import { homeLocale, homePath, publicMetadata, publicUrl } from './public-pages'
+import { scheduleEditorPreload } from './editor-preload'
 // The editor is a separate chunk so the home page paints first; it is fetched
-// in the background right after the first render.
+// during idle time when the connection allows it.
 const GitHubMark = () => (
   <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
     <path
@@ -89,7 +93,9 @@ function download(blob: Blob, filename: string) {
     setTimeout(() => URL.revokeObjectURL(url), 30000)
   }
 }
-export default function App() {
+export default function App({
+  bootstrap,
+}: { bootstrap?: { locale: Locale; path: string } } = {}) {
   const navigate = useNavigate(),
     location = useLocation(),
     [doc, setDoc] = useState<ResumeDocument | null>(null),
@@ -99,6 +105,10 @@ export default function App() {
     [saveAttempt, setSaveAttempt] = useState(0),
     [documentRevision, setDocumentRevision] = useState(0),
     [locale, setLocale] = useState<Locale>(() => {
+      if (bootstrap) return bootstrap.locale
+      if (typeof navigator === 'undefined') return 'en'
+      const explicit = homeLocale(window.location.pathname)
+      if (explicit && explicit !== 'en') return explicit
       try {
         const stored = localStorage.getItem('neatcv-locale')
         if (isLocale(stored)) return stored
@@ -110,6 +120,7 @@ export default function App() {
     [localeReady, setLocaleReady] = useState(() => hasDictionary(locale)),
     [languageLoading, setLanguageLoading] = useState(false),
     [theme, setTheme] = useState(() => {
+      if (bootstrap || typeof window === 'undefined') return 'light'
       try {
         return (
           localStorage.getItem('neatcv-theme') ||
@@ -170,6 +181,49 @@ export default function App() {
     localeRequest = useRef(0),
     t = translator(locale)
   const currentDocument = useRef(doc)
+  const routePath =
+    bootstrap &&
+    location.pathname === '/' &&
+    typeof window !== 'undefined' &&
+    !window.location.hash
+      ? bootstrap.path
+      : location.pathname
+  useEffect(() => {
+    const path =
+      routePath === '/'
+        ? homePath(locale)
+        : routePath === '/edit'
+          ? '/'
+          : routePath
+    if (routePath === '/') {
+      const target = path === '/' ? '/' : path + '/'
+      if (window.location.pathname !== target)
+        window.history.replaceState(
+          window.history.state,
+          '',
+          target + window.location.search + window.location.hash,
+        )
+    }
+    const meta = publicMetadata(path)
+    document.title = meta.title
+    document
+      .querySelector<HTMLLinkElement>('link[rel="canonical"]')
+      ?.setAttribute('href', publicUrl(path))
+    document
+      .querySelector('meta[name="description"]')
+      ?.setAttribute('content', meta.description)
+    for (const name of ['og:title', 'twitter:title'])
+      document
+        .querySelector(`meta[property="${name}"],meta[name="${name}"]`)
+        ?.setAttribute('content', meta.title)
+    for (const name of ['og:description', 'twitter:description'])
+      document
+        .querySelector(`meta[property="${name}"],meta[name="${name}"]`)
+        ?.setAttribute('content', meta.description)
+    document
+      .querySelector('meta[property="og:url"]')
+      ?.setAttribute('content', publicUrl(path))
+  }, [routePath, locale])
   currentDocument.current = doc
   const currentEditorRevision = useRef(documentRevision)
   currentEditorRevision.current = documentRevision
@@ -214,9 +268,39 @@ export default function App() {
     }
   }, [loadAttempt])
   useEffect(() => {
-    const idle =
-      window.requestIdleCallback ?? ((fn: () => void) => setTimeout(fn, 1500))
-    idle(() => void loadEditor())
+    return scheduleEditorPreload(loadEditor)
+  }, [])
+  useLayoutEffect(() => {
+    if (!bootstrap) return
+    try {
+      setTheme(
+        localStorage.getItem('neatcv-theme') ||
+          (window.matchMedia?.('(prefers-color-scheme: dark)').matches
+            ? 'dark'
+            : 'light'),
+      )
+    } catch {
+      /* Keep the initial theme. */
+    }
+  }, [])
+  useEffect(() => {
+    if (!bootstrap) return
+    const explicit = homeLocale(window.location.pathname)
+    if (explicit && explicit !== 'en') return
+    let desired = detectLocale(navigator.languages ?? [navigator.language])
+    try {
+      const stored = localStorage.getItem('neatcv-locale')
+      if (isLocale(stored)) desired = stored
+    } catch {
+      /* Use device language. */
+    }
+    if (desired === bootstrap.locale) return
+    const request = ++localeRequest.current
+    void loadLocale(desired)
+      .then(() => {
+        if (request === localeRequest.current) setLocale(desired)
+      })
+      .catch(() => {})
   }, [])
   useLayoutEffect(() => {
     document.documentElement.dataset.theme = theme
@@ -712,10 +796,10 @@ export default function App() {
             </div>
             <h2>{t('Один опыт. Ваш стиль.', 'Your story. Your style.')}</h2>
           </div>
-          <Link className="text-button" to="/templates">
+          <a className="text-button" href="/templates/">
             {t('Все шаблоны', 'Explore templates')}
             <ArrowRight size={18} />
-          </Link>
+          </a>
         </div>
         <TemplateCards
           disabled={!ready}
@@ -893,7 +977,7 @@ export default function App() {
           tabIndex={-1}
           aria-label={t('Открыть файл резюме', 'Open resume file')}
         />
-        <Routes>
+        <Routes location={{ ...location, pathname: routePath }}>
           <Route path="/" element={landing} />
           <Route
             path="/templates"
@@ -918,6 +1002,7 @@ export default function App() {
                   locale={locale}
                   onPick={pickTemplate}
                 />
+                <TemplateLinks locale={locale} />
                 <p className="gallery-note">
                   <Lightbulb size={18} />
                   {t(
@@ -926,6 +1011,17 @@ export default function App() {
                   )}
                 </p>
               </div>
+            }
+          />
+          <Route path="/help" element={<HelpPage locale={locale} />} />
+          <Route
+            path="/templates/:id"
+            element={
+              <TemplatePage
+                locale={locale}
+                ready={ready}
+                onPick={pickTemplate}
+              />
             }
           />
           <Route
@@ -1104,6 +1200,9 @@ export default function App() {
             <LinkedInMark />
           </a>
         </p>
+        <a className="text-button" href="/help/">
+          {t('Как работает NeatCV', 'How NeatCV works')}
+        </a>
         <a className="text-button" href="/privacy.html">
           {t('Приватность', 'Privacy')}
         </a>
@@ -1426,55 +1525,7 @@ export default function App() {
           )}
           close={() => setHelp(false)}
         >
-          <div className="help-content">
-            <p>
-              <strong>{t('Быстрые действия.', 'Keyboard shortcuts.')}</strong>{' '}
-              {t(
-                'Ctrl / ⌘ Z — отменить; Ctrl / ⌘ Shift Z — повторить; Ctrl / ⌘ S — сохранить JSON-копию. Подсказки под формой ведут к разделу, который стоит проверить.',
-                'Ctrl / ⌘ Z to undo; Ctrl / ⌘ Shift Z to redo; Ctrl / ⌘ S to save a JSON backup. Guidance below the form takes you to the section to review.',
-              )}
-            </p>
-            <p>
-              <strong>
-                {t(
-                  'Бесплатно от первого слова до PDF.',
-                  'Free from the first word to the final PDF.',
-                )}
-              </strong>{' '}
-              {t(
-                'Все шаблоны, скачивание и редактирование доступны без регистрации, подписок и водяных знаков.',
-                'All templates, downloads, and editing are available without sign-up, subscriptions, or watermarks.',
-              )}
-            </p>
-            <p>
-              <strong>
-                {t('Данные остаются у вас.', 'Your data stays with you.')}
-              </strong>{' '}
-              {t(
-                'Резюме сохраняется только в этом браузере. Очистка данных браузера удалит локальную копию — сохраняйте редактируемый PDF или JSON.',
-                'Your resume is stored only in this browser. Clearing browser data removes the local copy, so keep an editable PDF or JSON backup.',
-              )}
-            </p>
-            <p>
-              <strong>
-                {t(
-                  'Редактируемую копию можно открыть снова.',
-                  'Editable copies can be reopened.',
-                )}
-              </strong>{' '}
-              {t(
-                'При скачивании выберите «Редактируемая копия», чтобы сохранить все языковые версии и оформление внутри PDF. Такая копия восстанавливается через «Открыть файл». Вариант «Для отправки» содержит только выбранный язык и не открывается для редактирования.',
-                'Choose “Editable copy” when downloading to include every language version and the design settings. Use “Open file” to restore that copy. “For sharing” contains only the selected language and cannot be reopened for editing.',
-              )}
-            </p>
-            <p>
-              <strong>EN · RU · DE · ES · BG · UK.</strong>{' '}
-              {t(
-                'Язык интерфейса меняется вверху страницы, язык резюме — рядом с названием документа. У резюме может быть до шести языковых версий: текст переводите вы, контакты, даты и ссылки общие. В PDF попадает выбранная версия.',
-                'Change the interface language at the top of the page and the resume language next to the document name. A resume can have up to six language versions: you translate the text; contacts, dates, and links are shared. The PDF shows the selected version.',
-              )}
-            </p>
-          </div>
+          <HelpContent locale={locale} />
           <button className="button primary" onClick={() => setHelp(false)}>
             {t('Всё понятно', 'Got it')}
             <Check size={17} />
