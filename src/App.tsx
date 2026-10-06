@@ -621,6 +621,16 @@ export default function App({
         /* Keep this visit's choice. */
       }
       setLocale(next)
+      if (homeLocale(window.location.pathname)) {
+        const path = homePath(next)
+        window.history.replaceState(
+          window.history.state,
+          '',
+          (path === '/' ? '/' : path + '/') +
+            window.location.search +
+            window.location.hash,
+        )
+      }
       setLanguageLoading(false)
     }
     if (hasDictionary(next)) {

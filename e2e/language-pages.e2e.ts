@@ -7,6 +7,34 @@ import {
   publicUrl,
 } from '../src/public-pages.ts'
 
+test('changing language inside an editor opened from a localized address keeps that choice and text on reload', async ({
+  page,
+}) => {
+  await page.goto('/es/?ref=telegram')
+  await expect(page.locator('html')).toHaveAttribute('lang', 'es')
+  await page.locator('.hero-actions .button.primary').click()
+  await expect(page.locator('.editor-toolbar')).toBeVisible()
+  const select = page.locator('.language-button select')
+  await select.selectOption('en')
+  await expect(page).toHaveURL(/\/\?ref=telegram#\/edit$/)
+  await step(page, 'Personal details')
+  const name = page.getByLabel('Full name', { exact: true })
+  await name.fill('Address reader')
+  await waitForSave(page)
+  await page.reload()
+  await expect(select).toHaveValue('en')
+  await step(page, 'Personal details')
+  await expect(name).toHaveValue('Address reader')
+  await select.selectOption('de')
+  await expect(page).toHaveURL(/\/de\/\?ref=telegram#\/edit$/)
+  await select.selectOption('en')
+  await expect(name).toHaveValue('Address reader')
+  await page.reload()
+  await expect(select).toHaveValue('en')
+  await step(page, 'Personal details')
+  await expect(name).toHaveValue('Address reader')
+})
+
 for (const result of ['success', 'failed', 'manual choice'] as const) {
   test(`deferred saved language: ${result} never switches a resume after writing has started`, async ({
     page,

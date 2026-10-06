@@ -41,6 +41,7 @@ beforeAll(async () => {
 })
 beforeEach(() => {
   vi.clearAllMocks()
+  window.history.replaceState(null, '', '/')
   localStorage.setItem('neatcv-locale', 'ru')
 })
 afterEach(cleanup)
