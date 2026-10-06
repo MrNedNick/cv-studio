@@ -55,7 +55,9 @@ for (const result of ['success', 'failed', 'manual choice'] as const) {
       else await route.continue()
     })
     try {
-      await page.goto('/')
+      // The held dictionary can delay WebKit's load event; inspect the UI
+      // while it is pending instead of waiting for that request to finish.
+      await page.goto('/', { waitUntil: 'domcontentloaded' })
       const select = page.locator('.language-button select')
       await expect(select).toHaveAttribute('aria-busy', 'true')
       const create = page.getByRole('button', { name: 'Create your resume' })
