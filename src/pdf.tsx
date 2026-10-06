@@ -11,6 +11,7 @@ import {
 import type { ReactNode } from 'react'
 import { PDFDocument } from 'pdf-lib'
 import { translate } from './i18n'
+import { pdfFontSuffix } from './pdf-fonts'
 import {
   dateRange,
   safeUrl,
@@ -39,21 +40,22 @@ let renderQueue: Promise<unknown> = Promise.resolve()
 export function configurePdfFonts(base: string) {
   fontBase = base
 }
-function registerFonts() {
+function registerFonts(doc: ResumeDocument) {
+  const suffix = pdfFontSuffix(doc)
   Font.clear()
   Font.register({ family: 'Helvetica', src: 'Helvetica' })
   Font.register({
     family: 'Noto',
     fonts: [
-      { src: `${fontBase}fonts/NotoSans-Regular.ttf` },
-      { src: `${fontBase}fonts/NotoSans-Bold.ttf`, fontWeight: 700 },
+      { src: `${fontBase}fonts/NotoSans-Regular${suffix}.ttf` },
+      { src: `${fontBase}fonts/NotoSans-Bold${suffix}.ttf`, fontWeight: 700 },
     ],
   })
   Font.register({
     family: 'NotoSerif',
     fonts: [
-      { src: `${fontBase}fonts/NotoSerif-Regular.ttf` },
-      { src: `${fontBase}fonts/NotoSerif-Bold.ttf`, fontWeight: 700 },
+      { src: `${fontBase}fonts/NotoSerif-Regular${suffix}.ttf` },
+      { src: `${fontBase}fonts/NotoSerif-Bold${suffix}.ttf`, fontWeight: 700 },
     ],
   })
   Font.registerHyphenationCallback((word) => [word])
@@ -501,7 +503,7 @@ export function ResumePDF({ doc }: { doc: ResumeDocument }) {
 export function renderResume(doc: ResumeDocument): Promise<Blob> {
   // Each render owns its font instances; shared glyph subsets corrupt later exports.
   const result = renderQueue.then(() => {
-    registerFonts()
+    registerFonts(doc)
     return pdf(<ResumePDF doc={doc} />).toBlob()
   })
   renderQueue = result.catch(() => undefined)

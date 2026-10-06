@@ -1,5 +1,5 @@
 /* Interface fonts are split by script; the browser fetches only the subsets a
-   page uses. PDF export embeds the full TTF files instead. */
+   page uses. PDF export chooses a core TTF or the complete font for wider text. */
 @font-face {
   font-family: Noto;
   src: url('/fonts/NotoSans-Regular-latin.woff2') format('woff2');

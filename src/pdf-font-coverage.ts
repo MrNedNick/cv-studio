@@ -1,0 +1,22 @@
+// Core coverage shared by all four PDF fonts. Rebuild with scripts/subset-pdf-fonts.py.
+export const pdfCoreCoverage: readonly (readonly [number, number])[] = [
+  [9, 10],
+  [13, 13],
+  [32, 126],
+  [160, 591],
+  [768, 887],
+  [890, 895],
+  [900, 906],
+  [908, 908],
+  [910, 929],
+  [931, 993],
+  [1008, 1327],
+  [7296, 7304],
+  [8192, 8292],
+  [8294, 8303],
+  [8352, 8383],
+  [8470, 8470],
+  [8482, 8482],
+  [65279, 65279],
+  [65533, 65533],
+]

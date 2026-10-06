@@ -18,6 +18,19 @@ import {
   type PdfPageInspection,
 } from './pdf-inspection'
 beforeAll(() => configurePdfFonts(`${resolve('public')}/`))
+it.each(['sans', 'serif'] as const)(
+  'preserves core and fallback glyphs in the real %s PDF across successive exports',
+  async (typography) => {
+    const doc = createDocument(false)
+    doc.typography = typography
+    for (const name of ['ÄĆŁŠ Жї Ελένη', 'Hồng', 'Зоя Йорданова']) {
+      doc.versions.en.basics.name = name
+      const result = await inspect(doc)
+      expect(result.missing).toEqual([])
+      expect(result.pages.flatMap((page) => page.overflow)).toEqual([])
+    }
+  },
+)
 it('detects text crossing a physical paper edge in an actual PDF', async () => {
   const file = await PDFDocument.create()
   const font = await file.embedFont(StandardFonts.Helvetica)
